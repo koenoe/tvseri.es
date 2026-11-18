@@ -28,10 +28,7 @@ export type StartDeck = Readonly<{
 const MAX = 20;
 /** A borrowed deck's cards (a short fan) */
 const BORROWED = 8;
-/**
- * Saved shows before the deck is your watchlist and Pick one returns
- * ("Three saved shows"); with fewer, Pick one would pick from one or two.
- */
+/** Saved shows before the deck is your watchlist: with fewer, Pick one would pick from one or two */
 const OWN_DECK = 3;
 /** Cards that get their network logo (one cached show read each) */
 const WITH_LOGO = 8;
@@ -79,10 +76,9 @@ async function watchlistCards(
 }
 
 /**
- * Shows the people you follow finished
- * ("draws from shows people you follow finished"). The circle's picks also
- * hold favourites; those stay out, so the badge "Finished by people you
- * follow" is always true.
+ * Shows the people you follow finished. The circle's picks also hold
+ * favourites; those stay out, so the badge "Finished by people you follow"
+ * is always true.
  */
 async function circleCards(
   profile: Profile,
@@ -101,10 +97,9 @@ async function circleCards(
 
 /**
  * The deck: the owner's watchlist once it holds three shows, else shows the
- * people they follow finished, else Popular this week. A
- * borrowed deck (circle, trending) never repeats a show Up next borrowed
- * ("never the same show twice") nor one already in the library
- * (watching, finished, saved: it is something new).
+ * people they follow finished, else Popular this week. A borrowed deck
+ * (circle, trending) never repeats a show Up next borrowed nor one already
+ * in the library (watching, finished, saved: it is something new).
  */
 export async function loadStartDeck(profile: Profile): Promise<StartDeck> {
   const watchlist = await watchlistItems(profile);

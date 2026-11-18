@@ -3,7 +3,7 @@ import type { Overview } from '@tvseri.es/schemas';
 /**
  * Day 0: nothing tracked yet. Empty blocks then describe themselves
  * ("New episodes of your shows, the day they land."); once there is a show
- * they name one where that adds a fact ("Next: The Pitt S03, Thu 7 Jan").
+ * they name one where that adds a fact ("Next: The Pitt S03, Thu Jan 7").
  */
 export function isDayZero(overview: Overview): boolean {
   return (

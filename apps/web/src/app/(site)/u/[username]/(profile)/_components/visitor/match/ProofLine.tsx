@@ -22,8 +22,9 @@ const PROOF =
   'm-0 line-clamp-2 min-h-[2lh] text-body-sm text-white/60 focus-within:line-clamp-none';
 
 /**
- * "You both watch The Pitt, Severance and Dexter: Resurrection.": each name links to the show; hovering one lights up that show
- * elsewhere on the page (`data-proof`, see `ProofHighlight`).
+ * "You both watch The Pitt, Severance and Dexter: Resurrection.": each name
+ * links to the show; hovering one lights up that show elsewhere on the page
+ * (`data-proof`, see `ProofHighlight`).
  */
 export default function ProofLine({
   match,

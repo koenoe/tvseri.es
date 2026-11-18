@@ -5,9 +5,8 @@ import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 
 /**
- * The link at the end of a block header: "All in progress ›" in a lane
- * (`colink`, 13px chevron), "42 ›" / "Stats ›" by a section rule
- * (`seclink`, 14px chevron, drawn at 13).
+ * The link at the end of a block header: "All in progress ›" in a lane,
+ * "42 ›" / "Stats ›" by a section rule. Both draw the chevron at 13px.
  */
 export default function HeadLink({
   children,

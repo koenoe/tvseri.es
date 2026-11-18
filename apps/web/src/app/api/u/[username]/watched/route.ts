@@ -40,7 +40,7 @@ export const GET = viewerRoute(async (viewer, req, { params }: Context) => {
   if (within) {
     return Response.json(await loadNewerMonth(gate, within));
   }
-  // a jump's range ends at the month's end in the owner's zone
+  // a jump's range ends at the month's end in the profile owner's zone
   const range = month
     ? jumpRange(month, await loadHistoryTimeZone(gate.userId))
     : {};

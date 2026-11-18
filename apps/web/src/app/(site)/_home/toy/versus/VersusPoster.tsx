@@ -8,10 +8,8 @@ import { VERSUS_NAME, VERSUS_POSTER, VERSUS_POSTER_STACK } from './layout';
 export type PosterState = 'chosen' | 'idle' | 'out';
 
 const SHADOW = 'shadow-[0_10px_18px_rgb(0_0_0/0.35)]';
-/** A 2px ring at 40% */
 const HOVER =
   'group-hover/vp:shadow-[0_10px_18px_rgb(0_0_0/0.35),0_0_0_2px_rgb(255_255_255/0.4)]';
-/** A 3px white ring */
 const CHOSEN = 'shadow-[0_10px_18px_rgb(0_0_0/0.35),0_0_0_3px_#fff]';
 
 const IMAGE =

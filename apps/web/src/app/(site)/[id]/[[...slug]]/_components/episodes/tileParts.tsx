@@ -39,7 +39,7 @@ export function StillFade() {
 }
 
 /**
- * Production's faded episode number in the corner, cut by the
+ * The faded episode number in the corner, cut by the
  * tile's edge. Its overhang scales with the type (200px from md, 120px on
  * phones at 3/5 of it), so a phone's "1" isn't half gone.
  */

@@ -12,8 +12,8 @@ import { prefetchCard, readyCard, saveCard, shareCard } from './cardFiles';
 import type { ShareCard } from './shareCard';
 
 /**
- * The share UI's state format and theme,
- * "Link copied" until the format changes, and the actions. The phone sheet
+ * The share UI's state: format and theme, "Link copied" until the format
+ * changes, and the actions. The phone sheet
  * also fetches each card it may share (`prefetch`).
  */
 /** Starts fetching a variant of the card (the sheet shares the file) */

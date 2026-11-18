@@ -1,8 +1,8 @@
 /**
- * The Circle row's boxes, shared by the rows and their
- * placeholders so a ghost is the row's exact size. Desktop: ring, text,
- * button and chevron in one line (min 108px). Phone: ring, text and
- * chevron, the button on a second line under the text.
+ * The Circle row's boxes, shared by the rows and their placeholders so a
+ * ghost is the row's exact size. Desktop: ring, text, button and chevron in
+ * one line (min 108px). Phone: ring, text and chevron, the button on a
+ * second line under the text.
  */
 export const ROW =
   'relative grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-3.5 rounded-16 p-4 md:min-h-[108px] md:grid-cols-[56px_minmax(0,1fr)_auto_auto] md:gap-5 md:py-5 md:pr-5 md:pl-6';
@@ -28,7 +28,7 @@ export const LINE = {
 /** The rows' list */
 export const LIST = 'm-0 flex list-none flex-col gap-3 p-0';
 
-/** The page under the tabs: the header, then the lists 24px down (8px more on a phone, 24 in all) */
+/** The page under the tabs: the header, then the lists 24px down; a phone has no header, so the lists start 8px under the tabs */
 export const PAGE = 'flex flex-col gap-6 max-md:pt-2';
 
 /** The parity marker on someone else's header and its ghost (its line wraps by their name) */

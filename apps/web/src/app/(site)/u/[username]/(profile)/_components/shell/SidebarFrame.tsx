@@ -8,10 +8,11 @@ import { SIDEBAR_LABEL_ID } from './ProfileIdentity';
 const FRAME_CLASSES = `@container flex min-w-0 flex-col gap-10 lg:sticky lg:top-8 ${BELOW_FLOATING_HEADER_LG} ${OVERVIEW_SIDEBAR}`;
 
 /**
- * The 300px sidebar column (from `lg`): sticky 96px from the top (clear of
- * the floating header pill; the overview's scrolls, `overviewLayout.ts`), 40px between blocks. Part of the static shell:
- * the identity streams in (and names it), the `@aside` slot below it is the
- * page's own (the overview's blocks, a sub-page's navigator).
+ * The 300px sidebar column (from `lg`): sticky 32px from the top, moved
+ * down clear of the floating header pill while it shows (the overview's
+ * scrolls, `overviewLayout.ts`), 40px between blocks. Part of the static
+ * shell: the identity streams in (and names it), the `@aside` slot below it
+ * is the page's own (the overview's blocks, a sub-page's navigator).
  */
 export default function SidebarFrame({
   children,

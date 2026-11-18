@@ -22,9 +22,8 @@ import useRowRenderer from './useRowRenderer';
 type Week = Readonly<{ episodes: number; last: string | null }>;
 
 /**
- * The History diary: months with their headers,
- * days, one row per show per day; 100 episodes a read as you scroll; after
- * a jump, "Newer" above. The owner's rows carry the Remote on hover; a
+ * The History diary: months with their headers, days, one row per show per
+ * day; 100 episodes a read as you scroll; after a jump, "Newer" above. The owner's rows carry the Remote on hover; a
  * visitor's carry "New to you" and + once per show new to them. A jump
  * fades the list out (120ms) until the new one lands, then scrolls to its
  * top. Phones get Jump in each month header (the sheet). Each month has

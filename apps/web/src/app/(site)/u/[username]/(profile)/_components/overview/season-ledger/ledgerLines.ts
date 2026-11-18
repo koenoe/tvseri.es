@@ -2,10 +2,10 @@ import { plural } from '@tvseri.es/utils';
 import { formatMonthYear } from '@/lib/format/date';
 
 /**
- * The holes a card lists: the card is one
- * show at a time and never taller than three rows, whatever the show's
- * history. The chart above still draws every gap; the rows past these are
- * one "+N more" link to the show's history (`moreHoles`).
+ * The holes a card lists: the card is one show at a time and never taller
+ * than three rows, whatever the show's history. The chart above still draws
+ * every gap; the rows past these are one "+N more" link to the show's
+ * history (`moreHoles`).
  */
 export const LEDGER_ROWS = 3;
 
@@ -21,9 +21,9 @@ export type LineRun = Readonly<{
 }>;
 
 /**
- * One season as a line: every episode is a step of it,
- * watched ones filled, a hole left as a gap until it is watched (filled)
- * or skipped (a soft stretch). Consecutive steps of one tone are one run.
+ * One season as a line: every episode is a step of it, watched ones filled,
+ * a hole left as a gap until it is watched (filled) or skipped (a soft
+ * stretch). Consecutive steps of one tone are one run.
  */
 export function seasonRuns(
   total: number,
@@ -62,8 +62,8 @@ export function splitColumns(seasons: number): [number, number] {
 }
 
 /**
- * The chart's columns of season numbers: one column for a
- * short show, two (the first the longer) from five seasons on.
+ * The chart's columns of season numbers: one column for a short show, two
+ * (the first the longer) from five seasons on.
  */
 export function chartColumns(seasons: number): number[][] {
   const all = Array.from({ length: Math.max(seasons, 0) }, (_, i) => i + 1);
@@ -147,7 +147,7 @@ export function choiceFor(
 /** Past this many characters "Next: <title>" won't fit beside the title */
 const NEXT_TITLE_MAX = 16;
 
-/** "Next: The Chosen"; "Next show" for a long name */
+/** "Next: The Chosen"; "Next series" for a long name */
 export function nextLabel(title: string): string {
   return title.length > NEXT_TITLE_MAX ? 'Next series' : `Next: ${title}`;
 }

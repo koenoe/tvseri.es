@@ -27,12 +27,11 @@ import Toy from './toy/Toy';
 
 /**
  * The shared sections of home, each its own async server component so a
- * failure stays in its section (RowErrorBoundary in page.tsx). Their loaders
+ * failure stays in its section (`GuardedSection` in `HomeView`). Their loaders
  * are `use cache` content prerendered into the static shell (at build time
- * too). An unavailable read (`unavailable`, revalidated after 30 s): the prerender
- * bakes the section's failed-row state (with Try again) into the
- * page until the next visit 30 s on regenerates it: never a skeleton that
- * waits forever. The sections with marking controls hand them the page's
+ * too). An unavailable read bakes the section's failed-row state (with Try
+ * again) under the `unavailable` life (`data/home.ts`): never a skeleton
+ * that waits forever. The sections with marking controls hand them the page's
  * one read of the viewer's states (`getHomeControlStates`), unawaited: each
  * control streams into its own Suspense hole. A section that isn't a poster row fails over its
  * `placeholder` (`SectionError`): the very node `HomeView` holds while it

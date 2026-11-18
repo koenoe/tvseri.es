@@ -21,7 +21,7 @@ describe('Almost done copy', () => {
   });
 
   it('draws a skipped episode where it sits, not in watching order', () => {
-    // E01 skipped, E02–E06 watched ("0 of 1 episodes watched")
+    // E01 skipped, E02–E06 watched: 5 of 6, the first segment empty
     expect(seasonSegments({ seasonTotal: 6, unwatchedEpisodes: [1] })).toEqual({
       segments: [false, true, true, true, true, true],
       total: 6,

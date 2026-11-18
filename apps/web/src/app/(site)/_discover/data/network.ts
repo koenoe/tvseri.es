@@ -50,7 +50,7 @@ export async function getNetworkDetails(
     country: network.originCountry?.name ?? null,
     logo: network.logo,
     logoRatio: network.logo ? await readLogoRatio(network.logo) : null,
-    // unchecked (absent) is drawn white, as before the check
+    // unchecked (absent) is drawn white
     logoSilhouette: network.logoSilhouette !== false,
   };
 }
@@ -65,7 +65,7 @@ const LOGO_TIMEOUT = 3000;
 /**
  * A logo's width / height from the file's first bytes (`imageRatio`); null
  * when the image host doesn't answer in time (the logo then sizes itself
- * when it loads, as before).
+ * when it loads).
  */
 async function readLogoRatio(url: string): Promise<number | null> {
   try {

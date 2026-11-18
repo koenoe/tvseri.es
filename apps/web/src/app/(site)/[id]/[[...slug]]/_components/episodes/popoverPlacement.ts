@@ -52,7 +52,7 @@ export function centreRow(list: HTMLElement, row: HTMLElement): void {
 
 /**
  * Keeps `row` inside `list`'s visible part by scrolling the list only:
- * `scrollIntoView` would also scroll the page (End with the list open did).
+ * `scrollIntoView` would also scroll the page.
  */
 export function keepRowInView(list: HTMLElement, row: HTMLElement): void {
   const top = row.offsetTop;

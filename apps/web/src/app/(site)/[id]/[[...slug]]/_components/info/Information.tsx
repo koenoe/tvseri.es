@@ -120,7 +120,7 @@ function Links({ series }: Readonly<{ series: TvSeries }>) {
 }
 
 /**
- * The Information block (pd-info): three columns of facts,
+ * The Information block: three columns of facts,
  * links to the country, language and network landings and to IMDb, TMDB and
  * the official site. One column on phones.
  */

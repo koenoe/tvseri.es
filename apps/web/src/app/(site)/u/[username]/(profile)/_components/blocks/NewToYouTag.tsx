@@ -11,7 +11,7 @@ const GLASS =
 const VARIANT: Readonly<Record<Variant, string>> = {
   // The poster corner, 12px/500
   art: cn(GLASS, 'h-5 gap-1 pr-[7px] pl-1.5 text-caption font-medium'),
-  // The hero: a 32px pill that sits left of the + (`right-14`)
+  // The hero: a 32px pill
   hero: cn(GLASS, 'h-8 gap-1.5 pr-3 pl-[11px] text-caption font-medium'),
   // plain: in a line of text or a row, on its own flat tint
   inline:
@@ -19,9 +19,9 @@ const VARIANT: Readonly<Record<Variant, string>> = {
 };
 
 /**
- * The green "New to you" tag: the show is in none of your
- * lists. `art` is the poster corner, `inline` the plain tag in a
- * row or the match card, the default the hero's.
+ * The green "New to you" tag: the show is in none of your lists. `art` is
+ * the poster corner, `inline` the plain tag in a row or the match card, the
+ * default the hero's.
  */
 export default function NewToYouTag({
   className,

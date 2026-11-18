@@ -24,8 +24,8 @@ const REMOTE = cn(CONTINUE_REMOTE, LANE_REMOTE);
  * A compact In progress row on the shared lane row:
  * poster, title and "2 to go", one segment per episode of the season (one
  * line past 30), the episode pill and the time to finish the season ("2h to
- * finish" on the phone), the ⋯ Remote (the profile's rows' own). As drawn,
- * the row itself isn't a link: the ⋯ is its action. Memoised, as the Up next tile: a row
+ * finish" on the phone), the ⋯ Remote (the profile's rows' own). The
+ * row itself isn't a link: the ⋯ is its action. Memoised, as the Up next tile: a row
  * re-renders only when its own show moves on.
  */
 function InProgressRow({

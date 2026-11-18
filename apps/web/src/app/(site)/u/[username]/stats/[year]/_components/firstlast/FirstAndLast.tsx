@@ -122,7 +122,6 @@ export default async function FirstAndLast({ user, year }: SectionProps) {
   );
 }
 
-/** Two cards of 300px: side by side from md, stacked 24px apart on a phone */
 /** One card while it streams: the flat panel, the chip, the logo's box, the episode and date lines */
 function FirstLastCardGhost() {
   return (
@@ -142,6 +141,7 @@ const CARD_GHOST = cn(
   PULSE,
 );
 
+/** Two cards of 300px: side by side from md, stacked 24px apart on a phone */
 export function FirstAndLastSkeleton() {
   return (
     <section

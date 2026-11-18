@@ -47,8 +47,8 @@ function useActiveShelf(defaultShelf: LibraryShelf): LibraryShelf {
 }
 
 /**
- * The sidebar's shelf navigator: "Shelves · a show can
- * sit on two", a row per shelf with its count, a rule before All shows. A
+ * The sidebar's shelf navigator: "Shelves · a series can
+ * sit on two", a row per shelf with its count, a rule before All series. A
  * shelf at 0 is dimmed and not a link. Counts follow this page's changes.
  */
 export function ShelfNav({ counts, defaultShelf, owner, username }: Props) {

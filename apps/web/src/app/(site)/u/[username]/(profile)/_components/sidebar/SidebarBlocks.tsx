@@ -37,7 +37,7 @@ export function SidebarHead({ profile }: Readonly<{ profile: Profile }>) {
 /**
  * The sidebar's last blocks (`@tail`), after the page in the DOM
  * (`overviewLayout.ts`). Owner: Watchlist, Start something new (not on a
- * phone: Home has its own pick), 2026 so far. Visitor: Watchlist, their
+ * phone: Home has its own pick), the year so far. Visitor: Watchlist, their
  * year. Each block streams in its own hole.
  */
 export function SidebarTail({ profile }: Readonly<{ profile: Profile }>) {

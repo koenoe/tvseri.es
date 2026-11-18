@@ -19,7 +19,7 @@ const DOT = <Dot tone="cyan" />;
 /**
  * The In progress lane beside the Up next tile: a cyan
  * dot, "In progress" and the count, then the shows after the first. On the
- * phone (`hx-mlane`) it is one bare row and a "Your profile · 5 in
+ * phone it is one bare row and a "Your profile · 5 in
  * progress" button instead.
  */
 export default function InProgressLane({

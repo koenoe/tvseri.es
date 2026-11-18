@@ -45,7 +45,7 @@ async function RankedRow() {
 }
 
 /**
- * The owner's MDBList list as the page's one numbered row (a numbered top
+ * The site's curated MDBList list as the page's one numbered row (a numbered top
  * 10, at 20 here): outlined numerals behind the posters, no filter and no
  * caption. Below the fold, so every poster loads lazily.
  */

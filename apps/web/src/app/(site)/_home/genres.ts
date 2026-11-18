@@ -6,7 +6,7 @@ type WithGenres = Readonly<{
  * The series' genre names that have a name, at most `count`. A series from
  * a TMDB list (recommendations, discover) can carry genre ids without names:
  * those are left out, so a meta line never draws an icon beside an empty
- * value or a lone comma (If you liked Boots).
+ * value or a lone comma.
  */
 export const genreNames = (series: WithGenres, count: number): string[] =>
   series.genres

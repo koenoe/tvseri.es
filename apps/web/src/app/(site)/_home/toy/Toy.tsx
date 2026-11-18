@@ -9,7 +9,7 @@ import WhereSet from './where-set/WhereSet';
 /**
  * The toy of the day after Premieres: What's on,
  * Where are they set?, Connected by or Versus. Signed in, "If you liked X" takes the
- * slot on alternate days (`IfYouLiked`, chosen in page.tsx). With the
+ * slot on alternate days (`IfYouLiked`, chosen by `ToySlot`). With the
  * page's `day`, Connected by starts from the signed-in viewer's own shows
  * (`ConnectedByToy`); without it (the dev preview) it draws the paths given.
  */

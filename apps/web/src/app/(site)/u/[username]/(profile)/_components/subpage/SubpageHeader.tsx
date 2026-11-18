@@ -6,12 +6,11 @@ import cn from '@/lib/cn';
 export const SUBPAGE_TITLE_ID = 'subpage-title';
 
 /**
- * A sub-page's header (shared by Library,
- * History and Circle): the title (24/32, 20/28 on a phone), the 2px rule,
- * the count at the end ("42", "4,718 episodes", "8 following · 6
- * followers"), and a 13/20 description under it, 8px down. The phone
- * frames draw no description. Pass `count` and `description` as ready
- * nodes (a streamed count sits in its own hole).
+ * A sub-page's header (shared by Library, History and Circle): the title
+ * (24/32, 20/28 on a phone), the 2px rule, the count at the end ("42",
+ * "4,718 episodes", "8 following · 6 followers"), and a 13/20 description
+ * under it, 8px down, not on a phone. Pass `count` and `description` as
+ * ready nodes (a streamed count sits in its own hole).
  */
 export default function SubpageHeader({
   className,

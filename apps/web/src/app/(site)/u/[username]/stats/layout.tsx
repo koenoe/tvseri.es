@@ -14,7 +14,7 @@ import StatsSidebar, {
  * The sticky 300px sidebar and the main column from `lg`; below it a short
  * identity header with the Years pills, then the same column. A user's
  * data-down page (`data-stats-down`, the user lookup unavailable) takes the
- * whole width, as it did before the layout: the grid steps aside.
+ * whole width: the grid steps aside.
  */
 const GRID =
   'group/stats mx-auto w-full max-w-page items-start px-gutter pt-6 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-16 lg:pt-[35px] has-[[data-stats-down]]:contents';

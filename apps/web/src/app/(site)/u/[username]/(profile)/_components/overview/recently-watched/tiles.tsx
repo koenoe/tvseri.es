@@ -44,7 +44,7 @@ export function TileLabel({
   return (
     <PositionLayout className={className}>
       {/* one line: the code stays, the day ends with an
-          ellipsis on a narrow poster ("Thu 9 Oct 2025" beside S07E108) */}
+          ellipsis on a narrow poster ("Oct 9, 2025" beside S07E108) */}
       <span className="flex min-w-0 items-center justify-between gap-1.5">
         <Badge className="shrink-0" variant="code">
           {code}

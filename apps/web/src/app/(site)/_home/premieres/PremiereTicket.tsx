@@ -35,7 +35,6 @@ export const TICKET_FRAME =
 export const TICKET_WIDTH =
   'w-[min(328px,calc(100vw_-_var(--page-gutter)_-_24px))] shrink-0 md:w-[460px]';
 
-/** The 16:9 backdrop */
 export const TICKET_ART =
   'relative aspect-video overflow-hidden bg-white/4 before:absolute before:inset-0 before:z-1 before:bg-[linear-gradient(20deg,rgb(0_0_0/0.72)_0%,rgb(0_0_0/0.3)_38%,rgb(0_0_0/0)_62%)]';
 
@@ -48,7 +47,7 @@ export const TICKET_LOGO_BOX = 'h-8 w-[140px] md:h-11 md:w-[200px]';
 /**
  * Under the backdrop: what happens and when, then the Watchlist pill; on a
  * phone the pill takes its own line under the facts (beside them the 260px
- * body left the facts about 110px)
+ * body would leave the facts about 110px)
  */
 export const TICKET_BODY =
   'flex flex-col items-start gap-3 p-3 md:flex-row md:items-center md:p-4';

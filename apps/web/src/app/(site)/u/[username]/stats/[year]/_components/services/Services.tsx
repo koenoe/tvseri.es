@@ -301,10 +301,10 @@ export default async function Services({ user, year }: SectionProps) {
   );
 }
 
-/** The lane with nine rows: 56px each (67px plus 16 apart on a phone) */
 /** A typical year's services rows */
 const SERVICE_GHOSTS = Array.from({ length: 9 }, (_, n) => n);
 
+/** The lane with nine rows: 56px each (67px plus 16 apart on a phone) */
 export function ServicesSkeleton() {
   return (
     <LaneGhost className="h-[803px] md:h-[580px]" title="Services">

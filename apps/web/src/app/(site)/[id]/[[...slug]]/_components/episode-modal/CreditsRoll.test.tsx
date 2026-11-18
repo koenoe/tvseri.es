@@ -6,7 +6,7 @@ import { REDUCED_MOTION, WIDE_LG } from '@/lib/media/breakpoints';
 import type { RollBlock } from '@/lib/series/episodeCredits';
 import CreditsRoll from './CreditsRoll';
 
-/** Every render of the list's second copy (the roll's seamless loop) */
+/** Every render of the list's second copy (the roll's loop) */
 const copies = vi.hoisted(() => ({ rendered: 0 }));
 
 vi.mock('./CreditBlocks', () => ({

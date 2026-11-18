@@ -6,9 +6,9 @@ import { formatAirWeekdayDate } from '@/lib/format/airDate';
 import { airDayStart, formatAirDate } from './format';
 
 /**
- * The show page's history sheet and episode modal used date-fns `format`
- * (which pulls its en-US locale into those chunks). These pin the
- * replacements to the old output, day by day, in the order `DATE_ORDER` names.
+ * The history sheet and episode modal format dates without date-fns
+ * `format`, which would pull its en-US locale into their chunks. These pin
+ * the formatters to its output, day by day, in the order `DATE_ORDER` names.
  */
 
 const DAY_MS = 86_400_000;

@@ -43,11 +43,10 @@ export default function AlmostDoneRow({
     </span>
   );
   const finishTitle = finishLabel(item.timeLeftMinutes) ?? undefined;
-  // One line; "to finish the season" ends with an ellipsis first, the time
-  // is never cut (it drops whole if it can't fit). On a phone the title has
-  // its line to itself: "1 to go" joins this line and the time goes without
-  // its words. The group is never narrower than the clock and the time (the
-  // words are 0 wide at least), so on a narrow line it drops whole.
+  // One line: "to finish the season" truncates first and the time is never
+  // cut; the words can shrink to 0, so on a narrow line the group drops
+  // whole. On a phone the title has its own line, "1 to go" joins this one
+  // and the time goes without its words.
   const facts = time ? (
     <span className="flex flex-1 items-center gap-1.5" title={finishTitle}>
       <Icon className="shrink-0" glyph={clockGlyph} size={12} />

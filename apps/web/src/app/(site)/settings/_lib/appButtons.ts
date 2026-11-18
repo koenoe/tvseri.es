@@ -1,7 +1,7 @@
 /**
- * Class overrides on the shared `Button` for what sits off its
- * sizes and tones. Muted red appears
- * only where something is destroyed: Disconnect and Delete account.
+ * Class overrides on the shared `Button` for what sits off its sizes and
+ * tones. Muted red appears only where something is destroyed: Disconnect and
+ * Delete account.
  */
 
 /** 32px, 12px sides, body-sm, 13px icons 6px from the label. */

@@ -10,7 +10,7 @@ import { HERO_TITLE_SPACE } from './heroLayout';
 
 /**
  * The show's title treatment (500×160, bottom-left), else the title in the
- * display style (ep0-logo; 240×40). The logo fills its box like `fill`
+ * display style (240×40). The logo fills its box like `fill`
  * would; its intrinsic size is the box at 2×: the TMDB loader then shows it
  * honours the width (the API's w500 is what a 500px box loads at 1×), and
  * srcset still follows `sizes`.

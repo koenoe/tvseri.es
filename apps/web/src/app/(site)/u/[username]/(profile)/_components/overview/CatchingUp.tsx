@@ -31,9 +31,9 @@ import {
 import CatchingUpRow from './lane-rows/CatchingUpRow';
 
 /**
- * Catching up: shows with several aired episodes waiting, marked
- * up to with one hover, and the premiere runway when the next season has a
- * date. Owner only.
+ * Catching up: shows with three or more aired episodes waiting, marked up to
+ * any chip with one click, and the premiere runway when the next season has
+ * a date. Owner only.
  */
 export default async function CatchingUp({
   profile,

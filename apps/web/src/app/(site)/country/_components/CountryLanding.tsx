@@ -11,7 +11,7 @@ import CountryDotMap from './CountryDotMap';
 import CountryHero, { CountryHeroSkeleton } from './CountryHero';
 import CountrySections, { CountrySectionsSkeleton } from './CountrySections';
 
-/** The designed grounds; every other country takes its favourite show's (`countryGround`) */
+/** Hand-picked grounds; every other country takes its favourite show's (`countryGround`) */
 const GROUNDS: Readonly<Record<string, string>> = {
   dk: '#161c20',
   kr: '#171a21',
@@ -19,7 +19,7 @@ const GROUNDS: Readonly<Record<string, string>> = {
 const DEFAULT_GROUND = '#171b1f';
 
 /**
- * A country without a designed ground stands on its own ground, from its
+ * A country without a hand-picked ground stands on its own ground, from its
  * favourite show (Where to start's first, the same cached picks), so every
  * landing is its own; the UK's ground when it has none. No cache scope of its
  * own: the cached reads' lives set the page's (see `genreLook`).

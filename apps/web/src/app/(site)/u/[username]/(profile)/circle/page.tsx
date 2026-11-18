@@ -27,10 +27,10 @@ export function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /**
- * Circle: your follows ranked by taste
- * match and who to follow back; on someone else's profile, who they follow
- * and who follows them. The page streams in one hole over its exact
- * placeholder; the phone frame draws no header.
+ * Circle: your follows ranked by taste match and who to follow back; on
+ * someone else's profile, who they follow and who follows them. The page
+ * streams in one hole over its exact placeholder; the phone frame draws no
+ * header.
  */
 export default function CirclePage({ params }: Props) {
   return (
@@ -59,8 +59,8 @@ async function OwnerPage({ profile }: Readonly<{ profile: Profile }>) {
       following={people.followingCount}
     />
   );
-  // following nobody: no "closest taste first" line, and
-  // the sidebar drops the match key (`FOLLOWS_NOBODY`)
+  // following nobody: no "closest taste first" line, and the sidebar drops
+  // the match key (`data-follows-nobody`)
   const nobody = people.following.length === 0;
   const description = nobody ? undefined : CIRCLE_COPY.ownerDescription;
   return (

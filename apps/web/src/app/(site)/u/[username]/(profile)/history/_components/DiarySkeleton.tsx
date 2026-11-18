@@ -66,9 +66,9 @@ const MONTH_COUNT_GHOST = cn(GHOST, 'h-3 w-30');
 const MONTH_TITLE_GHOST = cn(GHOST, 'h-5 w-40');
 
 /**
- * History before its first page: a month header and six
- * day rows with one or two rows each, in the diary's own boxes; the ghosts
- * share the loading pulse.
+ * History before its first page: a month header and six days with one or
+ * two rows each, in the diary's own boxes; the ghosts share the loading
+ * pulse.
  */
 export default function DiarySkeleton() {
   return (

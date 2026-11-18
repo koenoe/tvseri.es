@@ -33,12 +33,11 @@ function onto(origin: Box, viewport: Viewport) {
 }
 
 /**
- * The card grows into the modal (which animates
- * left/top/width/height from the tile's box) with transform only: the panel
- * starts scaled onto the tile's exact box and grows to its place. The
- * content keeps its proportions (`coverContent`) frame by frame. The shell
- * is opaque throughout; the content fades in after
- * (`v2-fade`).
+ * The card grows from the tile's box into the modal with transform only
+ * (no left/top/width/height animation): the panel starts scaled onto the
+ * tile's exact box and grows to its place. The content keeps its
+ * proportions (`coverContent`) frame by frame. The shell is opaque
+ * throughout; the content fades in after (`EpisodeView`'s `FADE_IN`).
  */
 export function growFrom(origin: Box, viewport: Viewport): PanelMotion {
   return {
@@ -55,7 +54,7 @@ export function growFrom(origin: Box, viewport: Viewport): PanelMotion {
   };
 }
 
-/** Closing: back onto the tile's box, fading out at the end (ep-shell close). */
+/** Closing: back onto the tile's box, fading out at the end. */
 export function shrinkTo(origin: Box, viewport: Viewport): PanelMotion['exit'] {
   return {
     ...onto(origin, viewport),

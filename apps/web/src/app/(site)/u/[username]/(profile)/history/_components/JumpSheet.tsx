@@ -52,8 +52,8 @@ function SheetList({
 }
 
 /**
- * The phone's Jump to: the same list as the sidebar in a bottom sheet
- * (the phone's version). A pick closes it; the jump goes on underneath.
+ * The phone's Jump to: the same list as the sidebar in a bottom sheet. A
+ * pick closes it; the jump goes on underneath.
  */
 export default function JumpSheet({
   basePath,

@@ -26,12 +26,12 @@ const weekLine = ({ episodes, last }: Week) =>
   last ? `${plural(episodes, 'episode')} · ${last}` : 'No episodes yet';
 
 /**
- * Jump to: This week (the owner's way
- * back to now), then the years with their episodes; the open year lists
- * its months with episodes, and the month you're reading is white. A month
- * is a link to the list from that month down (`?month=`). A new active
- * month opens its year, whichever year you opened before. Shared by the sidebar
- * and the phone's sheet (`onPick` closes the sheet).
+ * Jump to: This week (the owner's way back to now), then the years with
+ * their episodes; the open year lists its months with episodes, and the
+ * month you're reading is white. A month is a link to the list from that
+ * month down (`?month=`). A new active month opens its year, whichever
+ * year you opened before. Shared by the sidebar and the phone's sheet
+ * (`onPick` closes the sheet).
  */
 export default function JumpList({
   active,

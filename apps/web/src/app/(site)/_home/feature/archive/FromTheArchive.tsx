@@ -21,8 +21,8 @@ type Archive = Extract<Feature, Readonly<{ kind: 'archive' }>>;
  * needs it), a picture card (`PICTURE_CARD`: the print and the fade reach a
  * pixel past it, a ring in its colour closes the edge). The fade comes from
  * the left from lg, where the 600px text column ends inside it; below lg it
- * rises from the foot, under the whole text (at 800 the line ran past the
- * side fade onto the art).
+ * rises from the foot, under the whole text (at 800 a side fade would leave
+ * the line on the art).
  */
 export const ARCHIVE_CARD = cn(
   PICTURE_CARD,

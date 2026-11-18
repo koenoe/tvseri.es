@@ -5,9 +5,9 @@ import Icon from '@/components/ui/icon/Icon';
 import { SETTINGS_INDEX } from '../_lib/sections';
 
 /**
- * A section's heading: below `lg` the top bar with ‹ Settings and the title
- *, beside the sidebar the title-1 heading and its lede
- *. Static: it is part of the section's shell.
+ * A section's heading: below `lg` the top bar with ‹ Settings and the
+ * title; beside the sidebar the title-1 heading and its lede. Static: it is
+ * part of the section's shell.
  */
 export default function SectionHeader({
   lede,

@@ -1,7 +1,7 @@
 /**
  * The profile's words for time watched. "Member since" is
- * `@/lib/profile/memberSince`; the day formats ("Nov 8", "Sun 15 Nov") are
- * `@/lib/format/calendarDay`.
+ * `@/lib/profile/memberSince`; the day formats are `@/lib/format/calendarDay`
+ * ("Nov 8") and `@/lib/format/airDate` ("Sun Nov 15").
  */
 
 import { formatRuntime } from '@tvseri.es/utils';

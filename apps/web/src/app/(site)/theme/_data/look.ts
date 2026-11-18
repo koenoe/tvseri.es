@@ -10,7 +10,7 @@ import {
 } from '../../_discover/landing/landingLook';
 import { getThemeSpotlight, themeBestQuery } from './rows';
 
-/** The theme landings' designed ground (no glow: the Start here tile carries the colour) */
+/** The theme landings' default ground (no glow: the Start here tile carries the colour) */
 const THEME_FALLBACK: LandingLook = { ground: '#151c1f' };
 
 /**

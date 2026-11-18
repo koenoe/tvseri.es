@@ -12,8 +12,8 @@ import useShowQuery from '../../_lib/useShowQuery';
  * Client only, like the episode modal (a plain loader, not `next/dynamic`: a
  * chunk that failed to load is tried again on the next opening): the sheet reads the viewer's marks,
  * which the page's holes seed as they stream in, so a server render of it
- * (`?history` on a hard load) drew 0% where the browser, hydrating after the
- * holes, drew the real progress (a hydration mismatch).
+ * (`?history` on a hard load) would draw 0% where the browser, hydrating
+ * after the holes, draws the real progress (a hydration mismatch).
  */
 const sheet = createLoader(() =>
   import('./HistorySheet').then((module) => module.default),

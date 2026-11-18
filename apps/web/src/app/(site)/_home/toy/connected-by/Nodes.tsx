@@ -18,7 +18,7 @@ export const NAME =
  * The card is 272px from md, room for one line of name and
  * one of roles under the images: longer ones clamp there, two lines each on
  * a phone (112px nodes, where the card grows), with the full text in the
- * hover title and the link's name (names went past the card).
+ * hover title and the link's name.
  */
 const NODE_CLAMP = 'line-clamp-2 max-w-full break-words md:line-clamp-1';
 

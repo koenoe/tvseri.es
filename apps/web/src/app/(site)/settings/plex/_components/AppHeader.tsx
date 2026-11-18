@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react';
 
 /**
- * The card's header row: tile, name + status, pills,
- * and the toggle. Below `xl` the pills drop to their own row under the tile
- * and name, and the toggle stays top right: one row needs ~700px (Plex's
- * three pills), more than a card holds below `xl` (~656px at 768 without
- * the nav, ~600px at 1024 beside it); squeezed, the status line became a
- * word-wide column under the pills. On a phone the toggle joins the pills'
- * row too, so the name and status have the card's width (beside it they
- * took three lines between the logo and Hide).
+ * The card's header row: tile, name + status, pills, and the toggle. Below
+ * `xl` the pills drop to their own row under the tile and name, and the
+ * toggle stays top right: one row needs ~700px (Plex's three pills), more
+ * than a card holds below `xl` (~656px at 768 without the nav, ~600px at
+ * 1024 beside it); squeezed, the status line would be a word-wide column
+ * under the pills. On a phone the toggle joins the pills' row too, so the
+ * name and status have the card's width (beside it they take three lines
+ * between the logo and Hide).
  */
 export default function AppHeader({
   children,

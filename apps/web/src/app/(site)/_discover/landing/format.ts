@@ -40,14 +40,13 @@ export function formatSeasons(
 export const keywordTitle = (name: string): string => upperFirst(name.trim());
 
 /**
- * Chip labels the design words in its own way ("Organised crime"), by the
- * theme's name in lower case. Only the labels the design draws; every other
- * chip is the theme's name.
+ * Chip labels in our own wording ("Organised crime"), by the theme's name
+ * in lower case; every other chip is the theme's name.
  */
 const KEYWORD_LABELS: Readonly<Record<string, string>> = {
   'organized crime': 'Organised crime',
 };
 
-/** A theme chip or tab label (the facts' chip name): the design's wording, else `keywordTitle` */
+/** A theme chip or tab label (the facts' chip name): our wording, else `keywordTitle` */
 export const keywordLabel = (name: string): string =>
   KEYWORD_LABELS[name.trim().toLowerCase()] ?? keywordTitle(name);

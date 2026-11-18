@@ -40,7 +40,7 @@ export const PROFILE_BUTTON_PHONE = 'self-start md:hidden';
 /**
  * The Up next card beside the In progress lane (stacked below 1024). The one
  * column is `minmax(0, 1fr)`: the row sizes the tile and the lane, never
- * their content (an implicit `auto` column took a long nowrap title's width)
+ * their content (an implicit `auto` column would take a long nowrap title's width)
  */
 export const continueGrid = (hasLane: boolean) =>
   cn(
@@ -66,7 +66,6 @@ export const LANE_POSTER = cn(
 /** A row without a poster: the poster's place, empty */
 export const LANE_POSTER_EMPTY = cn(LANE_POSTER_BOX, 'bg-white/8');
 
-/** A compact lane row */
 const LANE_ROW =
   'relative flex items-center gap-4 rounded-12 bg-white/4 p-3 md:p-3.5';
 

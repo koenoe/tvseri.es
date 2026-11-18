@@ -7,7 +7,6 @@ import { closeGlyph } from '@/components/ui/icon/glyphs';
 
 import { tileId, useLens } from './LensProvider';
 
-// A white 14px cross
 const CLASS_NAME = 'text-white';
 
 /** Closes the open row and puts focus back on its tile */

@@ -11,10 +11,10 @@ const FOLLOWING_LIST = `${LIST} mt-4 md:mt-5`;
 const FOLLOWERS_LIST = `${LIST} mt-4`;
 
 /**
- * Your own Circle under the page title: the
- * people you follow, closest taste first, then those who follow you that
- * you don't follow back. Following nobody is one calm card; with nobody to
- * follow back that section goes (no dead ends).
+ * Your own Circle under the page title: the people you follow, closest
+ * taste first, then those who follow you that you don't follow back.
+ * Following nobody is one calm card; with nobody to follow back that
+ * section goes (no dead ends).
  */
 export default function OwnerCircle({
   people,

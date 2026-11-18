@@ -255,7 +255,8 @@ async function featureOfDay(
 }
 
 /**
- * The toy of the day (signed in, If you liked X may take it: day.ts); asked
+ * The toy of the day (signed in, If you liked X may take it:
+ * `isIfYouLikedDay`); asked
  * and cached with the moments' version, as the feature
  */
 export const getToy = (day: string) => toyOfDay(day, HOME_MOMENTS_VERSION);

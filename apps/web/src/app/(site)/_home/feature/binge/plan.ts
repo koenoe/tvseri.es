@@ -40,7 +40,7 @@ const MAX_NIGHTS = 400;
 
 export type EpisodeCode = Readonly<{ episode: number; season: number }>;
 
-/** The episode at a 0-based position in the show (`epAt`) */
+/** The episode at a 0-based position in the show */
 export function episodeAt(
   seasons: ReadonlyArray<number>,
   index: number,

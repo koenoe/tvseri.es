@@ -8,7 +8,7 @@ export const LENS_GRID =
  * A lens tile's box: radius 14
  * (12 on phones), the first tile big. It fades up (opacity and an 8px
  * rise) when the viewer switches to its grid (`data-fade`), never on the
- * first paint: there the fade only held back the page's largest paint.
+ * first paint, where it would hold back the page's largest paint.
  */
 export const lensTileStyles = ({
   calm,

@@ -7,7 +7,7 @@ import { useAdminState } from '../admin/adminStore';
 /**
  * The hero's grid. While the admin image tray is open for this show it docks
  * the title, facts and progress right above the tray and hides the
- * description and the actions ("the real hero, live"); the
+ * description and the actions, so the live hero is the preview; the
  * `data-docked` attribute drives that in CSS, so the server markup stays the
  * same for everyone and nothing re-renders.
  */

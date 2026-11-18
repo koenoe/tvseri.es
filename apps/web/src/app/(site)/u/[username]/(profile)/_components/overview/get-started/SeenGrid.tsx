@@ -14,12 +14,12 @@ import { SEEN_GRID } from './layout';
 import type { SeenShow } from './loadGetStarted';
 
 /**
- * Already seen (`ue-gs-sn`): popular posters to mark as seen. One way only:
- * a tap marks the show seen through the core's `markSeen` (every aired
- * episode, "I don't remember", as "Finished it all": out of this year's
- * stats and history), and never unmarks anything. Shows in your lists are never
- * offered, a finished one (`isFinished`) can't be tapped, and one with any history is left
- * alone. The core's toast carries the Undo.
+ * Already seen: popular posters to mark as seen. One way only: a tap marks
+ * the show seen through the core's `markSeen` (every aired episode, "I don't
+ * remember", as "Finished it all": out of this year's stats and history),
+ * and never unmarks anything. Shows in your lists are never offered, a
+ * finished one (`isFinished`) can't be tapped, and one with any history is
+ * left alone. The core's toast carries the Undo.
  */
 export default function SeenGrid({
   onSeen,

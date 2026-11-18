@@ -6,10 +6,11 @@ import BlockError from './BlockError';
 
 /**
  * One streamed profile block: its own Suspense hole with the exact-size
- * placeholder, and a failure card the size of that placeholder (`BlockError`), so a
- * failure stays in the block. The placeholder and the content each sit in a
- * plain block (`data-placeholder` / `data-slot`, the block's name from its
- * title) that adds no box of its own: the parity spec measures them.
+ * placeholder, and a failure card the size of that placeholder
+ * (`BlockError`), so a failure stays in the block. The placeholder and the
+ * content each sit in a plain block (`data-placeholder` / `data-slot`, the
+ * block's name from its title) that adds no box of its own: the parity spec
+ * measures them.
  * `className` is the content's own layout when it holds more than one block.
  */
 export default function Hole({

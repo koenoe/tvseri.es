@@ -54,7 +54,7 @@ export default async function SeasonLedger({
   );
 }
 
-/** A typical ledger show's seasons (the stub's long-runner: 26, two columns) */
+/** A typical ledger show's seasons (the e2e stub's long-runner: 26, two columns of 13) */
 const COLUMNS = [0, 1];
 const SEASONS = Array.from({ length: 13 }, (_, n) => n);
 const HOLES = Array.from({ length: LEDGER_ROWS }, (_, n) => n);

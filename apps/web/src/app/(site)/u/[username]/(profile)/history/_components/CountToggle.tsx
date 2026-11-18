@@ -28,8 +28,8 @@ export function RunChevron({ open }: Readonly<{ open: boolean }>) {
 }
 
 /**
- * "3 episodes" (a pill on a phone): the row's
- * disclosure, in the code line. On a desktop it reads as the line's text
+ * "3 episodes" (a pill on a phone): the row's disclosure, in the code
+ * line. On a desktop it reads as the line's text
  * and the row's chevron circle (`RunChevron`) shows the state; on a phone
  * it is a pill with its own chevron. Its hit area covers the whole row (a
  * click anywhere opens the row); the ⋯ and a tag sit above it.

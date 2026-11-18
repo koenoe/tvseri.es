@@ -139,7 +139,7 @@ function SelfFold({
  * fewer and the self fold. The rows are the server's (`children`); the
  * filter is a data attribute on their root, so switching it re-renders
  * nothing. One number: the heading counts what the active filter lists, and
- * the pills carry none (a "Series 69" heading beside a "Series 27" pill read
+ * the pills carry none (a "Series 69" heading beside a "Series 27" pill reads
  * as a contradiction).
  */
 export default function ShowsList({

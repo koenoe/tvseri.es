@@ -18,14 +18,14 @@ const PHONE_TAGS = `h-8 gap-2 md:hidden ${ACTION}`;
 const GO_MARK = `bg-white/6 text-white/70 transition-colors group-hover/person:text-white ${GO}`;
 
 /**
- * One person on the Circle, owner's and visitor's: the
- * lead (match ring or the visitor's plain circle), the name with its tags,
- * an optional line under it, what they are watching, the Follow button and
- * the chevron. The whole row opens their profile: the name's link covers
- * it, and the Follow button sits above that. Desktop is one line of four
- * columns; the phone moves the button under the text. A row without a
- * button (yourself, on someone else's Circle) puts its tags there on a
- * phone, so every row is the height of its placeholder.
+ * One person on the Circle, owner's and visitor's: the lead (match ring or
+ * the visitor's plain circle), the name with its tags, an optional line
+ * under it, what they are watching, the Follow button and the chevron. The
+ * whole row opens their profile: the name's link covers it, and the Follow
+ * button sits above that. Desktop is one line of four columns; the phone
+ * moves the button under the text. A row without a button (yourself, on
+ * someone else's Circle) puts its tags there on a phone, so every row is
+ * the height of its placeholder.
  */
 export default function PersonRow({
   action,

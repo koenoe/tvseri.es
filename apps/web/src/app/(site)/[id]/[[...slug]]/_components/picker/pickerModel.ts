@@ -27,7 +27,7 @@ export type PickerOption = Readonly<{
   /** The date beside it ("Mon 9 Nov"); empty for Without a day. */
   hint: string;
   isNew: boolean;
-  /** The episode's current answer (`dp-on`). */
+  /** The episode's current answer. */
   on: boolean;
   answer: PickerAnswer;
 }>;

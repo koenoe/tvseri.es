@@ -17,12 +17,10 @@ const formatVotes = (votes: number) => votesFormat.format(votes);
 const IMDB_URL = 'https://www.imdb.com/title/';
 
 /**
- * The value and the votes sit close ("too much spacing", then
- * on desktop "way too close"): line boxes as tall as the type (22px under a
- * 24px value, so its baseline is the box's bottom; 18px on phones). On
- * phones no margin, so the vote count starts about 4px under the value's
- * digits; on desktop a 4px margin puts it about 8px under them (17px was
- * too much).
+ * The value and the votes sit close: line boxes as tall as the type (22px
+ * under a 24px value, so its baseline is the box's bottom; 18px on phones).
+ * On phones no margin, so the vote count starts about 4px under the value's
+ * digits; on desktop a 4px margin puts it about 8px under them.
  */
 const VALUE =
   'block font-semibold text-[18px] leading-[18px] tabular-nums md:text-[24px] md:leading-[22px]';
@@ -48,7 +46,7 @@ const imdbHref = (imdbId: string) => `${IMDB_URL}${imdbId}/`;
 
 /**
  * The show's IMDb rating: a filled star, "8.5 / 10" and the votes under it
- * (ep-imdb; 20px star and 18px value on phones). Links to IMDb
+ * (20px star and 18px value on phones). Links to IMDb
  * when the show has an IMDb id; no vote line without votes (never "0").
  * Without a rating (IMDb has none, or the ratings read failed) a show with
  * an IMDb id gets the same badge greyed out, "– / 10" over "No rating", in

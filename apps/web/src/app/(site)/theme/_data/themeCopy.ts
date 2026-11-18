@@ -91,8 +91,8 @@ export function pickSpotlight<T extends Candidate>(
 }
 
 /**
- * The spotlight's reason: a plain sentence built from the data (the design's
- * "Start with San Junipero" would be an invented fact).
+ * The spotlight's reason: a plain sentence built from the data (a
+ * hand-written "Start with San Junipero" would be an invented fact).
  */
 export function spotlightReason(
   kind: SpotlightKind,

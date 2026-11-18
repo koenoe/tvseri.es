@@ -27,7 +27,7 @@ import PhoneBackdrop from './PhoneBackdrop';
 type Props = Readonly<{ series: TvSeries }>;
 
 /**
- * The hero (ep0-hero, fm-hero): title treatment,
+ * The hero: title treatment,
  * facts, the age rating and provider logo, the progress line, the
  * first-tracking prompt (static shell content, hidden by a pre-paint hint
  * where it isn't for the viewer), the

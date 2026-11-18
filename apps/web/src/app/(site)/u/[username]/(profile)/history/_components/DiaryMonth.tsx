@@ -17,13 +17,14 @@ const defaultRow = (row: Row) => <DiaryRow key={row.key} row={row} />;
 export type RenderRow = (row: Row, isNew: boolean) => ReactNode;
 
 /**
- * One month of the diary: its header and its days. Each day off screen
- * is skipped (`content-visibility`, `DIARY_DAY_SKIPPED`) at its own height
- * from its row count, so a long diary costs little to scroll; rows opening inside it move the rows below
- * (`diaryMotion`). The page renders each row (`renderRow`: the ⋯ for the
- * owner, a tag for a visitor) and the phone's Jump (`jump`). Memoised: a
- * page landing below re-renders only the months it changed (`createDiary`
- * keeps the others' objects; `renderRow` and `newRows` are stable).
+ * One month of the diary: its header and its days. Each day off screen is
+ * skipped (`content-visibility`, `DIARY_DAY_SKIPPED`) at its own height
+ * from its row count, so a long diary costs little to scroll; a row
+ * opening inside it moves the rows below (`diaryMotion`). The page renders
+ * each row (`renderRow`: the ⋯ for the owner, a tag for a visitor) and the
+ * phone's Jump (`jump`). Memoised: a page landing below re-renders only the
+ * months it changed (`createDiary` keeps the others' objects; `renderRow`
+ * and `newRows` are stable).
  */
 function DiaryMonth({
   jump,
@@ -38,10 +39,10 @@ function DiaryMonth({
   newRows?: ReadonlySet<string>;
   renderRow?: RenderRow;
   /**
-   * Off screen, skip its days (`content-visibility`). Not for a month loaded above
-   * the reader ("Newer"): it goes off screen in the commit that adds it,
-   * before WebKit remembers its real height, and the estimate would move
-   * the page under the reader.
+   * Off screen, skip its days (`content-visibility`). Not for a month
+   * loaded above the reader ("Newer"): it goes off screen in the commit
+   * that adds it, before WebKit remembers its real height, and the estimate
+   * would move the page under the reader.
    */
   skippable?: boolean;
 }>) {

@@ -7,8 +7,7 @@ import { SLOT_WIDTH } from './slotWidth';
 
 /**
  * One tile's width (`SLOT_WIDTH`). An open stack widens to one tile per
- * episode, side by side, and the row scrolls sideways to reach the rest
- * (unstacked horizontally, then the row scrolls).
+ * episode, side by side, and the row scrolls sideways to reach the rest.
  */
 const SLOT = `group/slot @container/slot relative ${SLOT_WIDTH} data-[open=true]:z-10 data-[open=true]:basis-[calc(42%*var(--n)+16px*(var(--n)-1))] md:data-[open=true]:basis-[calc((100%-64px)/5*var(--n)+16px*(var(--n)-1))]`;
 

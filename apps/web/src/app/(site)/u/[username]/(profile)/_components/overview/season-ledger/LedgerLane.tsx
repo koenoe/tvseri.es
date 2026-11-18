@@ -25,13 +25,13 @@ const NEXT_LINK =
   'flex min-w-0 cursor-pointer items-center gap-1 whitespace-nowrap text-body-sm font-medium text-white/60 transition-colors hover:text-white';
 
 /**
- * Season ledger: one show's holes at a time, most holes first.
- * "Next: <show>" steps to the next one. A card lists three holes at most
- * (`LEDGER_ROWS`), so its height is bounded; the chart shows every gap and
- * "+N more" opens the rest in the show's history. Watched marks the episode on its
- * release day, Skipped closes the hole for good; both are the marking
- * core's (toast with Undo, rolls back on an error), and the row answers at
- * once with its own Undo.
+ * Season ledger: one show's holes at a time, most holes first. "Next: <show>"
+ * steps to the next one. A card lists three holes at most (`LEDGER_ROWS`), so
+ * its height is bounded; the chart shows every gap and "+N more" opens the
+ * rest in the show's history. Watched marks the episode on its release day,
+ * Skipped closes the hole for good; both are the marking core's (toast with
+ * Undo, rolls back on an error), and the row answers at once with its own
+ * Undo.
  */
 export default function LedgerLane({
   shows: allShows,
@@ -83,7 +83,7 @@ export default function LedgerLane({
       title={`Next: ${next.title}`}
       type="button"
     >
-      {/* a long name doesn't fit the card's header: it says "Next show" (the name on hover) */}
+      {/* a long name doesn't fit the card's header: it says "Next series" (the name on hover) */}
       <span className="min-w-0 truncate">{nextLabel(next.title)}</span>
       <Icon className="shrink-0" glyph={chevronRightGlyph} size={13} />
     </button>

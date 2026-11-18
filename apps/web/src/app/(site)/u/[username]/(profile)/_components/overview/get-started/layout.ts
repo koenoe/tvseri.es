@@ -15,7 +15,7 @@ export const GET_STARTED_STEPS =
 export const PROGRESS = 'flex min-w-0 items-center gap-3';
 export const PROGRESS_BAR = 'w-24 min-w-0';
 
-/** One step (`ue-gs-row`): the circle, then its title, line and controls */
+/** One step: the circle, then its title, line and controls */
 export const STEP_ROW =
   'grid grid-cols-[32px_minmax(0,1fr)] gap-4 rounded-12 bg-white/4 p-4';
 export const STEP_CIRCLE = 'size-8 rounded-full';

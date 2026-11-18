@@ -7,7 +7,7 @@ import hexToRgb from '@/components/background/hexToRgb';
 
 /**
  * A fade to the page colour (the colour at the bottom, 30% at 55%, 60% at the top)
- * over the hero shade. The top stop is back
+ * over the hero shade. The top stop is
  * on phones only, so the header row reads on bright
  * backdrops: measured on 40 backdrops, none under 4.5:1 with it (worst 5.5),
  * 7 without (worst 3.2). Home's spotlight and the desktop show page keep the
@@ -21,7 +21,7 @@ export const phoneHeroShade = (color: string) => {
 };
 
 /**
- * The phone hero's backdrop (fm-hero): the backdrop 440px tall
+ * The phone hero's backdrop: the backdrop 440px tall
  * from the top of the screen, faded into the page colour (`shade`), instead of
  * the page's full-screen one (hidden below 768px on this page). Reads the
  * background store, so an admin's live pick and Back restores show here too.

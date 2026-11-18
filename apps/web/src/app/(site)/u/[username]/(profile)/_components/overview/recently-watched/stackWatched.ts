@@ -56,8 +56,8 @@ const toEpisode = (item: WatchedItem): StackEpisode => ({
 
 /**
  * The history (newest first) as stacks: consecutive episodes of one show
- * become one tile. Another show in between breaks the
- * run, so a show can appear twice. At most `limit` stacks.
+ * become one tile. Another show in between breaks the run, so a show can
+ * appear twice. At most `limit` stacks.
  */
 export function stackWatched(
   items: ReadonlyArray<WatchedItem>,

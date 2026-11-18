@@ -24,8 +24,9 @@ const TINT_EMPTY =
   'bg-[rgb(0_255_255/0.025)] shadow-[inset_0_0_0_1px_rgb(0_255_255/0.08)]';
 
 /**
- * Out now: new episodes of your shows since you last
- * watched, and a whole season on the day it completes. Owner only.
+ * Out now: a show's latest episode while fewer than three wait (more is
+ * Catching up), and a whole season for 14 days after it completes. Owner
+ * only.
  */
 export default async function OutNow({
   profile,

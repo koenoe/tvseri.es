@@ -20,8 +20,8 @@ import IfYouLiked from './toy/IfYouLiked';
  * `auth()`. Signed out they render nothing. They don't use `'use cache:
  * private'`: in production it keeps
  * nothing across requests, only within one request (which `apiFetch`
- * already dedupes) and in the browser's router memory; the API answers these
- * routes with `private, max-age=86400` itself.
+ * already dedupes) and in the browser's router memory; the API marks these
+ * routes `private` itself.
  */
 
 /**

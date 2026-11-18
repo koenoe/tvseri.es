@@ -20,8 +20,8 @@ import UpToHost from './picker/UpToHost';
 import Recommendations from './recommendations/Recommendations';
 
 /**
- * The show page: hero, created by
- * and cast, the episodes section, recommendations, then Storyline and
+ * The show page: hero, "Created by" and cast, the episodes section,
+ * recommendations, then Storyline and
  * Information on the darker band. The page colour and backdrop come from
  * `Page` (first frame on a hard load, restored on Back). The shell never seeds
  * the marking store: the viewer's seed (seasons, marks, status) arrives in
@@ -54,7 +54,6 @@ export default function ShowContent({
             </Suspense>
           </div>
           <EpisodesSection query={query} series={series} />
-          {/* The row sits 2px higher than the section's own spacing */}
           <div className={RECOMMENDATIONS_FRAME} data-slot="recommendations">
             <Recommendations seriesId={series.id} />
           </div>

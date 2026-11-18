@@ -11,9 +11,8 @@ import { renderCardImage } from '../_card/renderCard';
 
 /**
  * `GET /u/{username}/stats/{year}/card?format=story|square&theme=dark|colour`:
- * the share card as a JPEG, 1080 × 1080 (default) or 1080 × 1920. The
- * bytes are cached per
- * user + year + variant (`renderCardImage`); the CDN keeps them a day
+ * the share card as a JPEG, 1080 × 1080 (default) or 1080 × 1920. The bytes
+ * are cached per user + year + variant (`renderCardImage`); the CDN keeps them a day
  * (`cardCacheControl`), a card with a failed poster only minutes.
  *
  * - 400: an unknown `format` or `theme`, any other query key, or a

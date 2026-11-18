@@ -11,7 +11,7 @@ import Information from './Information';
 import Keywords, { KeywordsSkeleton } from './Keywords';
 
 /**
- * The lower band (ep0-lower): Storyline (the description in a
+ * The lower band: Storyline (the description in a
  * box, keywords beside it) and Information, on the page colour darkened 10%.
  */
 export default function Storyline({ series }: Readonly<{ series: TvSeries }>) {

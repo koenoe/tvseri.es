@@ -26,13 +26,12 @@ import {
 /**
  * The identity at the top of the sidebar, in two variants (only one shows):
  *
- * - the full block (as drawn): the
- *   handle, three meta lines grouped without a box, the services, and the
- *   owner's or visitor's button. On the sub-pages the services
- *   line goes;
- * - the compact one, on a phone's sub-pages: the handle at
- *   32px and "5,341 episodes · 218 finished" beside a small Edit, or a
- *   visitor's Follow / Following in its slot.
+ * - the full block: the handle, three meta lines grouped without a box, the
+ *   services, and the owner's or visitor's button. On the sub-pages the
+ *   services line goes;
+ * - the compact one, on a phone's sub-pages: the handle up to 32px and
+ *   "5,341 episodes · 218 finished" beside a small Edit, or a visitor's
+ *   Follow / Following in its slot.
  *
  * Each read in it (the counters, the follow state) sits in its own hole, so
  * a failed read fails only its line or its button.

@@ -30,10 +30,10 @@ function Suggestions({
 }
 
 /**
- * An empty shelf: one calm line, and its own first step
- * where one fits: an emptied Watchlist gets Popular this week
- * with +, an empty Finished the Seen grid. Someone else's shelf only says
- * it is empty: it's their page.
+ * An empty shelf: one calm line, and its own first step where one fits:
+ * an emptied Watchlist gets Popular this week with +, Watching the Up next
+ * pick, Favourites a few finished shows with a heart, Finished the Seen
+ * grid. Someone else's shelf only says it is empty: it's their page.
  */
 export default async function ShelfEmpty({
   profile,
@@ -134,7 +134,7 @@ export async function SeenSuggestions({
   ) : null;
 }
 
-/** An empty Favourites offers this many finished shows (one row of five, two on a phone) */
+/** An empty Favourites offers up to this many finished shows */
 const FAVOURITE_PICKS = 10;
 
 /** An empty Watching: the overview's Up next pick, dimmed until you start it */

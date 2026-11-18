@@ -9,7 +9,7 @@ import landingPath from '@/lib/routing/landingPath';
 import { loadKeywords } from '../../_data/loaders';
 
 /**
- * The show's keywords beside the storyline (pd-kw). A keyword of a theme's
+ * The show's keywords beside the storyline. A keyword of a theme's
  * set links to the theme's landing (`/theme/{slug}`), the keyword of a genre
  * TMDB only has as a keyword to its genre landing (`/genre/horror`); the rest
  * have no page to go to, so they stay plain chips (`ChipCloud`).

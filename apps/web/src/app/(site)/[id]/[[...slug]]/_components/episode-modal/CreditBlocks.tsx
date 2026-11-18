@@ -6,7 +6,7 @@ import type { RollBlock } from '@/lib/series/episodeCredits';
 
 /**
  * The credits' blocks: role over name(s), or name |
- * character pairs. The roll draws them twice for a seamless loop; the copy
+ * character pairs. The roll draws them twice so the loop has no seam; the copy
  * is hidden from assistive tech and the tab order.
  */
 export default function CreditBlocks({

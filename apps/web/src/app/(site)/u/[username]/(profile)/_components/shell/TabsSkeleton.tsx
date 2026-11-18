@@ -5,7 +5,7 @@ import cn from '@/lib/cn';
 import TabsFrame from './TabsFrame';
 import { PROFILE_TABS, TAB } from './tabs';
 
-/** Each tab as a flat pill its unseen icon and label size */
+/** Each tab as a flat pill the size of its unseen icon and label */
 const TAB_GHOST = cn(TAB, FLAT, 'animate-ghost');
 
 /**

@@ -100,8 +100,8 @@ function episodesLine(
 }
 
 /**
- * The compact identity's one count line: "5,341
- * episodes · 218 finished", 13px, the eye at 13px
+ * The compact identity's one count line: "5,341 episodes · 218 finished",
+ * 13px, the eye at 13px
  */
 export async function CompactIdentityMeta({
   profile,
@@ -121,7 +121,7 @@ export async function CompactIdentityMeta({
   );
 }
 
-/** "Follows you" (a follow is mutual) */
+/** "Follows you": the owner follows the viewer */
 function FollowsYou() {
   return (
     <span className="ml-1 inline-flex shrink-0 items-center rounded-[5px] bg-black/10 px-[7px] py-0.5 text-[10px] font-medium whitespace-nowrap text-white/60">

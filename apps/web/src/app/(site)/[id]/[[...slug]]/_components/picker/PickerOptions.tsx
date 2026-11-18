@@ -61,7 +61,7 @@ function Option({
  * The picker's left column: When (Just now · Yesterday · Last
  * weekend · On release day, each with its date) and Without a day (I don't
  * remember · Skipped, both New · Not watched when something is set). The
- * current answer is pressed (`dp-on`). A tap applies.
+ * current answer is pressed. A tap applies.
  */
 export default function PickerOptions({
   alt,

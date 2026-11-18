@@ -496,8 +496,6 @@ export function importReducer(
   }
 }
 
-// ---------------------------------------------------------------- selectors
-
 /** What the Check step's summary line says. */
 export const checkSummary = (state: CheckStep) => {
   const unmatched = state.check.problems.length;

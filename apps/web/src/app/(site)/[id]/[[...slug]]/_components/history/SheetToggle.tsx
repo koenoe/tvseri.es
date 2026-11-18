@@ -7,7 +7,7 @@ import cn from '@/lib/cn';
 const SIZE = {
   /** "Mark all watched" (34px, 13px) */
   md: 'h-[34px] gap-[7px] pr-3.5 pl-2.5 text-meta',
-  /** "Mark season" (.sx-tg.sm: 30px, 12px, a 14px eye) */
+  /** "Mark season" (30px, 12px, a 14px eye) */
   sm: 'h-7.5 gap-1.5 pr-3 pl-2 text-caption',
 } as const;
 

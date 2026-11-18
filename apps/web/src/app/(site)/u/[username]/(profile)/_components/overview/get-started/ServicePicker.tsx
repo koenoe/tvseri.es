@@ -14,7 +14,7 @@ import { PILL_ROW } from './layout';
 /** Each place keeps its own look on purpose; don't unify them. */
 const LOGO: ServiceIconLayout = { className: 'rounded-[5px]', size: 20 };
 
-/** The services chips (`ue-gs-pv`): a logo, the name, a check while picked */
+/** The services chips: a logo, the name, a check while picked */
 export default function ServicePicker({
   onToggle,
   providers,

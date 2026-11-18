@@ -16,8 +16,7 @@ const GENRE_LINK = `${GENRE_TILE} transition-colors duration-200 hover:bg-white/
  * Doors to the genre landings: a plain tile per `GENRE_TILES` entry,
  * name and show count, in full rows at every width (`GENRE_GRID`). Without the
  * counts the tiles still open their landings (the count's place stays).
- * The phone design has no Genres; phones show them too, in the lens tiles'
- * phone look, so every genre is reachable from a phone's Discover.
+ * Phones show them too, in the lens tiles' phone look, so every genre is reachable from a phone's Discover.
  */
 export default async function Genres() {
   const found = await getGenreCounts();

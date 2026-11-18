@@ -7,11 +7,10 @@ import type { ActionResult } from '@/lib/actions/result';
  * "Still watching?" (Paused): Keep or Hide, written as the per-show pref
  * `paused` through the marking core's `updateSeriesPrefs` server action (the
  * core's one write path for prefs; the proxy refreshes the session, Next
- * runs actions one at a time). The core has no command for `paused`, and it
- * is frozen for page streams, so the profile adds this one. Nothing in the
- * marking store depends on `paused` (it holds no pref of that name), so
- * there is nothing to apply there: the lane answers at once itself and
- * rolls back on the shared error toast.
+ * runs actions one at a time). The core has no command for `paused`, so the
+ * profile adds this one. Nothing in the marking store depends on `paused`
+ * (it holds no pref of that name), so there is nothing to apply there: the
+ * lane answers at once itself and rolls back on the shared error toast.
  */
 
 export type PausedChoice = 'keep' | 'hide';

@@ -52,7 +52,7 @@ function Track({ line }: Readonly<{ line: ProgressLine }>) {
 }
 
 /**
- * The hero's progress line (epf-pg), live from the marking
+ * The hero's progress line, live from the marking
  * store: every mark, drag and Undo moves it in the same frame. A click opens
  * the watch-history sheet (`?history`). Signed out it is the same control in
  * the same place: the bar empty, the series' size in place of the numbers

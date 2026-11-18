@@ -71,10 +71,10 @@ function Face({ card, dealt }: Readonly<{ card: StartCard; dealt: boolean }>) {
 }
 
 /**
- * Start something new's card: the deck, the show on top and
- * three buttons. ✕ Not now sends the top card to the back, Pick one deals a
- * random one, → opens the show. With nothing saved (`add`) the middle
- * button saves the show on top instead.
+ * Start something new's card: the deck, the show on top and three buttons.
+ * ✕ Not now sends the top card to the back, Pick one deals a random one,
+ * → opens the show. On the Popular this week deck (`add`) the middle button
+ * saves the show on top instead.
  */
 export default function StartDeck({
   badge,

@@ -39,9 +39,8 @@ function IdentityUnavailable({ compact, full }: Props, { retry }: ErrorInfo) {
  * The identity's failure (the profile read threw, a timeout or a 5xx): the
  * failed card lies over the identity's own placeholder, in the variant that
  * shows, so the sidebar keeps its size and the rest of the page renders
- * (one slow profile read took the whole page to "Something
- * broke"). A 404 or 401 passes through (`catchError` leaves Next's own
- * errors alone).
+ * instead of one slow read taking the whole page to "Something broke". A
+ * 404 or 401 passes through (`catchError` leaves Next's own errors alone).
  */
 const IdentityError = catchError(IdentityUnavailable);
 

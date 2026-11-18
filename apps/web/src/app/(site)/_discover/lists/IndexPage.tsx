@@ -132,10 +132,10 @@ export default function IndexPage({ kind }: Readonly<{ kind: IndexKind }>) {
     );
   }
   // No Suspense around the count and the chips: their cached list is in the
-  // prerendered page itself. As a streamed boundary the document held the
-  // ghost of every landing (all ~250 countries) and swapped the list in by
-  // script: a slow device painted that ghost, four times the list's height,
-  // and the page jumped up when the list landed.
+  // prerendered page itself. A streamed boundary would hold the ghost of
+  // every landing (all ~250 countries) and swap the list in by script: a
+  // slow device paints that ghost, four times the list's height, and the
+  // page jumps up when the list lands.
   return (
     <LandingIndex
       end={end}

@@ -9,9 +9,9 @@ import type { Glyph, ToggleGlyph } from '@/components/ui/icon/types';
 import type { ProfileSegment } from '@/lib/routing/profilePath';
 
 /**
- * Desktop: pills in a row, the 16px icon beside the label. Phone
- *: five equal 50px columns, the icon above a 12/16 label,
- * so every tab fits a 390 screen without scrolling.
+ * Desktop: pills in a row, the 16px icon beside the label. Phone: five
+ * equal 50px-tall columns, the icon above a 12/16 label, so every tab fits
+ * a 390 screen without scrolling.
  */
 export const TAB =
   'flex items-center justify-center whitespace-nowrap font-medium transition-colors md:shrink-0 md:gap-2 md:rounded-8 md:px-4 md:py-1.5 md:text-body-sm max-md:h-[50px] max-md:min-w-0 max-md:flex-1 max-md:basis-0 max-md:flex-col max-md:gap-0.5 max-md:rounded-10 max-md:text-[12px] max-md:leading-4';
@@ -23,11 +23,7 @@ export type ProfileTab = Readonly<{
   segment: ProfileSegment | 'stats';
 }>;
 
-/**
- * The tab bar: Overview · Library · History · Circle ·
- * Stats. The Library holds the old In progress, Watchlist, Favorites and
- * Finished pages as shelves; Circle replaces Social.
- */
+/** The tab bar: Overview · Library · History · Circle · Stats */
 export const PROFILE_TABS: ReadonlyArray<ProfileTab> = [
   { glyph: overviewGlyph, label: 'Overview', segment: '' },
   { glyph: showGlyph, label: 'Library', segment: 'library' },

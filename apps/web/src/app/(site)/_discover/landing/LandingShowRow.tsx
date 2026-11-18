@@ -23,7 +23,7 @@ const EAGER_TILES = 6;
 type Props = Readonly<{
   /**
    * The page's first row: its posters are above the fold and one is usually
-   * the LCP image, so the first ones load eagerly (CLAUDE.md).
+   * the LCP image, so the first ones load eagerly.
    */
   eager?: boolean;
   /** unique on the page (DOM ids, Back restore) */

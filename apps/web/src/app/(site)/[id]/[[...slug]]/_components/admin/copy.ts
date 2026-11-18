@@ -1,4 +1,3 @@
-/** The tray's toast copy. */
 export const TOASTS = {
   error: 'Couldn’t save. Visitors still see the old images.',
   reset: 'Back to automatic: TMDB’s top backdrop and logo.',

@@ -9,8 +9,8 @@ import { visitorFacts } from './heroCopy';
 
 /**
  * Watching now: the same card, but the facts line says what the show is
- * ("4 seasons · Ended · 36h"), the pill says "today", a green tag when the
- * show is new to you, and the ⋯ is a + to your own watchlist.
+ * ("4 seasons · Ended · 36h"), a green tag when the show is new to you, and
+ * the ⋯ is a + to your own watchlist.
  */
 export default function VisitorHero({
   isNew,

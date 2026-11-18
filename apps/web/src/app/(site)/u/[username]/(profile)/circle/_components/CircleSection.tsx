@@ -4,8 +4,8 @@ import type { ReactNode } from 'react';
 import SectionHead from '@/components/ui/section/SectionHead';
 
 /**
- * "You follow · 8": the smaller section title, a rule
- * and the count (left out when the counters didn't load)
+ * "You follow · 8": the smaller section title, a rule and the count (left
+ * out when the counters didn't load)
  */
 export default function CircleSection({
   children,

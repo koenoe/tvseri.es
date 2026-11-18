@@ -6,15 +6,15 @@ import Icon from '@/components/ui/icon/Icon';
 
 import { PersonNode, ShowNode } from './Nodes';
 
+/** The chain's line of nodes (scrolls sideways on a phone) */
+export const CHAIN =
+  '-mx-4 flex min-h-0 flex-1 items-start overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:px-0 md:pt-6 lg:overflow-visible';
+
 /**
  * A path: show, person, show, person, show with a line
  * and an arrow between each, 150px per node. On a phone the chain scrolls
  * sideways.
  */
-/** The chain's line of nodes (scrolls sideways on a phone) */
-export const CHAIN =
-  '-mx-4 flex min-h-0 flex-1 items-start overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:px-0 md:pt-6 lg:overflow-visible';
-
 export default function Chain({ path }: Readonly<{ path: ConnectedPath }>) {
   return (
     <div className={CHAIN}>

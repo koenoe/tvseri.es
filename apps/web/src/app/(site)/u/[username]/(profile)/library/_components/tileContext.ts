@@ -14,7 +14,7 @@ export type TileContextValue = Readonly<{
   pick: (id: number, range: boolean) => void;
   /** A phone's long-press: starts select mode with this tile */
   longPress: (id: number) => void;
-  /** The tile's show left the shelf (the Remote's H, W or F) */
+  /** The tile's show left the shelf (the Remote's H, W or F, or N finishing it) */
   leave: (id: number, reason: LeaveReason) => void;
 }>;
 

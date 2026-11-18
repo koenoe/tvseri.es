@@ -73,8 +73,8 @@ async function HeroMeta() {
 }
 
 /**
- * The typographic header:
- * the overline, @handle in display and a meta row. No backdrop.
+ * The typographic header: the overline, @handle in display and a meta row.
+ * No backdrop.
  */
 export default function SettingsHero() {
   return (

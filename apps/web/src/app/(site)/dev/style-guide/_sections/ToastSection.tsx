@@ -16,7 +16,8 @@ const EYE = <Icon active glyph={eyeGlyph} size={16} />;
 const UNDO = { label: 'Undo', onClick: () => showToast({ title: 'Undone' }) };
 
 export default function ToastSection() {
-  // The marking core merges single Just-now marks into one toast by id.
+  // The marking core merges Just-now marks of next-door episodes in one
+  // season into one toast by id.
   const marks = useRef<{ id?: number | string; last: number }>({ last: 4 });
 
   const markNext = useCallback(() => {

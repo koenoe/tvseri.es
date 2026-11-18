@@ -24,7 +24,7 @@ export async function generateMetadata({
 /**
  * `/genre/{slug}`: the genre's own ground and glow
  * from its lead show (`GenreLanding`), prerendered per slug; before the slug
- * is known, the designed ground with every section's place.
+ * is known, a shell with no colour of its own and every section's place.
  */
 export default function Page({ params }: PageProps<'/genre/[slug]'>) {
   return (

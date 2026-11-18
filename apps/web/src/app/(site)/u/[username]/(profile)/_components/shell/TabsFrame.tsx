@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 
 /**
- * The bar behind the tabs. Desktop: 56px, 10px padding, 12px corners,
- * the pills in a row. Phone: 4px padding, 14px corners,
- * 2px between five equal columns, 58px tall with or without the tabs (the
- * skeleton is the same box), never scrolling.
+ * The bar behind the tabs. Desktop: 56px, 10px padding, 12px corners, the
+ * pills in a row. Phone: 4px padding, 14px corners, 2px between five equal
+ * columns, 58px tall with or without the tabs (the skeleton is the same
+ * box), never scrolling.
  */
 export default function TabsFrame({
   children,

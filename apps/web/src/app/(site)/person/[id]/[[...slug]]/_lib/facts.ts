@@ -110,7 +110,6 @@ export function occupationLabel(
       counts.set(kind, (counts.get(kind) ?? 0) + 1);
     }
   }
-  // A fixed order ("Actor, director, producer")
   const crew = CREW_ORDER.filter((kind) => counts.has(kind));
   const acts = shows.some((show) => show.isCast);
   const all = acts ? ['actor', ...crew] : crew;

@@ -43,10 +43,10 @@ export function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /**
- * History: the only place that lists everything
- * someone watched, by day. The header and the frame are the static shell;
- * the count, a visitor's description and the diary stream in. `?month=`
- * opens the diary at that month (a jump). The phone frame has no header.
+ * History: the only place that lists everything someone watched, by day.
+ * The header and the frame are the static shell; the count, a visitor's
+ * description and the diary stream in. `?month=` opens the diary at that
+ * month (a jump). The phone frame has no header.
  */
 export default function HistoryPage({ params, searchParams }: Props) {
   const count = (

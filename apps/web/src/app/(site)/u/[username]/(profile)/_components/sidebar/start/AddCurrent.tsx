@@ -4,7 +4,7 @@ import Button from '@/components/ui/button/Button';
 import { checkGlyph, plusGlyph } from '@/components/ui/icon/glyphs';
 import { useListToggle } from '@/lib/marking/toggles';
 
-/** "Add to watchlist" for the card on top (nothing saved yet, so Pick one has nothing to pick) */
+/** "Add to watchlist" for the card on top of the Popular this week deck, in place of Pick one */
 export default function AddCurrent({ id }: Readonly<{ id: number }>) {
   const { isOn, toggle } = useListToggle(id, 'watchlist');
   return (

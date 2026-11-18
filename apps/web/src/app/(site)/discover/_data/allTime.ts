@@ -18,7 +18,7 @@ export type RankedShow = Readonly<{
 }>;
 
 /**
- * The owner's MDBList list, in its own order, as the numbered row draws it:
+ * The site's curated MDBList list, in its own order, as the numbered row draws it:
  * shows without a poster are skipped (the next moves up, so ranks stay
  * 1..N), the first `ALL_TIME_COUNT`, none under `MIN_POSTERS`. A ranked list
  * can't skip ranks, so no row above takes shows out of it (never-repeat).

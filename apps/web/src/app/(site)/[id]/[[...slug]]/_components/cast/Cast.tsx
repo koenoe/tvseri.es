@@ -27,7 +27,7 @@ const SKELETON_LIST = `${listStyles} animate-ghost`;
 const GHOST_FACE = `mx-auto aspect-square w-full rounded-full lg:size-24 ${GHOST_FILL}`;
 
 /**
- * A face as production draws it: 96px from lg, overlapping its neighbours;
+ * A face: 96px from lg, overlapping its neighbours;
  * on hover or focus it grows (1.15) and the name and role fade up below it.
  * Below lg the row's cell (a sixth of the row on md, a third on phones) with
  * the name and role under it. The shared TMDB loader picks the face crop for
@@ -68,9 +68,8 @@ function CastFace({ person }: Readonly<{ person: CastMember }>) {
 }
 
 /**
- * The cast as production draws it: ten overlapping 96px avatars that
- * grow and show the name and role on hover (ep0-cast); a grid
- * with names under them below 1024px (six on phones).
+ * The cast: ten overlapping 96px avatars that grow and show the name and
+ * role on hover; a grid with names under them below 1024px (six on phones).
  */
 export default async function Cast({
   seriesId,

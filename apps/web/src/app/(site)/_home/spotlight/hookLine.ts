@@ -99,9 +99,9 @@ function endedLine(series: HookSource): string {
  * 4. an ended show's size: "Ended: 5 seasons, 42 episodes"
  * 5. the top three cast: "With Tom Hardy, Helen Mirren and Pierce Brosnan"
  *
- * These examples fit no simpler order: Stranger
- * Things has creators yet says "Ended…", Barry has ended yet names its
- * creators, MobLand names its cast. This order reproduces all of them.
+ * No simpler order fits the tested cases: Stranger Things has creators yet
+ * says "Ended…", Barry has ended yet names its creators, MobLand names its
+ * cast (`hookLine.test.ts`).
  */
 function derivedLine(series: HookSource, day: string | undefined): string {
   const creatorOf = series.creatorOf?.title;

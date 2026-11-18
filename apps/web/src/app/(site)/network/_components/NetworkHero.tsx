@@ -111,7 +111,7 @@ async function NetworkMeta({ network }: Readonly<{ network: NetworkEntry }>) {
 }
 
 /**
- * The network hero ("Best of, by…"): the logo as the title, the meta line
+ * The network hero: the logo as the title, the meta line
  * and the network's one line, left; the recommendation tile right (under it
  * on a phone). The crumb, the name and the line need no API; the logo, the
  * meta line and the tile come from cached loaders, each in its own

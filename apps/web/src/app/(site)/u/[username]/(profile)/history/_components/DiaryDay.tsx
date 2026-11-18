@@ -10,8 +10,8 @@ import { useDiaryLayout } from './diaryMotion';
 import { DIARY_DAY, DIARY_DAY_SKIPPED, DIARY_ROWS } from './diaryStyles';
 
 /**
- * A day: weekday and date on the left,
- * one row per show watched that day on the right. Off screen it is skipped
+ * A day: weekday and date on the left, one row per show watched that day
+ * on the right. Off screen it is skipped
  * (`content-visibility`) at its own height from its row count, so a month
  * of 200 rows renders the days in view, not all at once as it scrolls in
  * (WebKit dropped 5–12 frames per month on a 2,000-row diary). Not in a

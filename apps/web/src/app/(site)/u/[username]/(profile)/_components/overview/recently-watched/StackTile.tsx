@@ -19,9 +19,9 @@ const SPREAD =
   'group-data-[open=true]/pile:gap-x-4 group-data-[open=true]/pile:gap-y-6';
 
 /**
- * Consecutive episodes of one show: the shared pile with
- * the count chip and the range under it; a click spreads it into one poster
- * per episode, side by side, and widens this column to fit.
+ * Consecutive episodes of one show: the shared pile with the count chip and
+ * the range under it; a click spreads it into one poster per episode, side
+ * by side, and widens this column to fit.
  */
 export default function StackTile({ tile }: Readonly<{ tile: TileData }>) {
   const [open, setOpen] = useState(false);

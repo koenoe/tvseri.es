@@ -32,9 +32,9 @@ import { loadStartDeck, type StartSource } from './start/loadStart';
 import StartDeck from './start/StartDeck';
 import { slotAt } from './start/startCards';
 
-/** Keeps the block's 408px when there is no deck, so nothing below it moves */
 const NOT_NOW = circleButtonStyles({ className: FLAT, size: 44 });
 
+/** Keeps the block's 408px when there is no deck, so nothing below it moves */
 const CALM = 'h-[368px] rounded-16 bg-black/22';
 
 /** The pill above a borrowed deck */
@@ -58,10 +58,10 @@ function Badge({
 }
 
 /**
- * Start something new: one show from your watchlist, with the rest
- * fanned behind it. Owner only; with fewer than three saved shows the deck is shows
- * your circle finished, else Popular this week (and the middle button saves
- * the show instead of dealing).
+ * Start something new: one show from your watchlist, with the rest fanned
+ * behind it. Owner only. With fewer than three saved shows the deck is
+ * shows your circle finished, else Popular this week (where the middle
+ * button saves the show instead of dealing).
  */
 export default async function StartSomethingNew({
   profile,

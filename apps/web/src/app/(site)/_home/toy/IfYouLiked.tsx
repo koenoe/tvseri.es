@@ -11,7 +11,6 @@ import LikedSource from './if-you-liked/LikedSource';
 
 const LABEL_ID = 'if-you-liked-label';
 
-/** Four shows */
 export const IF_YOU_LIKED_SHOWN = 4;
 
 /** The label's words before the show's title (the placeholder draws them too) */

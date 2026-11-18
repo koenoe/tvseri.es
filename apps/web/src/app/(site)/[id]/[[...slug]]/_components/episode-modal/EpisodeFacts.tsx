@@ -63,7 +63,6 @@ const TITLE_GHOST = cn(
   PULSE,
 );
 
-/** A quiet bar where a fact will be (the season is still loading). */
 /** The show's logo above the facts, 180 × 29 on its left (desktop only) */
 // Each place keeps its own look on purpose; don't unify them.
 const EPISODE_LOGO: TitleLogoLook = {
@@ -73,6 +72,7 @@ const EPISODE_LOGO: TitleLogoLook = {
   width: 180,
 };
 
+/** A quiet bar where a fact will be (the season is still loading). */
 function FactBar() {
   return <span aria-hidden="true" className={FACT_GHOST} />;
 }
@@ -81,8 +81,7 @@ function FactBar() {
  * The left column's facts: the show's logo, "Season 3 · Episode 5 of
  * 10", the title at 104px, then air date · runtime · the episode's IMDb
  * rating (the only place it shows; "No rating" with a greyed-out star when
- * IMDb has none), the star
- * #fde047 and the line at 80% (12px star on
+ * IMDb has none), the star #fde047 and the line at 80% (12px star on
  * phones). Phones drop the logo and the air date.
  */
 function EpisodeFacts({

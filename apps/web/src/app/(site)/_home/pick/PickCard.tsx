@@ -20,19 +20,17 @@ const UNTIL_KNOWN = { [SIGNED_OUT_ONLY]: '' };
 const GHOST_UNTIL_KNOWN = { [SIGNED_IN_ONLY]: '' };
 
 /**
- * The Pick one moment, with no title or label. Desktop: a 400px
+ * The Pick one moment, with no visible title or label (`PICK_TITLE` is its
+ * accessible name). Desktop: a 400px
  * dark card, the fanned deck left and the result right. Below 1280: one
  * dark card holding the fan, scaled down (`DECK_BOX`) and clipped by the
  * card, and the result centred under it. The fan is about 730px wide and
  * needs the 688px column the page has from 1280 (it may reach into the
- * 48px gap); below 1280 it ran over the result's title and Watchlist (at
- * 1100), so the stacked layout holds until then.
+ * 48px gap); below 1280 it would run over the result's title and Watchlist
+ * (at 1100), so the stacked layout holds until then.
  *
- * The pool is the same for everyone; a signed-in viewer is dealt only shows
- * new to them (`dealPick`), decided once their library has loaded. Until
- * then the cached HTML shows the card signed out and, signed in, the card's
- * placeholder in its place. One new show left: no Roll again; none: the
- * block is not drawn.
+ * A signed-in viewer is dealt only shows new to them (`usePickDeal`). One
+ * new show left: no Roll again; none: the block is not drawn.
  */
 export default function PickCard({
   pool,

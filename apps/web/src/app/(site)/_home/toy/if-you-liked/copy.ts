@@ -66,9 +66,8 @@ const mostShared = (items: ReadonlyArray<Item>): Shared | undefined => {
 const countWord = (count: number) => COUNT_WORDS[count] ?? String(count);
 
 /**
- * The card's line under its title. It is not hand-written (for example "Four shows
- * with its family, chaos and kitchen-sink heart"); the API gives a reason
- * per show only, and a TMDB keyword is a tag ("based on novel or book",
+ * The card's line under its title. It is never hand-written prose: the API
+ * gives a reason per show only, and a TMDB keyword is a tag ("based on novel or book",
  * "interview"), not a noun phrase, so it is never pasted into a sentence
  * that needs it to agree: it is quoted as the theme's name. The line says
  * what most of the shows share with the source and how many share it, never

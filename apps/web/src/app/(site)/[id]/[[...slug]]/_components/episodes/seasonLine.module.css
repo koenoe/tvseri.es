@@ -134,7 +134,7 @@
   color: var(--color-white);
 }
 
-/* hover previews ONE episode (locked choice), mouse only */
+/* hover previews one episode, mouse only */
 .tip {
   bottom: 30px;
   left: 50%;

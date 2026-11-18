@@ -17,9 +17,9 @@ const lead = (
 );
 
 /**
- * A row on someone else's Circle: the name, your relation
- * (It's you, You follow, Follows you), what they're watching, and Follow
- * (not on yourself).
+ * A row on someone else's Circle: the name, your relation (It's you, You
+ * follow, Follows you), what they're watching, and Follow (not on
+ * yourself).
  */
 export default function VisitorPersonRow({
   first,

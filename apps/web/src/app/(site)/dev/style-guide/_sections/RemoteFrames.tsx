@@ -10,10 +10,10 @@ import severance from '@/components/ui/error/stills/severance.webp';
 import stranger from '@/components/ui/error/stills/stranger.webp';
 
 /**
- * The design's frames for the Remote, with in-memory fakes (no store, no
+ * Frames for the Remote, with in-memory fakes (no store, no
  * actions): The Bear's show header (672 × 460, the ⋯ at 196, 152), Severance
  * finished, and The Bear's In progress tile (448 × 440). Stills are bundled
- * stand-ins (design images are not in the repo).
+ * stand-ins (the real stills are not in the repo).
  */
 
 let slow = false;

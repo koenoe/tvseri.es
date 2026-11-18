@@ -6,8 +6,7 @@ import { CARD_FONT, labelFont } from './fonts';
 import type { CardLayout } from './layout';
 import type { ThemeStyle } from './theme';
 
-/** The card's type and logo, positioned by the layout */
-/** The approved lock-up (`components/ui/Logo`), white, `logo.height` tall */
+/** The site's lock-up (`components/ui/Logo`), white, `logo.height` tall */
 export function CardLogo({ layout }: Readonly<{ layout: CardLayout }>) {
   const { height, left, top } = layout.logo;
   const width = Math.round(height * 5.169 * 10) / 10;

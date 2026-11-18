@@ -62,9 +62,8 @@ const HOVER_ACTION =
   'opacity-0 transition-opacity duration-160 group-hover/row:opacity-100 focus-within:opacity-100 has-[[aria-expanded=true]]:opacity-100 max-md:hidden';
 
 /**
- * One show on one day, lit by its poster: poster, the show,
- * the code with the episode's title or "N episodes", the runtime and a 32px
- * slot. A one-episode row opens that episode; a run's "N episodes" opens
+ * One show on one day, lit by its poster: poster, the show, the code with
+ * the episode's title or "N episodes", the runtime and a 32px slot. A one-episode row opens that episode; a run's "N episodes" opens
  * each episode (code, title, runtime) and its chevron fills the slot. The
  * page passes the ⋯ (`action`, shown on hover; not on a phone, where its
  * space goes to the title) and a visitor's tag. The ⋯ sits in the slot, or

@@ -8,10 +8,10 @@ import RecentlyWatched, { RecentlyWatchedSkeleton } from './RecentlyWatched';
 import UpNext, { UpNextSkeleton } from './UpNext';
 
 /**
- * Someone else's profile, read as a match: Watching now, then You
- * both watch beside Also watching and Where your tastes split, Favourites
- * with a relation pill each, Recently watched. Owner bookkeeping (Almost
- * done, Season ledger, Paused, From your circle) is not rendered.
+ * Someone else's profile, read as a match: Watching now, then You both watch
+ * beside Also watching and Where your tastes split, Favourites with a
+ * relation pill each, Recently watched. The owner's lanes and From your
+ * circle are not rendered.
  */
 export default function VisitorOverview({
   profile,

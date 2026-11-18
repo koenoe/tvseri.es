@@ -48,8 +48,8 @@ type Props = Readonly<{
 }>;
 
 /**
- * The hero circles: 22px icons in white/75 on desktop (ep-circ.ep-lg),
- * 40px circles with 20px icons on phones (production's size-10 / size-5).
+ * The hero circles: 22px icons in white/75 on desktop, 40px circles with
+ * 20px icons on phones.
  * `[&_svg]`, not `[&>svg]`: a toggle wraps its icon in a span.
  */
 const PHONE_CIRCLE =
@@ -59,7 +59,7 @@ const PHONE_CIRCLE =
 const isCompleteView = (view: SeriesBase | undefined) =>
   view ? seriesProgress(view).isComplete : false;
 
-/** Production's WatchButton eye: the filled drawing at rest too. */
+/** The eye keeps its filled drawing at rest too. */
 const watchEyeGlyph: Glyph = { outline: eyeGlyph.filled };
 
 /** The Remote's Admin row: Hero images (I), Images on TMDB (T). */
@@ -100,8 +100,8 @@ function useAdminSection(
 }
 
 /**
- * The hero's actions (ep0-btns): the eye marks or unmarks the
- * whole show, the heart and bookmark toggle the lists, "…" opens the Remote.
+ * The hero's actions: the eye marks or unmarks the whole show, the heart
+ * and bookmark toggle the lists, "…" opens the Remote.
  * All optimistic through the marking core; signed out, the core asks to sign
  * in.
  */

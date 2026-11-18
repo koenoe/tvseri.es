@@ -12,7 +12,7 @@ const CLEAR = 'rgba(0,0,0,0)';
 
 const IMAGE = 'absolute inset-0 object-[center_top] md:object-[center_25%]';
 
-/** The slide's colour from below over the hero shade (HM header read A) */
+/** The slide's colour from below over the hero shade */
 const desktopShade = (color: string) => ({
   background: `linear-gradient(0deg, ${color} 0%, ${color} 10%, ${CLEAR} 52%), ${heroShade(color)}`,
 });

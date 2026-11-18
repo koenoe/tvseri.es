@@ -42,11 +42,10 @@ const STUB = {
 } as const;
 
 /**
- * One ticket: the countdown stub behind a dashed tear with
- * two punched notches, then poster, title, what airs, the date, and where.
- * On a phone "where" (the service's logo) drops, so the title has its line
- * (beside the logo it was cut to eight letters; moved to the date line it
- * cut the date instead).
+ * One ticket: the countdown stub behind a dashed tear with two punched
+ * notches, then poster, title, what airs, the date, and where. On a phone
+ * the service's logo drops: beside it the title would be cut to a few
+ * letters, and on the date line it would cut the date.
  */
 export default function Ticket({
   item,

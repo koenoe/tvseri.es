@@ -33,7 +33,6 @@ import { idsOf, withoutNeighbours } from './neighbours';
  */
 
 const ROW_LIMIT = 20;
-/** Continue watching holds at most 8 shows */
 const CONTINUE_LIMIT = 8;
 
 /**

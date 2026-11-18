@@ -18,9 +18,9 @@ export function useWatchlistAdd(seriesId: number, title: string) {
 }
 
 /**
- * The visitor's + (the hero, an Also watching row, a New to
- * you poster, a History row): a check while the show is saved. `className`
- * places it and gives it its ground where it sits on a picture.
+ * The visitor's + (the hero, an Also watching row, a New to you poster, a
+ * History row): a check while the show is saved. `className` places it and
+ * gives it its ground where it sits on a picture.
  */
 export default function WatchlistAdd({
   className,

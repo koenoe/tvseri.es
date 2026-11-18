@@ -51,7 +51,6 @@ export function TileText({ tile }: Readonly<{ tile: TileView }>) {
   );
 }
 
-/** The poster with what sits on it */
 /**
  * A dark corner under the owner's ⋯ so it reads on a light poster; it shows
  * when the ⋯ does
@@ -59,6 +58,7 @@ export function TileText({ tile }: Readonly<{ tile: TileView }>) {
 const MENU_SHADE =
   'pointer-events-none absolute top-0 right-0 size-20 rounded-tr-[var(--tile-radius,12px)] bg-radial-[at_100%_0%] from-[rgb(15_20_20/0.7)] to-transparent to-70% opacity-0 transition-opacity duration-160 group-focus-within/lt:opacity-100 group-hover/lt:opacity-100 [@media(hover:none)]:opacity-100';
 
+/** The poster with what sits on it */
 export function Poster({
   children,
   eager,

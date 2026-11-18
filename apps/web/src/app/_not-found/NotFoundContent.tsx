@@ -8,7 +8,7 @@ import { loadTrending } from './trending';
 
 /**
  * One of the three 404 stills, picked inside the cache so it rotates without
- * a request or a client-side swap (“Which 404 still: cached”).
+ * a request or a client-side swap.
  */
 async function pickStillIndex() {
   'use cache';

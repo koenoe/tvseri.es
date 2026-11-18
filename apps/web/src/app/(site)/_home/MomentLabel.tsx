@@ -13,10 +13,9 @@ const MOMENT_LABEL =
   'flex min-w-0 items-center gap-2 text-overline text-white/60 uppercase';
 
 /**
- * A moment's heading inside its block: an icon and the
- * moment's name, where each block puts it (Connected by's head row, the
- * Binge calculator's and the Countdown's top left, What's on's remote, the
- * first line of One season in stills) instead of a title above the block.
+ * A moment's heading inside its block: an icon and the moment's name,
+ * where each block puts it (inside its card or as its first line) instead of
+ * a title above the block.
  * It is the block's only heading, so it is an h2 like the rows' titles.
  */
 export default function MomentLabel({

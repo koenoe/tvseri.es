@@ -288,7 +288,7 @@ function GuestRow({
 }
 
 /**
- * Career ("How the career works"): a
+ * Career: a
  * server-drawn chart, one row per series, the viewer's stretches filled
  * (client marks), Today or the date of death, announced work in pink past
  * Today, guest roles as ticks. Rows link to the show; a first tap on touch

@@ -14,10 +14,9 @@ const SHOWN = { opacity: 1, y: 0 } as const;
 const TRANSITION = { duration: 0.2, ease: [0.2, 0.8, 0.2, 1] } as const;
 
 /**
- * A month in Jump to: a link to the diary from that month down.
- * It fades in from 4px up when its year opens; the white fill glides to
- * the month you're reading (200ms; one `layoutId` per
- * list).
+ * A month in Jump to: a link to the diary from that month down. It fades
+ * in from 4px up when its year opens; the white fill glides to the month
+ * you're reading (200ms; one `layoutId` per list).
  */
 function JumpMonthLink({
   animate,

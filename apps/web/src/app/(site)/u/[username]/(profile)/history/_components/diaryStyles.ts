@@ -1,7 +1,6 @@
 /**
- * The diary's boxes, shared by the diary and its
- * placeholder so both measure the same. Desktop first; `max-md:` is the
- * phone.
+ * The diary's boxes, shared by the diary and its placeholder so both
+ * measure the same. Desktop first; `max-md:` is the phone.
  */
 
 /** A month: 20px between months (`section + section`) */
@@ -20,8 +19,7 @@ export const DIARY_DAY =
  * apart; on a phone 84px (a run's toggle fits its 24px line, so every row
  * is that height). The intrinsic size is the content box: the day's rule
  * and padding (29px, 25px on a phone) come on top, as they do when it
- * renders, so the month's estimate (`19px`/`15px` a day) holds both ways.
- * `auto` keeps the real height once it has rendered, so a day above the
+ * renders. `auto` keeps the real height once it has rendered, so a day above the
  * reader never changes size.
  *
  * The days are the only skipped level: a month is never skipped as well.
@@ -42,11 +40,11 @@ export const DIARY_ROWS = 'flex min-w-0 flex-col gap-2.5';
 export const DIARY_ROW_RADIUS = 'rounded-14 max-md:rounded-12';
 
 /**
- * One show on one day, lit by its own poster (`DiaryGlow`) under
- * a dark gradient (`::before`) that keeps white text at 4.5:1 over a bright
+ * One show on one day, lit by its own poster (`DiaryGlow`) under a dark
+ * gradient (`::before`) that keeps white text at 4.5:1 over a bright
  * poster, with a 1px inner ring (`::after`). `isolate` keeps the glow and
  * the gradient (negative z) inside the card; `contain: paint` keeps the
- * blur's raster to the card.
+ * glow's raster to the card.
  */
 export const DIARY_ROW = `group/row relative isolate overflow-hidden bg-[#20272a] [contain:paint] ${DIARY_ROW_RADIUS} before:absolute before:inset-0 before:-z-1 before:bg-[linear-gradient(90deg,rgb(28_34_35/0.35)_0%,rgb(28_34_35/0.65)_45%,rgb(28_34_35/0.82)_100%)] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.06)]`;
 

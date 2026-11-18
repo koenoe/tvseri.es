@@ -49,7 +49,7 @@ const ORDINALS = [
 /** "eight" up to twenty, digits after */
 const inWords = (value: number): string => WORDS[value] ?? String(value);
 
-/** "Most rated of the decade", "Number 2 by attention" (the design's kicker) */
+/** "Most rated of the decade", "Number 2 by attention" */
 export function decadeKicker(rank: number): string {
   return rank === 1
     ? 'Most rated of the decade'

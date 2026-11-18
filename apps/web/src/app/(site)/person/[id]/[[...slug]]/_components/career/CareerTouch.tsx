@@ -23,7 +23,7 @@ const clear = (grid: HTMLElement, keep?: Element) => {
 };
 
 /**
- * The chart's touch rule ("Click, keys"): the first tap
+ * The chart's touch rule: the first tap
  * on a row lights it (caption, others dim) and the second opens the show.
  * Hover and keyboard focus are CSS (`career.module.css`); this only marks
  * the tapped row with `data-hot`, without a re-render. While a row is lit

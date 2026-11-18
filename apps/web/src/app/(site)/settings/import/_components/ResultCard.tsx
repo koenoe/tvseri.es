@@ -46,8 +46,8 @@ type Props = Readonly<{
 }>;
 
 /**
- * The result: earned and specific. The
- * outcome pill (text and icon, never colour alone), the number with its
+ * The result: the outcome pill (text and icon, never colour alone), the
+ * number with its
  * accent, the next steps, then the shows with the most imported episodes.
  * The Ripple settles once; the page glow is `OutcomeGlow`.
  */

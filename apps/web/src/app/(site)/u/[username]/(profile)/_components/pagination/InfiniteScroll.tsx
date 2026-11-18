@@ -3,14 +3,14 @@
 import { inView } from 'motion/react';
 import { type ReactNode, useCallback, useTransition } from 'react';
 
-/** Today's lists read 2,000px ahead; the Library two rows (600px) */
+/** A list reads 2,000px ahead; the Library two rows (600px) */
 const DEFAULT_MARGIN = '0px 0px 2000px 0px';
 
 /**
  * Loads the next page when a sentinel `margin` below the content comes into
- * view. The observer is set up by the sentinel's
- * ref, and again for each new page (`loadMore` changes with it), so a
- * sentinel still in view after a short page loads the next one too.
+ * view. The observer is set up by the sentinel's ref, and again for each
+ * new page (`loadMore` changes with it), so a sentinel still in view after a
+ * short page loads the next one too.
  */
 export default function InfiniteScroll({
   children,

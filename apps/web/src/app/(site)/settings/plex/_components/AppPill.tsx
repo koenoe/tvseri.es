@@ -8,8 +8,8 @@ export const APP_PILL_CLASS =
 
 /**
  * A pill in a card header: `state` is the status (Available, Coming next,
- * Connected: amber on Plex's connected panel), `quiet` an honest fact (Built
- * in, Needs Plex Pass).
+ * Connected: amber on Plex's connected panel), `quiet` a plain fact (Built in,
+ * Needs Plex Pass).
  */
 export default function AppPill({
   children,

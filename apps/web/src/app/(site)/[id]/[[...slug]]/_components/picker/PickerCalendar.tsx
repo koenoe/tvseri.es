@@ -22,7 +22,7 @@ import { DIALOG_LABEL } from './PickerOptions';
 const NAV =
   'flex size-8 cursor-pointer items-center justify-center rounded-8 text-white/60 transition-colors hover:bg-white/8 hover:text-white aria-disabled:pointer-events-none aria-disabled:opacity-30';
 
-/** The `.dp-*` month grid on react-day-picker's markup (36px cells, 38 on phones). */
+/** The month grid on react-day-picker's markup (36px cells, 38 on phones). */
 const CLASS_NAMES = {
   [UI.Root]: 'w-full',
   [UI.Months]: 'w-full',

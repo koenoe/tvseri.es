@@ -8,9 +8,8 @@ import type { StartCard } from './startCards';
 const MAX = 12;
 
 /**
- * Popular this week, as deck cards (an empty watchlist and nobody followed,
- * from the shared cached read; empty during an outage, so the block
- * simply isn't drawn until the API answers.
+ * Popular this week as deck cards, from the shared cached read. Empty
+ * during an outage: the block shows its empty state until the API answers.
  */
 export async function loadTrendingCards(): Promise<ReadonlyArray<StartCard>> {
   const shows = (await loadTrending()) ?? [];

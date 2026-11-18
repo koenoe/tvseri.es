@@ -7,11 +7,10 @@ import { useHiddenShows } from '@/lib/marking/hooks';
 import { SHOW_ALL } from './laneCaps';
 
 /**
- * A lane's rows, capped at `cap`; the rest open in
- * place with "Show all N" at the lane's foot, so a busy profile keeps its
- * two lanes comparable in length and nothing is a dead end. The rows are
- * rendered on the server and passed in; the hidden ones stay out of the
- * DOM until opened.
+ * A lane's rows, capped at `cap`; the rest open in place with "Show all N"
+ * at the lane's foot, so a busy profile keeps its two lanes comparable in
+ * length and nothing is a dead end. The rows are rendered on the server and
+ * passed in; the hidden ones stay out of the DOM until opened.
  */
 export default function CappedRows({
   as: List = 'div',

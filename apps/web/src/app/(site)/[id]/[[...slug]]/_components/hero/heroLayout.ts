@@ -1,22 +1,21 @@
 /**
  * The hero's grid cells, shared by the hero and the page's loading shell so
- * both draw the same boxes (ep0-hero, fm-hero).
+ * both draw the same boxes.
  * Rows 1 and 2 share a spacer of a set height (457 + 48px on desktop, 376px
  * on phones), so what streams into them never moves the page below. On a
- * tall window the desktop spacer grows with it (65% of its height, as
- * production's hero does), so the backdrop keeps its room above the title.
+ * tall window the desktop spacer grows with it (65% of its height), so the
+ * backdrop keeps its room above the title.
  */
 export const HERO_SPACER =
   'pointer-events-none col-start-1 row-span-2 row-start-1 min-h-[376px] md:h-[max(505px,calc(65svh-80px))] md:min-h-0 md:group-data-docked/hero:h-[calc(100svh-var(--admin-tray-height,240px)-63px)]';
 
 /**
- * The phone hero's rhythm ("a bit vertically cramped"): 16px
+ * The phone hero's rhythm: 16px
  * from the title to the facts, 20px from the facts to the progress line's
  * text and 20px from it to the rating and actions. The progress line's box is
  * 44px tall on phones (a tap target), so its own 12px above and below the
  * text count towards those 20s (`PROGRESS_LINE_SPACE`: it reaches 12px up
- * into the facts' 20px margin). Every viewer has the line (signed out it
- * states the series' size). Desktop has 24px under the title (a
+ * into the facts' 20px margin). Desktop has 24px under the title (a
  * treatment's artwork often reaches its box's foot), then 12px to the
  * line's box and 16px under it, which puts the line 36px from the facts'
  * text and 36px from what follows.
@@ -29,12 +28,12 @@ export const HERO_TITLE_GROUP =
 export const HERO_META_ROW =
   'mb-5 flex items-center md:mb-3 md:min-h-7 md:group-data-docked/hero:mb-px';
 
-/** On the 24px gutter on phones too (margin 0 24px) */
+/** On the 24px gutter on phones too */
 export const HERO_PROMPT_SLOT =
   'col-start-1 mt-1 min-w-0 max-md:row-start-3 md:row-start-2 md:mt-0 md:w-[973px] md:max-w-full';
 
 /**
- * The synopsis: production's width (four fifths of the 1216 page), wider than
+ * The synopsis: four fifths of the 1216 page, wider than
  * the progress line and the prompt above it: fewer lines, so the hero stays
  * short.
  */

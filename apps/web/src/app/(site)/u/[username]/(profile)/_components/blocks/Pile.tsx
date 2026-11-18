@@ -37,11 +37,11 @@ const PEEK = {
 } as const;
 
 /**
- * Episodes of one show watched in a row as a pile that spreads (Recently watched
- * and History): closed, one toggle button covers up to three cards
- * stacked behind each other (the others are inert and hidden from
- * assistive tech); open, the cards spread into `spreadClass`'s grid, each
- * a real link, and the count chip folds the pile again. Position, scale and
+ * Episodes of one show watched in a row as a pile that spreads (Recently
+ * watched and History): closed, one toggle button covers up to three cards
+ * stacked behind each other (the others are inert and hidden from assistive
+ * tech); open, the cards spread into `spreadClass`'s grid, each a real
+ * link, and the count chip folds the pile again. Position, scale and
  * opacity animate (transforms only; Motion layout FLIP from the first
  * toggle on, so untouched piles measure nothing). Needs a `MaxMotion`
  * above. The parent owns `open` (a tile also widens its slot).
@@ -83,8 +83,7 @@ export default function Pile({
   const columnVar = {
     '--cols': Math.min(count, columns),
   } as React.CSSProperties;
-  // open, the fold chip shows only on hover and focus (no badge
-  // on a spread)
+  // open, the fold chip shows only on hover and focus (no badge on a spread)
   const foldClass = `${CHIP} opacity-0 transition-opacity duration-200 group-hover/pile:opacity-100 focus-visible:opacity-100`;
   const toggleClass = open ? foldClass : 'absolute inset-0 z-20 cursor-pointer';
   const fold = useCallback(

@@ -33,9 +33,8 @@ export const PAUSE_LINE =
   'While paused, plays aren’t marked. Handy when someone else watches on your account.';
 
 /**
- * The Last scrobble card's fade: from the left as before, a little stronger,
- * plus a shade from the foot so the week's bars and letters read over a
- * bright still (`scrobbleWeek.test.ts` checks the bars' corner).
+ * The Last scrobble card's fade: from the left, plus a shade from the foot
+ * so the week's bars and letters read over a bright still.
  */
 export const LAST_FADE = {
   /** the shade from the foot */

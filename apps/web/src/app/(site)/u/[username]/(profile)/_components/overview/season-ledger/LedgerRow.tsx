@@ -24,10 +24,9 @@ import type { LedgerEpisodeView } from './loadLedger';
 const SKIPPED = cn(LEDGER_BUTTON, 'text-white/80');
 
 /**
- * One missing episode: code, "Aired Feb 2005", Watched
- * and Skipped. Once chosen the row settles and says which, with Undo: only
- * its surface fades (the fill gives way to a hairline), so every line keeps
- * white/60 or more.
+ * One missing episode: code, "Aired Feb 2005", Watched and Skipped. Once
+ * chosen the row settles and says which, with Undo: only its surface fades
+ * (the fill gives way to a hairline), so every line keeps white/60 or more.
  */
 export default function LedgerRow({
   episode,

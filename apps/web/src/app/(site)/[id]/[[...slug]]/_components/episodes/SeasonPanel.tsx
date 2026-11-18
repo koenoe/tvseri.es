@@ -175,7 +175,8 @@ function Popover(props: SeasonPanelProps) {
 /**
  * The open panel: a 440px popover under the trigger on desktop (with a
  * transparent layer that closes it on an outside click, and the page's
- * scroll locked while it is open), a bottom sheet on a phone. Lazy-loaded by `SeasonSelect` on first use.
+ * scroll locked while it is open), a bottom sheet on a phone. Lazy-loaded
+ * on first use (`panel` in `useSeasonSelect`).
  */
 export default function SeasonPanel(props: SeasonPanelProps) {
   const phone = useMediaQuery(PHONE);

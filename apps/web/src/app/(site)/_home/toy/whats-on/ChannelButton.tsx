@@ -9,8 +9,7 @@ import { CHANNEL, CHANNEL_ON } from './layout';
 
 /**
  * One channel on the remote: number, service mark,
- * service and show. 48px tall, 10px corners; white/6 on hover, white/12 and
- * white text when it's on. Memoised: a change of channel re-renders only the
+ * service and show. Memoised: a change of channel re-renders only the
  * two buttons whose state changed.
  */
 function ChannelButton({

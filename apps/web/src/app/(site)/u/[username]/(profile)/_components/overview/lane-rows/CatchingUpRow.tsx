@@ -30,7 +30,6 @@ import { type RunwayView, runPlan, runwayView } from '../catching-up/runway';
 import useLiveCatchingUp from '../catching-up/useLiveCatchingUp';
 import useNextUpLabel from '../catching-up/useNextUpLabel';
 
-/** One Catching up show: the run of waiting episodes and the premiere runway */
 const POSTER_IMAGE = cn(
   'object-cover shadow-[0_10px_20px_-8px_rgb(0_0_0/0.8)]',
   CATCHING_UP_POSTER,
@@ -38,7 +37,8 @@ const POSTER_IMAGE = cn(
 const POSTER_EMPTY = cn('block bg-white/6', CATCHING_UP_POSTER);
 
 /**
- * The row follows the viewer's marks in this tab (`useLiveCatchingUp`): the
+ * One Catching up show: the run of waiting episodes and the premiere runway.
+ * It follows the viewer's marks in this tab (`useLiveCatchingUp`): the
  * count, the time left, the run and Next up move on together, and the row
  * leaves once nothing is waiting.
  */

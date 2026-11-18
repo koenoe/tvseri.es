@@ -43,8 +43,7 @@ const episodesSkeleton = <EpisodesSkeleton />;
 
 /**
  * Export: the history as a CSV the importer reads back as is, and
- * everything as one JSON. The API only offers a direct download for the JSON
- * (no emailed link), so the row says so plainly.
+ * everything as one JSON.
  */
 export default function ExportCard() {
   return (

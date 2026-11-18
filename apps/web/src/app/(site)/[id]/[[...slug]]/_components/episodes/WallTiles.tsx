@@ -137,7 +137,7 @@ function TileTitle({ episode }: Readonly<{ episode: ShowEpisode }>) {
   );
 }
 
-/** An unwatched tile: production size, number + title, 2 lines, the pill. */
+/** An unwatched tile: number + title, 2 lines of overview, the pill. */
 export const EpisodeTile = memo(function EpisodeTile({
   deferred,
   episode,

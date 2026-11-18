@@ -37,8 +37,9 @@ const TITLE = cn(PAUSED_TITLE, 'flex');
 import { lastWatchedLine } from './paused/pausedCopy';
 
 /**
- * Paused: in-progress shows not watched for over 3 months, with
- * one honest question. Keep or Hide keeps In progress true.
+ * Paused: in-progress shows not watched for over 3 months, asked "Still
+ * watching?". Keep or Hide sets a pref; neither takes the show out of In
+ * progress.
  */
 export default async function Paused({
   profile,

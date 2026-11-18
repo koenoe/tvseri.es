@@ -3,7 +3,7 @@ export type Country = Readonly<{ code: string; name: string }>;
 /**
  * Codes `Intl.DisplayNames` knows but that are not countries to pick from:
  * regions (EU, UN), reserved and retired codes (ZZ, AN, YU…), and territories
- * without their own watch region. The design's list rule.
+ * without their own watch region.
  */
 const NOT_COUNTRIES = new Set([
   'EU',

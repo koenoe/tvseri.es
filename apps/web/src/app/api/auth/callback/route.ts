@@ -14,7 +14,7 @@
  *   says what happened;
  * - any other error, a missing code, an unreachable auth server or a
  *   refused exchange goes to the “Sign-in broke” page, return path kept;
- * - a state mismatch (a login started in two tabs) goes home, as before.
+ * - a state mismatch (a login started in two tabs) goes home.
  */
 import type { Client } from '@openauthjs/openauth/client';
 import { GOOGLE_UNVERIFIED_DESCRIPTION } from '@tvseri.es/constants';

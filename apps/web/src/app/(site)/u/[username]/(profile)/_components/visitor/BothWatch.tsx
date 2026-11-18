@@ -107,10 +107,9 @@ function BothRow({ show, tone }: Readonly<{ show: SharedShow; tone: string }>) {
 }
 
 /**
- * You both watch: shows in both libraries, strongest bond first,
- * each with what comes next, its year, seasons and genre, and what the two
- * of you did with it. The dot and the relation lines have the match
- * level's colour.
+ * You both watch: shows in both libraries, strongest bond first, each with
+ * what comes next, its year, seasons and genre, and what the two of you did
+ * with it. The dot and the relation lines have the match level's colour.
  */
 export default async function BothWatch({
   profile,

@@ -15,10 +15,10 @@ import JumpToSkeleton from '../../history/_components/JumpToSkeleton';
 type Props = Readonly<{ params: ProfileParams }>;
 
 /**
- * Under the identity (~330px), the rule and the heading, below the pill
- * (96px). The gutter is kept whether the list overflows or not, and the
- * skeleton sits in the same box: with a classic scrollbar the rows are as
- * wide before and after the years land.
+ * The height left under the identity (~330px), the rule, the heading and
+ * the pill (96px). The gutter is kept whether the list overflows or not,
+ * and the skeleton sits in the same box: with a classic scrollbar the rows
+ * are as wide before and after the years land.
  */
 const JUMP_SCROLL =
   'max-h-[calc(100dvh-30rem)] min-h-60 overflow-y-auto overscroll-contain [scrollbar-gutter:stable] [scrollbar-width:thin]';

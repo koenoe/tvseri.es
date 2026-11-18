@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 import cn from '@/lib/cn';
 
-/** A row's 2:3 poster (34px in Out now, 48px in Almost done) */
+/** A lane row's 2:3 poster (34px in Out now and Coming up, 48px in You both watch) */
 export default function LanePoster({
   className,
   src,

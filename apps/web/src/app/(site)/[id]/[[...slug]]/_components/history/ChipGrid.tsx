@@ -57,11 +57,10 @@ const GridChipMemo = memo(GridChip);
 GridChipMemo.displayName = 'GridChip';
 
 /**
- * One season's episode chip grid and its paint gesture: a tap is a click (`onTap`); a drag paints a
- * consecutive run, the first chip deciding, and the release applies it per
- * mode (`onCommit`). Touch starts a run with a 350ms press or a sideways
- * 6px move; vertical moves scroll. Chip boxes are measured once per drag,
- * so a move is a lookup, not a layout read; the highlight is a class.
+ * One season's episode chip grid and its paint gesture (`usePaintGesture`):
+ * a tap is a click (`onTap`); a drag paints a consecutive run, the first
+ * chip deciding, and the release applies it per mode (`onCommit`). The run's
+ * highlight is a class.
  */
 function ChipGrid({
   chips,

@@ -11,7 +11,6 @@
  * place the comparison column's parts on a phone; from lg it is one column.
  */
 
-/** The card */
 export const VERSUS_CARD =
   'grid grid-cols-2 gap-x-4 rounded-16 bg-black/25 p-4 [grid-template-areas:"head_head"_"left_right"_"rows_rows"_"result_result"_"more_more"] lg:grid-cols-[150px_minmax(0,1fr)_150px] lg:items-center lg:gap-x-9 lg:px-10 lg:pt-6 lg:pb-6.5 lg:[grid-template-areas:"left_middle_right"]';
 
@@ -37,18 +36,15 @@ export const VERSUS_MIDDLE =
   'contents lg:flex lg:min-w-0 lg:flex-col lg:[grid-area:middle]';
 
 /**
- * The heading line, in the in-card label's look
- * (`MomentLabel`: 13px semibold at 85%, a 15px icon 8px before the words),
- * centred. The icon is inline with the words, so a wrapped line (signed in,
+ * The heading line: 13px semibold at 85%, a 15px icon 8px before the
+ * words, centred. The icon is inline with the words, so a wrapped line (signed in,
  * on a phone) keeps it beside them and balances its two halves
  */
 export const VERSUS_HEAD =
   '[grid-area:head] text-center text-meta font-semibold text-balance text-white/85 lg:pb-3';
 
-/** The icon before the words */
 export const VERSUS_HEAD_ICON = 'mr-2 inline-block size-[15px] align-[-2px]';
 
-/** The rows' block */
 export const VERSUS_ROWS = '[grid-area:rows] mt-4 flex flex-col lg:mt-0';
 
 /** One row: left value, label, right value; tabular figures */

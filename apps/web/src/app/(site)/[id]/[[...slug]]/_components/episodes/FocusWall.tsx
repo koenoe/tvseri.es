@@ -183,9 +183,8 @@ function Slot({ dispatch, focusLayout, seriesId, slot }: SlotProps): ReactNode {
  * Three columns of 392 on desktop, two on a tablet, one on a phone. Two
  * grids: Focus with the open and upcoming episodes (Focus 2 × 2 with two
  * tiles beside it, or across the row when fewer than two can stand there),
- * then the "N watched" group, which never backfills the part above it
- * The slots come from
- * `planWall`; marks move tiles between groups live.
+ * then the "N watched" group, which never backfills the part above it.
+ * The slots come from `planWall`; marks move tiles between groups live.
  */
 export default function FocusWall({
   dispatch,

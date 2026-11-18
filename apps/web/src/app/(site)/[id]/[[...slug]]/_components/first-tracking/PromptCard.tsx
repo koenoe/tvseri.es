@@ -27,8 +27,7 @@ const ANSWERS = 'flex flex-wrap gap-2 md:flex-1 md:flex-nowrap';
 /**
  * The card's box and layout, shared by the card and its placeholder. On
  * phones it ends the hero and takes its whole height: "Created by" or the
- * cast keeps its own space below it (it once tucked 24px into the episodes
- * section's margin, when phones drew no cast).
+ * cast keeps its own space below it.
  */
 const CARD_BOX =
   'relative z-[5] flex flex-col items-start gap-2.5 rounded-16 border py-3 pr-3 pl-5 max-md:mt-4 md:mb-5 md:-ml-2.5 md:w-[730px] md:max-w-[calc(100%+20px)] md:flex-row md:items-center md:gap-4';
@@ -116,9 +115,8 @@ const GHOST_ANSWER_FINISHED_CLASS = cn(ANSWER_BOX, 'w-[115px]', GHOST_FILL);
 const GHOST_NOT_NOW_CLASS = cn(NOT_NOW_BOX, 'w-[76px]', GHOST_FILL);
 
 /**
- * The card while the page loads (the skeleton looked "too
- * much like the actual component"; "I wouldn't show the glass in a
- * skeleton"): flat ghost shapes in the card's own box, one pulsing layer.
+ * The card while the page loads: flat ghost shapes in the card's own box,
+ * one pulsing layer, so it doesn't pass for the real card.
  * The question is a bar in its line box, the answers and Not now are ghost
  * pills as wide as their words (the typical show's "Seen Harbour Lights
  * before?"), so they wrap on phones as the real ones do; no words, no

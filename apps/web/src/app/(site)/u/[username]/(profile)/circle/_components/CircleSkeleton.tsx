@@ -75,8 +75,8 @@ const visitor = (
 );
 
 /**
- * The Circle before it streams: the header and five ghost
- * rows in the real boxes, yours or someone else's before the first paint.
+ * The Circle before it streams: the header and five ghost rows in the real
+ * boxes, yours or someone else's before the first paint.
  */
 export default function CircleSkeleton() {
   return (

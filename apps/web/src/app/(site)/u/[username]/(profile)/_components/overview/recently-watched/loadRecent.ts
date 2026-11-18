@@ -10,8 +10,7 @@ type WatchedPage = Readonly<{ items: ReadonlyArray<WatchedItem> }>;
 
 /**
  * The newest 100 watched episodes (the API's most per page, as History reads
- * it): five stacks even after a binge of a whole season, which a read of 30
- * turned into one lone stack
+ * it), so a binge of a whole season still leaves five stacks
  */
 export async function loadRecent(
   profile: Profile,

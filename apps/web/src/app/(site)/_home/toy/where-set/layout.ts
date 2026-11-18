@@ -7,7 +7,7 @@
 /**
  * The card: the map beside the place's show from lg, stacked below that: the 680px map and its 28px gap need a
  * card over 1,000px wide before the show beside it has room (at 800 the
- * side-by-side card ran 164px past the page).
+ * side-by-side card would run 164px past the page).
  */
 export const WHERE_CARD =
   'flex flex-col gap-4 rounded-16 bg-black/25 p-4 md:px-7 md:py-6 lg:grid lg:grid-cols-[680px_minmax(0,1fr)] lg:gap-7';

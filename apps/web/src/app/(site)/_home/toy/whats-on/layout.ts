@@ -19,7 +19,7 @@ export const WHATS_ON_GRID =
 export const REMOTE = 'flex min-w-0 flex-col gap-4';
 
 /**
- * The block's heading (`e2-remh`, 36px): the on-air icon and "What's on" in
+ * The block's heading (36px): the on-air icon and "What's on" in
  * the overline style on the left, channel up/down at the right end
  */
 export const REMOTE_HEAD = 'flex min-h-9 items-center gap-2.5';
@@ -27,7 +27,6 @@ export const REMOTE_HEAD = 'flex min-h-9 items-center gap-2.5';
 /** Its label's place: the arrows go to the right end */
 export const REMOTE_LABEL = 'mr-auto';
 
-/** The TV */
 export const SCREEN =
   'relative h-[300px] overflow-hidden rounded-16 bg-[#0c0e0f] md:h-[380px] lg:h-auto';
 
@@ -65,7 +64,7 @@ export const CAPTION_LOGO =
 
 /**
  * The show's title written, when it has no logo: a block, so its margin
- * holds (an inline title's margin is ignored and its line sat on the
+ * holds (an inline title's margin is ignored and its line would sit on the
  * facts), and a little more room under it than under a logo, as its tight
  * line sits closer to the facts
  */

@@ -37,7 +37,7 @@ export default async function RatingAndProvider({
     return null;
   }
   const { rating, where } = found;
-  // rented or bought: dimmed, as the show page draws it
+  // rented or bought: dimmed
   const layout =
     where?.kind === 'rent' || where?.kind === 'buy' ? DIMMED : OWNED;
   const ratedTitle = `Rated ${rating}`;

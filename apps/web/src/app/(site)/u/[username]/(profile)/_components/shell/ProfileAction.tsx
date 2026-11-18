@@ -16,7 +16,7 @@ const SKELETON: Readonly<Record<Size, string>> = {
   sidebar: `block h-[42px] w-full rounded-10 ${GHOST_FILL} ${PULSE}`,
 };
 
-/** The button's place before the follow state is known: 42px wide, or the compact 32px pill */
+/** The button's place before the follow state is known: full width and 42px tall, or the compact 32px pill */
 export function ProfileActionSkeleton({
   size = 'sidebar',
 }: Readonly<{ size?: Size }>) {
@@ -29,9 +29,9 @@ const UNAVAILABLE: Readonly<Record<Size, string>> = {
 };
 
 /**
- * The owner's Edit profile, or a visitor's Follow / Following. When
- * the follow state did not load the button is off and says why: a guess
- * could show Follow for someone you already follow.
+ * The owner's Edit profile, or a visitor's Follow / Following. When the
+ * follow state did not load the button is off and says why: a guess could
+ * show Follow for someone you already follow.
  */
 export default async function ProfileAction({
   profile,

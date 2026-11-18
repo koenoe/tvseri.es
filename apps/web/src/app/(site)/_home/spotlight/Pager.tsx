@@ -30,8 +30,10 @@ type Props = Readonly<{
  * before the 32px pause button, bottom right on the buttons' line. Phone:
  * 18px lines 6px apart under the spotlight, each in a 44px-tall target that
  * reaches its neighbours, so a tap lands on the nearest line. The current
- * line fills over 8s (the slow end of what usability testing finds right for a hero slide with a title and a few facts: 5 to 7s; 6s read as too fast); earlier lines are full, later ones empty. The markup is
- * the same for every viewer (the pause button always there, as drawn).
+ * line fills over 8s (longer than the usual 5 to 7s for a hero slide: each
+ * carries a title and a few facts); earlier lines are full, later ones
+ * empty. The markup is the same for every viewer (the pause button always
+ * there).
  * Until the reader presses it, the button draws play for a reader who asked
  * for reduced motion (the slideshow starts paused for them) and pause for
  * everyone else, from CSS, so the first paint is already right.

@@ -21,9 +21,9 @@ import {
 /**
  * The show page's own cached reads, trimmed to what the page draws inside
  * the cached scope (primitive keys only). Shared sections prerender into the
- * show's static shell: each read goes
- * through `tryApi`, and exactly one `cacheLife` per run, the API's profile
- or `unavailable` (revalidated after 30 s) when Unavailable.
+ * show's static shell: each read goes through `tryApi`, and exactly one
+ * `cacheLife` per run, the API's profile or `unavailable` (revalidated
+ * after 30 s) when Unavailable.
  */
 
 export type ShowResult =
@@ -58,7 +58,7 @@ export type CastMember = Readonly<{
 
 /**
  * `GET /series/:id/credits` (the one cached read, `loadSeriesCredits`): the
- * first 10 of the cast (as production).
+ * first 10 of the cast.
  */
 export async function loadCast(
   id: number,

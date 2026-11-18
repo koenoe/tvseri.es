@@ -107,7 +107,7 @@ export function LandingSwitch({
   const onPress = useCallback(
     (id: string, tab: string) => {
       press(id, tab);
-      // the new tab starts at its first show, as the design resets the row
+      // the new tab starts at its first show
       document.getElementById(controls)?.scrollTo({ left: 0 });
     },
     [controls, press],

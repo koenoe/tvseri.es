@@ -12,8 +12,7 @@ import {
 import { loadMax } from '@/components/motion/useMaxFeatures';
 
 /**
- * A row opening moves the rows and days below it (the rows
- * below FLIP down, 200ms). One month at a time: its rows and days ask for
+ * A row opening moves the rows and days below it (they FLIP down, 200ms). One month at a time: its rows and days ask for
  * Motion's `layout="position"` once the month is armed (a pointer went down
  * or focus entered it: before the click that opens a row, never on a mere
  * pass of the pointer while scrolling, which would re-render the month),

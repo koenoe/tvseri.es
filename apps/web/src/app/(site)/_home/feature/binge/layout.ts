@@ -14,7 +14,6 @@ import type { NightsMode, PerNight } from './plan';
 export const DEFAULT_PER_NIGHT: PerNight = 2;
 export const DEFAULT_MODE: NightsMode = 'every';
 
-/** The card */
 export const BINGE_CARD = cn(MOMENT_CARD, 'flex flex-col gap-6 md:gap-8');
 
 /** The label over the headline (16px apart, 8 on a phone) */
@@ -52,7 +51,6 @@ export const NIGHTS_LABEL = 'Nights';
 /** The night strip's line (one line of dots under the date labels) */
 export const BINGE_STRIP = 'flex pt-7 @container';
 
-/** One dot's cell */
 export const BINGE_STRIP_CELL =
   'relative flex h-5 w-(--p) flex-none items-center justify-center';
 
@@ -63,9 +61,9 @@ export const BINGE_FOOTER =
 export const BINGE_FOOTER_TEXT = 'text-body text-white/80';
 
 /**
- * The summary after the finish date: its own line on a phone (where the two
- * wrapped at a point that hung on the date's length, so the placeholder's
- * height could not match), after a dot from md
+ * The summary after the finish date: its own line on a phone (sharing the
+ * date's line, it would wrap at a point that hangs on the date's length, so
+ * the placeholder's height could not match), after a dot from md
  */
 export const BINGE_FOOTER_SUMMARY = 'max-md:block';
 export const BINGE_FOOTER_DOT = 'max-md:hidden';

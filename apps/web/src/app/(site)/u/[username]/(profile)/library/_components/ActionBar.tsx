@@ -32,7 +32,7 @@ const RISE = {
 
 /**
  * Select mode's bar, at the foot of the screen aligned
- * to the main column: "4 shows selected", the shelf's one action and
+ * to the main column: "4 series selected", the shelf's one action and
  * Cancel; before a pick, how selecting works. The phone's bar has the count
  * and the action's short name. It reads the count from the grid's
  * selection itself, so a pick doesn't re-render the grid.
@@ -50,8 +50,8 @@ export default function ActionBar({
   const count = useStore(selection, (state) => state.selected.size);
   const desktopCount = `${count} series selected`;
   const phoneCount = `${count} selected`;
-  // A phone shows no bar before the first pick: then the bar takes no space
-  // either (its margin and the column's gap moved the footer down)
+  // A phone shows no bar before the first pick, and then it takes no space
+  // either: its margin and the column's gap would push the footer down
   const wrapper = cn(
     'pointer-events-none sticky bottom-8 z-20 mt-6 max-md:-mx-1 max-md:bottom-7',
     count === 0 && 'max-md:hidden',

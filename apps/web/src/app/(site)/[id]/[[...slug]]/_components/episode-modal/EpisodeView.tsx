@@ -43,7 +43,7 @@ const KEN_BURNS = {
   transition: { delay: 0.6, duration: 16, ease: 'easeOut' },
 } as const;
 
-/** The content fades in after the grow (v2-fade .35s ease .28s). */
+/** The content fades in after the grow. */
 const FADE_IN = {
   animate: { opacity: 1 },
   initial: { opacity: 0 },
@@ -61,9 +61,9 @@ type Props = Readonly<{
  * The face: the still fills the modal, the title lands at 104px over the
  * faces and the record stub on the left, the credits roll on the right.
  * Phones stack it: still, title, faces, credits, then the stub. Below `lg`
- * the side-by-side face doesn't fit (the roll keeps 300px, the title column
- * shrank to ~190px and its 104px title rose out of the panel's top, out of
- * scroll reach), so tablets take the stacked face too, inside the centred
+ * the side-by-side face doesn't fit (the roll keeps 300px, so the title
+ * column would shrink to ~190px and its 104px title rise out of the panel's
+ * top, out of scroll reach), so tablets take the stacked face too, inside the centred
  * panel, scrolling; the stub stays under the faces there (the fixed bar is
  * the phone sheet's: the same element, placed by CSS, so crossing 640px
  * never remounts it). Side by side, the column sits at the bottom with

@@ -13,18 +13,20 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 /**
  * Resolves the URL to a show: the 404 view for a non-numeric id
- * (`/discover/x` reaches this route), an unknown or adult show; the data-down page while the
- * API is unavailable (no response, a timeout, a 5xx: cached for the
- * short `unavailable` life, as the person page does); the canonical URL for a
- * missing or stale slug; else the page. Leading zeros never get here: a config redirect
- * (`lib/routing/redirects.ts`) 308s them at the edge.
+ * (`/discover/x` reaches this route), an unknown or adult show; the
+ * data-down page while the API is unavailable (no response, a timeout, a
+ * 5xx: cached for the short `unavailable` life, as the person page does);
+ * the canonical URL for a missing or stale slug; else the page. Leading
+ * zeros never get here: a config redirect (`lib/routing/redirects.ts`) 308s
+ * them at the edge.
  *
  * The URL resolves as the person page's does (`resolveEntityRoute`). The
  * slug redirect renders inside Suspense and reads the query on that
  * branch; the canonical page reads it only in the episodes' viewer hole
- * (`?season`, already request time), so it stays a cached shell. The (site) App Shell is static (`ensureStatic`), so this is a
- * client-side redirect in the stream that keeps the query; the URL also
- * carries canonical + noindex metadata (`generateMetadata`).
+ * (`?season`, already request time), so it stays a cached shell. The (site)
+ * App Shell is static (`ensureStatic`), so this is a client-side redirect in
+ * the stream that keeps the query; the URL also carries canonical + noindex
+ * metadata (`generateMetadata`).
  *
  * The 404 view renders here as content, not as `notFound()`: thrown inside
  * this Suspense boundary, React renders the boundary on the client, so the

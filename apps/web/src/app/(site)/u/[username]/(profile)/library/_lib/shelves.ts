@@ -27,7 +27,7 @@ type Action = Readonly<{
 }>;
 
 export type ShelfMeta = Readonly<{
-  /** The shelf nav's and the header's name ("All shows") */
+  /** The shelf nav's and the header's name ("All series") */
   label: string;
   /** The phone chip's name ("All") */
   chip: string;
@@ -41,7 +41,7 @@ export type ShelfMeta = Readonly<{
 }>;
 
 /**
- * The six shelves, in the nav's order. The line is
+ * The six shelves (the nav's order is `LIBRARY_SHELVES`). The line is
  * static in the shell, so there is no count in All's line.
  */
 export const SHELVES: Readonly<Record<LibraryShelf, ShelfMeta>> = {
@@ -160,7 +160,7 @@ export const visitorDescription = (shelf: LibraryShelf, username: string) =>
 
 const NUMBER_WORDS = ['', 'one', 'two', 'three', 'four', 'five'];
 
-/** "Shows you’ve watched to the end. You marked these two as seen in Get started." */
+/** "Series you’ve watched to the end. You marked these two as seen in Get started." */
 export function seenOnlyLine(count: number): string {
   const these =
     count === 1 ? 'this one' : `these ${NUMBER_WORDS[count] ?? count}`;

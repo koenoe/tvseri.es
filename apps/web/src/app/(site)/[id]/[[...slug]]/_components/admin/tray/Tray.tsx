@@ -66,7 +66,7 @@ function attachTray(lift: boolean) {
 }
 
 /**
- * The tray (variant A): docked under the live hero on desktop, a
+ * The tray: docked under the live hero on desktop, a
  * bottom sheet with Backdrop and Title tabs on phones. Not modal: the page
  * above is the preview. Esc cancels (or closes a confirm).
  */

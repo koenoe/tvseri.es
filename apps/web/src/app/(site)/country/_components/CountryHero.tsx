@@ -54,7 +54,7 @@ async function ShowCount({ slug }: Readonly<{ slug: string }>) {
 }
 
 /**
- * The country hero ("On the map"): the crumb, the country's name (and its
+ * The country hero: the crumb, the country's name (and its
  * own-language name in white 40%), and the meta line (code, count, "Mostly
  * in English"; the language is dropped on a phone). All
  * of it comes from the code but the count (a cached loader); it all

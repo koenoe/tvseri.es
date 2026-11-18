@@ -2,7 +2,7 @@ import type { PausedItem } from '@tvseri.es/schemas';
 
 import { formatWhen } from '@/lib/format/when';
 
-/** "Last watched today", "… Wed", "… Fri 2 Aug", "… 7 Jan 2025": the one ladder */
+/** "Last watched today", "… Wed", "… Aug 2", "… Jan 7, 2025": `formatWhen`'s ladder */
 export function lastWatchedLine(
   item: Pick<PausedItem, 'lastWatchedAt'>,
   now: number,

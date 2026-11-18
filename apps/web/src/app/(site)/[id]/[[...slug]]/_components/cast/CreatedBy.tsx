@@ -9,7 +9,7 @@ import { CREATED_BY_LINE } from '../frames';
 
 const LINE = cn('text-body-sm font-medium', CREATED_BY_LINE);
 
-/** "Created by: Christopher Storer" (ep0-crd), links to people. */
+/** "Created by: Christopher Storer", links to people. */
 export default function CreatedBy({
   creators,
 }: Readonly<{ creators: TvSeries['createdBy'] }>) {

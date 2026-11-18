@@ -3,11 +3,11 @@ import type { ReactNode } from 'react';
 import { DIARY_MONTH_HEADER } from './diaryStyles';
 
 /**
- * "March 2024 ─── 96 episodes · 76h 54m", at the top of its month. It scrolls with the page (no
- * sticky bars under the sticky glass header; Jump to in the sidebar says
- * which month you're in). Below `lg` (no sidebar) it carries the Jump
- * button (`action`); on a phone beside the title, with the line under them
- * (one row would cut Jump off at 390).
+ * "March 2024 ─── 96 episodes · 76h 54m", at the top of its month. It
+ * scrolls with the page (no sticky bars under the sticky glass header;
+ * Jump to in the sidebar says which month you're in). Below `lg` (no
+ * sidebar) it carries the Jump button (`action`); on a phone beside the
+ * title, with the line under them (one row would cut Jump off at 390).
  */
 export default function MonthHeader({
   action,

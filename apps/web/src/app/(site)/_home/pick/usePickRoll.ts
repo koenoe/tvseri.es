@@ -6,7 +6,7 @@ import { nextPick } from './deck';
 
 export type RollPhase = 'rest' | 'settle' | 'shuffle';
 
-/** The pile forms in .34s, the spring lands in .72s */
+/** Each phase ends a little after its transition (.34s, .72s in `PickDeck`) */
 const SHUFFLE_MS = 360;
 const SETTLE_MS = 760;
 

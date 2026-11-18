@@ -36,8 +36,7 @@ type Props = Readonly<{
 const TITLE_ID = 'landing-index-title';
 
 /**
- * `/country`, `/language`, `/network` (no design draws them; the hub's calm
- * tiles link here): the landing template's look, minimal. The crumb back to
+ * `/country`, `/language`, `/network` (the hub's calm tiles link here): the landing template's look, minimal. The crumb back to
  * Discover, the title, one meta line with the count, a chip per landing,
  * the end card.
  */

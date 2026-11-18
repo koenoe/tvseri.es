@@ -63,9 +63,9 @@ function emptyLine(isOwner: boolean, dayZero: boolean) {
 }
 
 /**
- * Watchlist: the five newest saved shows as a fan, with the count
- * linking to the full list. Empty ("all started", or "shows you save
- * land here" on day 0): ghost tiles and one calm line. Public to signed-in viewers.
+ * Watchlist: the five newest saved shows as a fan, with the count linking
+ * to the full list. Empty ("all started", or "shows you save land here" on
+ * day 0): ghost tiles and one calm line. Public to signed-in viewers.
  */
 export default async function WatchlistBlock({
   profile,

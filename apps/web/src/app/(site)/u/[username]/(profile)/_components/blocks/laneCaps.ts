@@ -1,10 +1,9 @@
 import type { ExpandLayout } from '@/components/ui/fold/ExpandButton';
 
 /**
- * How many rows each lane lists before "Show all N" (`CappedRows`): what fits
- * (the page and the visitor's view), so a busy profile's two lanes
- * stay comparable in length. Catching up draws one show;
- * the ledger lists three holes (`LEDGER_ROWS`).
+ * How many rows each lane lists before "Show all N" (`CappedRows`), so a
+ * busy profile's two lanes stay comparable in length. Catching up draws one
+ * show; the ledger lists three holes (`LEDGER_ROWS`).
  */
 export const LANE_CAPS = {
   almostDone: 2,

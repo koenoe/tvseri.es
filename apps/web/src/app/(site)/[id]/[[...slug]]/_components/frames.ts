@@ -8,8 +8,8 @@ export const CAST_FRAME = 'mx-auto max-w-page px-gutter';
 
 /**
  * "Created by"'s line. Phones: 24px under the hero's last row (the actions,
- * or the first-tracking prompt's card), as production keeps it under the
- * actions; desktop's actions row carries its own 24px.
+ * or the first-tracking prompt's card); desktop's actions row carries its
+ * own 24px.
  */
 export const CREATED_BY_LINE = 'max-md:mt-6';
 
@@ -42,12 +42,9 @@ export const INFORMATION_GRID =
   'grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-x-10';
 
 /**
- * The line's box, for every viewer (signed out it states the series' size).
- * 44px on phones (the line is a tap target; its 12px above and below the
- * text are part of the hero's 20px rhythm, `hero/heroLayout.ts`: on phones
- * it reaches 12px up into the facts' 20px margin), 40px on desktop, where
- * its line sits 36px from the facts' text above and 36px from what follows
- * (the prompt's card, or the synopsis when there is none).
+ * The line's box, for every viewer (signed out it states the series' size):
+ * 44px on phones (a tap target), 40px on desktop. The hero's spacing around
+ * it is `HERO_TITLE_SPACE` in `hero/heroLayout.ts`.
  */
 export const PROGRESS_LINE_SPACE =
   '-ml-2.5 mb-2 h-11 w-[calc(100%+20px)] max-md:-mt-3 md:mb-4 md:h-10 md:w-[730px] md:max-w-[calc(100%+20px)]';

@@ -13,7 +13,7 @@ import WatchlistAdd from '../../blocks/WatchlistAdd';
 const PICK_ADD =
   'absolute bottom-2 left-1/2 -ml-4 translate-y-1 bg-[rgb(15_20_20/0.6)] opacity-0 transition-[opacity,translate] duration-200 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100 data-[on=true]:translate-y-0 data-[on=true]:opacity-100 [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100';
 
-/** How many picks the card shows (three) */
+/** How many picks the card shows */
 const PICKS = 3;
 
 function Pick({ show }: Readonly<{ show: TasteShow }>) {

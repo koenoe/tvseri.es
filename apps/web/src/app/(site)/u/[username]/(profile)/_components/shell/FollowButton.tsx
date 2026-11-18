@@ -21,10 +21,9 @@ type Props = Readonly<{
   followLabel?: string;
   initialFollowing: boolean;
   /**
-   * `sidebar`: Edit profile's slot (full width, 42px); `row`: a Social row's
-   * 36px pill; `compact`: the phone sub-pages' identity, Edit's 32px pill;
-   * `circle`: a Circle row's (the compact 32px
-   * pill on the phone)
+   * `sidebar`: Edit profile's slot (full width, 42px); `row`: a 36px pill;
+   * `compact`: the phone sub-pages' identity, Edit's 32px pill; `circle`: a
+   * Circle row's (the compact 32px pill on the phone)
    */
   size?: keyof typeof SIZE;
   userId: string;
@@ -32,9 +31,9 @@ type Props = Readonly<{
 }>;
 
 /**
- * The Circle's desktop pills: Following is the ghost button,
- * Follow the white one. The ring is the 2px border, so each padding is 2px
- * less than it would be without it.
+ * The Circle's desktop pills: Following is the ghost button, Follow the
+ * white one. The ring is the 2px border, so each padding is 2px less than
+ * it would be without it.
  */
 const CIRCLE = {
   follow: 'md:h-10 md:px-4 md:text-[14px]',
@@ -42,13 +41,14 @@ const CIRCLE = {
 } as const;
 
 /**
- * Follow / Following in Edit profile's slot: same size and corners;
- * not following is the white primary button, following the outline. Flips
- * in the same frame (`useOptimistic`), keeps the answer the API confirmed
- * (Social rows are client-loaded, so no server render would update them),
- * and rolls back with a dark toast when the API says no. The followers line
- * counts a confirmed follow at once (`recordFollow`): the API's counter
- * follows from its stream a moment later, after the action's refresh.
+ * Follow / Following in Edit profile's slot: same size and corners; not
+ * following is the white primary button, following the outline. Flips in
+ * the same frame (`useOptimistic`), keeps the answer the API confirmed
+ * (Circle rows past the first page are client-loaded, so no server render
+ * would update them), and rolls back with a dark toast when the API says
+ * no. The followers line counts a confirmed follow at once
+ * (`recordFollow`): the API's counter follows from its stream a moment
+ * later, after the action's refresh.
  */
 export default function FollowButton({
   followLabel = 'Follow',

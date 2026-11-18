@@ -41,7 +41,7 @@ export default function DialogSection() {
   const paint = useCallback(() => {
     showToast({
       action: { label: 'Undo', onClick: () => showToast({ title: 'Undone' }) },
-      // a mark is "watched": the filled eye, as the design's toast draws it
+      // a mark is "watched": the filled eye
       icon: <Icon active glyph={eyeGlyph} size={16} />,
       title: 'Marked S03E06–S03E09 · Just now',
     });

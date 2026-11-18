@@ -7,7 +7,7 @@
  * every landing is its own and white text stays readable. A colour already
  * darker than that keeps its own lightness: the ground is never lighter
  * than the show's colour. The same colour always gives the same look;
- * without one, the designed fallback.
+ * without one, the fallback.
  */
 
 import {

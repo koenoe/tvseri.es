@@ -44,8 +44,8 @@ async function loadList(
 }
 
 /**
- * Five tiles, on your own profile and on someone else's (three for
- * a visitor read as "this person has three favourites")
+ * Five tiles for the owner and a visitor alike: a shorter visitor list would
+ * read as "this person has three favourites"
  */
 export const loadFavourites = (profile: Profile) =>
   loadList(profile, 'favorites', 5);

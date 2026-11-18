@@ -2,9 +2,9 @@ import type { AlmostDoneItem } from '@tvseri.es/schemas';
 import { formatRuntime, plural } from '@tvseri.es/utils';
 
 /**
- * One segment per episode of the season, watched or not by
- * the episodes the API names as still to watch, wherever they sit: E01
- * skipped and E02–E06 watched is 5 of 6 with the first segment empty.
+ * One segment per episode of the season, empty for each episode the API
+ * names as still to watch, wherever it sits: E01 skipped and E02–E06
+ * watched is 5 of 6 with the first segment empty.
  */
 export function seasonSegments(
   item: Pick<AlmostDoneItem, 'seasonTotal' | 'unwatchedEpisodes'>,

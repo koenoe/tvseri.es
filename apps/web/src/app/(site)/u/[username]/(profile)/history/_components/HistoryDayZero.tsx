@@ -4,9 +4,9 @@ import { arrowRightGlyph, historyGlyph } from '@/components/ui/icon/glyphs';
 import EmptyState from '../../_components/blocks/EmptyState';
 
 /**
- * History with nothing in it: the empty line, then for
- * the owner the way to bring a history in (import a file, connect Plex) or
- * start one by marking an episode. A visitor gets the empty line only.
+ * History with nothing in it: the empty line, then for the owner the way
+ * to bring a history in (import a file, connect Plex) or start one by
+ * marking an episode. A visitor gets the empty line only.
  */
 export default function HistoryDayZero({
   owner,

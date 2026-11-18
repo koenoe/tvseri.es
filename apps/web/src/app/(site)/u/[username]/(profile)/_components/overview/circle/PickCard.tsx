@@ -26,18 +26,17 @@ const inkOf = (backdropColor: string | undefined) =>
 const tint = (ink: string, percent: number) =>
   `color-mix(in srgb, ${ink} ${percent}%, transparent)`;
 
-/**
- * One pick of From your circle: the backdrop fading in from
- * the right, the title treatment, the meta line, why it is here and who
- * picked it. The whole card is one link; the ⋯ (the show's Remote) sits
- * above it.
- */
 /** Where the card's words sit (its ghost uses the same) */
 export const PICK_CONTENT =
   'absolute inset-y-0 left-0 z-3 flex w-full flex-col items-start justify-end px-5 pt-7 pb-[84px] xl:w-[540px] xl:pr-0 xl:pb-[30px] xl:pl-9';
 
 const CONTENT = `pointer-events-none ${PICK_CONTENT}`;
 
+/**
+ * One pick of From your circle: the backdrop fading in from the right, the
+ * title treatment, the meta line, why it is here and who picked it. The
+ * whole card is one link; the ⋯ (the show's Remote) sits above it.
+ */
 export default function PickCard({
   eager,
   loaded,

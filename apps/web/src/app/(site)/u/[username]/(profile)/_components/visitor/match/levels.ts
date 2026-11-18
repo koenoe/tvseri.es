@@ -1,10 +1,9 @@
 import type { TasteLevel } from '@tvseri.es/schemas';
 
 /**
- * The six compatibility levels: the word, the colour
- * (hex and its rgb triplet, for the glow and the proof underline) and the
- * strength of the card's corner tint. Static class strings so Tailwind sees
- * them.
+ * The six compatibility levels: the word, the colour (hex and its rgb
+ * triplet, for the glow and the proof underline) and the strength of the
+ * card's corner tint. Static class strings so Tailwind sees them.
  */
 export type LevelStyle = Readonly<{
   word: string;

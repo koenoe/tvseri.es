@@ -16,9 +16,9 @@ export type NextLabel = Readonly<{
 }>;
 
 /**
- * The date at the right of a You both watch row:
- * "S03 · Thu 7 Jan" (pink), "S02E03 · Sun 15 Nov" (white), "S02 out now"
- * (cyan); nothing without a next.
+ * The date at the right of a You both watch row: "S03 · Thu Jan 7" (pink),
+ * "S02E03 · Sun Nov 15" (white), "S02 out now" (cyan); nothing without a
+ * next.
  */
 export function nextLabel(next: SharedShowNext | null): NextLabel | null {
   if (!next) {

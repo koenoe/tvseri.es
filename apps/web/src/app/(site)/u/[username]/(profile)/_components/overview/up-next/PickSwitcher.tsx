@@ -11,9 +11,8 @@ import cn from '@/lib/cn';
 const NOT_NOW = cn(UP_NEXT_ACTIONS_OVER, 'z-30');
 
 /**
- * The empty block's borrowed pick: the × "Not now" at the
- * card's top right swaps it for the next one. Each card arrives rendered;
- * this only chooses.
+ * The empty block's borrowed pick: the × "Not now" at the card's top right
+ * swaps it for the next one. Each card arrives rendered; this only chooses.
  */
 export default function PickSwitcher({
   cards,

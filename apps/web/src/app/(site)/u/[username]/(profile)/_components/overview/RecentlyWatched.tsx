@@ -68,10 +68,9 @@ function toTile(
 }
 
 /**
- * Recently watched: the last five shows you watched, newest first,
- * each poster with its code and day. Consecutive episodes of one show stack;
- * a click spreads the stack. A visitor also sees which shows are new to them
- *.
+ * Recently watched: five posters of your latest episodes, newest first, each
+ * with its code and day. Consecutive episodes of one show stack; a click
+ * spreads the stack. A visitor also sees which shows are new to them.
  */
 export default async function RecentlyWatched({
   profile,

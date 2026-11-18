@@ -4,7 +4,7 @@
  */
 export const OVER_SHEET = 'sm:mt-50 sm:mr-5 sm:self-start sm:justify-self-end';
 
-/** The row-anchored dialog's box: 560px wide, 541px tall as built. */
+/** The row-anchored dialog's box: 560 × 544. */
 const DIALOG = { height: 544, width: 560 } as const;
 const MARGIN = 16;
 
@@ -12,8 +12,8 @@ type Point = Readonly<{ left: number; top: number }>;
 
 /**
  * Opened from the season line (Enter), "I'm up to…" sits under the line,
- * 130px below the season header's top and 440px in (`atRow`),
- * kept inside the viewport.
+ * 130px below the season header's top and 440px in, kept inside the
+ * viewport.
  */
 export function rowPlacement(
   header: Point,

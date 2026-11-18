@@ -16,9 +16,9 @@ const HIDE_ALL =
   'flex shrink-0 cursor-pointer items-center whitespace-nowrap text-body-sm font-medium text-white/60 transition-colors hover:text-white md:ml-auto';
 
 /**
- * Paused: Not watched in over 3 months. Still watching? Keep or
- * Hide per show, or Hide all. A row leaves at once; if the API refuses, it
- * comes back with a dark toast.
+ * Paused: not watched in over 3 months. Still watching? Keep or Hide per
+ * show, or Hide all. A row leaves at once; if the API refuses, it comes
+ * back with an error toast.
  */
 export default function PausedLane({
   emptyLine,

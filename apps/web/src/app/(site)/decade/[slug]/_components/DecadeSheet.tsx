@@ -24,7 +24,7 @@ type Props = Readonly<{
 }>;
 
 /**
- * The phone's card ("Tap a row"): the same card as desktop's, in
+ * The phone's card: the same card as desktop's, in
  * a bottom sheet over a dim, on the shared modal shell (focus trap,
  * Escape, the backdrop closes it, focus returns to the row), sliding up as
  * every phone sheet does (`PHONE_MOTION`). Loaded on the first tap

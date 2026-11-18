@@ -20,7 +20,7 @@ import { type RankedShow, rankedShows } from './allTime';
 import { GENRE_TILES } from './hubTiles';
 
 /**
- * All-time favourites: the owner's MDBList list, numbered, in its own
+ * All-time favourites: the site's curated MDBList list, numbered, in its own
  * order. The same API read (and CDN key) as Home's pick deck;
  * `short` like it and the API's header, as the list is refreshed every 12
  * hours. Only the ranked fields are cached.

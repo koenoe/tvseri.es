@@ -35,10 +35,10 @@ export type ProfileParams = Promise<Readonly<{ username: string }>>;
 /**
  * Every `/u/*` page except stats: signed out is the 401 page (every
  * profile is visible to signed-in users, no private profiles), an unknown
- * user is the 404, signed out too (a made-up handle was "Sign in to
- * see @x's profile" after a slow stats check; the public Stats pages show
- * who exists anyway). Signed out costs the one read the page's metadata
- * makes too; a failed read keeps the 401. Call it inside a Suspense hole: it
+ * user is the 404, signed out too (the public Stats pages show who exists
+ * anyway, so a made-up handle shouldn't ask you to sign in). Signed out
+ * costs the one read the page's metadata makes too; a failed read keeps
+ * the 401. Call it inside a Suspense hole: it
  * reads the session. `getViewer()` and the API GETs are memoised per
  * render, so every hole of a page can call it.
  *

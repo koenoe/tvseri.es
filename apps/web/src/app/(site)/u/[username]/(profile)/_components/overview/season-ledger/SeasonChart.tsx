@@ -47,7 +47,7 @@ function Season({
     open ? 'font-semibold text-white' : 'text-white/60',
   );
   // the track: a season you never logged still draws its line, faintly
-  // (skipped stretches are a step brighter, unaired seasons brighter still)
+  // (skipped stretches and unaired seasons a step brighter)
   const lineClass = cn(
     'relative h-1 flex-1 overflow-hidden rounded-2',
     unaired ? 'bg-white/12' : 'bg-white/6',
@@ -70,9 +70,9 @@ function Season({
 }
 
 /**
- * Each season is one line, two columns of numbered lines;
- * a hole is a gap in its line, and the season's number lights up while it
- * is open. Watching or skipping a hole closes the gap.
+ * Each season is one numbered line (two columns from five seasons on); a
+ * hole is a gap in its line, and the season's number lights up while it is
+ * open. Watching or skipping a hole closes the gap.
  */
 export default function SeasonChart({ states, view }: Props) {
   const open = view.episodes.filter(

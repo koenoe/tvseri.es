@@ -11,8 +11,9 @@ import { LONG_PRESS_MS } from '@/lib/longPress';
 
 /**
  * The show page's drag-to-paint gesture, shared by the season line and the
- * history sheet's chip grids: press → a 6px move (or, on touch, a 400ms
- * press) starts a run → the surface takes the pointer capture → the index
+ * history sheet's chip grids: press → a 6px move (on touch: sideways only,
+ * or a 400ms press with `longPress`) starts a run → the surface takes the
+ * pointer capture → the index
  * under the pointer comes from boxes measured once when the run starts (a
  * move is a lookup, never a layout read; a scroll re-reads only the
  * surface's origin) → release commits, a cancel or lost capture doesn't.

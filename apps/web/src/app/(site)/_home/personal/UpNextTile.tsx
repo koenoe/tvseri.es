@@ -22,7 +22,7 @@ type Props = Readonly<{
 }>;
 
 /**
- * Continue watching's Up next card (phone `hx-mun`): the
+ * Continue watching's Up next card: the
  * shared card with the ⋯ Remote top right, as the profile's Up next. The
  * whole card opens the episode. Memoised: Continue watching re-renders
  * whenever any show in the marking store changes (a hover seeds one), and

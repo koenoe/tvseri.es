@@ -5,7 +5,6 @@ import { ACTION, FIRST_ROW, GO, LEAD, LINE, LIST, ROW } from './rowBoxes';
 /** The rows pulse as one layer */
 const GHOST_LIST = `${LIST} animate-ghost`;
 
-/** Five person rows */
 const ROWS = 5;
 
 const BAR = `block rounded-6 ${GHOST_FILL}`;
@@ -50,9 +49,9 @@ function GhostRow({
 }
 
 /**
- * The Circle's rows while they load: five ghost rows in
- * the rows' own boxes, so the list doesn't move when it lands. `owner`
- * draws the level line under the name; a visitor's rows have no such line.
+ * The Circle's rows while they load: five ghost rows in the rows' own
+ * boxes, so the list doesn't move when it lands. `owner` draws the level
+ * line under the name; a visitor's rows have no such line.
  */
 export default function CircleGhost({ owner }: Readonly<{ owner: boolean }>) {
   return (

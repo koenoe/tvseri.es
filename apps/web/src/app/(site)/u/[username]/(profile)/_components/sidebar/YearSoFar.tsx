@@ -46,13 +46,13 @@ function Sentence({ stats }: Readonly<{ stats: YearSoFarStats }>) {
   );
 }
 
-/**
- * "2026 so far": one line of weeks and one sentence. The current UTC
- * year, public stats only (a visitor sees the owner's). On day 1: flat bars and
- * "Your year starts with your first episode."
- */
 const GHOST_BLOCK = `flex flex-col gap-4 ${PULSE}`;
 
+/**
+ * "{year} so far": one line of weeks and one sentence. The current UTC
+ * year, public stats only (a visitor sees the owner's). With no episodes
+ * yet: flat bars and "Your year starts with your first episode."
+ */
 export default async function YearSoFar({
   profile,
 }: Readonly<{ profile: Profile }>) {

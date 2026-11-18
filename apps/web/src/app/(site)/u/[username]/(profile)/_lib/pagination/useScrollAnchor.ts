@@ -23,9 +23,8 @@ function firstVisible(list: HTMLElement, selector?: string): Element | null {
  * "A–O · 131 shows · load", History's "Newer: April 2024"): call `capture`
  * just before the prepend lands (`usePaginated`'s `onPrepend`); when the
  * new `items` commit, a layout effect scrolls by however far the first
- * visible item moved, before paint. Instant, never smooth ("scroll jumps, never
- * smooth-scrolls"), and not CSS `overflow-anchor`,
- * which WebKit doesn't do.
+ * visible item moved, before paint. Instant, never smooth, and not CSS
+ * `overflow-anchor`, which WebKit doesn't do.
  *
  * `items` is the list's array (the commit to correct is the one that
  * changes it); `selector` picks the items inside `listRef` when they aren't

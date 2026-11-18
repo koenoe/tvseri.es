@@ -32,7 +32,7 @@ const OVERLAY = 'absolute top-2 left-2 z-2 md:top-2.5 md:left-2.5';
 const MARK =
   'absolute right-4 bottom-4 left-4 z-2 flex items-end md:right-6 md:bottom-5.5 md:left-6';
 
-/** The design's logo box: up to 300 × 56, never past 60% of the tile */
+/** The logo box: up to 300 × 56, never past 60% of the tile */
 const LOGO_BOX = 'relative block h-14 w-[min(300px,60%)]';
 
 /** Without a logo, the title written large */

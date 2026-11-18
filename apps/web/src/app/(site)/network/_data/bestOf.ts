@@ -9,7 +9,7 @@ export type BestOfTab = Readonly<{
 }>;
 
 /**
- * "The best of {network}" ("Best of, by…"): a switch the data
+ * "The best of {network}": a switch the data
  * picks (`facts.bestBy`: decades when 2+ of them hold 6+ shows, else genres),
  * or one plain row when there is nothing to switch between (fewer than two
  * options).

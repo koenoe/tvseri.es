@@ -21,7 +21,7 @@ type Loaded<T> = Readonly<{
 }>;
 
 // Module-level so loaded pages survive back/forward (keyed per history
-// entry); only the last few lists are kept (six shelves plus History)
+// entry); only the last ten lists are kept
 const restoredPages = new Map<string, Loaded<unknown>>();
 const RESTORED_MAX = 10;
 
@@ -64,15 +64,16 @@ function pageUrl(endpoint: string, param: string, cursor: string) {
 type Direction = 'after' | 'before';
 
 /**
- * Cursor pagination for the profile's lists: an endpoint that speaks `Page<T>` (`?cursor=` in,
- * `{ items, nextCursor }` out), and optionally pages above the first one
- * (`?before=<prevCursor>` in, `{ items, prevCursor }` out, in list order):
- * the Library after an A–Z jump, History after a month jump.
+ * Cursor pagination for the profile's lists: an endpoint that speaks
+ * `Page<T>` (`?cursor=` in, `{ items, nextCursor }` out), and optionally
+ * pages above the first one (`?before=<prevCursor>` in,
+ * `{ items, prevCursor }` out, in list order): the Library after an A–Z
+ * jump, History after a month jump.
  *
  * - A 401 (session gone) stops both ways with status `unauthorized`; other
  *   failures set `error` (`beforeStatus` for the pages above) and the next
  *   call retries.
- * - `getId` drops duplicates (TMDB can repeat items across pages).
+ * - `getId` drops an item that two pages both carry.
  * - `restoreKey` keeps everything loaded, above and below, across Back
  *   (restored in a layout effect, before paint: `history.state` may lag
  *   during render). Give it the endpoint and the normalised query.

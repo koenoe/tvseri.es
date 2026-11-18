@@ -37,7 +37,7 @@ function measure(grid: HTMLElement, rect: DOMRect): ChipBox[] {
 /**
  * The chips' paint gesture on the page's shared
  * pointer run (`_lib/pointerRun.ts`): a press on a chip, a 6px move (touch:
- * a 350ms press, or a sideways move; vertical moves scroll) starts a run,
+ * a 400ms press, or a sideways move; vertical moves scroll) starts a run,
  * the chip under the pointer extends it, the release commits it per mode.
  * A tap is the chip's click; the click after a run is swallowed. Boxes are
  * measured once per run, so a move is a lookup (no layout reads).

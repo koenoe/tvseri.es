@@ -8,8 +8,8 @@ const GAP = 8;
 /**
  * Tiles of 220 × 150 or more add the votes line; smaller ones
  * show the title only. Measured on the tile's cell (the tile and half the
- * gap on every side), which is how the design applies it: Dark (215 × 170)
- * and Chernobyl (215 × 147) keep their votes line there.
+ * gap on every side), so Dark (215 × 170) and Chernobyl (215 × 147) keep
+ * their votes line.
  */
 const VOTES_LINE_WIDTH = 220;
 const VOTES_LINE_HEIGHT = 150;
@@ -20,7 +20,7 @@ export type TreemapCell = Readonly<{
   top: number;
   width: number;
   height: number;
-  /** the tile's width at the design's size, for the backdrop's `sizes` */
+  /** the tile's width at the map's full size, for the backdrop's `sizes` */
   tileWidth: number;
   /** a big enough tile adds the votes line under the title */
   votesLine: boolean;
@@ -32,10 +32,9 @@ const percent = (value: number, of: number) =>
   Math.round((value / of) * 100_000) / 1000;
 
 /**
- * The decade's landscape: a squarified treemap (d3-hierarchy, ratio 1, the
- * layout the design draws) of `values` (TMDB vote counts, biggest first) at
- * the design's size, as cells in percent so it scales with the column while
- * the 8px gaps stay. Deterministic: the same values give the same layout.
+ * The decade's landscape: a squarified treemap (d3-hierarchy, ratio 1) of
+ * `values` (TMDB vote counts, biggest first) at the map's full size, as
+ * cells in percent so it scales with the column while the 8px gaps stay. Deterministic: the same values give the same layout.
  * One cell per value, in the given order.
  */
 export function layoutTreemap(

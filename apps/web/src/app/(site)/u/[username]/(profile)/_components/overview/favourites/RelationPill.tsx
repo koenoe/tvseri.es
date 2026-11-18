@@ -38,9 +38,9 @@ const PILL: RelationPillLayout = {
 };
 
 /**
- * The visitor's one pill per favourite: what the show is to
- * you, strongest first. "New to you" is green with the sparkle at every
- * level; "You both love this" glows.
+ * The visitor's one pill per favourite: what the show is to you, the
+ * strongest relation only. "New to you" is green with the sparkle; "You both
+ * love this" glows.
  */
 export default function RelationPill({
   relation,

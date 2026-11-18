@@ -24,8 +24,8 @@ export const metadata: Metadata = {
 };
 
 /**
- * Internal: every ui primitive as the design draws it, to compare side by side
- * in Chrome. Not part of production builds (`/dev`'s layout).
+ * Internal: every ui primitive at real size, to compare side by side in
+ * Chrome. Not part of production builds (`/dev`'s layout).
  */
 export default function StyleGuidePage() {
   return (

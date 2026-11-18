@@ -13,15 +13,15 @@ import NewToYouPicks from './match/NewToYouPicks';
 import ProofHighlight from './match/ProofHighlight';
 import ProofLine from './match/ProofLine';
 
-/**
- * The match card: the ring with the shared count, the
- * level word in its colour, the proof you can point at, then New to you from
- * them. No level under five shared shows: an empty ring and a plain line.
- */
 /** The card's panel (its ghost takes the same) */
 const MATCH_CARD =
   'relative flex flex-col gap-5 overflow-hidden rounded-16 bg-black/22 px-5 pt-[22px] pb-5';
 
+/**
+ * The match card: the ring with the shared count, the level word in its
+ * colour, the proof you can point at, then New to you from them. No level
+ * under five shared shows: an empty ring and a plain line.
+ */
 export default async function MatchCard({
   profile,
 }: Readonly<{ profile: Profile }>) {

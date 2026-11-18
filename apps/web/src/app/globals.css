@@ -277,13 +277,6 @@ html[data-signing-out] body > * {
 }
 
 /*
- * Loading placeholders: every ghost shape of a section that is still loading pulses the
- * same way, the error pulse (`erPulse 1.2s ease-in-out infinite alternate`,
- * white/2 to white/6) as an opacity pulse on the ghost's own fill, so it runs
- * on the compositor. A failed or unavailable section stays static
- * (`GHOST_LOOK.failed`); a retrying one pulses with the same timing.
- */
-/*
  * Holds a sticky element where it belongs for its first moments on screen,
  * over its move for the floating header (belowFloatingHeader.ts)
  */
@@ -294,6 +287,12 @@ html[data-signing-out] body > * {
   }
 }
 
+/*
+ * Loading placeholders: every ghost shape of a section that is still loading
+ * pulses the same way, as an opacity pulse on the ghost's own fill, so it
+ * runs on the compositor. A failed or unavailable section stays static
+ * (`GHOST_LOOK.failed`); a retrying one pulses with the same timing.
+ */
 @keyframes ghost-pulse {
   from {
     opacity: 1;

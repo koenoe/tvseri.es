@@ -9,7 +9,8 @@ import { LANE_ROW } from '../../blocks/Lane';
 import { LANE_ROW_GHOST } from '../../blocks/LaneGhost';
 
 /*
- * Almost done's rows on the shared lane row. Each place keeps its own look on purpose; don't unify them.
+ * Almost done's rows on the shared lane row. Each place keeps its own look
+ * on purpose; don't unify them.
  */
 
 /** The poster's box (its ghost takes the same) */

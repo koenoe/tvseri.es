@@ -11,11 +11,11 @@ import { PICTURE_CARD } from '../../pictureCard';
 /**
  * The deck: the facts stacked in one place. From lg a 240px band, the
  * number beside the text and the controls bottom right; below lg
- * the phone's stack, whatever the width: at 800 the
- * band's text column ran under the pager. A picture card (`PICTURE_CARD`),
- * its edge in the card's own colour: the page colour under its 25% black,
- * so the edge disappears on a light page colour too (a fixed near-black
- * drew a black outline there).
+ * the phone's stack, whatever the width: at 800 the band's text column would
+ * run under the pager. A picture card (`PICTURE_CARD`), its edge in the
+ * card's own colour: the page colour under its 25% black, so the edge
+ * disappears on a light page colour too (a fixed near-black would draw a
+ * black outline there).
  */
 export const DECK = cn(
   PICTURE_CARD,

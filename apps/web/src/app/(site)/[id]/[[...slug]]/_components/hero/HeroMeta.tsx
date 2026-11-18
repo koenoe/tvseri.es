@@ -34,7 +34,7 @@ function Genres({ genres }: Readonly<{ genres: TvSeries['genres'] }>) {
 /**
  * The facts under the title: year, seasons, genres (links to the genre
  * landing) and, from the viewer's region, the age rating and provider logo at
- * the end of the row (ep0-cr, ep0-wp).
+ * the end of the row.
  */
 export default function HeroMeta({
   children,

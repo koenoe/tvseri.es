@@ -21,7 +21,7 @@ const OPTIONS: ReadonlyArray<SegmentedOption<number>> = QUARTERS.map(
 
 /**
  * The phone's year in series, a quarter at a time (md and up it steps
- * aside: `display: contents`, the rows span the year as before).
+ * aside: `display: contents`, the rows span the whole year).
  *
  * The rows (`children`) scroll sideways on a 24px-a-week track, snapping to
  * the quarters' first days. One passive scroll listener, once a frame:

@@ -29,9 +29,9 @@ function KeyRow({ level }: Readonly<{ level: TasteLevel }>) {
 }
 
 /**
- * "How a match is made" (the owner's sidebar under the
- * identity): the weights in one line and the six levels with their colours.
- * Static copy, so it sits in the page's shell.
+ * "How a match is made" (the owner's sidebar under the identity): the
+ * weights in one line and the six levels with their colours. Static copy,
+ * so it sits in the page's shell.
  */
 export default function MatchKey() {
   return (

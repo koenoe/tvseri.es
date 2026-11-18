@@ -19,7 +19,7 @@ function Pill({
   );
 }
 
-/** Your history elsewhere (`ue-gs-pl`): a file import, or Plex */
+/** Your history elsewhere: a file import, or Plex */
 export default function HistoryLinks() {
   return (
     <div className={PILL_ROW}>

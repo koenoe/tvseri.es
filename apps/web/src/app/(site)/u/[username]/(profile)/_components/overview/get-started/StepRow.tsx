@@ -20,7 +20,7 @@ const CIRCLE: StepCircleLayout = {
   todo: 'border-white/20 text-white',
 };
 
-/** One of the three steps (`ue-gs-row`): the numbered circle (a check once done), title, line, controls */
+/** One of the three steps: the numbered circle (a check once done), title, line, controls */
 export default function StepRow({
   children,
   done,

@@ -1,7 +1,7 @@
 /**
- * Copy the design writes one way on desktop and another on a phone
+ * Copy worded one way on desktop and another on a phone
  * ("New from the UK", "That’s the United Kingdom"): both in the markup, one hidden per breakpoint, so it needs no
- * client JS. Just `desktop` when there is no phone wording.
+ * client JS. Only `desktop` when there is no phone wording.
  */
 export default function PerBreakpoint({
   desktop,

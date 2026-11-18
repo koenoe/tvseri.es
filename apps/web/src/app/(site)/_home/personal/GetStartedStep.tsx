@@ -40,8 +40,7 @@ export function StepText({
 }
 
 /**
- * One Get started card: the numbered circle (2px
- * white/20 ring; done, white with a dark check), the title
+ * One Get started card: the numbered circle (a check when done), the title
  * and one line of why. The whole card links to where the step is done.
  */
 export default function GetStartedStep({ step }: Readonly<{ step: Step }>) {

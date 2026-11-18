@@ -15,9 +15,9 @@ const LEVEL_LINE = `flex min-w-0 items-center gap-2 text-meta whitespace-nowrap 
 
 /**
  * A row on your own Circle: the match ring, "Follows you" on a mutual (in
- * the "Follows you" section the heading says it), the level and
- * its one-line reason, what they're watching, and Following (or Follow back
- * for someone who follows you and you don't follow).
+ * the "Follows you" section the heading says it), the level and its
+ * one-line reason, what they're watching, and Following (or Follow back for
+ * someone who follows you and you don't follow).
  */
 export default function OwnerPersonRow({
   first,

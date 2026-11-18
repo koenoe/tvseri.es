@@ -28,9 +28,9 @@ const FRAME =
   'Series you haven’t seen yet, picked from the people whose taste matches yours.';
 
 /**
- * From your circle: the one quiet door to something new, opened
- * by the people you follow. Three picks on one 400px card, switched with the
- * pill. Yours only: a visitor's page has no circle.
+ * From your circle: shows the people you follow love and you haven't seen.
+ * Up to three picks on one 400px card, switched with the pill. Owner only:
+ * a visitor's page has no circle.
  */
 export default async function FromYourCircle({
   profile,
@@ -117,7 +117,6 @@ function EmptyCircle({
       />
     );
   }
-  // The one quiet action: search finds a member by their exact handle
   return (
     <EmptyState
       action={<FindPeople />}

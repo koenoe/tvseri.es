@@ -36,11 +36,8 @@ const stateOf = (side: Side, chosen: Side | null): PosterState =>
  * tapping the other switches, tapping it again clears. "Another pair" steps
  * through the day's deck.
  *
- * The deck is the same for everyone; a signed-in viewer gets only the pairs
- * with neither series in their lists, decided once their library has
- * loaded. Until then the cached HTML shows the card signed out and, signed
- * in, the card's placeholder in its place, so the block's height is there
- * from the first paint; with no pair left the block is not drawn.
+ * A signed-in viewer gets only the pairs with neither series in their lists
+ * (`useVersusDeck`); with no pair left the block is not drawn.
  */
 export default function VersusDeck({
   pairs: deck,

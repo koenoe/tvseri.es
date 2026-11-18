@@ -18,9 +18,9 @@ const CARD_FADE = { duration: 0.45, ease: EASE } as const;
 const AMBIENT_FADE = { duration: 1.2, ease: EASE } as const;
 
 /**
- * The 400px card and its pill switcher: every
- * pick arrives rendered, the pill crossfades between them (opacity only) and
- * the hidden ones are inert. With one pick there is nothing to switch.
+ * The 400px card and its pill switcher: every pick arrives rendered, the
+ * pill crossfades between them (opacity only) and the hidden ones are inert.
+ * With one pick there is nothing to switch.
  */
 export default function PickStage({
   picks,

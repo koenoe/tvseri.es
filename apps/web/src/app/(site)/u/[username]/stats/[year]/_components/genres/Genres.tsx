@@ -66,13 +66,10 @@ function Row({
   );
 }
 
-/**
- * The lane's height: padding 36, head 24, 16 and the rows of 34px: nine on
- * desktop (382px), six on a phone with 32px padding (276px).
- */
 /** A typical year's genres (the lane lists up to ten) */
 const GENRE_GHOSTS = Array.from({ length: 10 }, (_, n) => n);
 
+/** The lane at a typical year's height: nine rows on desktop, six on a phone */
 export function GenresSkeleton() {
   return (
     <LaneGhost

@@ -25,9 +25,9 @@ function IconGhost() {
 }
 
 /**
- * The ghost of one tile's meta line, shaped like the shelf's real one
- *: Watching's code badge and "5 to go", Watchlist's hours
- * and status, one icon and a date or state elsewhere.
+ * The ghost of one tile's meta line, shaped like the shelf's real one:
+ * Watching's code badge and "5 to go", Watchlist's hours and status, one
+ * icon and a date or state elsewhere.
  */
 function MetaGhost({ shelf }: Readonly<{ shelf: LibraryShelf }>) {
   if (shelf === 'watching') {

@@ -133,8 +133,8 @@ function AddFavourite({ id, title }: Readonly<{ id: number; title: string }>) {
 }
 
 /**
- * An empty Favourites: shows you finished,
- * dimmed until you pick one, each with a heart that adds it.
+ * An empty Favourites: shows you finished, each dimmed until the pointer
+ * or focus reaches it, with a heart that adds it.
  */
 export function FavouritePicks({
   picks,

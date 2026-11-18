@@ -54,11 +54,6 @@ const awaited = (item: WaitingForItem) => {
   return seasonCode(item.nextSeason);
 };
 
-/**
- * One finished show that is coming back: the 4px wait line
- * runs from when you finished it to the return date, filled to today; with
- * no date it fades out.
- */
 /** The row's text column and title line (the ghost row takes the same) */
 export const WAIT_TEXT = 'flex min-w-0 flex-1 flex-col gap-2.5';
 export const WAIT_TITLE_LINE = 'flex items-baseline justify-between gap-2.5';
@@ -70,6 +65,11 @@ const TO_GO_WIDE =
   'shrink-0 whitespace-nowrap text-caption text-white/60 tabular-nums max-md:hidden';
 const TO_GO_PHONE = 'tabular-nums md:hidden';
 
+/**
+ * One finished show that is coming back: the 4px wait line runs from when
+ * you finished it to the return date, filled to today; with no date it
+ * fades out.
+ */
 export default function WaitRow({
   item,
   now,

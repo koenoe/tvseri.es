@@ -27,7 +27,7 @@ import WhatsOnGhost from './toy/whats-on/WhatsOnGhost';
 import WhereSetGhost from './toy/where-set/WhereSetGhost';
 
 /**
- * Space holders for the sections that stream in (page.tsx). Each mirrors
+ * Space holders for the sections that stream in (`HomeView`). Each mirrors
  * the component that replaces it: built from that component's own layout
  * (its exported class constants, `layout.ts` modules and static parts), with
  * ghosts (`ghosts.tsx`) where its data lands and its static copy as real
@@ -168,7 +168,7 @@ export const PickSkeleton = PickGhost;
  * Continue watching's failed state takes the space its placeholder held
  * (`RowError`'s slots box: the placeholder's panel less the error's own
  * header and the row's rail padding, 24px; Get started's for a new viewer), so a failure moves
- * nothing below it (`e2e/home-continue.spec.ts` measures both)
+ * nothing below it (`e2e/home-continue.spec.ts` measures it)
  */
 export const CONTINUE_RESERVE =
   'min-h-[518px] md:min-h-[842px] lg:min-h-[420px]';
@@ -193,17 +193,17 @@ export function ContinueSkeleton() {
   );
 }
 
+/** The signed-in rows' line under each tile; their error keeps it too (`GuardedSection`) */
+export const SIGNED_IN_ROW_CAPTION = 'meta' satisfies GhostCaption;
+
 /**
- * A signed-in viewer's row (Because you watched, More for you): its space is
+ * A signed-in viewer's row (Because you watched, More {genre}): its space is
  * held for them (shown before the first paint, `viewerHintsScript`), nothing for
  * everyone else. A new viewer (`data-home="new"`, an empty library on this
  * browser) has no such rows, so they hold nothing either: the page is the
  * height it ends at. The title comes with the data, so it is a bar; the caption
  * is the one meta line the loaded tile draws.
  */
-/** The signed-in rows' line under each tile; their error keeps it too (`GuardedSection`) */
-export const SIGNED_IN_ROW_CAPTION = 'meta' satisfies GhostCaption;
-
 function SignedInRowSkeleton({
   id,
   tiles,

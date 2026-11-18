@@ -1,9 +1,9 @@
 /**
- * "2026 so far" bars: one bar per ISO week of the year up to
- * the current one. The API returns 53 weeks (`/stats/:year/weekly`, index 0
- * to 52, ISO weeks with the last days of the old year in week 1 and the
- * first of the next in week 53), counted as `yearWeekIndex` counts. Dates
- * are UTC.
+ * The year-so-far bars: one bar per ISO week of the year up to the current
+ * one. The API returns 53 weeks (`/user/:id/stats/:year/weekly`, index 0 to
+ * 52), counted as `yearWeekIndex` counts: early January days before ISO
+ * week 1 fall in week 1, late December days after the last ISO week in
+ * week 53. Dates are UTC.
  */
 
 import { plural, yearWeekIndex } from '@tvseri.es/utils';

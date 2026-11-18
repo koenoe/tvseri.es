@@ -47,15 +47,14 @@ type Props = Readonly<{
  * The country's dotted world window: the country white,
  * the rest of the world white at 16%, fading out on every side. Decorative and
  * server-rendered: two SVG paths of round-capped dots, no client JS. Renders
- * nothing for a code Natural Earth has no shape for (the hero then simply has
+ * nothing for a code Natural Earth has no shape for (the hero then has
  * no map; nothing else moves, as the map is out of flow).
  *
  * Placement (the caller's `className`), behind the hero's text:
  * - desktop, 1440 x 600: its top-left 80px below the top of the 1440 page
  *   frame (it starts under the header and runs 60px past the hero into the
  *   first row); the country lands at about x 1114, y 300.
- * - phone, 390 x 420: at the top-left of the screen, under the header (the
- *   design starts it at the phone frame's top, above the status bar).
+ * - phone, 390 x 420: at the top-left of the screen, under the header.
  */
 export default function CountryDotMap({ className, code, variant }: Props) {
   const paths = dotMapPaths(code, variant);

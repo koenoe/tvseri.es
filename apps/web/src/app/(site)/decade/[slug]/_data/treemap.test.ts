@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { layoutTreemap, MAP_HEIGHT, MAP_WIDTH, voteBars } from './treemap';
 
-// The design's eleven shows (TMDB votes) and the tiles it draws
+// A real decade's eleven shows (TMDB votes) and the tiles they get
 const VOTES = [
   24_000, 19_000, 18_000, 11_000, 10_100, 9400, 7000, 6100, 5500, 5400, 4600,
 ];
@@ -20,7 +20,7 @@ const EXPECTED: ReadonlyArray<readonly [number, number, number, number]> = [
   [956, 465, 256, 91], // Narcos
 ];
 
-/** a cell back to its tile in pixels at the design's size */
+/** a cell back to its tile in pixels at the map's full size */
 const tile = (cell: ReturnType<typeof layoutTreemap>[number]) => [
   Math.round((cell.left / 100) * MAP_WIDTH) + 4,
   Math.round((cell.top / 100) * MAP_HEIGHT) + 4,

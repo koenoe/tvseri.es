@@ -29,7 +29,7 @@ export async function generateMetadata({
 /**
  * `/theme/{slug}`: the theme's own ground from its
  * Start here show (`ThemeLanding`), prerendered per slug; before the slug is
- * known, the designed ground with every section's place.
+ * known, a shell with no colour of its own and every section's place.
  */
 export default function Page({ params }: PageProps<'/theme/[slug]'>) {
   return (

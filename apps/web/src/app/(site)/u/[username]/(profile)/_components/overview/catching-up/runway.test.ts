@@ -59,7 +59,7 @@ describe('runChips', () => {
   });
 
   it('takes each episode’s own runtime off the time left, not one runtime each', () => {
-    // a 40m premiere and a 75m finale around two hours: the series' average is 58m
+    // a 40m premiere, two 60m episodes and a 75m finale; the series' average is 58m
     const chips = runChips(
       item({
         episodeRuntimes: [40, 60, 60, 75],

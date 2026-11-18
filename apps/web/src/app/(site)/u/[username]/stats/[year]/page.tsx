@@ -33,7 +33,11 @@ export async function generateMetadata({
     return {};
   }
   const user = await getStatsUser(username);
-  if (!user || isUnavailable(user)) {
+  // Unknown: the 404 from the head on, so it never names the user
+  if (user === null) {
+    notFound();
+  }
+  if (isUnavailable(user)) {
     return {};
   }
   return { title: `A year of tvseri.es with ${user.username}` };

@@ -22,6 +22,7 @@ import {
 import { deleteWebhookToken } from '@/lib/db/webhooks';
 import { getGetStartedStatus } from '@/lib/getStarted';
 import { getOverview } from '@/lib/overview';
+import { readStartedIds } from '@/lib/rollups';
 import { getSeriesStates } from '@/lib/seriesStates';
 import { toWatchProvider } from '@/lib/watchProviders';
 import { requireAuth, type Variables } from '@/middleware/auth';
@@ -42,10 +43,16 @@ app.get('/', async (c) => {
   return c.json(user);
 });
 
-// The viewer's show ids per list: one call for labels and `+` states
+// The viewer's show ids per list: one call for labels and `+` states. With
+// `started`, so the page can hide "Seen it before?" before the first paint
+// for a show the viewer took out of In progress, not only for listed ones.
 app.get('/library-ids', async (c) => {
   const { user } = c.get('auth')!;
-  return c.json(await getLibraryIds(user.id));
+  const [library, started] = await Promise.all([
+    getLibraryIds(user.id),
+    readStartedIds(user.id),
+  ]);
+  return c.json(started ? { ...library, started } : library);
 });
 
 // The viewer's relationship with each asked show (the "+ Watchlist / Seen

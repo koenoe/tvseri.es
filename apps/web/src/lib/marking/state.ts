@@ -1,6 +1,7 @@
 import {
   episodeCode,
   type LibraryIds,
+  type LibraryList,
   type MarkWhen,
 } from '@tvseri.es/schemas';
 
@@ -212,7 +213,7 @@ export const recordOf = (
  */
 export function withMembership(
   ids: LibraryIds,
-  list: keyof LibraryIds,
+  list: LibraryList,
   seriesIds: ReadonlyArray<number>,
   on: boolean,
 ): LibraryIds {
@@ -238,7 +239,7 @@ export function libraryAfter(
 ): LibraryIds {
   const progress = seriesProgress(series);
   const started = progress.watched > 0;
-  const lists: ReadonlyArray<readonly [keyof LibraryIds, boolean]> = [
+  const lists: ReadonlyArray<readonly [LibraryList, boolean]> = [
     ['favorites', series.status?.isFavorited === true],
     // The API's rule: skipped counts as done for Finished
     ['inProgress', started && !progress.isFinished],

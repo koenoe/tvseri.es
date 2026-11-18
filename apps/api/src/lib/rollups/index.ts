@@ -169,6 +169,28 @@ const readStoredRollups = async (
 };
 
 /**
+ * The shows with a regular episode watched (specials don't count, as in
+ * `hasHistory`): one Query of the summaries, or null while they aren't
+ * complete (a missing summary could still mean "not built yet"). An empty
+ * summary is an unmarked show; an overflow one has thousands of items.
+ */
+export const readStartedIds = async (
+  userId: string,
+): Promise<ReadonlyArray<number> | null> => {
+  const { complete, rollups } = await readStoredRollups(userId);
+  if (!complete) {
+    return null;
+  }
+  return [...rollups]
+    .filter(
+      ([, rollup]) =>
+        rollup === 'overflow' || rollup.some((item) => item.seasonNumber > 0),
+    )
+    .map(([id]) => id)
+    .sort((a, b) => a - b);
+};
+
+/**
  * Every summary of the user (one Query: a few KB per show), or null when
  * they aren't complete yet: the caller reads the watched items instead.
  */

@@ -26,6 +26,12 @@ describe('toLibraryHint', () => {
       v: 1,
     });
   });
+
+  it('counts a started show in no list (taken out of In progress) as tracked', () => {
+    expect(
+      JSON.parse(toLibraryHint('kit', { ...IDS, started: [3, 7] })).ids,
+    ).toEqual([5, 9, 3, 7]);
+  });
 });
 
 describe('persistLibraryHint', () => {

@@ -10,12 +10,18 @@ const MAX_HINT_IDS = 5000;
 
 /**
  * The stored hint: ids only, versioned, for one account. A show counts as
- * tracked when it is finished or in progress.
+ * tracked when it is finished, in progress, or started at all: a show taken
+ * out of In progress by hand is in no list, but "Seen it before?" still
+ * isn't for it, and without it here the prompt flashed and collapsed.
  */
 export function toLibraryHint(username: string, library: LibraryIds): string {
-  const ids = [...new Set([...library.watched, ...library.inProgress])].slice(
-    -MAX_HINT_IDS,
-  );
+  const ids = [
+    ...new Set([
+      ...library.watched,
+      ...library.inProgress,
+      ...(library.started ?? []),
+    ]),
+  ].slice(-MAX_HINT_IDS);
   return JSON.stringify({ ids, u: username, v: LIBRARY_HINT_VERSION });
 }
 

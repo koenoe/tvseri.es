@@ -541,13 +541,16 @@ const LIBRARY_LISTS = {
   WATCHLIST: 'watchlist',
 } as const satisfies Record<string, keyof LibraryIds>;
 
+/** The four lists (not `started`, which comes from the summaries) */
+type LibraryList = (typeof LIBRARY_LISTS)[keyof typeof LIBRARY_LISTS];
+
 /**
  * Every show id in the user's lists, per list: one base-table Query of the
  * user's partition (`begins_with(sk, 'LIST#')` keeps prefs out), keys only.
  * Custom lists and RESUMING_SOON (a subset of WATCHED) are left out.
  */
 export const getLibraryIds = async (userId: string): Promise<LibraryIds> => {
-  const ids: Record<keyof LibraryIds, number[]> = {
+  const ids: Record<LibraryList, number[]> = {
     favorites: [],
     inProgress: [],
     watched: [],

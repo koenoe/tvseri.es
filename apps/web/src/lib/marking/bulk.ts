@@ -2,7 +2,7 @@ import type {
   BulkLibraryInput,
   BulkLibraryOp,
   BulkLibraryResult,
-  LibraryIds,
+  LibraryList,
 } from '@tvseri.es/schemas';
 import type { ActionResult } from '@/lib/actions/result';
 import { withMembership } from './state';
@@ -61,7 +61,7 @@ const FAILED: Readonly<Record<BulkLibraryOp, string>> = {
 
 /** The list an op changes in the library ids, and how */
 const LIST_CHANGE: Readonly<
-  Partial<Record<BulkLibraryOp, readonly [keyof LibraryIds, boolean]>>
+  Partial<Record<BulkLibraryOp, readonly [LibraryList, boolean]>>
 > = {
   'favourites-add': ['favorites', true],
   'favourites-remove': ['favorites', false],

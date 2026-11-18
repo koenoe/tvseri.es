@@ -25,6 +25,3 @@ export const FULL_IDENTITY_CLASS = `${IDENTITY_BLOCK} max-lg:profile-subpage:hid
 /** The compact identity: sub-pages below lg only */
 export const COMPACT_IDENTITY_CLASS =
   'hidden items-center justify-between gap-3 pt-2 max-lg:profile-subpage:flex';
-
-/** What only the overview's identity draws (Watches on) */
-export const OVERVIEW_ONLY_CLASS = 'contents profile-subpage:hidden';

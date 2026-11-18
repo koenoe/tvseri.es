@@ -8,14 +8,10 @@ import { ProfileActionSkeleton } from './ProfileAction';
 import { COMPACT_IDENTITY_CLASS, FULL_IDENTITY_CLASS } from './subpage';
 
 const HANDLE_GHOST = cn('h-[46px] w-40 rounded-8', GHOST_FILL, PULSE);
-const WATCHES_ON_GHOST = cn(
-  'h-[22px] w-full rounded-4 profile-subpage:hidden',
-  GHOST_FILL,
-  PULSE,
-);
+const WATCHES_ON_GHOST = cn('h-[22px] w-full rounded-4', GHOST_FILL, PULSE);
 const COMPACT_HANDLE_GHOST = cn('h-8 w-32 rounded-8', GHOST_FILL, PULSE);
 
-/** The full identity's ghost: 48px handle, three meta lines, Watches on but not on a sub-page, the 42px button */
+/** The full identity's ghost: 48px handle, three meta lines, Watches on, the 42px button */
 export function FullIdentitySkeleton() {
   return (
     <div className={FULL_IDENTITY_CLASS}>

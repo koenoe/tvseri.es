@@ -186,34 +186,37 @@ test.describe('profile signed in', () => {
     ).toHaveAttribute('href', '/u/alex/circle');
   });
 
-  test('a sub-page drops Watches on; the overview keeps it', async ({
+  // the identity is the same on every page: a sub-page keeps Watches on
+  test('a sub-page keeps Watches on, as the overview does', async ({
     page,
   }) => {
     await page.goto('/u/alex');
     const sidebar = page.getByRole('complementary', { name: 'About alex' });
     await expect(sidebar.getByText('Watches on')).toBeVisible();
-    await page.goto('/u/alex/history');
-    await expect(
-      sidebar.getByRole('link', { name: 'Edit profile' }),
-    ).toBeVisible();
-    await expect(sidebar.getByText('Watches on')).toBeHidden();
+    for (const path of ['/u/alex/library', '/u/alex/history']) {
+      await page.goto(path);
+      await expect(
+        sidebar.getByRole('link', { name: 'Edit profile' }),
+      ).toBeVisible();
+      await expect(sidebar.getByText('Watches on')).toBeVisible();
+    }
   });
 
   // a client navigation keeps the page before hidden in the DOM, its
   // marker with it: back on the overview, it is the overview again
-  test('the overview after a sub-page, by its tabs, keeps Watches on', async ({
+  test('the overview after a sub-page, by its tabs, is the overview again', async ({
     page,
   }) => {
     await page.goto('/u/alex');
-    const sidebar = page.getByRole('complementary', { name: 'About alex' });
+    const frame = page.locator('[data-profile-frame]');
     const tabs = page.getByRole('navigation', { name: 'Profile' });
-    await expect(sidebar.getByText('Watches on')).toBeVisible();
+    await expect(frame).toHaveAttribute('data-profile-page', 'overview');
     await tabs.getByRole('link', { name: 'Library' }).click();
     await page.waitForURL('**/u/alex/library');
-    await expect(sidebar.getByText('Watches on')).toBeHidden();
+    await expect(frame).toHaveAttribute('data-profile-page', 'subpage');
     await tabs.getByRole('link', { name: 'Overview' }).click();
     await page.waitForURL((url) => url.pathname === '/u/alex');
-    await expect(sidebar.getByText('Watches on')).toBeVisible();
+    await expect(frame).toHaveAttribute('data-profile-page', 'overview');
     await expect(page.locator('[data-slot="profile-tail"]')).toBeVisible();
   });
 

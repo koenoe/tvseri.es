@@ -17,18 +17,14 @@ import IdentityMeta, {
   IdentityMetaSkeleton,
 } from './IdentityMeta';
 import ProfileAction, { ProfileActionSkeleton } from './ProfileAction';
-import {
-  COMPACT_IDENTITY_CLASS,
-  FULL_IDENTITY_CLASS,
-  OVERVIEW_ONLY_CLASS,
-} from './subpage';
+import { COMPACT_IDENTITY_CLASS, FULL_IDENTITY_CLASS } from './subpage';
 
 /**
  * The identity at the top of the sidebar, in two variants (only one shows):
  *
  * - the full block: the handle, three meta lines grouped without a box, the
- *   services, and the owner's or visitor's button. On the sub-pages the
- *   services line goes;
+ *   services, and the owner's or visitor's button, the same on every page
+ *   it shows on;
  * - the compact one, on a phone's sub-pages: the handle up to 32px and
  *   "5,341 episodes · 218 finished" beside a small Edit, or a visitor's
  *   Follow / Following in its slot.
@@ -61,9 +57,7 @@ export default function Identity({
             <IdentityMeta profile={profile} />
           </Hole>
         </IdentityLines>
-        <div className={OVERVIEW_ONLY_CLASS}>
-          <WatchesOn isOwner={isOwner} providers={user.watchProviders} />
-        </div>
+        <WatchesOn isOwner={isOwner} providers={user.watchProviders} />
         <Hole fallback={<ProfileActionSkeleton />} look="line" title="Follow">
           <ProfileAction profile={profile} />
         </Hole>

@@ -10,6 +10,7 @@ import cn from '@/lib/cn';
 
 import HeaderGlass, { GlassDistortion } from './HeaderGlass';
 import { useHeaderStore } from './HeaderStoreProvider';
+import { hidesInstantly } from './headerMode';
 import useHeaderLook from './useHeaderLook';
 
 const HEADER_VARIANTS = {
@@ -118,7 +119,10 @@ function HeaderFrame({ children }: Readonly<{ children: ReactNode }>) {
     [shouldAnimate],
   );
 
-  const headerClasses = headerStyles({ mode: visual });
+  const headerClasses = cn(
+    headerStyles({ mode: visual }),
+    hidesInstantly(visual, previousMode) && '[clip-path:inset(0_0_100%_0)]',
+  );
   const containerClasses = containerStyles({ layout });
   const navClasses = cn(navStyles({ layout }), named && 'bg-page');
   const contentClasses = contentStyles({ layout });

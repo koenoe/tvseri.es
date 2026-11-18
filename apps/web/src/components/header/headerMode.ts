@@ -51,3 +51,18 @@ export function trackScroll(
 export function modeOnFocus(mode: HeaderMode): HeaderMode {
   return mode === 'hidden' ? 'floating' : mode;
 }
+
+/**
+ * Whether the header vanishes in the commit that hides it. Hidden straight
+ * from the top bar it turns `fixed` in that commit, but Motion only moves
+ * and fades it a frame later, so for one frame the whole bar flashed at the
+ * top of the screen. Clipping it away in the same commit hides that frame;
+ * a clipped link still takes keyboard focus, which brings the pill back.
+ * A pill sliding away isn't clipped, so its slide-out still shows.
+ */
+export function hidesInstantly(
+  visual: HeaderMode | 'menu' | 'named',
+  previousMode: HeaderMode,
+): boolean {
+  return visual === 'hidden' && previousMode !== 'floating';
+}

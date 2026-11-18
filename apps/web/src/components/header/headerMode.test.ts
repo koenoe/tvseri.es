@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { modeOnFocus, trackScroll } from './headerMode';
+import { hidesInstantly, modeOnFocus, trackScroll } from './headerMode';
 
 const at = (
   y: number,
@@ -99,4 +99,18 @@ describe('modeOnFocus', () => {
       expect(modeOnFocus(mode)).toBe(mode);
     },
   );
+});
+
+describe('hidesInstantly', () => {
+  it('clips the bar away in the commit that hides it from the top', () => {
+    expect(hidesInstantly('hidden', 'static')).toBe(true);
+  });
+
+  it('lets the pill slide away and every other look show', () => {
+    expect(hidesInstantly('hidden', 'floating')).toBe(false);
+    expect(hidesInstantly('floating', 'hidden')).toBe(false);
+    expect(hidesInstantly('static', 'static')).toBe(false);
+    expect(hidesInstantly('menu', 'static')).toBe(false);
+    expect(hidesInstantly('named', 'static')).toBe(false);
+  });
 });

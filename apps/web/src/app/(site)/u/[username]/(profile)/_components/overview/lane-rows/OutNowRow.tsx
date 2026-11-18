@@ -50,7 +50,7 @@ export default function OutNowRow({
   const poster = <LanePoster src={item.posterImage} width={34} />;
   const facts = isSeason ? (
     <span className="truncate text-caption font-medium text-cyan">
-      Season complete
+      Full season
     </span>
   ) : (
     <>

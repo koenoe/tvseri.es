@@ -99,7 +99,7 @@ describe('LaneRow', () => {
         as="li"
         code="S04E02"
         end={eye}
-        footnote={<p>Season complete</p>}
+        footnote={<p>Full season</p>}
         layout={PLAIN}
         poster={poster}
         title="The Gilded Age"
@@ -107,7 +107,7 @@ describe('LaneRow', () => {
     );
     expect(screen.getByText('The Gilded Age')).toBeTruthy();
     expect(container.querySelector('[role="img"]')).toBeNull();
-    expect(screen.getByText('Season complete')).toBeTruthy();
+    expect(screen.getByText('Full season')).toBeTruthy();
   });
 });
 

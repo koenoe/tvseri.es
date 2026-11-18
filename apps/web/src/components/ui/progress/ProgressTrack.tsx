@@ -17,7 +17,7 @@ const TRACK = 'relative h-1 rounded-2';
  * don't unify them.
  */
 export const TRACK_LOOK = {
-  /** A line beside its caption (Up next, Season complete, the show page): grows, at least 80px */
+  /** A line beside its caption (Up next, Full season, the show page): grows, at least 80px */
   line: 'min-w-20 flex-1 bg-white/12',
   /** A Library poster: across the art's foot */
   poster: 'bg-white/12',
@@ -112,7 +112,7 @@ export function TrackTick({ at }: Readonly<{ at: number }>) {
 }
 
 /**
- * A line beside its caption (Up next, Season complete) or on a Library
+ * A line beside its caption (Up next, Full season) or on a Library
  * poster: the watched width, aired dimmed and the tick while a season still
  * airs (`aired` under 100); leave `aired` out when everything aired.
  */

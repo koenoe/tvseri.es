@@ -79,7 +79,7 @@ const countries = feature(world, world.objects.countries).features.filter(
 const projection = geoMercator().scale(91.5).translate([269.5, 263.5]);
 
 /** The reference dots as `col,row` cells, or null to use Natural Earth's land */
-const boardLand = (() => {
+const referenceLand = (() => {
   const file = process.argv[2];
   if (!file) {
     return null;
@@ -110,7 +110,7 @@ for (let row = 0; row < ROWS; row++) {
       ((col + 0.5) * WIDTH) / COLS,
       ((row + 0.5) * HEIGHT) / ROWS,
     ]);
-    const isLand = boardLand ? boardLand.has(`${col},${row}`) : null;
+    const isLand = referenceLand ? referenceLand.has(`${col},${row}`) : null;
     const hit =
       isLand === false
         ? undefined

@@ -534,7 +534,7 @@ const LOGO_CHOICES: ReadonlyArray<
 ];
 
 /** The page colour for a backdrop name, if it is one of the choices. */
-export const boardColourFor = (name: string): string | undefined =>
+export const backdropChoiceColour = (name: string): string | undefined =>
   BACKDROP_CHOICES.find(([choice]) => choice === name)?.[1];
 
 export type ImagesVariant = 'normal' | 'nologo' | 'one';

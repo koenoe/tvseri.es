@@ -18,7 +18,7 @@ import type {
 
 import type { StubRequest, StubResponse, StubRoute } from '../types.ts';
 import {
-  boardColourFor,
+  backdropChoiceColour,
   catalogueShow,
   contentRating,
   episodesOf,
@@ -773,7 +773,7 @@ const adminRoutes: readonly StubRoute[] = [
         /^https:\/\/image\.tmdb\.org\/t\/p\/[^/]+\/([^/]+)$/.exec(url)?.[1] ??
         /^https?:\/\/[^/]+\/img\/([^/]+)$/.exec(url)?.[1];
       return name
-        ? ok({ hex: boardColourFor(name) ?? colourFor(name) })
+        ? ok({ hex: backdropChoiceColour(name) ?? colourFor(name) })
         : {
             body: { error: 'Only TMDB image URLs are supported' },
             status: 400,

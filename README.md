@@ -87,8 +87,8 @@ Requirements: Node 24, pnpm 12, AWS profiles named `tvseries-dev` and `tvseries-
 
 GitHub Actions handles every deploy:
 
-- Every PR runs format-and-lint, knip, check-types and the tests.
-- Push to `main` deploys production after the same checks: `www.tvseri.es`, with `tvseri.es` redirecting to www.
-- Each PR gets a preview at `pr-{n}.dev.tvseri.es`, which is removed when the PR closes.
+- Every PR runs format-and-lint, knip, check-types and the unit tests, plus the Playwright suites of the web and the sign-in pages (`e2e.yml`).
+- Push to `main` deploys production after format-and-lint, knip, check-types and the unit tests: `www.tvseri.es`, with `tvseri.es` redirecting to www.
+- Each PR gets a preview at `www.pr-{n}.dev.tvseri.es`, which is removed when the PR closes.
 
 The web app is on Vercel. The API, auth and dashboard run on AWS.

@@ -33,6 +33,10 @@ Plain "on mount / on unmount" logic therefore runs at the wrong moments. The rul
 
 The `instant()` e2e rig that guards which UI is in the static shell is described in `instant-nav.rig.md`.
 
+## Server actions write, GET routes read
+
+Server actions (`'use server'`) are for writes. A client read after the first paint goes through a GET route handler under `src/app/api` (`/api/me/import-status`, `/api/me/username-check`, `/api/admin/series/[id]/…`, `/api/person/[id]/self-credits` and `/awards`): a public GET can be cached at the CDN, and Next runs a page's server actions one at a time, so a read action would wait behind a write. The exception is revealing the Plex webhook URL (`settings/plex/actions.ts`): a POST is never cached or prefetched, so the secret can't land in a cache.
+
 ## Where the rules live
 
 - `src/lib/marking/README.md`: marking episodes, dates, Undo and failures.

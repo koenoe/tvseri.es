@@ -50,7 +50,7 @@ Open `http://localhost:3116/136315/the-bear`. Without images (`STUB_IMG_DIR` uns
 | User | Id | Role | State |
 | --- | --- | --- | --- |
 | `alex` | `01STUBALEX0000000000000000` | user | The Bear: S1 and S2 watched (S2E3 without a date, S2E5 skipped), S3E1 to E4 watched (S3E3 without a date), E5 is Next up; favourited; first-tracking answered. Lantern Bay: the two aired specials only |
-| `rae`, `kit` | (see `fixtures/show/store.ts`) | user | alex's twins from before specs were isolated; specs use `alex` now |
+| `rae`, `kit` | (see `fixtures/show/store.ts`) | user | Spare viewers; show specs sign in as `alex` |
 | `nina` | `01STUBNINA0000000000000000` | user | New: nothing tracked, the first-tracking prompt shows |
 | `sam` | `01STUBSAM00000000000000000` | admin | The Bear: S1 and S2E1 to E3 watched; can use the admin image picker |
 
@@ -61,8 +61,6 @@ A=$(curl -s "localhost:4216/__token?user=alex")
 curl -H 'x-api-key: stub' -H "Authorization: Bearer $A" localhost:4116/me/library-ids
 ```
 
-For a screenshot: `node page.cjs <url> <out.png> --user alex --width 390`.
-
 ### State and rules
 
 - **Isolation (the rule for specs)**: `signInAs(context, viewer)` gives the test its own copy of the whole stub state. The session it sets carries an `ns` claim named after the running test (and its repeat/retry); the stub API loads a private instance of every fixture module for that namespace (a resolve hook in `server.ts` tags imports with `?stubns=<ns>`), so marks, skips, favourites, lists, follows, settings, imports and Plex links start from the seeds and are visible to that test only. The copy is made on the namespace's first write (any request but `GET`/`HEAD`, `/__stub/*` included); until then it reads the shared copy, which is still the seeds (see the next rule). So a fixture's `GET` must never change state: a read that did would leak into every other test. Any number of tests may sign in as `alex` in parallel and write; nothing needs resetting and there are no per-spec twin viewers. Do not reset the stub from a spec.
@@ -71,13 +69,11 @@ For a screenshot: `node page.cjs <url> <out.png> --user alex --width 390`.
 - `GET /dominant-color?url=` also accepts the stub's own `/img/<name>` URLs (the real route takes TMDB URLs only) and returns a dark colour derived from the name.
 - `in_progress` and `watched` lists are derived from the watched marks and skips at once, by the API's rule (Finished: every aired regular episode watched or skipped, one watched at least; the real ones follow a stream a moment later).
 - The `?view=track` marks return what the API returns: the episode, or every watched episode of the season or show.
-- Signed out by default: a local server without `SECRET_KEY` is always signed out.
 - Signed in: `issuer.ts` is a stub OpenAuth issuer for the invented viewers in `e2e/fixtures/home/viewer.ts` (`stub-user-nina`, a member; `stub-user-sam`, a new user). `pnpm agents:serve web --stub` starts it on the auth stub port (+1100) and gives the web `AUTH_URL` and a fake local `SECRET_KEY`. Get a session with `curl 'http://localhost:<auth port>/session?user=stub-user-nina'` and set its `cookie` value as the `__tvseries_session` cookie on `localhost` (curl: `-b "__tvseries_session=<value>"`). Use a fresh browser profile: the stub server drops real sessions.
 - Shared helpers go in a subfolder (`fixtures/<area>/`, not loaded as routes) and may be imported without an extension.
-- `handle` may return `undefined` to pass the request to the next matching route (e.g. `/series/:id` for ids another fixture owns).
 - A string body with a non-JSON `content-type` header is sent as it is (`/img/:kind/:file` placeholder SVGs, which need no key).
 - Person page (`fixtures/person.ts`, data in `fixtures/person/`): `17419` Bryan Cranston (living, upcoming work, 46 self credits, family and 87 awards, watched line), `129101` Lance Reddick (deceased, work after his death, one nomination, no family), `4242001` Wren Calloway (sparse: no photo, bio, links; two guest roles), `4242003` Mara Linden (spouse linked to Wren Calloway, children and upcoming work: the family block at its usual count, 3 lines on desktop and 2 below lg). Any other id is a 404.
-- A `handle` that returns `undefined` gives no answer: the next matching route decides (file order). Fixtures for invented people answer only for their own viewers and ids, so several streams can serve `/me` side by side.
+- A `handle` that returns `undefined` passes the request to the next matching route (file order; e.g. `/series/:id` for ids another fixture owns). Fixtures for invented people answer only for their own viewers and ids, so several streams can serve `/me` side by side.
 
 ## Profile sub-pages (Library, History, Circle)
 

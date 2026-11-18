@@ -17,8 +17,8 @@ A CSV of watched episodes (Netflix's viewing history or any file with mappable c
 ## Check, then write (API)
 
 - **Check** (`checkImportBatch`): reports what would be written and what is already watched. Nothing is written.
-- **Start** (`startImport`): the import becomes the user's `lastImport`. Starting a new import ends Undo for the previous one.
-- **Write** (`writeImportBatch`): only while the import is open (`assertImportOpen`, else 409). Episodes already watched are left alone, so their dates are kept and Undo never touches them. New ones carry the `importId`. Writing an episode clears its skip; the cleared skips are recorded first (`recordUnskipped`) so Undo can put them back. Unlike a mark, an import never brings a hidden show back: it restores history, it is no new watching. Lists follow through the watched stream (`lib/listSync`).
+- **Start** (`startImport`): the import becomes the user's `lastImport`. Starting a new import ends Undo for the previous one, and is refused (409) while that one's Undo is still running: replacing it would drop the skips Undo is about to put back.
+- **Write** (`writeImportBatch`): only while the import is open (`assertImportOpen`, else 409). Episodes already watched are left alone, so their dates are kept and Undo never touches them. New ones carry the `importId`. Writing an episode clears its skip; the cleared skips are recorded first (`recordUnskipped`) so Undo can put them back. Unlike a mark, an import never brings a hidden show back: it restores history, it is no new watching. The import's counts (`written`, `skipped`) are added only once the episodes are in, so a failed write counts nothing. Lists follow through the watched stream (`lib/listSync`).
 - A session that expires mid-import stops it. After signing in, Continue in the same tab re-sends the chunk that stopped; what it already wrote counts as already watched.
 - **Accepted race**: an episode marked by hand between the check and the write is overwritten by the import and would go with an Undo. Rare enough to accept.
 
@@ -30,4 +30,4 @@ A CSV of watched episodes (Netflix's viewing history or any file with mappable c
 2. Delete each watched item that **still carries this import id**, with a conditional delete. Anything re-marked by hand or scrobbled by Plex since has no import id and stays.
 3. Stamp `lastImport.undoneAt`.
 
-Undo covers the last import only, which keeps it simple and safe. It is safe to ask again until it finishes, and it continues across runs for large imports.
+Undo covers the last import only. It is safe to ask again until it finishes, and it continues across runs for large imports.

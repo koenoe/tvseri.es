@@ -9,8 +9,6 @@ Every page has a page colour (`--main-background-color`, the `page` colour token
 - **A colour per history entry** (`cache.ts`): Back to Home returns on the spotlight slide you left, in its colour, without a crossfade.
 - **`PageEdgeTint` only while the header is fixed**: Safari's top bar follows the page colour on every navigation (below).
 
-If you simplify any of these, the colour flashes on load, pages show the wrong colour after navigating, or Home loses its slide on Back.
-
 ## Use it
 
 ```tsx

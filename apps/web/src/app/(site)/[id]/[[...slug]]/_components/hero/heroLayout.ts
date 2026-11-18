@@ -6,13 +6,16 @@
  * The spacer has a set height, so what streams into the title group never
  * moves the page below. Desktop: rows 1 and 2 share it (457 + 48px), and on
  * a tall window it grows with it (65% of its height), so the backdrop keeps
- * its room above the title. Phones: row 1 alone (470px), which puts a
- * treatment's top 330px under the header, where the backdrop's fade begins;
+ * its room above the title. Phones: row 1 alone (530px), which puts a
+ * treatment's top about 390px under the header, where the backdrop's fade
+ * and blur begin;
  * the prompt and synopsis follow it, so a hidden or leaving prompt never
- * moves the title.
+ * moves the title. `md:row-start-1` again after `md:row-span-2`: the span is a
+ * `grid-row` shorthand, which would otherwise reset the start and place the
+ * spacer after the content.
  */
 export const HERO_SPACER =
-  'pointer-events-none col-start-1 row-start-1 min-h-[470px] md:row-span-2 md:h-[max(505px,calc(65svh-80px))] md:min-h-0 md:group-data-docked/hero:h-[calc(100svh-var(--admin-tray-height,240px)-63px)]';
+  'pointer-events-none col-start-1 row-start-1 min-h-[530px] md:row-span-2 md:row-start-1 md:h-[max(505px,calc(65svh-80px))] md:min-h-0 md:group-data-docked/hero:h-[calc(100svh-var(--admin-tray-height,240px)-63px)]';
 
 /**
  * The phone hero's rhythm: 16px from the title to the facts and from the

@@ -31,10 +31,14 @@ function Genres({ genres }: Readonly<{ genres: TvSeries['genres'] }>) {
   });
 }
 
+/** Phones: the full width, so the age rating and logo end at its right edge */
+const ROW = 'gap-3 max-md:w-full md:gap-4';
+
 /**
  * The facts under the title: year, seasons, genres (links to the genre
  * landing) and, from the viewer's region, the age rating and provider logo at
- * the end of the row.
+ * the end of the row. Phones: the genres truncate so the row stays one
+ * line.
  */
 export default function HeroMeta({
   children,
@@ -46,7 +50,7 @@ export default function HeroMeta({
 }>) {
   const genreNames = series.genres.map((genre) => genre.name).join(', ');
   return (
-    <MetaRow className="gap-3 md:gap-4">
+    <MetaRow className={ROW}>
       <MetaItem icon={calendarGlyph}>{series.releaseYear}</MetaItem>
       {series.numberOfSeasons > 0 ? (
         <MetaItem icon={seasonGlyph}>

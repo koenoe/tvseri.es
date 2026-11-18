@@ -9,6 +9,10 @@ import {
   PromptGhost,
 } from '../first-tracking/PromptCard';
 import { ProgressSkeleton } from '../progress/ProgressBar';
+import {
+  PHONE_RATING_PROVIDER_GHOST,
+  RatingAndProviderGhosts,
+} from '../where-to-watch/RatingAndProvider';
 import HeroGrid from './HeroGrid';
 import {
   HERO_ACTIONS_ROW,
@@ -26,7 +30,8 @@ import { ImdbRatingSkeleton } from './ImdbRating';
 const BAR = cn('rounded-4', GHOST_FILL);
 const YEAR_BAR = `h-3.5 w-14 ${BAR}`;
 const SEASONS_BAR = `ml-4 h-3.5 w-20 ${BAR}`;
-const GENRES_BAR = `ml-4 h-3.5 w-40 ${BAR}`;
+/** Narrower on phones, where the row ends with the age rating and logo */
+const GENRES_BAR = `ml-4 h-3.5 w-16 md:w-40 ${BAR}`;
 
 const TITLE_GHOST = cn(
   HERO_TITLE_SPACE,
@@ -54,6 +59,7 @@ export default function HeroSkeleton() {
           <span className={YEAR_BAR} />
           <span className={SEASONS_BAR} />
           <span className={GENRES_BAR} />
+          <RatingAndProviderGhosts className={PHONE_RATING_PROVIDER_GHOST} />
         </div>
         <ProgressSkeleton />
       </div>

@@ -25,8 +25,9 @@ export const HERO_TITLE_SPACE = 'mb-4 md:mb-6';
 export const HERO_TITLE_GROUP =
   'col-start-1 row-start-1 self-end md:w-[973px] md:max-w-full';
 
+/** 28px tall at every width: the age rating box streaming in never grows it */
 export const HERO_META_ROW =
-  'mb-5 flex items-center md:mb-3 md:min-h-7 md:group-data-docked/hero:mb-px';
+  'mb-5 flex min-h-7 items-center md:mb-3 md:group-data-docked/hero:mb-px';
 
 /** On the 24px gutter on phones too */
 export const HERO_PROMPT_SLOT =

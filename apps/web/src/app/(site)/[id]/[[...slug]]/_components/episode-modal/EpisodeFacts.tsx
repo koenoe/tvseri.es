@@ -63,13 +63,13 @@ const TITLE_GHOST = cn(
   PULSE,
 );
 
-/** The show's logo above the facts, 180 × 29 on its left (desktop only) */
+/** The show's logo above the facts, 220 × 36 on its left (desktop only) */
 // Each place keeps its own look on purpose; don't unify them.
 const EPISODE_LOGO: TitleLogoLook = {
-  height: 29,
-  logo: 'h-[29px] w-[180px] object-contain object-left opacity-90 max-lg:hidden',
-  sizes: '180px',
-  width: 180,
+  height: 36,
+  logo: 'h-9 w-[220px] object-contain object-left opacity-90 max-lg:hidden',
+  sizes: '220px',
+  width: 220,
 };
 
 /** A quiet bar where a fact will be (the season is still loading). */

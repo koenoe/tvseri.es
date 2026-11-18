@@ -111,11 +111,11 @@ export default function SeasonLine({
   return (
     <div
       aria-disabled={locked || undefined}
-      aria-keyshortcuts="Enter"
+      aria-keyshortcuts={locked ? undefined : 'Enter'}
       aria-label={aria}
       className={lineClass}
       onClick={onClick}
-      onFocus={preloadOnKeyboardFocus}
+      onFocus={locked ? undefined : preloadOnKeyboardFocus}
       onKeyDown={onKeyDown}
       onPointerLeave={gesture.onPointerLeave}
       role="group"

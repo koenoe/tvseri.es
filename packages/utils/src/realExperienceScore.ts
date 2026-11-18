@@ -115,7 +115,7 @@ const RES_WEIGHTS: Readonly<Record<RESMetricName, number>> = {
  * @see Abramowitz and Stegun, Handbook of Mathematical Functions, formula 7.1.26
  */
 const erf = (x: number): number => {
-  // Constants for the approximation
+  // The coefficients of formula 7.1.26
   const a1 = 0.254829592;
   const a2 = -0.284496736;
   const a3 = 1.421413741;
@@ -123,11 +123,10 @@ const erf = (x: number): number => {
   const a5 = 1.061405429;
   const p = 0.3275911;
 
-  // Save the sign of x
+  // The formula holds for x ≥ 0; erf is odd, so the sign is put back after
   const sign = x < 0 ? -1 : 1;
   const absX = Math.abs(x);
 
-  // Approximation formula
   const t = 1.0 / (1.0 + p * absX);
   const y =
     1.0 -

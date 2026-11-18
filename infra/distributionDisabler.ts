@@ -103,7 +103,6 @@ const killSwitchSnsTopic = new sst.aws.SnsTopic(
   { provider: useast1 },
 );
 
-// Subscribe the kill switch Lambda to the SNS topic
 killSwitchSnsTopic.subscribe('KillSwitchSubscription', {
   handler:
     'packages/kill-switch/disable-cloudfront-distributions/index.handler',

@@ -5,13 +5,26 @@ import { memo } from 'react';
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import { SlidingProgressTrack } from '@/components/ui/progress/ProgressTrack';
-import { useSeriesProgress, useSeriesView } from '@/lib/marking/hooks';
-import { openEpisodes } from '@/lib/marking/progress';
+import { useSeriesView } from '@/lib/marking/hooks';
 
 import { useShow } from '../../_lib/ShowProvider';
 import useRuntimes from '../../_lib/useRuntimes';
-import { minutesOf } from '../progress/progressLine';
 import { sheetProgress } from './sheetProgress';
+
+/** Before the store has the show: its announced episodes, nothing aired or watched */
+const unseeded = (
+  seasons: ReadonlyArray<
+    Readonly<{ seasonNumber: number; episodeCount: number }>
+  >,
+) => ({
+  seasons: seasons.map(({ episodeCount, seasonNumber }) => ({
+    airedEpisodeCount: 0,
+    episodeCount,
+    seasonNumber,
+  })),
+  skipped: [],
+  watched: {},
+});
 
 /**
  * The progress line under the sheet's title:
@@ -21,20 +34,10 @@ import { sheetProgress } from './sheetProgress';
 function ProgressSubheader() {
   const show = useShow();
   const view = useSeriesView(show.id);
-  const progress = useSeriesProgress(show.id);
   const runtimes = useRuntimes(show.id);
-  const regular = show.seasons.filter((season) => season.seasonNumber > 0);
-  const total = regular.reduce((sum, season) => sum + season.episodeCount, 0);
-  // Left = aired, neither watched nor skipped (one rule for the page)
-  const left = view ? openEpisodes(view) : [];
-  const minutesLeft = view && runtimes ? minutesOf(left, runtimes) : null;
-  const line = sheetProgress({
-    aired: progress?.aired ?? 0,
-    left: left.length,
-    minutesLeft,
+  const line = sheetProgress(view ?? unseeded(show.seasons), {
     nextAirDate: show.nextEpisodeToAir?.airDate ?? null,
-    total,
-    watched: progress?.watched ?? 0,
+    runtimes: runtimes ?? null,
   });
   const tick = line.tick ? line.airedShare : undefined;
   const rest = line.rest ? ` · ${line.rest}` : '';

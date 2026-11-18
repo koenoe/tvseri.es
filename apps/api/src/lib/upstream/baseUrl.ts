@@ -1,3 +1,4 @@
+import { isLocalHost } from '@tvseri.es/constants';
 import { Resource } from 'sst';
 
 import { logWarn } from '@/utils/logWarn';
@@ -11,8 +12,6 @@ import { logWarn } from '@/utils/logWarn';
  * production. Unset, the real base URL is used.
  */
 export type UpstreamName = 'MDBLIST' | 'OMDB' | 'TMDB';
-
-const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1']);
 
 const stageOf = () => {
   try {
@@ -34,7 +33,7 @@ export const isAllowedOverride = (
     const url = new URL(override);
     return (
       (url.protocol === 'http:' || url.protocol === 'https:') &&
-      LOCAL_HOSTS.has(url.hostname)
+      isLocalHost(url.hostname)
     );
   } catch {
     return false;

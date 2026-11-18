@@ -6,7 +6,7 @@ import type {
   ImportCheckResult,
   WatchProvider,
 } from '@tvseri.es/schemas';
-import { createLimiter } from '@tvseri.es/utils';
+import { chunk, createLimiter } from '@tvseri.es/utils';
 
 import { ApiError, apiFetch } from '@/lib/api/client';
 import { loadSeriesForWrite } from '@/lib/series/forWrite';
@@ -220,14 +220,12 @@ export async function* runImport(
     ? IMPORT_WRITE_BATCH_SIZE
     : IMPORT_MAX_ROWS_PER_REQUEST;
 
-  for (let i = 0; i < rows.length; i += batchSize) {
+  const outcomeBatches = chunk(outcomes, batchSize);
+  for (const [index, batchRows] of chunk(rows, batchSize).entries()) {
     if (signal.aborted) {
       return;
     }
-    const batchRows = rows.slice(i, i + batchSize);
-    const split = splitOutcomes(
-      await Promise.all(outcomes.slice(i, i + batchSize)),
-    );
+    const split = splitOutcomes(await Promise.all(outcomeBatches[index] ?? []));
     if (!split) {
       yield { error: 'unauthenticated', status: 'error' };
       return;

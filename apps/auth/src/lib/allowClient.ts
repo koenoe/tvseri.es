@@ -1,11 +1,11 @@
+import { isLocalHttp } from '@tvseri.es/constants';
+
 type Settings = Readonly<{
   /** The stage's base domain (infra/dns.ts), e.g. `tvseri.es` */
   domain: string;
   /** Production never takes a local callback */
   production: boolean;
 }>;
-
-const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1']);
 
 /** The clients and where each may send the user back, per stage domain */
 export const clientsFor = (
@@ -37,8 +37,7 @@ export const createAllowClient = ({ domain, production }: Settings) => {
     const url = new URL(redirectURI);
     const isOwnHost = url.protocol === 'https:' && url.host === client.host;
     // `sst dev` runs the apps locally; never in production.
-    const isLocalHost =
-      !production && url.protocol === 'http:' && LOCAL_HOSTS.has(url.hostname);
+    const isLocalHost = !production && isLocalHttp(url);
 
     return (
       (isOwnHost || isLocalHost) &&

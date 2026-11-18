@@ -10,6 +10,8 @@
  * redeploy of an earlier build is needed.
  */
 
+import { isLocalHttp } from '@tvseri.es/constants';
+
 type BuildEnv = Readonly<{
   /** `next dev`: React's dev tooling needs eval. */
   dev: boolean;
@@ -55,16 +57,12 @@ type Directive =
   | 'script-src'
   | 'style-src';
 
-const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1']);
-
 const localOrigin = (value: string | undefined): string[] => {
   if (!value || !URL.canParse(value)) {
     return [];
   }
   const url = new URL(value);
-  return url.protocol === 'http:' && LOCAL_HOSTS.has(url.hostname)
-    ? [url.origin]
-    : [];
+  return isLocalHttp(url) ? [url.origin] : [];
 };
 
 /**

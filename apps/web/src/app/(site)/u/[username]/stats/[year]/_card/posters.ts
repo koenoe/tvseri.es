@@ -6,6 +6,8 @@
  * 331px). Other URLs (the stub's local images) are used as given.
  */
 
+import { isLocalHttp } from '@tvseri.es/constants';
+
 const TMDB_POSTER =
   /^(https:\/\/image\.tmdb\.org\/t\/p\/)w300_and_h450_bestv2(\/.+)$/;
 
@@ -17,8 +19,6 @@ export function posterSource(url: string, width: number): string {
   return `${match[1]}${width <= 185 ? 'w185' : 'w342'}${match[2]}`;
 }
 
-const LOCAL_HOSTS: ReadonlySet<string> = new Set(['127.0.0.1', 'localhost']);
-
 /**
  * Where the card may fetch a poster from: TMDB's image host over https, or
  * a local stub over http (e2e and local runs). Never anything else the API
@@ -28,11 +28,11 @@ export function isPosterHost(url: string): boolean {
   if (!URL.canParse(url)) {
     return false;
   }
-  const { hostname, port, protocol } = new URL(url);
-  if (protocol === 'https:') {
-    return hostname === 'image.tmdb.org' && port === '';
+  const parsed = new URL(url);
+  if (parsed.protocol === 'https:') {
+    return parsed.hostname === 'image.tmdb.org' && parsed.port === '';
   }
-  return protocol === 'http:' && LOCAL_HOSTS.has(hostname);
+  return isLocalHttp(parsed);
 }
 
 /** A w342 poster is ~30 KB: anything past this isn't a poster */

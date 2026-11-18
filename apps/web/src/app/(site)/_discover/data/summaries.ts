@@ -1,6 +1,7 @@
 import 'server-only';
 
 import type { SeriesSummaries } from '@tvseri.es/schemas';
+import { chunk } from '@tvseri.es/utils';
 import { cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
@@ -37,11 +38,6 @@ const MAX_IDS = 50;
 export const summaryIds = (ids: ReadonlyArray<number>): string =>
   [...new Set(ids)].sort((a, b) => a - b).join(',');
 
-const chunks = (ids: ReadonlyArray<string>) =>
-  Array.from({ length: Math.ceil(ids.length / MAX_IDS) }, (_, index) =>
-    ids.slice(index * MAX_IDS, (index + 1) * MAX_IDS),
-  );
-
 /**
  * Networks, seasons and lengths for a list of shows (`GET /series/summaries`,
  * cached `medium` like the API), keyed by id. A show TMDB doesn't know is
@@ -56,9 +52,9 @@ export async function getShowSummaries(
   const list = ids.split(',').filter(Boolean);
   const responses = await tryApi(() =>
     Promise.all(
-      chunks(list).map((chunk) =>
+      chunk(list, MAX_IDS).map((group) =>
         apiFetch<SeriesSummaries>('/series/summaries', {
-          query: { ids: chunk.join(',') },
+          query: { ids: group.join(',') },
         }),
       ),
     ),

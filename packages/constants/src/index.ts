@@ -37,6 +37,7 @@ export {
   networkBySlug,
   themeBySlug,
 } from './landings';
+export { isLocalHost, isLocalHttp } from './localHost';
 export { LOGO_PATH, LOGO_VIEWBOX } from './logo';
 export { NETWORKS } from './networks';
 export { CATCHING_UP_MIN } from './overview';

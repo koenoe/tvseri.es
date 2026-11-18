@@ -42,7 +42,11 @@ describe('savePreferredImages', () => {
       '/admin/preferred-images/series/:id',
       { accessToken: 'token-a', body: PICK, method: 'PUT', params: { id: 7 } },
     );
-    expect(vi.mocked(updateTag).mock.calls).toEqual([['series:7'], ['home']]);
+    expect(vi.mocked(updateTag).mock.calls).toEqual([
+      ['series:7'],
+      ['home'],
+      ['duration'],
+    ]);
   });
 
   it('refuses anyone but an admin, without calling the API', async () => {
@@ -100,7 +104,11 @@ describe('resetPreferredImages', () => {
       '/admin/preferred-images/series/:id',
       { accessToken: 'token-a', method: 'DELETE', params: { id: 7 } },
     );
-    expect(vi.mocked(updateTag).mock.calls).toEqual([['series:7'], ['home']]);
+    expect(vi.mocked(updateTag).mock.calls).toEqual([
+      ['series:7'],
+      ['home'],
+      ['duration'],
+    ]);
   });
 
   it('refuses anyone but an admin, and an invalid id, without calling the API', async () => {

@@ -19,7 +19,7 @@ import { tags } from '@/lib/cache/tags';
  * verified token, validates its input, goes to `PUT|DELETE
  * /admin/preferred-images/series/:id` with the admin's token and refreshes
  * the show's cached data (and Home, whose spotlight uses the same
- * series object) at once. The API starts the CDN purge without waiting for
+ * series object, and the Duration reads, which draw the pick) at once. The API starts the CDN purge without waiting for
  * it, so a refresh that reaches a CDN location before the purge can cache
  * the old images for their cache life: an accepted race. Failures come back
  * as results, never thrown, so the tray can show the error toast and keep
@@ -34,6 +34,7 @@ async function adminToken(): Promise<string | null> {
 function refresh(seriesId: number) {
   updateTag(tags.series(seriesId));
   updateTag(tags.home);
+  updateTag(tags.duration);
 }
 
 export async function savePreferredImages(input: {

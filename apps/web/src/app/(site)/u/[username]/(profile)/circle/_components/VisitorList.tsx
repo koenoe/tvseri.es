@@ -48,9 +48,13 @@ export default function VisitorList({
       <InfiniteScroll hasMore={canLoadMore} loadMore={loadMore}>
         <ul className={PEOPLE_LIST}>
           {items.map((person, index) => {
-            const first = marksFirst && index === 0;
+            const carriesMarker = marksFirst && index === 0;
             return (
-              <VisitorPersonRow first={first} key={person.id} person={person} />
+              <VisitorPersonRow
+                first={carriesMarker}
+                key={person.id}
+                person={person}
+              />
             );
           })}
         </ul>

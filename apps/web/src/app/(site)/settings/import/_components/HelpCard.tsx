@@ -82,13 +82,13 @@ export default function HelpCard({
                 ? 'bg-white/16 text-white'
                 : 'text-white/60 hover:text-white',
             );
-            const id = tabId(key);
+            const buttonId = tabId(key);
             return (
               <button
                 aria-controls={panelId}
                 aria-selected={isOn}
                 className={tabClass}
-                id={id}
+                id={buttonId}
                 key={key}
                 onClick={pick}
                 role="tab"

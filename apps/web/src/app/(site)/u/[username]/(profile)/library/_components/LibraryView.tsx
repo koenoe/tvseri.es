@@ -1,40 +1,26 @@
 'use client';
 
-import type {
-  LIBRARY_LETTERS,
-  LibraryFilter,
-  LibrarySort,
-} from '@tvseri.es/schemas';
-import { AnimatePresence } from 'motion/react';
-import { usePathname, useRouter } from 'next/navigation';
-import { useCallback, useRef, useTransition } from 'react';
+import { useCallback, useRef } from 'react';
 
-import MaxMotion from '@/components/motion/MaxMotion';
 import { useHiddenShows, useLoadLibraryIds } from '@/lib/marking/hooks';
-import useBulk from '@/lib/marking/useBulk';
 import type { ShelfPageView } from '@/lib/profile/shelfPage';
 import { type ShelfQuery, toSearch } from '@/lib/profile/shelfQuery';
 import type { TileView } from '@/lib/profile/tileView';
 import LoadAbove from '../../_components/blocks/LoadAbove';
-import InfiniteScroll from '../../_components/pagination/InfiniteScroll';
 import PaginationNotice from '../../_components/pagination/PaginationNotice';
 import usePaginated from '../../_lib/pagination/usePaginated';
 import useScrollAnchor from '../../_lib/pagination/useScrollAnchor';
-import { bumpCounts } from '../../_lib/shelfCounts';
 import { earlierLabel } from '../_lib/earlierLabel';
 import { SHELVES } from '../_lib/shelves';
+import useShelfNavigation from '../_lib/useShelfNavigation';
 import useShelfSelect from '../_lib/useShelfSelect';
-import useShelfTiles, { type LeaveReason } from '../_lib/useShelfTiles';
+import useShelfTiles from '../_lib/useShelfTiles';
 import ActionBar from './ActionBar';
 import AzRail from './AzRail';
-import { EAGER, LIBRARY_GRID } from './gridStyles';
-import LibraryCell from './LibraryCell';
+import ShelfGrid from './ShelfGrid';
 import ShelfGridEmpty from './ShelfGridEmpty';
 import ShelfToolbar from './ShelfToolbar';
-import TileGhosts from './TileGhosts';
 import { TileContext } from './tileContext';
-
-type Letter = (typeof LIBRARY_LETTERS)[number];
 
 const getId = (tile: TileView) => tile.id;
 
@@ -57,9 +43,6 @@ export default function LibraryView({
   query: ShelfQuery;
   username: string;
 }>) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [pending, startTransition] = useTransition();
   const { shelf } = query;
   const meta = SHELVES[shelf];
   const endpoint = `/api/u/${encodeURIComponent(username)}/library/${shelf}${toSearch(query)}`;
@@ -75,19 +58,8 @@ export default function LibraryView({
 
   // Hide and Unhide from the Remote (and their Undo) change the store's
   // `hidden` at once: on Watching and Hidden it decides (useShelfTiles).
-  // Each new first page is a new list (`list`): the old tiles go at once (no
-  // exits) and the new ones fade in (the shelf switch).
-  // `layout` only while something leaves (`moving`): never 300 tiles
-  // measuring at rest.
   const hidden = useHiddenShows();
-  const {
-    comeBack,
-    leave: leaveShelf,
-    list,
-    moving,
-    settled,
-    tiles,
-  } = useShelfTiles({
+  const { comeBack, leave, list, moving, settled, tiles } = useShelfTiles({
     first,
     hidden,
     items: paged.items,
@@ -100,55 +72,22 @@ export default function LibraryView({
   // close). Loaded, not read: the tiles read them, so a mark doesn't
   // re-render the grid
   useLoadLibraryIds();
-  const { context, leave, selecting, selection } = useShelfSelect({
-    leaveShelf,
+  const { act, context, selecting, selection } = useShelfSelect({
+    comeBack,
+    leaveShelf: leave,
     owner,
     shelf,
     tiles,
+    username,
   });
-
-  const go = useCallback(
-    (next: ShelfQuery) => {
-      selection.getState().stop();
-      startTransition(() => {
-        router.replace(`${pathname}${toSearch(next)}`, { scroll: false });
-      });
-    },
-    [pathname, router, selection],
+  const stopSelecting = useCallback(
+    () => selection.getState().stop(),
+    [selection],
   );
-
-  const bulk = useBulk();
-  const act = async () => {
-    const action = meta.action;
-    if (!action) {
-      return;
-    }
-    const picked = tiles.filter((tile) =>
-      selection.getState().selected.has(tile.id),
-    );
-    const items = picked.map((tile) => ({
-      addedAt: tile.addedAt,
-      id: tile.id,
-    }));
-    const ids = picked.map((tile) => tile.id);
-    selection.getState().stop();
-    // Finished's action adds a heart; the others take the show off the shelf
-    const reason =
-      action.op === 'favourites-add' ? null : (action.op as LeaveReason);
-    if (reason) {
-      leave(ids, reason);
-    } else {
-      bumpCounts(username, {
-        favourites: picked.filter((tile) => !tile.on.favourite).length,
-      });
-    }
-    const result = await bulk(action.op, items, {
-      onUndone: () => router.refresh(),
-    });
-    if (reason && result.failed.length > 0) {
-      comeBack(result.failed, reason);
-    }
-  };
+  const { onFilter, onFind, onSort, pending, railHref } = useShelfNavigation(
+    query,
+    stopSelecting,
+  );
 
   // A–Z: the rail, and the row that loads the shows above a jump
   const listRef = useRef<HTMLUListElement>(null);
@@ -157,25 +96,11 @@ export default function LibraryView({
     (tile) => tile.id === first.items[0]?.id,
   );
   const above = Math.max(0, first.before - Math.max(0, firstIndex));
-  const az = query.sort === 'az';
   const loadEarlier = () => void paged.loadBefore({ onPrepend: capture });
-  const railHref = (letter: Letter) =>
-    `${pathname}${toSearch({ ...query, from: letter, sort: 'az' })}`;
 
-  const onFilter = (filter: LibraryFilter | null) =>
-    go({ ...query, from: null, with: filter });
-  const onFind = (q: string) => go({ ...query, from: null, q });
-  const onSort = (sort: LibrarySort) => go({ ...query, from: null, sort });
-  const stopSelecting = () => selection.getState().stop();
   const onSelect = () =>
     selecting ? stopSelecting() : selection.getState().start();
   const onAct = () => void act();
-
-  const toolbarQuery = {
-    filter: query.with,
-    q: query.q,
-    sort: query.sort,
-  };
   const empty = tiles.length === 0;
 
   return (
@@ -186,16 +111,16 @@ export default function LibraryView({
         <div data-slot="library-toolbar">
           <ShelfToolbar
             canSelect={owner && meta.action !== null && !empty}
-            filter={toolbarQuery.filter}
+            filter={query.with}
             filters={first.filters}
             onFilter={onFilter}
             onFind={onFind}
             onSelect={onSelect}
             onSort={onSort}
-            q={toolbarQuery.q}
+            q={query.q}
             selecting={selecting}
             shelf={shelf}
-            sort={toolbarQuery.sort}
+            sort={query.sort}
           />
         </div>
         <div
@@ -203,7 +128,7 @@ export default function LibraryView({
           className="relative transition-opacity duration-200 aria-busy:opacity-60"
           data-slot="library-grid"
         >
-          {az ? (
+          {query.sort === 'az' ? (
             <AzRail
               active={query.from}
               hrefOf={railHref}
@@ -225,31 +150,17 @@ export default function LibraryView({
               username={username}
             />
           ) : (
-            <InfiniteScroll
+            <ShelfGrid
               hasMore={paged.canLoadMore}
+              list={list}
+              listRef={listRef}
               loadMore={paged.loadMore}
-              margin="0px 0px 600px 0px"
-            >
-              <MaxMotion>
-                <ul className={LIBRARY_GRID} key={list} ref={listRef}>
-                  <AnimatePresence initial={list > 0} onExitComplete={settled}>
-                    {tiles.map((tile, index) => (
-                      <LibraryCell
-                        eager={index < EAGER}
-                        key={tile.id}
-                        moving={moving}
-                        tile={tile}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </ul>
-              </MaxMotion>
-              {paged.status === 'loading' ? (
-                <div className="mt-7">
-                  <TileGhosts count={5} shelf={shelf} />
-                </div>
-              ) : null}
-            </InfiniteScroll>
+              moving={moving}
+              settled={settled}
+              shelf={shelf}
+              status={paged.status}
+              tiles={tiles}
+            />
           )}
           <PaginationNotice onRetry={paged.loadMore} status={paged.status} />
         </div>

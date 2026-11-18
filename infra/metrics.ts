@@ -3,9 +3,6 @@
 import { alarmOnDeadLetters } from './alerts';
 import * as dynamo from './dynamo';
 
-/**
- * Dead Letter Queue for metrics that fail after all retries.
- */
 const metricsDlq = new sst.aws.Queue('MetricsDLQ', {
   transform: {
     queue: {
@@ -34,10 +31,11 @@ metricsQueue.subscribe(
   },
   {
     batch: {
-      partialResponses: true, // Enable partial batch failure reporting
-      size: 500, // Max batch size - fewer Lambda invocations
-      // Max allowed: metrics are fire-and-forget, so fuller batches (fewer
-      // invocations) beat lower latency. Keep visibilityTimeout in sync.
+      partialResponses: true, // handler returns batchItemFailures per message
+      size: 500,
+      // The longest window SQS allows: metrics are fire-and-forget, so fuller
+      // batches (fewer invocations) beat lower latency. Keep
+      // visibilityTimeout in sync.
       window: '300 seconds',
     },
   },

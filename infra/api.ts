@@ -81,13 +81,10 @@ export const webhookTokensKvs = new sst.Linkable('WebhookTokensKvs', {
 });
 
 /**
- * The API runs as two functions with the same code, links, environment and
- * permissions (a bulkhead, apiWriteRoutes.ts): the catalogue function is the
- * Router's default route, and the edge sends the viewer's own writes to the
- * write function. In production each has its own reserved concurrency,
- * which caps its concurrent executions (and so its cost under a spike or
- * abuse); requests past it are throttled. Both together reserve 200; reserved
- * totals must leave 100 of the account's quota unreserved.
+ * Two functions with the same code, links, environment and permissions (the
+ * bulkhead, apiWriteRoutes.ts). In production each has its own reserved
+ * concurrency, which also caps its cost under a spike or abuse: requests past
+ * it are throttled.
  */
 const apiFunctionArgs = {
   environment: {

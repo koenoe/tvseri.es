@@ -34,10 +34,8 @@ export default $config({
     // (infra/dashboard.ts creates the `Dashboard` StaticSite).
     const originShieldExcluded = new Set(['DashboardCdnDistribution']);
 
-    // Global transform to apply geographic restrictions to all CloudFront distributions
-    // and enable origin shield (except for the distributions above).
-    // Note: this runs after component-level transforms, so the exclusion has to
-    // live here; a `transform.cdn` on the StaticSite would be overwritten.
+    // Runs after component-level transforms, so the Origin Shield exclusion
+    // has to live here: a `transform.cdn` on the StaticSite would be overwritten.
     $transform(aws.cloudfront.Distribution, (args, _opts, name) => {
       args.restrictions = {
         geoRestriction: {
@@ -106,19 +104,17 @@ export default $config({
       };
     });
 
-    // Global transform to standardize all Lambda functions
     $transform(sst.aws.Function, (args) => {
       args.architecture = 'arm64';
       args.runtime = 'nodejs24.x';
-      // No @aws-sdk/* esbuild externals anywhere: a bundled SDK cold-starts faster than the
-      // runtime-provided one (AWS guidance). Compare REPORT "Init Duration" before/after.
+      // No @aws-sdk/* esbuild externals anywhere: a bundled SDK cold-starts
+      // faster than the runtime-provided one.
       args.nodejs = {
         ...args.nodejs,
         minify: true,
       };
     });
 
-    // Base infrastructure with no dependencies
     await import('./infra/dns');
     await import('./infra/email');
     await import('./infra/dominantColor');
@@ -129,25 +125,16 @@ export default $config({
       await import('./infra/distributionDisabler');
     }
 
-    // Queue consumers that depend on base infrastructure
-    // scrobbleQueue: depends on dynamo, dominantColor
     await import('./infra/scrobbleQueue');
-    // metrics: depends on dynamo
     await import('./infra/metrics');
-    // watchedStatus: depends on dynamo, dominantColor
     await import('./infra/watchedStatus');
-    // imports: depends on dynamo
     await import('./infra/imports');
-    // Auth service that depends on dns, dynamo, email
     await import('./infra/auth');
 
-    // deleteAccount: depends on dynamo, auth
     await import('./infra/deleteAccount');
 
-    // API router that depends on auth, deleteAccount, dns, dominantColor, dynamo, imports, metrics, scrobbleQueue, secrets, watchedStatus
     await import('./infra/api');
 
-    // Frontend apps that depend on api, auth, dns
     await import('./infra/web');
     await import('./infra/dashboard');
   },

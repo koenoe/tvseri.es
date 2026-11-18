@@ -82,7 +82,7 @@ new sst.aws.Cron('ValidateWatchedStatus', {
     link: [dynamo.users, watchedStatusQueue],
     memory: '512 MB',
     // Queries the users active in the last 30 days (sparse `active` index) and
-    // queues them; 10s stopped scaling at a few thousand users
+    // queues them; 10 s doesn't reach past a few thousand users
     timeout: '60 seconds',
   }, // 03:00 UTC, daily
   schedule: 'cron(0 3 * * ? *)',

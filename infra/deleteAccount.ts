@@ -5,13 +5,7 @@ import { auth } from './auth';
 import { productionReserved } from './concurrency';
 import * as dynamo from './dynamo';
 
-/**
- * Delete account: the API stamps the request, removes the Plex link and
- * queues the first step; the consumer deletes follows and watched history,
- * then (15 minutes later, once the watched stream settled) lists, prefs,
- * sign-ins, cache keys and the user, then sweeps once more. Every step is
- * safe to re-run and refuses users who didn't ask.
- */
+/** Account deletion's queued steps: apps/api/src/lib/account/README.md */
 const deleteAccountDlq = new sst.aws.Queue('DeleteAccountDLQ', {
   transform: {
     queue: {

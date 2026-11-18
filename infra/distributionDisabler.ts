@@ -1,59 +1,22 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
-// https://github.com/laniakita/website/blob/main/infra/distribution-disablers.ts
-
 /*
- * The following defines two different methods to
- * disable active CloudFront distributions in an
- * AWS account. Because it's important to disable
- * the distributions ASAP, these methods can be
- * referred to as "kill switches".
+ * Two kill switches that disable every CloudFront distribution in the
+ * account through one SNS topic and Lambda: a Budget alert, and an hourly
+ * check of CloudFront's usage metrics, because Budget data only refreshes
+ * about three times a day.
  *
- * The first kill switch is activated when a
- * Budget reaches a hard threshold, which will
- * send a notification to an SNS Topic, that
- * will invoke a Lambda function that can
- * actually bring down, and or disable, active
- * CloudFront distributions.
- *
- * The second kill switch is designed to avoid
- * the caveat of the first, which is the fact
- * that the AWS Budget metric is only updated
- * three times per day. This second switch,
- * routinely fetches usage metrics from CloudWatch
- * for all CloudFront distributions, and sends a
- * notification to the SNS Topic that invokes
- * the CloudFront disabler kill switch Lambda,
- * once the usage metrics are beyond the defined
- * usage limits.
- *
- * These CloudFront Distribution kill switch
- * methods are implementations of the ones
- * demonstrated by Burak Can Kus^1, in SST/Pulumi.
- * The Lambda function handlers are also heavily
- * inspired by their example source code.
- *
- * -----------------------------------------------
- *
- * 1. Disable AWS CloudFront Distributions
- *    if Budget is Exceeded.
- *    https://blog.burakcankus.com/2024/03/31/disable-aws-cloudfront-distributions-if-budget-is-exceeded.html.
- *    Retrieved Septermber 6th, 2024.
- *
+ * Adapted from
+ * https://github.com/laniakita/website/blob/main/infra/distribution-disablers.ts,
+ * after Burak Can Kus, "Disable AWS CloudFront Distributions if Budget is
+ * Exceeded":
+ * https://blog.burakcankus.com/2024/03/31/disable-aws-cloudfront-distributions-if-budget-is-exceeded.html
  */
 
-// CloudFront is global, so some thing's need to be deployed to US-EAST-1.
+// CloudFront's metrics live in us-east-1.
 const useast1 = new aws.Provider('useast1', { region: 'us-east-1' });
-// This let's us get our Account info dynamically.
 const current = await aws.getCallerIdentity({});
 
-/*
- * We create a new SNS Topic, which can be
- * connected to a budget alert, that upon
- * triggering, will notify it (SNS topic),
- * which will invoke our distribution
- * disabler function.
- */
 const killSwitchSnsTopic = new sst.aws.SnsTopic(
   'BudgetAlertSNS',
   {
@@ -119,11 +82,7 @@ killSwitchSnsTopic.subscribe('KillSwitchSubscription', {
   timeout: '5 seconds',
 });
 
-/*
- * This is the budget that will trigger the alert
- * to the "kill switch" SNS, once it's beyond
- * 95% of the "hard" budget threshold.
- */
+// Fires at 95% of the monthly limit
 new aws.budgets.Budget('hard_budget', {
   budgetType: 'COST',
   limitAmount: '50.00',
@@ -140,16 +99,6 @@ new aws.budgets.Budget('hard_budget', {
   timeUnit: 'MONTHLY',
 });
 
-/*
- * Because AWS only refreshes the Budget metrics 3x a day,
- * it might be a good idea to have a backup "kill switch".
- * The following creates a scheduled Lambda function that
- * periodically checks the current CloudFront usage metrics.
- * If the usage metrics are beyond the defined limits
- * (default: Free tier), it will trigger the "kill switch"
- * SNS Topic, which will invoke the distribution disabler
- * lambda function.
- */
 new sst.aws.Cron(
   'MonitorCloudFrontMetrics',
   {

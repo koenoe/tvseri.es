@@ -9,9 +9,9 @@ export const lists = new sst.aws.Dynamo('Lists', {
     gsi1sk: 'string', // title, lowercase
     gsi2pk: 'string', // LIST#<userId>#<LIST> (list by date)
     gsi2sk: 'number', // createdAt (epoch ms)
-    gsi3pk: 'string', // LIST#<userId>#<listId> (custom lists only; never written today)
+    gsi3pk: 'string', // LIST#<userId>#<listId> (custom lists only; not written yet)
     gsi3sk: 'number', // position (custom lists only)
-    gsi4pk: 'string', // SERIES#<tmdbId> (every user's items for a show; not read today)
+    gsi4pk: 'string', // SERIES#<tmdbId> (every user's items for a show; not read)
     pk: 'string', // USER#<userId>
     sk: 'string', // LIST#<LIST>#ITEM#<tmdbId> (LIST = WATCHED, IN_PROGRESS, WATCHLIST, FAVORITES, RESUMING_SOON), or PREF#SERIES#<tmdbId> (per-show prefs, no GSI keys)
 

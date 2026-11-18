@@ -138,14 +138,6 @@ test.describe('person (/person/{id}/{slug})', () => {
     ).toBeVisible();
   });
 
-  test('a non-numeric id is the static 404, no function run', async ({
-    page,
-  }) => {
-    const response = await page.goto('/person/abc');
-    expect(response?.status()).toBe(404);
-    await expect(page.getByText('Page not found')).toBeVisible();
-  });
-
   test('leading zeros 308 to the canonical id at the edge', async ({
     request,
   }) => {

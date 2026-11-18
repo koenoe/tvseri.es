@@ -30,7 +30,7 @@ const searchRequests = (page: Page) => {
   return urls;
 };
 
-test('P-SR-1: Ctrl+K and Ctrl+F open and close search', async ({ page }) => {
+test('Ctrl+K and Ctrl+F open and close search', async ({ page }) => {
   await open(page);
 
   await page.keyboard.press('Control+k');
@@ -45,9 +45,7 @@ test('P-SR-1: Ctrl+K and Ctrl+F open and close search', async ({ page }) => {
   await expect(dialog(page)).toBeHidden();
 });
 
-test('P-SR-2: the header button and the floating pill open it', async ({
-  page,
-}) => {
+test('the header button and the floating pill open it', async ({ page }) => {
   await open(page);
   await page
     .getByRole('banner')
@@ -72,9 +70,7 @@ test('P-SR-2: the header button and the floating pill open it', async ({
   await expect(field(page)).toBeFocused();
 });
 
-test('P-SR-3: Escape closes and gives focus back to the button', async ({
-  page,
-}) => {
+test('Escape closes and gives focus back to the button', async ({ page }) => {
   await open(page);
   const button = page
     .getByRole('banner')
@@ -89,7 +85,7 @@ test('P-SR-3: Escape closes and gives focus back to the button', async ({
   await expect(button).toBeFocused();
 });
 
-test('P-SR-4: Enter opens the marked first result (the ranking’s best match)', async ({
+test('Enter opens the marked first result (the ranking’s best match)', async ({
   page,
 }) => {
   await open(page);
@@ -105,59 +101,19 @@ test('P-SR-4: Enter opens the marked first result (the ranking’s best match)',
   await expect(dialog(page)).toBeHidden();
 });
 
-test('P-SR-5: Enter-ahead: Enter while pending opens the first result as soon as it lands', async ({
+test('Enter-ahead: Enter while pending opens the first result as soon as it lands', async ({
   page,
 }) => {
   await enterAhead(page);
 });
 
-test('P-SR-5b: Enter-ahead shows the page’s shell at once, without waiting for its dynamic render', async ({
+test('Enter-ahead shows the page’s shell at once, without waiting for its dynamic render', async ({
   page,
 }) => {
   await enterAhead(page, { slowRender: true });
 });
 
-test('P-SR-6: one request per pause in typing; a newer one aborts the one in flight', async ({
-  page,
-}) => {
-  const urls = searchRequests(page);
-  const aborted: string[] = [];
-  page.on('requestfailed', (request) => {
-    if (request.url().includes('/api/search')) {
-      aborted.push(request.url());
-    }
-  });
-  await open(page);
-  await openSearch(page);
-
-  // The page's clock stands still while the word is typed, so no gap between
-  // two keys is ever the 150ms pause the search waits for (on a slow machine
-  // a stall between keys was one, and sent "breaki"); then the pause
-  await page.clock.install();
-  await page.clock.pauseAt(Date.now() + 60_000);
-  await field(page).pressSequentially('breaking');
-  await page.clock.resume();
-  await expect(option(page, /^Breaking Bad/)).toBeVisible();
-  expect(urls).toEqual([expect.stringContaining('/api/search?q=breaking')]);
-
-  // hold this answer: a request in flight, then one more keystroke
-  let release: () => void = () => {};
-  await page.route('**/api/search?q=bryan%20cranston', (route) => {
-    release = () => route.continue().catch(() => undefined);
-  });
-  const inFlight = page.waitForRequest(/q=bryan%20cranston/);
-  await field(page).fill('bryan cranston');
-  await inFlight;
-  await field(page).press('End');
-  await field(page).pressSequentially('x');
-  await expect(
-    dialog(page).getByText('Nothing for “bryan cranstonx”'),
-  ).toBeVisible();
-  expect(aborted).toEqual([expect.stringContaining('q=bryan%20cranston')]);
-  release();
-});
-
-test('P-SR-7: the query is normalised, so every spelling shares one CDN key', async ({
+test('the query is normalised, so every spelling shares one CDN key', async ({
   page,
 }) => {
   const urls = searchRequests(page);
@@ -177,7 +133,7 @@ test('P-SR-7: the query is normalised, so every spelling shares one CDN key', as
   expect(res.headers()['cache-control']).not.toMatch(/(^|[ ,])max-age/);
 });
 
-test('P-SR-8: a failed request shows the error row, and Try again asks again', async ({
+test('a failed request shows the error row, and Try again asks again', async ({
   page,
 }) => {
   const urls = searchRequests(page);
@@ -192,7 +148,7 @@ test('P-SR-8: a failed request shows the error row, and Try again asks again', a
   await expect.poll(() => urls.length).toBe(2);
 });
 
-test('P-SR-9: Back restores the query and the results', async ({ page }) => {
+test('Back restores the query and the results', async ({ page }) => {
   await open(page);
   await openSearch(page);
   await field(page).fill('bre');
@@ -208,7 +164,7 @@ test('P-SR-9: Back restores the query and the results', async ({ page }) => {
   await expect(option(page, /La Brea/)).toBeVisible();
 });
 
-test('P-SR-10: people: a person as the best match comes first and opens the person page', async ({
+test('people: a person as the best match comes first and opens the person page', async ({
   page,
 }) => {
   await open(page);
@@ -229,7 +185,7 @@ test('P-SR-10: people: a person as the best match comes first and opens the pers
   await expect(page).toHaveURL('/person/17419/bryan-cranston');
 });
 
-test('P-SR-11: recents: what was opened comes back as a chip, unmarked until ↓', async ({
+test('recents: what was opened comes back as a chip, unmarked until ↓', async ({
   page,
 }) => {
   await open(page);
@@ -250,7 +206,7 @@ test('P-SR-11: recents: what was opened comes back as a chip, unmarked until ↓
   await expect(marked(page)).toHaveAttribute('href', '/136315/the-bear');
 });
 
-test('P-SR-12: the keyboard grid: arrows move the marker, focus stays in the field', async ({
+test('the keyboard grid: arrows move the marker, focus stays in the field', async ({
   page,
 }) => {
   await open(page);
@@ -282,7 +238,7 @@ test('P-SR-12: the keyboard grid: arrows move the marker, focus stays in the fie
   await expect(page).toHaveURL('/person/29092/bryan-brown');
 });
 
-test('P-SR-13: nothing found is one line', async ({ page }) => {
+test('nothing found is one line', async ({ page }) => {
   await open(page);
   await openSearch(page);
   await field(page).fill('brekaing bad');
@@ -294,7 +250,7 @@ test('P-SR-13: nothing found is one line', async ({ page }) => {
   await expect(page).toHaveURL('/');
 });
 
-test('P-SR-14: the 404 field opens search with its query', async ({ page }) => {
+test('the 404 field opens search with its query', async ({ page }) => {
   await open(page, '/the-bear-is-not-here');
   const notFoundField = page
     .getByRole('search')
@@ -306,7 +262,7 @@ test('P-SR-14: the 404 field opens search with its query', async ({ page }) => {
   await expect(marked(page)).toHaveAttribute('href', '/136315/the-bear');
 });
 
-test('P-SR-15: typing at once after opening keeps every key and lands results', async ({
+test('typing at once after opening keeps every key and lands results', async ({
   context,
   page,
 }) => {

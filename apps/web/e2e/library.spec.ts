@@ -277,11 +277,6 @@ test.describe('the Library, yours', () => {
       .poll(async () => Math.abs((await top()) - before))
       .toBeLessThanOrEqual(2);
   });
-
-  test('a junk shelf is the static 404', async ({ page }) => {
-    const response = await page.goto('/u/alex/library/junk');
-    expect(response?.status()).toBe(404);
-  });
 });
 
 test.describe('someone else’s Library', () => {

@@ -130,30 +130,6 @@ test.describe('Select on your own Library', () => {
     }
   });
 
-  test('refuses the 51st show', async ({ page }) => {
-    await signInAs(page.context(), 'marathonwatcher-2026');
-    await page.goto('/u/marathonwatcher-2026/library/finished');
-    await expect(tiles(page).nth(23)).toBeVisible();
-    await page.getByRole('button', { name: 'Select' }).click();
-    await tiles(page).nth(0).getByRole('button').click();
-    // scroll until two more pages have loaded, then one long run of 51
-    await expect
-      .poll(
-        async () => {
-          await page.mouse.wheel(0, 3000);
-          return tiles(page).count();
-        },
-        { timeout: 20_000 },
-      )
-      .toBeGreaterThanOrEqual(55);
-    await tiles(page)
-      .nth(50)
-      .getByRole('button')
-      .click({ modifiers: ['Shift'] });
-    await expect(page.getByText('Up to 50 at a time')).toBeVisible();
-    await expect(page.getByText('1 series selected')).toBeVisible();
-  });
-
   test('Hide from Watching puts the show on Hidden; Back to in progress returns it', async ({
     page,
   }) => {

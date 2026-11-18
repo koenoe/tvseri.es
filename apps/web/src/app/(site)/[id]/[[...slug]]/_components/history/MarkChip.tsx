@@ -1,4 +1,4 @@
-import { eyeGlyph } from '@/components/ui/icon/glyphs';
+import { eyeGlyph, skippedGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 
@@ -53,31 +53,41 @@ export function markChipClass(
   return cn(BASE, overlay ? OVERLAY[overlay] : STATE[state], className);
 }
 
-const dash = <path d="M6 12h12" />;
 const arrow = <path d="M5 12h13M13 6l6 6-6 6" />;
+const ring = <circle cx="12" cy="12" r="6" />;
+
+/** Every glyph sits in one 11px box, so every chip is the same width */
+const GLYPH_BOX =
+  'inline-flex size-[11px] shrink-0 items-center justify-center';
 
 /**
- * The chip's quiet second cue: the eye for watched (65%) and "I don't
- * remember" (45%), → for Next up, – for skipped.
+ * The chip's quiet second cue, one per state: a ring for not watched (and
+ * not aired), the eye for watched (65%) and "I don't remember" (45%), → for
+ * Next up, the app's eye-off for skipped (as on the season line).
  */
 export function ChipGlyph({
   overlay,
   state,
 }: Readonly<{ state: ChipState; overlay?: ChipOverlay }>) {
-  if (state === 'w' || state === 'nd') {
-    const faded = overlay === 'unrun' ? 'opacity-20' : '';
+  const faded = overlay === 'unrun' ? 'opacity-20' : '';
+  if (state === 'w' || state === 'nd' || state === 'sk') {
     const classes = cn(
       'size-[11px] shrink-0',
-      state === 'w' ? 'opacity-65' : 'opacity-45',
+      state === 'nd' ? 'opacity-45' : 'opacity-65',
       faded,
     );
+    if (state === 'sk') {
+      return <Icon className={classes} glyph={skippedGlyph} size={13} />;
+    }
     return <Icon active className={classes} glyph={eyeGlyph} size={13} />;
   }
-  if (state === 'nx' || state === 'sk') {
-    return (
+  const isNext = state === 'nx';
+  const quiet = isNext ? '' : 'opacity-45';
+  const shape = isNext ? arrow : ring;
+  return (
+    <span aria-hidden="true" className={GLYPH_BOX}>
       <svg
-        aria-hidden="true"
-        className="size-[9px] shrink-0"
+        className={cn('size-[9px]', quiet)}
         fill="none"
         stroke="currentColor"
         strokeLinecap="round"
@@ -85,12 +95,15 @@ export function ChipGlyph({
         strokeWidth={2.5}
         viewBox="0 0 24 24"
       >
-        {state === 'nx' ? arrow : null}
-        {state === 'sk' ? dash : null}
+        {shape}
       </svg>
-    );
-  }
-  return null;
+    </span>
+  );
+}
+
+/** The glyph's box with nothing in it: a placeholder chip's width */
+export function ChipGlyphSpace() {
+  return <span aria-hidden="true" className={GLYPH_BOX} />;
 }
 
 /** The label; struck through when skipped or about to be unmarked. */

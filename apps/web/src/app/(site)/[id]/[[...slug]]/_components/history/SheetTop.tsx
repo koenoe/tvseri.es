@@ -5,6 +5,7 @@ import { type MouseEvent, memo, useCallback } from 'react';
 import { SegmentedItem } from '@/components/ui/button/Segmented';
 import { helpGlyph, trendingGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import cn from '@/lib/cn';
 import { WHOLE_SHOW } from '@/lib/marking/copy';
 import { useSeriesProgress } from '@/lib/marking/hooks';
 import { useMarkingStoreApi } from '@/lib/marking/MarkingProvider';
@@ -34,14 +35,20 @@ const HINTS: Readonly<Record<SheetMode, string>> = {
   upto: 'Tap picks the last episode you saw · drag marks a run from the season start',
 };
 
-/** Phones only (no show row, no legend): the hint follows the mode pill. */
+/**
+ * Phones only (no show row): the hint follows the mode pill, with the
+ * legend toggle at its end, as the pills row has no room for it.
+ */
 function PaintHint() {
   const mode = useSheetUi((state) => state.mode);
   return (
-    <p className="inline-flex items-center gap-2 text-caption text-white/60 sm:hidden">
-      <Icon className="shrink-0" glyph={trendingGlyph} size={16} />
-      {HINTS[mode]}
-    </p>
+    <div className="flex items-start gap-2 sm:hidden">
+      <p className="inline-flex min-w-0 flex-1 items-center gap-2 text-caption text-white/60">
+        <Icon className="shrink-0" glyph={trendingGlyph} size={16} />
+        {HINTS[mode]}
+      </p>
+      <LegendButton className="-my-1 shrink-0 px-2 text-caption" />
+    </div>
   );
 }
 
@@ -113,7 +120,7 @@ function ModeItem({
   );
 }
 
-function LegendButton() {
+function LegendButton({ className }: Readonly<{ className?: string }>) {
   const store = useSheetUiStore();
   const open = useSheetUi((state) => state.legend);
   const toggle = useCallback(() => {
@@ -122,7 +129,10 @@ function LegendButton() {
   return (
     <button
       aria-expanded={open}
-      className="inline-flex h-7.5 min-w-7.5 cursor-pointer items-center gap-1.5 rounded-8 px-2.5 text-body-sm font-medium text-white/70 transition-colors hover:bg-white/8 hover:text-white aria-expanded:bg-white/6 aria-expanded:text-white max-sm:hidden"
+      className={cn(
+        'inline-flex h-7.5 min-w-7.5 cursor-pointer items-center gap-1.5 rounded-8 px-2.5 text-body-sm font-medium text-white/70 transition-colors hover:bg-white/8 hover:text-white aria-expanded:bg-white/6 aria-expanded:text-white',
+        className,
+      )}
       onClick={toggle}
       type="button"
     >
@@ -135,7 +145,7 @@ function LegendButton() {
 /**
  * The block above the seasons: the show row, the
  * mode pills (what a tap does) with the legend toggle, the legend; on phones
- * the paint hint instead of the show row and legend.
+ * the paint hint (with the legend toggle) instead of the show row.
  */
 function SheetTop() {
   const legend = useSheetUi((state) => state.legend);
@@ -154,10 +164,10 @@ function SheetTop() {
             <ModeItem key={mode} label={label} mode={mode} />
           ))}
         </div>
-        <LegendButton />
+        <LegendButton className="max-sm:hidden" />
       </div>
-      {legend ? <Legend /> : null}
       <PaintHint />
+      {legend ? <Legend /> : null}
     </div>
   );
 }

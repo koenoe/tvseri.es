@@ -8,6 +8,7 @@ import cn from '@/lib/cn';
 import { chipLabel, isPressedChip, type SheetChip } from './chips';
 import {
   ChipGlyph,
+  ChipGlyphSpace,
   type ChipOverlay,
   ChipText,
   markChipClass,
@@ -127,7 +128,8 @@ const GHOST_CHIP = markChipClass('', undefined, cn(CHIP_LAYOUT, FLAT));
 
 /**
  * The grid until the viewer's marks have seeded the show: one flat chip per
- * episode in the chip's box (its label sizes it, unseen), nothing pressable
+ * episode in the chip's box (its glyph's space and label size it, unseen),
+ * nothing pressable
  */
 export function ChipGridGhost({
   count,
@@ -137,6 +139,7 @@ export function ChipGridGhost({
     <div aria-hidden="true" className={GHOST_GRID} data-chip-ghost="">
       {Array.from({ length: count }, (_, index) => (
         <span className={GHOST_CHIP} key={index}>
+          <ChipGlyphSpace />
           {chipLabel({ episodeNumber: index + 1, seasonNumber })}
         </span>
       ))}

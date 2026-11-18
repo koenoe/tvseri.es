@@ -24,9 +24,8 @@ const ITEMS: ReadonlyArray<Item> = [
 ];
 
 /**
- * Every pill fills a slot as wide as the widest one (a glyph and "E03"), as
- * the grid's chips fill their equal columns: one pill size, and every label
- * starts on one line.
+ * Every pill fills one slot (a glyph and "E03"), as the grid's chips fill
+ * their equal columns: one pill size, and every label starts on one line.
  */
 const ITEM = 'grid grid-cols-[54px_auto] items-center gap-2';
 
@@ -40,8 +39,7 @@ function LegendItem({ item }: Readonly<{ item: Item }>) {
   return (
     <span className={ITEM}>
       <span aria-hidden="true" className={chipClass}>
-        {/* Next up is drawn as the cyan ring alone. */}
-        {item.state === 'nx' ? null : <ChipGlyph state={item.state} />}
+        <ChipGlyph state={item.state} />
         <ChipText struck={struck}>{item.chip}</ChipText>
       </span>
       <span className="inline-flex items-center gap-2 whitespace-nowrap">
@@ -55,11 +53,12 @@ function LegendItem({ item }: Readonly<{ item: Item }>) {
 /**
  * The legend: each chip state with its name;
  * "don't remember when" and Skipped carry the New badge. Columns fit their
- * widest label so a badge never runs into the next column.
+ * widest label so a badge never runs into the next column; phones take one
+ * column, as two don't fit.
  */
 export default function Legend() {
   return (
-    <div className="grid grid-cols-[repeat(2,minmax(max-content,1fr))] gap-x-4 gap-y-2.5 rounded-14 bg-black/20 px-4 py-3.5 text-caption text-white/60">
+    <div className="grid grid-cols-[repeat(2,minmax(max-content,1fr))] gap-x-4 max-sm:grid-cols-1 gap-y-2.5 rounded-14 bg-black/20 px-4 py-3.5 text-caption text-white/60">
       {ITEMS.map((item) => (
         <LegendItem item={item} key={item.chip} />
       ))}

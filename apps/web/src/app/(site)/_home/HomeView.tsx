@@ -52,8 +52,9 @@ const GROUND = cn(
  * Home: discovery for everyone. The spotlight, the
  * rows and the day's moments are the same for everyone: `use cache` content
  * prerendered into the static shell and served from the CDN, revalidating on
- * its CACHE_LIFE profile (a section whose API read failed is a streamed hole
- * with its placeholder until the API answers). The signed-in touches stream
+ * its CACHE_LIFE profile (a section whose API read failed bakes its
+ * placeholder into the shell under the short `unavailable` life, so a visit
+ * 30 s on regenerates it until the API answers). The signed-in touches stream
  * into Suspense holes (`auth()` only there), with space held for signed-in
  * viewers, and Watched labels arrive on the client.
  *

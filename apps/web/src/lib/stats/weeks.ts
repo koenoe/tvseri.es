@@ -1,6 +1,6 @@
 /**
- * The 53 visual weeks of a year, as the API counts them (`weekIndexOf` in
- * `apps/api/src/lib/stats/weeks.ts`): ISO weeks, Monday to Sunday; week 0
+ * The 53 visual weeks of a year, as the API counts them (`yearWeekIndex`
+ * in `@tvseri.es/utils`): ISO weeks, Monday to Sunday; week 0
  * starts on the Monday of ISO week 1 (which can fall in December before).
  * All UTC.
  */

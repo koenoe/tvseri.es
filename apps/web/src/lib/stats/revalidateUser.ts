@@ -12,8 +12,8 @@ import { tags } from '@/lib/cache/tags';
  * deleted user's Stats page becomes the 404). CDN copies of the share card
  * live out their own Cache-Control (a day, plus a day stale at most).
  *
- * Server actions only (`updateTag`); a route handler or a queue callback
- * would use `revalidateTag(tag, 'max')` for the same tags.
+ * Server actions only (`updateTag`); a route handler expires the same tags
+ * with `revalidateTag(tag, { expire: 0 })`, as the import route does.
  */
 const userTags = (
   userId: string,

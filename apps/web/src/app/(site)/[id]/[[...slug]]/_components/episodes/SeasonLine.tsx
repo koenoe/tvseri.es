@@ -1,36 +1,17 @@
 'use client';
 
-import {
-  type FocusEvent,
-  type KeyboardEvent,
-  type MouseEvent,
-  use,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { type FocusEvent, type KeyboardEvent, use, useMemo } from 'react';
 import cn from '@/lib/cn';
-import { episodeKey, pressMark } from '@/lib/marking/pressGate';
-import { codeOf } from '@/lib/marking/progress';
-import useMarking from '@/lib/marking/useMarking';
 import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
 import { openUpTo, useDialogs } from '../../_lib/dialogs';
-import { type PointerLike, usePointerRun } from '../../_lib/pointerRun';
 import { UNAVAILABLE_REASON, ViewerLocked } from '../../_lib/viewerUnavailable';
 import { preloadUpTo } from '../picker/UpToHost';
 import { useClock } from './clock';
-import {
-  directionOf,
-  lineGeometry,
-  planRun,
-  type RunDirection,
-  segmentAt,
-  segmentStart,
-  segmentTip,
-} from './linePlan';
+import { lineGeometry, planRun, segmentStart, segmentTip } from './linePlan';
 import { isWatchedMark, type MarkedEpisode } from './marks';
 import SeasonLineSegment from './SeasonLineSegment';
 import styles from './seasonLine.module.css';
+import useLinePaint from './useLinePaint';
 
 type Props = Readonly<{
   seriesId: number;
@@ -38,8 +19,6 @@ type Props = Readonly<{
   episodes: ReadonlyArray<ShowEpisode>;
   marked: ReadonlyArray<MarkedEpisode>;
 }>;
-
-type Run = Readonly<{ from: number; to: number; direction: RunDirection }>;
 
 const MARK_CLASS = {
   next: styles.nx,
@@ -74,7 +53,6 @@ export default function SeasonLine({
   seasonNumber,
   seriesId,
 }: Props) {
-  const marking = useMarking();
   const clock = useClock();
   const locked = use(ViewerLocked);
   const geometry = useMemo(() => lineGeometry(episodes), [episodes]);
@@ -82,81 +60,15 @@ export default function SeasonLine({
     () => marked.map((item) => segmentTip(item, clock)),
     [marked, clock],
   );
-  const [run, setRun] = useState<Run | null>(null);
   // "I'm up to…" opened from here sits under the line, which keeps its ring.
   const anchored = useDialogs(
     (state) => state.upTo?.at === 'row' && state.upTo.seriesId === seriesId,
   );
-  // The run's direction, decided by its first segment when it starts.
-  const direction = useRef<RunDirection>('mark');
-
-  const toggle = (index: number) => {
-    const item = marked[index];
-    if (!item || item.mark === 'unaired') {
-      return;
-    }
-    const ref = {
-      episodeNumber: item.episode.episodeNumber,
-      seasonNumber: item.episode.seasonNumber,
-    };
-    // a tap has no click count: its own write still has to settle first
-    pressMark(episodeKey(seriesId, codeOf(ref)), null, () =>
-      marking.toggleEpisode(seriesId, ref, {
-        title: item.episode.title,
-        where: 'page',
-      }),
-    );
-  };
-
-  // Pointer → segment from the line's box (read once per press, then once
-  // when the run starts) and the runtime prefix sums: no reads per move.
-  const gesture = usePointerRun<number>({
-    axis: 'x',
-    indexAt: (width, x) => segmentAt(geometry, x / width),
-    longPress: false,
-    measure: (_, origin) => origin.width || 1,
-    onEnd: (span, commit) => {
-      setRun(null);
-      if (!commit) {
-        return;
-      }
-      const plan = planRun(
-        marked,
-        geometry,
-        span.from,
-        span.to,
-        direction.current,
-      );
-      if (plan.todo.length) {
-        marking.paintRun(seriesId, plan.span, direction.current);
-      }
-    },
-    onMove: (span) => setRun({ ...span, direction: direction.current }),
-    onStart: (from) => {
-      direction.current = directionOf(marked[from]);
-      setRun({ direction: direction.current, from, to: from });
-    },
-    onTap: toggle,
-    pressIndex: (event: PointerLike) => {
-      const box = event.currentTarget.getBoundingClientRect();
-      return segmentAt(geometry, (event.clientX - box.left) / (box.width || 1));
-    },
+  const { gesture, onClick, run } = useLinePaint({
+    geometry,
+    marked,
+    seriesId,
   });
-
-  // Pointer taps and drags are handled above, so the click the browser sends
-  // afterwards (also the one it synthesises after a touch) is swallowed. A
-  // click without a pointer (screen readers, `detail === 0`) toggles.
-  const onClick = (event: MouseEvent<HTMLDivElement>) => {
-    if (event.detail !== 0) {
-      return;
-    }
-    const target = (event.target as HTMLElement).closest<HTMLElement>(
-      '[data-index]',
-    );
-    if (target?.dataset.index) {
-      toggle(Number(target.dataset.index));
-    }
-  };
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (

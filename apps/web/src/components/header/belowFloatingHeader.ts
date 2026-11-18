@@ -15,6 +15,11 @@
  * where it scrolls with the page. Full class strings, for Tailwind's scan.
  */
 
-/** A desktop sidebar sticky from `lg` at `top-8` (profile, Stats, settings, person) */
+/**
+ * A desktop sidebar sticky from `lg` at `top-8` (profile, Stats, settings,
+ * person). The move is a transform, so it takes no room: a sidebar taller
+ * than its page's column already fills the grid to the bottom and would slide
+ * 64px into the air above the footer. Its 64px bottom margin is that room.
+ */
 export const BELOW_FLOATING_HEADER_LG =
-  'lg:animate-[sticky-settle_400ms] lg:transition-transform lg:duration-300 lg:ease-[cubic-bezier(.25,.1,.25,1)] lg:header-floating:translate-y-16';
+  'lg:mb-16 lg:animate-[sticky-settle_400ms] lg:transition-transform lg:duration-300 lg:ease-[cubic-bezier(.25,.1,.25,1)] lg:header-floating:translate-y-16';

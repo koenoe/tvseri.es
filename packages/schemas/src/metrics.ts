@@ -372,16 +372,6 @@ export const WebVitalTopItemSchema = v.object({
  *   DeviceTimeIndex:  GSI3PK: "D#mobile"       GSI3SK: "2025-12-11"
  */
 export const WebVitalAggregateSchema = v.object({
-  /** Not written by the aggregation: device splits are their own items (pk `#D#<device>`) */
-  byDevice: v.optional(
-    v.record(
-      v.string(),
-      v.object({
-        pageviews: v.number(),
-        score: v.number(),
-      }),
-    ),
-  ),
   CLS: WebVitalMetricStatsSchema,
   /** YYYY-MM-DD */
   date: v.string(),

@@ -10,6 +10,8 @@ import { GENRE_TILES } from '../_data/hubTiles';
 import { getGenreCounts } from '../_data/rows';
 import { GENRE_CELL, GENRE_GRID, GENRE_NAME, GENRE_TILE } from './HubSkeletons';
 
+const GENRE_LINK = `${GENRE_TILE} transition-colors duration-200 hover:bg-white/9`;
+
 /**
  * Doors to the genre landings: a plain tile per `GENRE_TILES` entry,
  * name and show count, in full rows at every width (`GENRE_GRID`). Without the
@@ -26,12 +28,10 @@ export default async function Genres() {
     <ul className={GENRE_GRID} data-slot="genres">
       {GENRE_TILES.map((genre) => {
         const count = counts[genre.slug];
+        const href = landingPath('genre', genre.slug);
         return (
           <li className={GENRE_CELL} key={genre.slug}>
-            <Link
-              className={`${GENRE_TILE} transition-colors duration-200 hover:bg-white/9`}
-              href={landingPath('genre', genre.slug)}
-            >
+            <Link className={GENRE_LINK} href={href}>
               <b className={GENRE_NAME}>{genre.name}</b>
               <MetaRow className="gap-3 text-caption">
                 <MetaItem icon={seasonGlyph} iconSize={12}>

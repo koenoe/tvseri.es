@@ -73,12 +73,9 @@ function DecadeLandscapeSkeleton({
             top: `${cell.top}%`,
             width: `${cell.width}%`,
           };
+          const cellId = `${cell.left}-${cell.top}`;
           return (
-            <span
-              className="absolute p-1"
-              key={`${cell.left}-${cell.top}`}
-              style={style}
-            >
+            <span className="absolute p-1" key={cellId} style={style}>
               <span className={cellClass}>
                 {loading ? (
                   <span className="absolute right-4 bottom-3 left-4 flex flex-col">
@@ -199,14 +196,15 @@ async function DecadeLandscapeBlock({ slug }: Readonly<{ slug: string }>) {
     return <DecadeLandscapeUnavailable />;
   }
   // a treemap of one or two shows is left out (3 or more)
-  return hasEnoughPosters(shows.length) ? (
+  if (!hasEnoughPosters(shows.length)) {
+    return null;
+  }
+  const states = loadSeriesStates(shows.map((show) => show.id));
+  return (
     <section aria-label={LANDSCAPE} className={PAGE_COLUMN}>
-      <DecadeLandscape
-        shows={shows}
-        states={loadSeriesStates(shows.map((show) => show.id))}
-      />
+      <DecadeLandscape shows={shows} states={states} />
     </section>
-  ) : null;
+  );
 }
 
 /** The landscape's section: its own error state and an exact-size skeleton */
@@ -244,6 +242,7 @@ export async function DecadeSections({ params }: Props) {
     notFound();
   }
   const rows = decadeRows(slug);
+  const endTitle = `That’s the ${decade.label}`;
   return (
     <LandingSections start="loose">
       <LandingRowSlot id="missed" title="Missed by most">
@@ -256,10 +255,7 @@ export async function DecadeSections({ params }: Props) {
           title="Missed by most"
         />
       </LandingRowSlot>
-      <LandingEndCard
-        line={END_LINE.decade}
-        title={`That’s the ${decade.label}`}
-      />
+      <LandingEndCard line={END_LINE.decade} title={endTitle} />
     </LandingSections>
   );
 }

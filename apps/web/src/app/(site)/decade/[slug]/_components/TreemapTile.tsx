@@ -48,6 +48,7 @@ function TreemapTile({ index, onSelect, selected, show }: Props) {
   const label = `${show.title}, ${votes}${watched ? ', watched' : ''}`;
   // phones draw the list instead: ask for the smallest image there
   const sizes = `(max-width: 767px) 1px, ${cell.tileWidth}px`;
+  const loading = index === 0 ? 'eager' : 'lazy';
   // a word wider than the tile ("SquarePants", "Untouchables" at 800)
   // breaks, hyphenated where the language allows, instead of being cut
   // mid-letter by the tile
@@ -76,7 +77,7 @@ function TreemapTile({ index, onSelect, selected, show }: Props) {
               alt=""
               className="object-cover saturate-90"
               fill
-              loading={index === 0 ? 'eager' : 'lazy'}
+              loading={loading}
               sizes={sizes}
               src={show.backdrop}
             />

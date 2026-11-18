@@ -74,14 +74,12 @@ export default async function LensPanels() {
         {isUnavailable(tiles) ? (
           <LensGridFailed title={LENS_LABELS[lens]} />
         ) : (
-          tiles.map((tile, index) => (
-            <LensTile
-              first={index === 0}
-              key={tile.key}
-              lens={lens}
-              tile={tile}
-            />
-          ))
+          tiles.map((tile, index) => {
+            const first = index === 0;
+            return (
+              <LensTile first={first} key={tile.key} lens={lens} tile={tile} />
+            );
+          })
         )}
       </LensPanel>
     );

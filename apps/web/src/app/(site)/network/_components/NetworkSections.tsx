@@ -35,25 +35,25 @@ const titles = (name: string) => ({
  */
 function NetworkRowsSkeleton({ name }: Readonly<{ name?: string }>) {
   const title = name ? titles(name) : undefined;
+  const bestTitle = title?.best ?? 'The best';
+  const runningTitle = titles('').running;
+  const originalsTitle = title?.originals ?? 'Originals';
+  const nameGhost = !title;
   return (
     <>
       <RowSkeleton
         id="network-best"
         look="landing"
         switcher={<SwitchGhost />}
-        title={title?.best ?? 'The best'}
-        titleGhost={!title}
+        title={bestTitle}
+        titleGhost={nameGhost}
       />
-      <RowSkeleton
-        id="network-running"
-        look="landing"
-        title={titles('').running}
-      />
+      <RowSkeleton id="network-running" look="landing" title={runningTitle} />
       <RowSkeleton
         id="network-originals"
         look="landing"
-        title={title?.originals ?? 'Originals'}
-        titleGhost={!title}
+        title={originalsTitle}
+        titleGhost={nameGhost}
       />
     </>
   );
@@ -110,13 +110,10 @@ async function NetworkRows({ network }: Readonly<{ network: NetworkEntry }>) {
   const title = titles(network.name);
   const tabs = best.kind === 'tabs' ? best.tabs : undefined;
   const switchLabel = best.kind === 'tabs' ? best.label : undefined;
+  const hasSwitch = best.kind === 'tabs';
   return (
     <>
-      <LandingRowSlot
-        id="network-best"
-        switcher={best.kind === 'tabs'}
-        title={title.best}
-      >
+      <LandingRowSlot id="network-best" switcher={hasSwitch} title={title.best}>
         <LandingRow
           id="network-best"
           index={ROW.best}
@@ -157,16 +154,14 @@ async function NetworkRows({ network }: Readonly<{ network: NetworkEntry }>) {
 export default function NetworkSections({
   network,
 }: Readonly<{ network: NetworkEntry }>) {
+  const endTitle = `That’s ${network.name}`;
   return (
     <div className="md:pt-14">
       <LandingSections start="loose">
         <Suspense fallback={<NetworkRowsSkeleton name={network.name} />}>
           <NetworkRows network={network} />
         </Suspense>
-        <LandingEndCard
-          line={END_LINE.network}
-          title={`That’s ${network.name}`}
-        />
+        <LandingEndCard line={END_LINE.network} title={endTitle} />
       </LandingSections>
     </div>
   );

@@ -67,6 +67,8 @@ export default async function GenreSections({
     kind: `${genre.name} by kind`,
     trending: `Trending in ${genre.name}`,
   };
+  const kindSwitchLabel = `Kind of ${lower}`;
+  const endTitle = `That’s the best of ${lower}`;
   return (
     <LandingSections>
       <LandingRowSlot id="trending" title={titles.trending}>
@@ -98,7 +100,7 @@ export default async function GenreSections({
           loaders={rows}
           loadTabs={genreKindTabs}
           slug={slug}
-          switchLabel={`Kind of ${lower}`}
+          switchLabel={kindSwitchLabel}
           title={titles.kind}
         />
       </LandingRowSlot>
@@ -119,10 +121,7 @@ export default async function GenreSections({
       >
         <GenreBest lower={lower} slug={slug} title={titles.best} />
       </GuardedSection>
-      <LandingEndCard
-        line={END_LINE.genre}
-        title={`That’s the best of ${lower}`}
-      />
+      <LandingEndCard line={END_LINE.genre} title={endTitle} />
     </LandingSections>
   );
 }
@@ -136,12 +135,13 @@ async function GenreBest({
   if (isUnavailable(items)) {
     return <RankedListSkeleton look="failed" title={title} />;
   }
+  const listTitle = bestTitle(lower, items.length);
   return (
     <RankedList
       id="best"
       items={items}
       subtitle="Highest rated on TMDB, 1,000+ votes"
-      title={bestTitle(lower, items.length)}
+      title={listTitle}
     />
   );
 }

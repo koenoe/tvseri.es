@@ -41,12 +41,14 @@ function LensTab({ lens }: Readonly<{ lens: LensKey }>) {
   const selected = useLens((state) => state.lens === lens);
   const selectLens = useLens((state) => state.selectLens);
   const onClick = useCallback(() => selectLens(lens), [lens, selectLens]);
+  const panelId = lensPanelId(lens);
+  const tabId = lensTabId(lens);
   return (
     <button
-      aria-controls={lensPanelId(lens)}
+      aria-controls={panelId}
       aria-selected={selected}
       className={TAB}
-      id={lensTabId(lens)}
+      id={tabId}
       onClick={onClick}
       role="tab"
       tabIndex={selected ? 0 : -1}

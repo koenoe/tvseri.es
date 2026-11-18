@@ -26,13 +26,15 @@ export default function LensTileButton({
   const toggleRow = useLens((state) => state.toggleRow);
   const onClick = useCallback(() => toggleRow(row), [row, toggleRow]);
   const className = lensTileStyles({ calm, first });
+  const controls = open ? `${row}-row` : undefined;
+  const id = tileId(row);
   return (
     <button
-      aria-controls={open ? `${row}-row` : undefined}
+      aria-controls={controls}
       aria-expanded={open}
       aria-label={label}
       className={className}
-      id={tileId(row)}
+      id={id}
       onClick={onClick}
       type="button"
     >

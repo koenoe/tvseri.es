@@ -41,14 +41,12 @@ const FAILED_BAR = cn('block rounded-8', GHOST_LOOK.failed);
 export const networkCrumb = <LandingCrumb href="/network" label="Networks" />;
 
 /** The logo's place while it loads (48 / 72 tall) */
-const logoGhost = (
-  <span aria-hidden className={`${BAR} h-12 w-40 md:h-18 md:w-56`} />
-);
+const LOGO_BAR = `${BAR} h-12 w-40 md:h-18 md:w-56`;
+const logoGhost = <span aria-hidden className={LOGO_BAR} />;
 
 /** The meta line's place while it loads: the width of "United States · 381 shows · Since 1972" (215 on a phone, which drops the year) */
-const metaGhost = (
-  <span aria-hidden className={`${BAR} mt-3 h-5 w-54 md:mt-4 md:w-76`} />
-);
+const META_BAR = `${BAR} mt-3 h-5 w-54 md:mt-4 md:w-76`;
+const metaGhost = <span aria-hidden className={META_BAR} />;
 
 /** TMDB's logo (white unless it has a colour), or the name without one */
 async function NetworkMark({

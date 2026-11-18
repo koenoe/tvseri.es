@@ -88,14 +88,15 @@ export function LandingHeroDetailsSkeleton({
     'overflow-hidden md:max-h-[38px]',
     chipsHeading ? 'md:mt-2' : 'md:mt-6',
   );
+  const kickerBar = `${block} mt-2 h-5 w-64`;
+  const lineBar = `${block} mt-3 h-6 w-full max-w-[600px] md:h-7`;
+  const factBar = `${block} h-8 w-24 md:h-10`;
+  const chipsHeadingBar = `${block} mt-10 h-5 w-32 max-md:hidden`;
   return (
     <>
-      <span aria-hidden className={`${block} mt-2 h-5 w-64`} />
+      <span aria-hidden className={kickerBar} />
       {line === true ? (
-        <span
-          aria-hidden
-          className={`${block} mt-3 h-6 w-full max-w-[600px] md:h-7`}
-        />
+        <span aria-hidden className={lineBar} />
       ) : (
         (line ?? null)
       )}
@@ -103,7 +104,7 @@ export function LandingHeroDetailsSkeleton({
         <span aria-hidden className={FACTS_GRID}>
           {Array.from({ length: facts }, (_, index) => (
             <span className="flex flex-col gap-1" key={index}>
-              <span className={`${block} h-8 w-24 md:h-10`} />
+              <span className={factBar} />
               <span className="flex flex-col">
                 <GhostLine className="h-5" look={look} width="w-28" />
                 {/* the second fact's caption names a genre ("are also Action & Adventure"): two lines in a phone's 151px column */}
@@ -119,9 +120,7 @@ export function LandingHeroDetailsSkeleton({
           ))}
         </span>
       ) : null}
-      {chipsHeading ? (
-        <span aria-hidden className={`${block} mt-10 h-5 w-32 max-md:hidden`} />
-      ) : null}
+      {chipsHeading ? <span aria-hidden className={chipsHeadingBar} /> : null}
       {chips ? (
         <ChipCloudGhost
           className={chipsClass}
@@ -248,12 +247,10 @@ export function TitleLineGhost({
 }>) {
   const lineClass = cn('flex h-12 items-center md:h-16', className);
   const barClass = cn('block h-9 rounded-8 md:h-12', fill, width);
+  const barName = name ? `${name}-bar` : undefined;
   return (
     <span aria-hidden className={lineClass} data-placeholder={name}>
-      <span
-        className={barClass}
-        data-placeholder={name ? `${name}-bar` : undefined}
-      />
+      <span className={barClass} data-placeholder={barName} />
     </span>
   );
 }
@@ -368,12 +365,13 @@ export function SectionPlaceholder({
       </section>
     );
   }
+  const cardTitle = title ?? '';
   return (
     <section className={PAGE_COLUMN}>
       {heading}
       <div className="relative [--row-end:0px] [--row-start:0px]">
         {children}
-        <RowErrorCard state="unavailable" title={title ?? ''} />
+        <RowErrorCard state="unavailable" title={cardTitle} />
       </div>
     </section>
   );
@@ -393,12 +391,10 @@ export function WhereToStartSkeleton({
   title?: string;
 }>) {
   const card = cn('block h-37 rounded-16 md:h-48', GHOST_LOOK[look]);
+  const failedTitle = look === 'failed' ? 'Where to start' : undefined;
+  const sectionTitle = title ?? failedTitle;
   return (
-    <SectionPlaceholder
-      look={look}
-      name="start"
-      title={title ?? (look === 'failed' ? 'Where to start' : undefined)}
-    >
+    <SectionPlaceholder look={look} name="start" title={sectionTitle}>
       <div className="flex flex-col gap-3 md:gap-6 lg:grid lg:grid-cols-3">
         {[0, 1, 2].map((index) => {
           return look === 'loading' ? (

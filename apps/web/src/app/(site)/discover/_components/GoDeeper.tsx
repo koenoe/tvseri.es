@@ -36,9 +36,10 @@ export default async function GoDeeper() {
       tiles="card"
       title="Go deeper"
     >
-      {cards.map((card) => (
-        <GoDeeperCard card={card} key={`${card.kind}-${card.to.id}`} />
-      ))}
+      {cards.map((card) => {
+        const cardId = `${card.kind}-${card.to.id}`;
+        return <GoDeeperCard card={card} key={cardId} />;
+      })}
     </Row>
   );
 }

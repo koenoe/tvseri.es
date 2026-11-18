@@ -77,15 +77,14 @@ export default function WhereToStart({
         />
       </div>
       <ul className="flex flex-col gap-3 md:gap-6 lg:grid lg:grid-cols-3">
-        {picks.map((pick) => (
-          <li key={pick.id}>
-            <StartCard
-              kicker={kickerOf(pick, kickers)}
-              pick={pick}
-              second={second}
-            />
-          </li>
-        ))}
+        {picks.map((pick) => {
+          const kicker = kickerOf(pick, kickers);
+          return (
+            <li key={pick.id}>
+              <StartCard kicker={kicker} pick={pick} second={second} />
+            </li>
+          );
+        })}
       </ul>
     </section>
   );

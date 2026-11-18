@@ -77,12 +77,13 @@ export default function LandingShowRow({
       : (plan.tabs[pressed[plan.switchId] ?? tabs?.[0]?.key ?? ''] ?? []);
   const shows = visibleShows(list, plan.drops, pressed, plan.limit);
   const ids = shows.map((show) => show.id);
+  const railId = `${id}-rail`;
 
   const switcher =
     plan.kind === 'tabs' && tabs && switchLabel ? (
       <LandingSwitch
         className={ROW_SWITCH_CLASS}
-        controls={`${id}-rail`}
+        controls={railId}
         label={switchLabel}
         switchId={plan.switchId}
         tabs={tabs}

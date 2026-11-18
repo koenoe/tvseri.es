@@ -114,18 +114,21 @@ export function LandingSwitch({
   );
   return (
     <Segmented className={className} label={label}>
-      {tabs.map((tab) => (
-        <SwitchItem
-          controls={controls}
-          key={tab.key}
-          label={tab.label}
-          lang={tab.lang}
-          onPress={onPress}
-          pressed={tab.key === current}
-          switchId={switchId}
-          tab={tab.key}
-        />
-      ))}
+      {tabs.map((tab) => {
+        const pressed = tab.key === current;
+        return (
+          <SwitchItem
+            controls={controls}
+            key={tab.key}
+            label={tab.label}
+            lang={tab.lang}
+            onPress={onPress}
+            pressed={pressed}
+            switchId={switchId}
+            tab={tab.key}
+          />
+        );
+      })}
     </Segmented>
   );
 }

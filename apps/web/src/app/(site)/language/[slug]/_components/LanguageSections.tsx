@@ -111,13 +111,15 @@ export default async function LanguageSections({ params }: Props) {
   }
   const wallTitle = `More in ${language.english}`;
   const skeleton = <TitleWallSkeleton title={wallTitle} />;
+  const loaders = languageRows(slug);
+  const endTitle = `That’s ${language.english}`;
   return (
     <LandingSections start="loose">
       <LandingRowSlot id="start" title="Start here">
         <LandingRow
           id="start"
           index={0}
-          loaders={languageRows(slug)}
+          loaders={loaders}
           subtitle="Most rated"
           subtitleGlyph={userGlyph}
           title="Start here"
@@ -126,10 +128,7 @@ export default async function LanguageSections({ params }: Props) {
       <GuardedSection fallback={skeleton} id="wall" title={wallTitle}>
         <Wall lang={slug} title={wallTitle} />
       </GuardedSection>
-      <LandingEndCard
-        line={END_LINE.language}
-        title={`That’s ${language.english}`}
-      />
+      <LandingEndCard line={END_LINE.language} title={endTitle} />
     </LandingSections>
   );
 }

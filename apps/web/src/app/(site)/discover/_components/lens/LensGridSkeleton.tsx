@@ -38,14 +38,11 @@ function TileTextGhost({ first }: Readonly<{ first: boolean }>) {
 /** The grid's five tile slots, in the tiles' exact places */
 function LensGridSlots({ look }: Readonly<{ look: 'failed' | 'loading' }>) {
   return SLOTS.map((slot) => {
-    const slotClass = cn(
-      'relative',
-      slot === 0 ? FIRST : REST,
-      GHOST_LOOK[look],
-    );
+    const first = slot === 0;
+    const slotClass = cn('relative', first ? FIRST : REST, GHOST_LOOK[look]);
     return (
       <span className={slotClass} key={slot}>
-        {look === 'loading' ? <TileTextGhost first={slot === 0} /> : null}
+        {look === 'loading' ? <TileTextGhost first={first} /> : null}
       </span>
     );
   });

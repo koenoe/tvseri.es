@@ -31,10 +31,11 @@ export const WEEKEND_ID = 'weekend';
 export const WEEKEND_TITLE = 'Finish it this weekend';
 
 const WEEKEND_ACTION = 'Under 6 hours';
+const ACTION_GHOST_CLASSES = cn(OPEN_LENS_ROW_BUTTON, FLAT);
 
 /** The action's flat ghost: the heading line is the button's height on a phone too */
 const ACTION_GHOST = (
-  <span aria-hidden className={cn(OPEN_LENS_ROW_BUTTON, FLAT)}>
+  <span aria-hidden className={ACTION_GHOST_CLASSES}>
     <ButtonContent icon={arrowRightGlyph} iconSize={16}>
       {WEEKEND_ACTION}
     </ButtonContent>
@@ -97,13 +98,10 @@ function ShowLine({ show }: Readonly<{ show: DurationTileShow }>) {
 function WideTile({ show }: Readonly<{ show: DurationTileShow }>) {
   const label = `${show.title}, ${formatRuntime(show.minutes) ?? ''}`;
   const image = show.backdrop ?? show.poster;
+  const href = showPath(show.id, show.slug);
   return (
     <div className={WEEKEND_WIDE}>
-      <TileLink
-        aria-label={label}
-        className={WIDE_LINK}
-        href={showPath(show.id, show.slug)}
-      >
+      <TileLink aria-label={label} className={WIDE_LINK} href={href}>
         {image ? (
           <Image
             alt=""
@@ -188,8 +186,9 @@ export default async function Weekend() {
   if (!first) {
     return null;
   }
+  const underSixHours = durationRowKey('under-6-hours');
   const action = (
-    <OpenLensRowButton lens="duration" row={durationRowKey('under-6-hours')}>
+    <OpenLensRowButton lens="duration" row={underSixHours}>
       {WEEKEND_ACTION}
     </OpenLensRowButton>
   );
@@ -208,21 +207,24 @@ export default async function Weekend() {
       </div>
       <div className={WEEKEND_RAIL}>
         <WideTile show={first} />
-        {rest.map((show) => (
-          <div className={WEEKEND_POSTER} key={show.id}>
-            <PosterTile
-              id={show.id}
-              label={`${show.title}, ${formatRuntime(show.minutes) ?? ''}`}
-              overlay={<WatchedOverlay id={show.id} />}
-              poster={show.poster}
-              sizes="(min-width: 768px) 227px, 132px"
-              slug={show.slug}
-              title={show.title}
-            >
-              <ShowLine show={show} />
-            </PosterTile>
-          </div>
-        ))}
+        {rest.map((show) => {
+          const label = `${show.title}, ${formatRuntime(show.minutes) ?? ''}`;
+          return (
+            <div className={WEEKEND_POSTER} key={show.id}>
+              <PosterTile
+                id={show.id}
+                label={label}
+                overlay={<WatchedOverlay id={show.id} />}
+                poster={show.poster}
+                sizes="(min-width: 768px) 227px, 132px"
+                slug={show.slug}
+                title={show.title}
+              >
+                <ShowLine show={show} />
+              </PosterTile>
+            </div>
+          );
+        })}
       </div>
     </section>
   );

@@ -27,9 +27,10 @@ export default function LandingEndCard({
   title,
   titleGhost = false,
 }: Props) {
+  const hidden = titleGhost || undefined;
   return (
     <section
-      aria-hidden={titleGhost || undefined}
+      aria-hidden={hidden}
       aria-label={titleGhost ? undefined : title}
       className={PAGE_COLUMN}
     >

@@ -62,10 +62,11 @@ export async function LanguageHeading({
   }
   const tabs = scriptTabs(language);
   const countSkeleton = <LandingShowCountSkeleton />;
+  const lang = htmlLang(slug);
   return (
     <>
       <LandingTitle id={TITLE_ID} name={language.native}>
-        <span lang={htmlLang(slug)}>{language.native}</span>
+        <span lang={lang}>{language.native}</span>
       </LandingTitle>
       <MetaRow className="mt-2">
         <MetaItem icon={languageGlyph}>{language.english}</MetaItem>

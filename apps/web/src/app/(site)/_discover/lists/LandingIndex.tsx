@@ -112,6 +112,7 @@ export function LandingIndexSkeleton({
   title: string;
 }>) {
   const chip = cn('text-transparent', GHOST_LOOK[look]);
+  const chipClass = chipStyles({ className: chip });
   const chips = (
     <span
       aria-hidden
@@ -119,7 +120,7 @@ export function LandingIndexSkeleton({
       data-placeholder="landing-index"
     >
       {labels.map((label) => (
-        <span className={chipStyles({ className: chip })} key={label}>
+        <span className={chipClass} key={label}>
           {label}
         </span>
       ))}

@@ -97,9 +97,10 @@ async function Count({ kind }: Readonly<{ kind: ListKind }>) {
 async function Chips({ kind }: Readonly<{ kind: ListKind }>) {
   const chips = await getIndexChips(kind);
   if (isUnavailable(chips)) {
+    const labels = landingLabels(kind);
     return (
       <LandingIndexSkeleton
-        labels={landingLabels(kind)}
+        labels={labels}
         look="failed"
         title={COPY[kind].title}
       />

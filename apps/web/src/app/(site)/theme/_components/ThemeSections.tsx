@@ -55,6 +55,7 @@ export default async function ThemeSections({
     best: bestTitle(slug, theme.title),
     next: `Next door to ${lower}`,
   };
+  const endTitle = `That’s ${lower}`;
   return (
     <LandingSections start="loose">
       <GuardedSection
@@ -90,7 +91,7 @@ export default async function ThemeSections({
           title={titles.next}
         />
       </LandingRowSlot>
-      <LandingEndCard line={END_LINE.theme} title={`That’s ${lower}`} />
+      <LandingEndCard line={END_LINE.theme} title={endTitle} />
     </LandingSections>
   );
 }

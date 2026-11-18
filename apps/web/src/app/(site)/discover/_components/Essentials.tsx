@@ -23,6 +23,8 @@ export const ESSENTIALS_ID = 'essentials';
 /** The logo is 20px tall (17 on a phone): its file at 2× */
 const LOGO_HEIGHT_2X = 40;
 
+const LOGO_GHOST = `inline-block h-4.25 w-17 rounded-4 md:h-5 md:w-20 ${GHOST_LOOK.loading}`;
+
 /**
  * The title while the row loads: the logo's place (its 20px line, 17 on a
  * phone, at a typical width) on the words' baseline, then "Essentials"
@@ -30,10 +32,7 @@ const LOGO_HEIGHT_2X = 40;
 export function EssentialsTitleGhost() {
   return (
     <span className="inline-flex items-baseline gap-2.5 md:gap-3">
-      <span
-        aria-hidden
-        className={`inline-block h-4.25 w-17 rounded-4 md:h-5 md:w-20 ${GHOST_LOOK.loading}`}
-      />
+      <span aria-hidden className={LOGO_GHOST} />
       Essentials
     </span>
   );
@@ -113,18 +112,20 @@ export default async function Essentials() {
       {allLabel}
     </ButtonLink>
   );
+  const title = `${network.name} Essentials`;
   return (
     <Row
       actions={all}
       id={ESSENTIALS_ID}
       look="hubPoster"
       name={ESSENTIALS_ID}
-      title={`${network.name} Essentials`}
+      title={title}
       titleContent={titleContent}
     >
-      {essentials.items.map((show) => (
-        <HubPoster key={show.id} show={withYear(show)} />
-      ))}
+      {essentials.items.map((show) => {
+        const dated = withYear(show);
+        return <HubPoster key={show.id} show={dated} />;
+      })}
     </Row>
   );
 }

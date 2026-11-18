@@ -41,6 +41,7 @@ export default async function NetworkSpotlight({
     slug: spot.slug,
     title: spot.title,
   };
+  const states = loadSeriesStates([spot.id]);
   return (
     <Spotlight
       kicker={spot.kicker}
@@ -48,7 +49,7 @@ export default async function NetworkSpotlight({
       reason={spot.reason}
       seasons={spot.seasons}
       show={show}
-      states={loadSeriesStates([spot.id])}
+      states={states}
     />
   );
 }

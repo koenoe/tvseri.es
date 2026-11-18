@@ -116,6 +116,7 @@ async function ThemeSpotlight({ slug }: Readonly<{ slug: string }>) {
       </MetaItem>
     </MetaRow>
   );
+  const states = loadSeriesStates([spotlight.show.id]);
   return (
     <Spotlight
       kicker="Start here"
@@ -123,7 +124,7 @@ async function ThemeSpotlight({ slug }: Readonly<{ slug: string }>) {
       reason={spotlight.reason}
       seasons={seasons}
       show={spotlight.show}
-      states={loadSeriesStates([spotlight.show.id])}
+      states={states}
     />
   );
 }

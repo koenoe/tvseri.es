@@ -34,11 +34,12 @@ async function CountryStart({ code }: Readonly<{ code: string }>) {
   if (isUnavailable(picks)) {
     return <WhereToStartSkeleton look="failed" />;
   }
+  const slots = fillStartSlots(picks, new Set());
   return (
     <WhereToStart
       id="country-start"
       kickers={KICKERS}
-      picks={fillStartSlots(picks, new Set())}
+      picks={slots}
       second="network"
     />
   );
@@ -53,15 +54,12 @@ async function CountryRows({
   slug,
 }: Readonly<{ names: CountryNames; slug: string }>) {
   const facts = await getLandingFacts('country', slug);
+  const freshTitle = newTitle(names.name);
   if (isUnavailable(facts)) {
     return (
       <>
         <RowError id="country-made-for" state="unavailable" title="Made for" />
-        <RowError
-          id="country-new"
-          state="unavailable"
-          title={newTitle(names.name)}
-        />
+        <RowError id="country-new" state="unavailable" title={freshTitle} />
       </>
     );
   }
@@ -71,6 +69,7 @@ async function CountryRows({
   const second = secondRow(facts.madeFor);
   const loaders = countryRowLoaders(names.code, second);
   const bestTitle = `Best from ${names.name}`;
+  const freshPhoneTitle = `New from ${names.proseShort}`;
   return (
     <>
       {second.kind === 'made-for' ? (
@@ -94,15 +93,15 @@ async function CountryRows({
           />
         </LandingRowSlot>
       )}
-      <LandingRowSlot id="country-new" title={newTitle(names.name)}>
+      <LandingRowSlot id="country-new" title={freshTitle}>
         <LandingRow
           id="country-new"
           index={ROW.fresh}
           loaders={loaders}
-          phoneTitle={`New from ${names.proseShort}`}
+          phoneTitle={freshPhoneTitle}
           subtitle="First aired in the last 3 years"
           subtitleGlyph={calendarGlyph}
-          title={newTitle(names.name)}
+          title={freshTitle}
         />
       </LandingRowSlot>
     </>
@@ -115,6 +114,8 @@ async function CountryRows({
  * a bar.
  */
 function CountryRowsSkeleton({ name }: Readonly<{ name?: string }>) {
+  const freshTitle = name ? newTitle(name) : 'New';
+  const nameGhost = !name;
   return (
     <>
       <RowSkeleton
@@ -126,8 +127,8 @@ function CountryRowsSkeleton({ name }: Readonly<{ name?: string }>) {
       <RowSkeleton
         id="country-new"
         look="landing"
-        title={name ? newTitle(name) : 'New'}
-        titleGhost={!name}
+        title={freshTitle}
+        titleGhost={nameGhost}
       />
     </>
   );
@@ -153,6 +154,8 @@ export default function CountrySections({
   names,
   slug,
 }: Readonly<{ names: CountryNames; slug: string }>) {
+  const endPhoneTitle = `That’s ${names.prose}`;
+  const endTitle = `That’s ${names.name}`;
   return (
     <LandingSections start="loose">
       <GuardedSection
@@ -167,8 +170,8 @@ export default function CountrySections({
       </Suspense>
       <LandingEndCard
         line={END_LINE.country}
-        phoneTitle={`That’s ${names.prose}`}
-        title={`That’s ${names.name}`}
+        phoneTitle={endPhoneTitle}
+        title={endTitle}
       />
     </LandingSections>
   );

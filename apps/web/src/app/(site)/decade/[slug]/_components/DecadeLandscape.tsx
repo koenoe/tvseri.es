@@ -66,30 +66,36 @@ export default function DecadeLandscape({
         className="relative mt-10 h-140 max-md:hidden"
         role="group"
       >
-        {shows.map((tile, index) => (
-          <TreemapTile
-            index={index}
-            key={tile.id}
-            onSelect={setSelected}
-            selected={index === selected}
-            show={tile}
-          />
-        ))}
+        {shows.map((tile, index) => {
+          const isSelected = index === selected;
+          return (
+            <TreemapTile
+              index={index}
+              key={tile.id}
+              onSelect={setSelected}
+              selected={isSelected}
+              show={tile}
+            />
+          );
+        })}
       </div>
       <DecadeCard show={show} states={states} />
       <ol
         aria-label="The decade by attention"
         className="-mx-2 mt-12 flex flex-col gap-0.5 md:hidden"
       >
-        {shows.map((row, index) => (
-          <DecadeListRow
-            index={index}
-            key={row.id}
-            onOpen={openSheet}
-            selected={index === selected}
-            show={row}
-          />
-        ))}
+        {shows.map((row, index) => {
+          const isSelected = index === selected;
+          return (
+            <DecadeListRow
+              index={index}
+              key={row.id}
+              onOpen={openSheet}
+              selected={isSelected}
+              show={row}
+            />
+          );
+        })}
       </ol>
       {sheet === null ? null : (
         <DecadeSheet

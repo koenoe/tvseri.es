@@ -96,6 +96,8 @@ export default function CountryHero({
 /** The hero's ghosts are still (no pulse) */
 const FILL = 'bg-white/5';
 const BAR = `block rounded-8 ${FILL}`;
+const TITLE_LINES = `flex flex-col ${TITLE_SPACE}`;
+const NAME_BAR = `${BAR} mt-2 h-5 w-56`;
 
 /** The hero before the code is known (the shell of every country) */
 export function CountryHeroSkeleton() {
@@ -106,12 +108,12 @@ export function CountryHeroSkeleton() {
         Loading
       </h1>
       {/* the title's lines, each a bar in its line box, with the title's margins */}
-      <span aria-hidden className={`flex flex-col ${TITLE_SPACE}`}>
+      <span aria-hidden className={TITLE_LINES}>
         <TitleLineGhost fill={FILL} width="w-64 md:w-96" />
         {/* most countries have a name of their own, which is a second line on a phone */}
         <TitleLineGhost className="md:hidden" fill={FILL} width="w-40" />
       </span>
-      <span aria-hidden className={`${BAR} mt-2 h-5 w-56`} />
+      <span aria-hidden className={NAME_BAR} />
     </CountryHeroFrame>
   );
 }

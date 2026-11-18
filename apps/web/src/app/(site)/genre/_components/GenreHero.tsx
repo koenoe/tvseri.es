@@ -72,6 +72,7 @@ async function GenreHeroDetails({
     href: landingPath('theme', chip.slug),
     label: keywordLabel(chip.name),
   }));
+  const factCards = genreFacts(facts);
   return (
     <>
       <MetaRow className="mt-2">
@@ -84,7 +85,7 @@ async function GenreHeroDetails({
         ) : null}
       </MetaRow>
       {line}
-      <LandingFacts facts={genreFacts(facts)} />
+      <LandingFacts facts={factCards} />
       <LandingChips chips={chips} />
     </>
   );

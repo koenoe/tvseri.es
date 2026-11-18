@@ -19,13 +19,17 @@ export default function LensPanel({
 }: Readonly<{ children: ReactNode; lens: LensKey }>) {
   const shown = useLens((state) => state.lens === lens);
   const fade = useLens((state) => state.switched);
+  const tabId = lensTabId(lens);
+  const fading = fade || undefined;
+  const hidden = !shown;
+  const panelId = lensPanelId(lens);
   return (
     <div
-      aria-labelledby={lensTabId(lens)}
+      aria-labelledby={tabId}
       className={LENS_GRID}
-      data-fade={fade || undefined}
-      hidden={!shown}
-      id={lensPanelId(lens)}
+      data-fade={fading}
+      hidden={hidden}
+      id={panelId}
       role="tabpanel"
     >
       {children}

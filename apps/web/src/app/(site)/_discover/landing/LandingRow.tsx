@@ -58,7 +58,6 @@ export default async function LandingRow({
     plan.kind === 'tabs' && tabs
       ? tabs.filter((tab) => tab.key in plan.tabs)
       : tabs;
-  return (
-    <LandingShowRow {...row} eager={index === 0} plan={plan} tabs={kept} />
-  );
+  const eager = index === 0;
+  return <LandingShowRow {...row} eager={eager} plan={plan} tabs={kept} />;
 }

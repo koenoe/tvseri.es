@@ -1184,6 +1184,16 @@ describe('markNext on a seeded show', () => {
     expect(t.actions.markEpisodes).not.toHaveBeenCalled();
     expect(t.actions.markNextEpisode).not.toHaveBeenCalled();
   });
+
+  it('signed out: asks to sign in before any toast and marks nothing', async () => {
+    const t = setup({ signedIn: false });
+    await expect(t.commands.markNext(SERIES)).resolves.toBeNull();
+    await flush();
+    expect(t.promptSignIn).toHaveBeenCalledTimes(1);
+    expect(t.toasts).toEqual([]);
+    expect(t.view().watched.S01E01).toBeUndefined();
+    expect(t.actions.markEpisodes).not.toHaveBeenCalled();
+  });
 });
 
 describe('Undo of an unmark puts records back exactly', () => {

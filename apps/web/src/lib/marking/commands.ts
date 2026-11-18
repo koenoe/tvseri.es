@@ -678,6 +678,9 @@ export function createMarkingCommands(deps: MarkingDeps) {
      * too: the server finds Next up and the store picks it up when seeded.
      */
     async markNext(seriesId: number) {
+      if (!signedIn()) {
+        return null;
+      }
       const current = view(seriesId);
       if (current) {
         const next = nextEpisode(current);
@@ -685,9 +688,6 @@ export function createMarkingCommands(deps: MarkingDeps) {
           markOne(seriesId, next, episodeCode(next), 'page');
         }
         return next;
-      }
-      if (!signedIn()) {
-        return null;
       }
       const result = await settled(() => actions.markNextEpisode({ seriesId }));
       if (!result.ok) {

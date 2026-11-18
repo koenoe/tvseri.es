@@ -1,7 +1,4 @@
-import Link from 'next/link';
 import { Ghost, PULSE, TextLine } from '@/components/ui/ghost/ghosts';
-import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
-import Icon from '@/components/ui/icon/Icon';
 import SectionHead from '@/components/ui/section/SectionHead';
 import PosterLink, {
   type PosterLinkLook,
@@ -16,12 +13,7 @@ import {
 import StatsUnavailable from '../../../_components/StatsUnavailable';
 import type { SectionProps } from '../types';
 import AddToWatchlist from './AddToWatchlist';
-import {
-  decadePath,
-  POPULAR_SLOTS,
-  popularMeta,
-  unwatchedPopular,
-} from './model';
+import { POPULAR_SLOTS, popularMeta, unwatchedPopular } from './model';
 
 const SIZES = '(min-width: 768px) 170px, 30vw';
 
@@ -54,26 +46,12 @@ export default async function PopularUnwatched({ user, year }: SectionProps) {
   if (items.length === 0) {
     return null;
   }
-  const decadeHref = decadePath(year);
-  const more = (
-    <Link
-      className="hidden items-center gap-1 whitespace-nowrap font-medium text-body-sm text-white/60 md:flex"
-      href={decadeHref}
-    >
-      More
-      <Icon glyph={chevronRightGlyph} size={14} />
-    </Link>
-  );
   return (
     <section
       aria-labelledby="stats-popular-title"
       className="flex flex-col gap-6"
     >
-      <SectionHead
-        id="stats-popular-title"
-        link={more}
-        title="Popular unwatched"
-      />
+      <SectionHead id="stats-popular-title" title="Popular unwatched" />
       <div className="grid grid-cols-3 gap-3 md:grid-cols-5 md:gap-4">
         {items.map((series) => {
           const href = showPath(series.id, series.slug);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { decadePath, popularMeta, unwatchedPopular } from './model';
+import { popularMeta, unwatchedPopular } from './model';
 
 const show = (id: number, genre: string | null = 'Drama', episodes = 8) => ({
   episodes,
@@ -27,11 +27,5 @@ describe('popularMeta', () => {
     );
     expect(popularMeta(show(1, null, 1))).toBe('1 episode');
     expect(popularMeta(show(1, 'Crime', 0))).toBe('Crime');
-  });
-});
-
-describe('decadePath', () => {
-  it('links the year’s decade', () => {
-    expect(decadePath(2025)).toBe('/decade/2020s');
   });
 });

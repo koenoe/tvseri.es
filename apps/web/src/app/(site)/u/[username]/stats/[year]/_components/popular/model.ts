@@ -27,7 +27,3 @@ export function popularMeta(series: PopularItem): string {
       : null;
   return [genre, episodes].filter(Boolean).join(' · ');
 }
-
-/** "More" goes to the year's decade landing (`/decade/2020s`) */
-export const decadePath = (year: number) =>
-  `/decade/${Math.floor(year / 10) * 10}s`;

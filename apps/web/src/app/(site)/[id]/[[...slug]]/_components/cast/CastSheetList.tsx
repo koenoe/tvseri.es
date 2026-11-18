@@ -3,12 +3,14 @@
 import { formatGrouped } from '@tvseri.es/utils';
 import { startTransition, useCallback, useId, useState } from 'react';
 
+import { SURFACE } from '@/components/ui/dialog/dialogStyles';
 import Face, { type FaceLook } from '@/components/ui/faces/Face';
 import ExpandButton, {
   type ExpandLayout,
 } from '@/components/ui/fold/ExpandButton';
 import { SectionError } from '@/components/ui/row/RowError';
 import { GHOST_FILL, GhostLine } from '@/components/ui/row/RowGhosts';
+import cn from '@/lib/cn';
 import personPath from '@/lib/routing/personPath';
 import {
   type CastAndCrew,
@@ -44,7 +46,14 @@ const ROW_BOX =
   'my-1 flex items-center gap-3 rounded-12 px-3 py-2 md:gap-4 md:py-2.5';
 
 /** A section's name, on the sheet's text edge */
-const SECTION_TITLE = 'pt-4 pb-1 text-overline text-white/80 uppercase';
+const SECTION_TITLE = cn(
+  'pt-4 pb-1 text-overline text-white/80 uppercase',
+  // The heading stays at the top of the sheet's scroll while its section
+  // passes under it, on the sheet's own ground and as wide as the rows'
+  // hover fill (-mx-3), so nothing shows round its edges
+  'sticky top-0 z-[1] -mx-3 px-3',
+  SURFACE.sheet,
+);
 
 const CIRCLE = 'size-11 shrink-0 rounded-full md:size-14';
 
@@ -126,14 +135,15 @@ function RowsSkeleton({ count }: Readonly<{ count: number }>) {
   );
 }
 
-/** One of the sheet's sections, under its name; none without anyone */
 /**
  * A section's first rows: a long-running show lists thousands (Grey's
- * Anatomy's cast is over 2,600), and rendering them all as the sheet opens
- * stalls its slide-in on a phone; the regulars come first, the rest open with
- * "Show all N" in a transition, so the press never blocks
+ * Anatomy's cast is over 2,600), and a short first view keeps the sheet
+ * scannable and its slide-in smooth. The regulars come first (billing order,
+ * then most episodes); the rest open with "Show all N" in a transition, so
+ * the press never blocks.
  */
-const SECTION_CAP = 100;
+const CAST_CAP = 20;
+const CREW_CAP = 6;
 
 /** The person page's full-width bar under its lists, here under a section */
 const SHOW_ALL: ExpandLayout = {
@@ -142,11 +152,15 @@ const SHOW_ALL: ExpandLayout = {
   chevron: 15,
 };
 
+/** One of the sheet's sections, under its name; none without anyone */
 function Section({
+  cap,
   labelOf,
   people,
   title,
 }: Readonly<{
+  /** how many show before "Show all" */
+  cap: number;
   labelOf: RowLabel;
   people: ReadonlyArray<CastCrewPerson>;
   title: string;
@@ -160,8 +174,8 @@ function Section({
   if (people.length === 0) {
     return null;
   }
-  const capped = people.length > SECTION_CAP;
-  const shown = open || !capped ? people : people.slice(0, SECTION_CAP);
+  const capped = people.length > cap;
+  const shown = open || !capped ? people : people.slice(0, cap);
   const showAll = `Show all ${formatGrouped(people.length)}`;
   return (
     <section aria-labelledby={titleId}>
@@ -212,9 +226,15 @@ export default function CastSheetList({ total }: Readonly<{ total: number }>) {
   }
   return (
     <>
-      <Section labelOf={faceLabel} people={people.cast} title="Cast" />
+      <Section
+        cap={CAST_CAP}
+        labelOf={faceLabel}
+        people={people.cast}
+        title="Cast"
+      />
       {people.crew.map((section) => (
         <Section
+          cap={CREW_CAP}
           key={section.title}
           labelOf={crewLabel}
           people={section.people}

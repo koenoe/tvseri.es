@@ -116,7 +116,7 @@ describe('CastSheetList', () => {
     expect(screen.queryByText('Created by')).toBeNull();
   });
 
-  it('shows a long section’s first 100, then everyone with Show all', async () => {
+  it('shows the cast’s first 20, then everyone with Show all', async () => {
     showId = 106;
     const cast = Array.from({ length: 2622 }, (_, index) => ({
       ...WHITE,
@@ -127,7 +127,7 @@ describe('CastSheetList', () => {
     render(<CastSheetList total={2622} />);
 
     const section = await screen.findByRole('region', { name: 'Cast' });
-    expect(within(section).getAllByRole('listitem')).toHaveLength(100);
+    expect(within(section).getAllByRole('listitem')).toHaveLength(20);
     const showAll = within(section).getByRole('button', {
       name: 'Show all 2,622',
     });

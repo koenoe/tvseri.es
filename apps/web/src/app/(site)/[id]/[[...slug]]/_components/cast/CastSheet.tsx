@@ -20,6 +20,14 @@ import CastSheetList from './CastSheetList';
  * top corners, the grab handle; it swipes down to close), from md a 440px
  * side panel the full height on the right, as every side panel slides in.
  */
+/**
+ * The list's scroll: it carries the side space itself (the gutter on phones,
+ * 32px in the panel), so the rows' hover fill, which reaches 12px past the
+ * text edge, stays inside it; nothing ever scrolls sideways
+ */
+const SCROLL =
+  'min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pb-8 max-md:-mx-gutter max-md:px-gutter md:px-8 md:pt-2';
+
 const PANEL = cn(
   'flex flex-col',
   SURFACE.sheet,
@@ -77,7 +85,7 @@ export default function CastSheet({
         </div>
         <DialogCloseCircle size={40} />
       </header>
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-8 md:px-8 md:pt-2">
+      <div className={SCROLL}>
         <CastSheetList total={total} />
       </div>
     </ModalShell>

@@ -11,8 +11,7 @@ import { Resource } from 'sst';
 import { groundColorOr } from '../../groundColor';
 import { batchGet } from '../batch';
 import client from '../client';
-
-/** A pick's colour when it isn't a six-digit hex: the API's unknown colour */
+import { preferredImagesPk, seriesIdOfPk } from './keys';
 
 /**
  * A saved pick as served: its colour through the page colour rule
@@ -32,7 +31,7 @@ export const findPreferredImages = async (
 ): Promise<PreferredImages | null> => {
   const command = new GetItemCommand({
     Key: marshall({
-      pk: `SERIES#${id}`,
+      pk: preferredImagesPk(id),
     }),
     TableName: Resource.PreferredImages.name,
   });
@@ -59,7 +58,7 @@ export const findPreferredImagesForMany = async (
 ): Promise<Map<number, PreferredImages>> => {
   const items = await batchGet(
     Resource.PreferredImages.name,
-    ids.map((id) => marshall({ pk: `SERIES#${id}` })),
+    ids.map((id) => marshall({ pk: preferredImagesPk(id) })),
   );
 
   return new Map(
@@ -67,7 +66,7 @@ export const findPreferredImagesForMany = async (
       const { pk, ...preferredImages } = unmarshall(item) as Readonly<{
         pk: string;
       }>;
-      return [Number(pk.slice('SERIES#'.length)), served(preferredImages)];
+      return [seriesIdOfPk(pk), served(preferredImages)];
     }),
   );
 };
@@ -78,7 +77,7 @@ export const putPreferredImages = async (
 ): Promise<void> => {
   const command = new PutItemCommand({
     Item: marshall({
-      pk: `SERIES#${id}`,
+      pk: preferredImagesPk(id),
       updatedAt: Date.now(),
       ...served(preferred),
     }),
@@ -97,7 +96,7 @@ export const deletePreferredImages = async (
 ): Promise<void> => {
   const command = new DeleteItemCommand({
     Key: marshall({
-      pk: `SERIES#${id}`,
+      pk: preferredImagesPk(id),
     }),
     TableName: Resource.PreferredImages.name,
   });

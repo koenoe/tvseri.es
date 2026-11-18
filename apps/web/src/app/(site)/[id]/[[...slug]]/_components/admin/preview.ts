@@ -1,4 +1,5 @@
 import type { SeriesImages } from '@tvseri.es/schemas';
+import { buildBackdropImageUrl } from '@tvseri.es/utils';
 
 import { getBackgroundImageProps } from '@/components/background/BackgroundImage';
 import getMainBackgroundColor from '@/components/background/getMainBackgroundColor';
@@ -24,8 +25,6 @@ export type AdminSeries = ServedSeries &
 
 export type Preview = (images: SeriesImages, picked: Selection) => void;
 
-const TMDB_BACKDROP = 'https://image.tmdb.org/t/p/w1920_and_h1080_multi_faces';
-
 export function backdropUrl(
   images: SeriesImages,
   path: string | null,
@@ -40,7 +39,7 @@ export function backdropUrl(
   }
   return path === series.backdropPath && series.backdropImage
     ? series.backdropImage
-    : `${TMDB_BACKDROP}${path}`;
+    : buildBackdropImageUrl(path);
 }
 
 function toTitleDraft(

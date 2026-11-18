@@ -24,6 +24,7 @@ import cn from '@/lib/cn';
 import { ratingLabel } from '@/lib/series/episodeRatings';
 import type { ShowSeason } from '../../_lib/show';
 import { formatAirDate } from '../episodes/format';
+import { seasonName } from '../episodes/panelRows';
 import { positionLabel } from './episodeSteps';
 import { useSeasonRatings } from './useEpisodeData';
 
@@ -98,8 +99,7 @@ function EpisodeFacts({
   const ratings = useSeasonRatings(seriesId, episode.seasonNumber);
   const rating = ratingLabel(ratings, episode.episodeNumber);
   const position = positionLabel(seasons, episode);
-  const season =
-    episode.seasonNumber === 0 ? 'Specials' : `Season ${episode.seasonNumber}`;
+  const season = seasonName(episode.seasonNumber);
   // The size first: tailwind-merge drops a line height set before a size.
   const titleClasses = cn(
     titleSize(title),

@@ -1,6 +1,7 @@
 import 'server-only';
 
 import type { SeriesImages } from '@tvseri.es/schemas';
+import { generateTmdbImageUrl } from '@tvseri.es/utils';
 
 import { apiFetch } from '@/lib/api/client';
 import { isUnavailable, type Unavailable } from '@/lib/cache/unavailable';
@@ -39,7 +40,7 @@ async function loadSeriesImages(
  */
 async function loadBackdropColour(path: string): Promise<string> {
   const { hex } = await apiFetch<Readonly<{ hex: string }>>('/dominant-color', {
-    query: { url: `https://image.tmdb.org/t/p/w780${path}` },
+    query: { url: generateTmdbImageUrl(path, 'w780') },
   });
   return hex;
 }

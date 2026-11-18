@@ -35,7 +35,7 @@ The `instant()` e2e rig that guards which UI is in the static shell is described
 
 ## Server actions write, GET routes read
 
-Server actions (`'use server'`) are for writes. A client read after the first paint goes through a GET route handler under `src/app/api` (`/api/me/import-status`, `/api/me/username-check`, `/api/admin/series/[id]/…`, `/api/person/[id]/self-credits` and `/awards`): a public GET can be cached at the CDN, and Next runs a page's server actions one at a time, so a read action would wait behind a write. The exception is revealing the Plex webhook URL (`settings/plex/actions.ts`): a POST is never cached or prefetched, so the secret can't land in a cache.
+Server actions (`'use server'`) are for writes. A client read after the first paint goes through a GET route handler under `src/app/api` (`/api/me/import-status`, `/api/me/username-check`, `/api/admin/series/[id]/…`, `/api/person/[id]/self-credits` and `/awards`): a GET can be cached (a person's self credits and awards are, at the CDN) and a server action's POST never is. The one read that stays an action is revealing the Plex webhook URL (`settings/plex/actions.ts`), for that reason: the secret can't land in a cache.
 
 ## Where the rules live
 

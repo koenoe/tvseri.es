@@ -1,17 +1,26 @@
 import type { SeriesImages } from '@tvseri.es/schemas';
 
-import { loadAdminImages, loadBackdropColours } from './actions';
+import { fetchJson } from '@/lib/series/useCachedJson';
+
 import { adminStore, rememberColours, setImagesLoad } from './adminStore';
 import { availability, type Served } from './picker';
 
 /**
- * Loading the picker's data on the client (admins only): the image choices
- * once per show, and the page colour of a backdrop on demand, a few
- * neighbours at a time. Both are deduplicated while in flight.
+ * Loading the picker's data on the client (admins only, from
+ * `/api/admin/series/:id/*`): the image choices once per show, and the page
+ * colour of a backdrop on demand, a few neighbours at a time. Both are
+ * deduplicated while in flight.
  */
 
 export type ServedSeries = Served &
   Readonly<{ backdropColor: string; id: number }>;
+
+const imagesUrl = (seriesId: number) => `/api/admin/series/${seriesId}/images`;
+
+const coloursUrl = (seriesId: number, paths: ReadonlyArray<string>) =>
+  `/api/admin/series/${seriesId}/backdrop-colours?${new URLSearchParams(
+    paths.map((path) => ['path', path]),
+  )}`;
 
 const imagesInFlight = new Map<number, Promise<void>>();
 const coloursInFlight = new Set<string>();
@@ -53,14 +62,10 @@ export function ensureImages(
     return running;
   }
   setImagesLoad(served.id, { status: 'loading' });
-  const request = loadAdminImages(served.id)
-    .then((result) => {
-      if (!result.ok) {
-        setImagesLoad(served.id, { status: 'error' });
-        return;
-      }
-      seedColours(result.data, served);
-      setImages(result.data, served);
+  const request = fetchJson<SeriesImages>(imagesUrl(served.id))
+    .then((images) => {
+      seedColours(images, served);
+      setImages(images, served);
     })
     .catch(() => setImagesLoad(served.id, { status: 'error' }))
     .finally(() => imagesInFlight.delete(served.id));
@@ -90,10 +95,11 @@ export async function fetchColours(
     coloursInFlight.add(path);
   }
   try {
-    const result = await loadBackdropColours({ paths: missing, seriesId });
-    if (result.ok) {
-      rememberColours(result.data);
-    }
+    rememberColours(
+      await fetchJson<Readonly<Record<string, string>>>(
+        coloursUrl(seriesId, missing),
+      ),
+    );
   } catch {
     // The swatch keeps the last colour; the next pick asks again.
   } finally {

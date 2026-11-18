@@ -1,11 +1,9 @@
 'use server';
 
 import {
-  BackdropColoursInputSchema,
   PositiveIdSchema,
   type PreferredImages,
   SavePreferredImagesInputSchema,
-  type SeriesImages,
 } from '@tvseri.es/schemas';
 import { updateTag } from 'next/cache';
 import * as v from 'valibot';
@@ -14,16 +12,13 @@ import { getViewer } from '@/auth/viewer';
 import { type ActionResult, actionError, okResult } from '@/lib/actions/result';
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
-import { isUnavailable } from '@/lib/cache/unavailable';
-import { loadSeries } from '@/lib/series/loaders';
-
-import { loadBackdropColour, loadSeriesImages } from './loaders';
 
 /**
- * The admin image picker's server actions. Each one checks the
- * admin role from the verified token and validates its input; writes go to
- * `PUT|DELETE /admin/preferred-images/series/:id` with the admin's token and
- * refresh the show's cached data (and Home, whose spotlight uses the same
+ * The admin image picker's writes (its reads are GET routes,
+ * `/api/admin/series/:id/*`). Each one checks the admin role from the
+ * verified token, validates its input, goes to `PUT|DELETE
+ * /admin/preferred-images/series/:id` with the admin's token and refreshes
+ * the show's cached data (and Home, whose spotlight uses the same
  * series object) at once. The API starts the CDN purge without waiting for
  * it, so a refresh that reaches a CDN location before the purge can cache
  * the old images for their cache life: an accepted race. Failures come back
@@ -39,54 +34,6 @@ async function adminToken(): Promise<string | null> {
 function refresh(seriesId: number) {
   updateTag(tags.series(seriesId));
   updateTag(tags.home);
-}
-
-export async function loadAdminImages(
-  seriesId: number,
-): Promise<ActionResult<SeriesImages>> {
-  if (!v.is(PositiveIdSchema, seriesId)) {
-    return actionError('invalid');
-  }
-  if (!(await adminToken())) {
-    return actionError('unauthenticated');
-  }
-  try {
-    const series = await loadSeries(seriesId);
-    if (isUnavailable(series)) {
-      return actionError('failed');
-    }
-    const images =
-      series && (await loadSeriesImages(seriesId, series.originalLanguage));
-    return images ? okResult(images) : actionError('not-found');
-  } catch (error) {
-    console.error('[admin] [images] load failed', { error, seriesId });
-    return actionError('failed');
-  }
-}
-
-export async function loadBackdropColours(
-  input: v.InferInput<typeof BackdropColoursInputSchema>,
-): Promise<ActionResult<Readonly<Record<string, string>>>> {
-  const parsed = v.safeParse(BackdropColoursInputSchema, input);
-  if (!parsed.success) {
-    return actionError('invalid');
-  }
-  if (!(await adminToken())) {
-    return actionError('unauthenticated');
-  }
-  const settled = await Promise.allSettled(
-    parsed.output.paths.map(
-      async (path) => [path, await loadBackdropColour(path)] as const,
-    ),
-  );
-  const colours = Object.fromEntries(
-    settled.flatMap((result) =>
-      result.status === 'fulfilled' ? [result.value] : [],
-    ),
-  );
-  return Object.keys(colours).length > 0
-    ? okResult(colours)
-    : actionError('failed');
 }
 
 export async function savePreferredImages(input: {

@@ -53,6 +53,8 @@ describe('proxy matcher', () => {
   it('finds the session-reading route handlers', () => {
     expect(urls).toEqual(
       expect.arrayContaining([
+        '/api/admin/series/x/images',
+        '/api/me/import-status',
         '/api/me/library-ids',
         '/api/me/series/x',
         '/api/region',

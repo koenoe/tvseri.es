@@ -10,11 +10,8 @@ import {
 import type { SeriesImages } from '@tvseri.es/schemas';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { showToast } from '@/components/ui/toast/showToast';
-import {
-  loadAdminImages,
-  loadBackdropColours,
-  savePreferredImages,
-} from '../actions';
+import { fetchJson } from '@/lib/series/useCachedJson';
+import { savePreferredImages } from '../actions';
 
 import {
   adminStore,
@@ -28,9 +25,11 @@ import { setImages } from '../data';
 import type { AdminSeries } from '../preview';
 import Tray from './Tray';
 
+vi.mock('@/lib/series/useCachedJson', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/series/useCachedJson')>()),
+  fetchJson: vi.fn(),
+}));
 vi.mock('../actions', () => ({
-  loadAdminImages: vi.fn(),
-  loadBackdropColours: vi.fn(),
   resetPreferredImages: vi.fn(),
   savePreferredImages: vi.fn(),
 }));
@@ -95,8 +94,9 @@ beforeEach(() => {
     request: null,
   });
   setImages(IMAGES, SERVED);
-  vi.mocked(loadAdminImages).mockResolvedValue({ data: IMAGES, ok: true });
-  vi.mocked(loadBackdropColours).mockResolvedValue({ data: {}, ok: true });
+  vi.mocked(fetchJson).mockImplementation(async (url) =>
+    url.endsWith('/images') ? IMAGES : {},
+  );
 });
 
 describe('the admin tray (phone sheet in jsdom)', () => {
@@ -274,7 +274,7 @@ describe('the admin tray (phone sheet in jsdom)', () => {
 
   it('shows the loading state until TMDB answers', () => {
     setImagesLoad(SERVED.id, { status: 'loading' });
-    vi.mocked(loadAdminImages).mockReturnValue(new Promise(() => {}));
+    vi.mocked(fetchJson).mockReturnValue(new Promise(() => {}));
     renderTray();
     expect(screen.getByRole('status').textContent).toContain(
       'Loading from TMDB…',

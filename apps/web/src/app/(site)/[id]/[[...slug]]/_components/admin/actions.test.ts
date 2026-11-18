@@ -3,11 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getViewer } from '@/auth/viewer';
 import { ApiError, apiFetch } from '@/lib/api/client';
 
-import {
-  loadBackdropColours,
-  resetPreferredImages,
-  savePreferredImages,
-} from './actions';
+import { resetPreferredImages, savePreferredImages } from './actions';
 
 vi.mock('@/auth/viewer', () => ({ getViewer: vi.fn() }));
 vi.mock('@/lib/api/client', async (importOriginal) => ({
@@ -19,7 +15,6 @@ vi.mock('next/cache', () => ({
   cacheTag: vi.fn(),
   updateTag: vi.fn(),
 }));
-vi.mock('@/lib/series/loaders', () => ({ loadSeries: vi.fn() }));
 
 const { updateTag } = await import('next/cache');
 
@@ -132,37 +127,5 @@ describe('resetPreferredImages', () => {
       ok: false,
     });
     expect(updateTag).not.toHaveBeenCalled();
-  });
-});
-
-describe('loadBackdropColours', () => {
-  it('asks the API for the w780 image of each backdrop', async () => {
-    asAdmin();
-    vi.mocked(apiFetch).mockImplementation(async (_path, options) => ({
-      hex: String(options?.query?.url).endsWith('/b1.jpg')
-        ? '#585838'
-        : '#111111',
-    }));
-    const result = await loadBackdropColours({
-      paths: ['/b1.jpg', '/b2.jpg'],
-      seriesId: 7,
-    });
-    expect(result).toMatchObject({
-      data: { '/b1.jpg': '#585838', '/b2.jpg': '#111111' },
-      ok: true,
-    });
-    expect(apiFetch).toHaveBeenCalledWith('/dominant-color', {
-      query: { url: 'https://image.tmdb.org/t/p/w780/b1.jpg' },
-    });
-  });
-
-  it('only takes TMDB image paths', async () => {
-    asAdmin();
-    expect(
-      await loadBackdropColours({
-        paths: ['https://evil.example.com/x.jpg'],
-        seriesId: 7,
-      }),
-    ).toEqual({ error: 'invalid', ok: false });
   });
 });

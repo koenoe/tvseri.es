@@ -33,9 +33,9 @@ type RequestFacts = Readonly<{
   isProtectedApi: boolean;
 }>;
 
-// `/api/u/:username` and `/api/me` (the viewer's own data: marking, library
-// ids), and everything below them.
-const PROTECTED_API = /^\/api\/(?:u\/[^/]+|me)(?:\/|$)/;
+// `/api/u/:username`, `/api/me` (the viewer's own data: marking, library
+// ids) and `/api/admin`, and everything below them.
+const PROTECTED_API = /^\/api\/(?:u\/[^/]+|me|admin)(?:\/|$)/;
 
 /**
  * User API routes require a session: the proxy answers 401 for them. User

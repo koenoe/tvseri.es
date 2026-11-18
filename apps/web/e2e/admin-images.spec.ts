@@ -14,16 +14,21 @@ const stubApi = `http://localhost:${Number(process.env.STUB_API_PORT ?? Number(p
 const tray = (page: Page) =>
   page.getByRole('dialog', { name: 'Hero images for The Bear' });
 
-/** Server action POSTs to the show page (the tray's reads and writes). */
-const isAction = (method: string, headers: Record<string, string>) =>
-  method === 'POST' && 'next-action' in headers;
+/** The tray's requests: its reads (`/api/admin/*`) and its writes (server actions). */
+const isTrayRequest = (
+  method: string,
+  url: string,
+  headers: Record<string, string>,
+) =>
+  new URL(url).pathname.startsWith('/api/admin/') ||
+  (method === 'POST' && 'next-action' in headers);
 
-/** Counts the server action requests the page sends from now on. */
-const countActions = (page: Page) => {
-  const counter = { actions: 0 };
+/** Counts the tray's requests the page sends from now on. */
+const countTrayRequests = (page: Page) => {
+  const counter = { requests: 0 };
   page.on('request', (request) => {
-    if (isAction(request.method(), request.headers())) {
-      counter.actions += 1;
+    if (isTrayRequest(request.method(), request.url(), request.headers())) {
+      counter.requests += 1;
     }
   });
   return counter;
@@ -62,14 +67,14 @@ test('a regular viewer never gets the tray or its requests', async ({
   page,
 }) => {
   await signInAs(context, 'alex');
-  const sent = countActions(page);
+  const sent = countTrayRequests(page);
   await page.goto(`${SHOW}?images`);
   await settled(page);
   await expect(tray(page)).toHaveCount(0);
   await expect(page.getByRole('button', { name: /Hero images/ })).toHaveCount(
     0,
   );
-  expect(sent.actions).toBe(0);
+  expect(sent.requests).toBe(0);
 });
 
 test('an admin’s page view reads no image choices until the Admin row opens (the check above can fail)', async ({
@@ -77,10 +82,10 @@ test('an admin’s page view reads no image choices until the Admin row opens (t
   page,
 }) => {
   await signInAs(context, 'sam');
-  const sent = countActions(page);
+  const sent = countTrayRequests(page);
   await page.goto(SHOW);
   await settled(page);
-  expect(sent.actions).toBe(0);
+  expect(sent.requests).toBe(0);
   await page
     .getByRole('button', { name: /^More actions for The Bear/ })
     .first()
@@ -88,7 +93,7 @@ test('an admin’s page view reads no image choices until the Admin row opens (t
   await expect(
     page.getByRole('menuitem', { name: /Hero images/ }),
   ).toBeVisible();
-  await expect.poll(() => sent.actions).toBeGreaterThan(0);
+  await expect.poll(() => sent.requests).toBeGreaterThan(0);
 });
 
 test('an admin opens the tray from the Remote’s Admin row, the only way in on the page', async ({

@@ -181,6 +181,7 @@ describe('isProtectedApiPath', () => {
     '/api/u/margaux/stats/2024',
     '/api/me/library-ids',
     '/api/me/series/1396',
+    '/api/admin/series/1396/images',
   ])('protects %s', (path) => {
     expect(isProtectedApiPath(path)).toBe(true);
   });
@@ -192,6 +193,7 @@ describe('isProtectedApiPath', () => {
     '/api/tv/1396',
     '/u/margaux',
     '/api/media/1',
+    '/api/administrator',
   ])('leaves %s alone', (path) => {
     expect(isProtectedApiPath(path)).toBe(false);
   });

@@ -24,6 +24,8 @@ export const config = {
     // The viewer's own data (marking reads, library ids): same 401 rule, and
     // the proxy refreshes the session before the handler reads it.
     '/api/me/:path*',
+    // The admin's tools (the show page's image tray): same 401 rule.
+    '/api/admin/:path*',
     // Other route handlers that read the session (`auth(req)`): they never
     // refresh themselves, the proxy does it first. Only with a session cookie.
     {

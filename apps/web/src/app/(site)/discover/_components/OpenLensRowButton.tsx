@@ -3,14 +3,12 @@
 import { useCallback } from 'react';
 
 import ButtonContent from '@/components/ui/button/ButtonContent';
-import { buttonStyles } from '@/components/ui/button/buttonStyles';
 import { arrowRightGlyph } from '@/components/ui/icon/glyphs';
 import scrollBehavior from '@/lib/media/scrollBehavior';
 
 import type { LensKey } from '../_data/hubTiles';
+import { OPEN_LENS_ROW_BUTTON } from './hubSectionHead';
 import { useLens } from './lens/LensProvider';
-
-const className = buttonStyles({ className: 'px-4', size: 'sm' });
 
 /**
  * Finish it this weekend's "Under 6 hours": opens that Duration tile's row
@@ -31,7 +29,7 @@ export default function OpenLensRowButton({
       ?.scrollIntoView({ behavior: scrollBehavior() });
   }, [lens, openRow, row]);
   return (
-    <button className={className} onClick={onClick} type="button">
+    <button className={OPEN_LENS_ROW_BUTTON} onClick={onClick} type="button">
       <ButtonContent icon={arrowRightGlyph} iconSize={16}>
         {children}
       </ButtonContent>

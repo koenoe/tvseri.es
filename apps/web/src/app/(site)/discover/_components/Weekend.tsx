@@ -1,7 +1,10 @@
 import { formatRuntime } from '@tvseri.es/utils';
 import Image from 'next/image';
 import type { DurationTileShow } from '@/app/(site)/_discover/data/duration';
+import ButtonContent from '@/components/ui/button/ButtonContent';
+import { FLAT } from '@/components/ui/ghost/ghosts';
 import {
+  arrowRightGlyph,
   calendarGlyph,
   clockGlyph,
   seasonGlyph,
@@ -22,11 +25,22 @@ import { plural } from '@/lib/format/text';
 import showPath from '@/lib/routing/showPath';
 import { durationRowKey } from '../_data/lensModel';
 import { getWeekendShows } from '../_data/weekend';
-import { HUB_SECTION_HEAD } from './hubSectionHead';
+import { HUB_SECTION_HEAD, OPEN_LENS_ROW_BUTTON } from './hubSectionHead';
 import OpenLensRowButton from './OpenLensRowButton';
 
 export const WEEKEND_ID = 'weekend';
 export const WEEKEND_TITLE = 'Finish it this weekend';
+
+const WEEKEND_ACTION = 'Under 6 hours';
+
+/** The action's flat ghost: the heading line is the button's height on a phone too */
+const ACTION_GHOST = (
+  <span aria-hidden className={cn(OPEN_LENS_ROW_BUTTON, FLAT)}>
+    <ButtonContent icon={arrowRightGlyph} iconSize={16}>
+      {WEEKEND_ACTION}
+    </ButtonContent>
+  </span>
+);
 const WEEKEND_TITLE_ID = `${WEEKEND_ID}-title`;
 /** The section, its rail and the tiles' sizes: the placeholder (`WeekendSkeleton`) draws the same frame */
 const WEEKEND_SECTION = cn(
@@ -128,7 +142,11 @@ export function WeekendSkeleton() {
       data-placeholder="weekend"
     >
       <div className={HUB_SECTION_HEAD}>
-        <RowHeader title={WEEKEND_TITLE} titleId="weekend-loading" />
+        <RowHeader
+          actions={ACTION_GHOST}
+          title={WEEKEND_TITLE}
+          titleId="weekend-loading"
+        />
       </div>
       <div className={WEEKEND_RAIL}>
         <div className={WEEKEND_WIDE}>
@@ -173,7 +191,7 @@ export default async function Weekend() {
   }
   const action = (
     <OpenLensRowButton lens="duration" row={durationRowKey('under-6-hours')}>
-      Under 6 hours
+      {WEEKEND_ACTION}
     </OpenLensRowButton>
   );
   return (

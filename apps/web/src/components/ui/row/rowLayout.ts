@@ -94,9 +94,11 @@ export type RowLook =
 // The arrows' chevron at stroke 2
 const THICK_ARROWS = '[--row-arrow-stroke:2]';
 
-// a 44px header line with 14px gaps, the track's 6px below
-// the cards; white chevrons
-const HUB_LINE = `${THICK_ARROWS} [--row-arrow-ink:#fff] md:[--row-head-h:44px] md:[--row-head-gap:14px] md:pb-1.5`;
+/** The Discover hub's header line from md: 44px, 14px gaps */
+export const HUB_HEAD = 'md:[--row-head-h:44px] md:[--row-head-gap:14px]';
+
+// the hub's header line, the track's 6px below the cards; white chevrons
+const HUB_LINE = `${THICK_ARROWS} [--row-arrow-ink:#fff] ${HUB_HEAD} md:pb-1.5`;
 
 /** The Discover hub's poster shadow, for hub posters outside a row too */
 export const HUB_TILE_SHADOW =

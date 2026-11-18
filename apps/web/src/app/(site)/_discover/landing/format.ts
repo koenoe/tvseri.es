@@ -4,9 +4,9 @@
  * ("4h", "7h 30m", "49h") and page ranges ("1–10 of 50").
  */
 
-import { upperFirst } from '@tvseri.es/utils';
+import { plural, upperFirst } from '@tvseri.es/utils';
 
-import { plural, pluralCapped } from '@/lib/format/text';
+import { pluralCapped } from '@/lib/format/text';
 
 const PERCENT = new Intl.NumberFormat('en-GB', {
   maximumFractionDigits: 0,

@@ -2,12 +2,12 @@
 
 import type { LibraryCounts, LibraryShelf } from '@tvseri.es/schemas';
 import { LIBRARY_SHELVES } from '@tvseri.es/schemas';
+import { formatGrouped } from '@tvseri.es/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Fragment, useRef } from 'react';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
-import { formatGrouped } from '@/lib/formatCount';
 import { libraryPath } from '@/lib/routing/profilePath';
 import { useShelfCounts } from '../../_lib/shelfCounts';
 import { SHELVES } from '../_lib/shelves';

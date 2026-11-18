@@ -1,7 +1,7 @@
+import { plural } from '@tvseri.es/utils';
 import { type MouseEvent, memo } from 'react';
 
 import cn from '@/lib/cn';
-import { plural } from '@/lib/format/text';
 import type { SearchCell, SearchLayout } from '@/lib/search/sections';
 import type { SessionView } from '@/lib/search/session';
 

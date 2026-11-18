@@ -3,7 +3,7 @@ import type {
   PersonCareerRow,
   PersonCareerWeight,
 } from '@tvseri.es/schemas';
-import { plural } from '@/lib/format/text';
+import { plural } from '@tvseri.es/utils';
 import showPath from '@/lib/routing/showPath';
 
 import { formatDay, formatMonthDay, yearSpan } from './format';

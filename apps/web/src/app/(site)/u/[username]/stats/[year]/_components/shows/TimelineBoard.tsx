@@ -1,5 +1,6 @@
 'use client';
 
+import { plural } from '@tvseri.es/utils';
 import { useState } from 'react';
 import { flushSync } from 'react-dom';
 import ArmedMaxMotion from '@/components/motion/ArmedMaxMotion';
@@ -8,7 +9,6 @@ import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import SectionHead from '@/components/ui/section/SectionHead';
 import cn from '@/lib/cn';
-import { plural } from '@/lib/format/text';
 import Legend from './Legend';
 import { MonthAxis, MonthGrid } from './MonthAxis';
 import {

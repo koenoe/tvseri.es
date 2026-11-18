@@ -1,8 +1,8 @@
+import { formatGrouped } from '@tvseri.es/utils';
 import type { ReactNode } from 'react';
 import Dot, { type DotTone } from '@/components/ui/lane/Dot';
 import BaseLane from '@/components/ui/lane/Lane';
 import { PROFILE_LANE } from '@/components/ui/lane/laneLooks';
-import { formatGrouped } from '@/lib/formatCount';
 
 type Props = Readonly<{
   children: ReactNode;

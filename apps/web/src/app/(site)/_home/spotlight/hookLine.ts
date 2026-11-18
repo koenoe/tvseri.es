@@ -1,9 +1,9 @@
 import type { TvSeries } from '@tvseri.es/schemas';
+import { plural } from '@tvseri.es/utils';
 import { isValid, parseISO } from 'date-fns';
 import { DAY_MONTH_PATTERN } from '@/lib/format/date';
 
 import { formatLocalDate } from '@/lib/format/datePattern';
-import { plural } from '@/lib/format/text';
 import { joinAnd } from '@/lib/text/fitNames';
 
 /** The fields the hook line is built from (creators: only their names) */

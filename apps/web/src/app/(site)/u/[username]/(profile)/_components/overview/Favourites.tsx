@@ -1,9 +1,9 @@
+import { formatGrouped } from '@tvseri.es/utils';
 import SliceAccordion from '@/components/ui/accordion/SliceAccordion';
 import SliceAccordionGhost from '@/components/ui/accordion/SliceAccordionGhost';
 import { heartGlyph } from '@/components/ui/icon/glyphs';
 import type { Glyph } from '@/components/ui/icon/types';
 import SectionHead from '@/components/ui/section/SectionHead';
-import { formatGrouped } from '@/lib/formatCount';
 import { libraryPath } from '@/lib/routing/profilePath';
 import { loadViewerLibrary } from '../../_data/library';
 import { loadOverview } from '../../_data/overview';

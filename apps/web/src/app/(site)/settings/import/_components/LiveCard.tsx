@@ -1,8 +1,8 @@
+import { formatGrouped } from '@tvseri.es/utils';
 import type { CSSProperties } from 'react';
 import { infoGlyph, showGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
-import { formatGrouped } from '@/lib/formatCount';
 
 import { OUTCOME_RGB, outcomeOf } from '../_lib/outcome';
 import Ripple from './Ripple';

@@ -1,9 +1,9 @@
+import { plural } from '@tvseri.es/utils';
 import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
 import { calendarGlyph, eyeGlyph } from '@/components/ui/icon/glyphs';
 import Handle from '@/components/ui/identity/Handle';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
-import { plural } from '@/lib/format/text';
 import profilePath from '@/lib/routing/profilePath';
 import statsPath from '@/lib/routing/statsPath';
 import { isUnavailable } from '@/lib/stats/loaders';

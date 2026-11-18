@@ -1,9 +1,5 @@
 import { isCappedCount, TMDB_COUNT_CAP } from '@tvseri.es/constants';
-
-const GROUPED = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 });
-
-/** 10927 → "10,927" */
-export const formatGrouped = (value: number): string => GROUPED.format(value);
+import { formatGrouped } from '@tvseri.es/utils';
 
 /** TMDB's count stops at its cap: such a count means "at least 20,000" */
 export { isCappedCount };

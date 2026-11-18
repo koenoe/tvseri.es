@@ -1,6 +1,6 @@
 'use client';
 
-import { plural } from '@/lib/format/text';
+import { plural } from '@tvseri.es/utils';
 import { useOwnEpisodeCount } from '@/lib/marking/hooks';
 
 /**

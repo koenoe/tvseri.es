@@ -6,8 +6,7 @@
  * are UTC.
  */
 
-import { yearWeekIndex } from '@tvseri.es/utils';
-import { plural } from '@/lib/format/text';
+import { plural, yearWeekIndex } from '@tvseri.es/utils';
 import { scaledHeight } from '@/lib/scaledHeight';
 import { weekLabel } from '@/lib/stats/weeks';
 

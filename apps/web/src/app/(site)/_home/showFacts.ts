@@ -1,7 +1,5 @@
 import type { TvSeries } from '@tvseri.es/schemas';
-import { formatSeriesYears } from '@tvseri.es/utils';
-
-import { plural } from '@/lib/format/text';
+import { formatSeriesYears, plural } from '@tvseri.es/utils';
 
 /** "3 seasons", "1 season" */
 export const seasonsLabel = (count: number) => plural(count, 'season');

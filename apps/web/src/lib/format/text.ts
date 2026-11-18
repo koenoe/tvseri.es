@@ -1,4 +1,5 @@
-import { formatCappedCount, formatGrouped } from '@/lib/formatCount';
+import { formatGrouped } from '@tvseri.es/utils';
+import { formatCappedCount } from '@/lib/formatCount';
 
 /**
  * `1 episode`, `4,812 episodes` (grouped); `many`

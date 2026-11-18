@@ -1,4 +1,4 @@
-import { plural } from '@/lib/format/text';
+import { plural } from '@tvseri.es/utils';
 
 /**
  * The file name in a `Content-Disposition: attachment; filename="…"` header,

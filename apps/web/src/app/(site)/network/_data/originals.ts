@@ -1,6 +1,7 @@
 import type { NetworkLandingFacts } from '@tvseri.es/schemas';
+import { formatGrouped } from '@tvseri.es/utils';
 
-import { formatCappedCount, formatGrouped } from '@/lib/formatCount';
+import { formatCappedCount } from '@/lib/formatCount';
 
 /**
  * A guess from a sample, rounded so it reads as one: to 10 below 1,000, to

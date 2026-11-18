@@ -1,6 +1,6 @@
 import type { VersusPair, VersusSide } from '@tvseri.es/schemas';
+import { formatGrouped } from '@tvseri.es/utils';
 import { formatScore } from '@/lib/format/rating';
-import { formatGrouped } from '@/lib/formatCount';
 
 export type Side = 'left' | 'right';
 

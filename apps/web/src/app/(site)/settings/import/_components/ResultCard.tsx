@@ -1,3 +1,4 @@
+import { formatGrouped, plural } from '@tvseri.es/utils';
 import type { CSSProperties } from 'react';
 import Button from '@/components/ui/button/Button';
 import ButtonLink from '@/components/ui/button/ButtonLink';
@@ -10,8 +11,6 @@ import {
   warningGlyph,
 } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
-import { plural } from '@/lib/format/text';
-import { formatGrouped } from '@/lib/formatCount';
 import type { ImportedShow } from '@/lib/import/contract';
 import profilePath from '@/lib/routing/profilePath';
 import {

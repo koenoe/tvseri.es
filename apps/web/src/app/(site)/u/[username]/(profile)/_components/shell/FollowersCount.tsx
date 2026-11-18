@@ -1,7 +1,6 @@
 'use client';
 
-import { plural } from '@/lib/format/text';
-import { formatGrouped } from '@/lib/formatCount';
+import { formatGrouped, plural } from '@tvseri.es/utils';
 import { useFollowersShown } from './followCount';
 
 /** "6 followers · 8 following", counting a follow made here at once */

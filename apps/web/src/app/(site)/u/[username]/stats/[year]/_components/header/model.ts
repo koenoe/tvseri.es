@@ -3,9 +3,7 @@ import type {
   StatsFavoritesCount,
   StatsSummary,
 } from '@tvseri.es/schemas';
-import { yearWeekIndex } from '@tvseri.es/utils';
-import { plural } from '@/lib/format/text';
-import { formatGrouped } from '@/lib/formatCount';
+import { formatGrouped, plural, yearWeekIndex } from '@tvseri.es/utils';
 import { dateMs, WEEKS } from '@/lib/stats/weeks';
 import {
   formatAverage,

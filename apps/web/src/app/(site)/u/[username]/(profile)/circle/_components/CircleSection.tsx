@@ -1,7 +1,7 @@
+import { formatGrouped } from '@tvseri.es/utils';
 import type { ReactNode } from 'react';
 
 import SectionHead from '@/components/ui/section/SectionHead';
-import { formatGrouped } from '@/lib/formatCount';
 
 /**
  * "You follow · 8": the smaller section title, a rule

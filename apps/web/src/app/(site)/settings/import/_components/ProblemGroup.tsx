@@ -1,8 +1,8 @@
+import { formatGrouped } from '@tvseri.es/utils';
 import type { ReactNode } from 'react';
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
-import { formatGrouped } from '@/lib/formatCount';
 
 /**
  * One collapsible group of "Not imported": the header is

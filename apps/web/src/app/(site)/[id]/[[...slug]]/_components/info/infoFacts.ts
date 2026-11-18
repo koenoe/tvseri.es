@@ -1,7 +1,5 @@
 import type { TvSeries } from '@tvseri.es/schemas';
-import { isOver } from '@tvseri.es/utils';
-
-import { plural } from '@/lib/format/text';
+import { isOver, plural } from '@tvseri.es/utils';
 
 import { formatAirDate } from '../episodes/format';
 

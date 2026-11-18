@@ -1,6 +1,5 @@
 import type { StatsMetrics, StatsSummary } from '@tvseri.es/schemas';
-import { plural } from '@/lib/format/text';
-import { formatGrouped } from '@/lib/formatCount';
+import { formatGrouped, plural } from '@tvseri.es/utils';
 import type { YearState } from '@/lib/stats/statsYear';
 import { formatStatsRuntime } from './format';
 

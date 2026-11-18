@@ -10,6 +10,7 @@ import {
   buildPosterImageUrl,
   formatRuntime,
   isOver,
+  plural,
 } from '@tvseri.es/utils';
 
 const HOUR = 60;
@@ -156,8 +157,8 @@ export const whyLine = (
   scope: StartScope,
   first = true,
 ) => {
-  const episodes = `${show.numberOfEpisodes} ${show.numberOfEpisodes === 1 ? 'episode' : 'episodes'}`;
-  const seasons = `${show.numberOfSeasons} ${show.numberOfSeasons === 1 ? 'season' : 'seasons'}`;
+  const episodes = plural(show.numberOfEpisodes, 'episode');
+  const seasons = plural(show.numberOfSeasons, 'season');
   if (kind === 'favourite' || kind === 'long-haul') {
     const pool = seriesOf(scope, kind === 'long-haul');
     return first

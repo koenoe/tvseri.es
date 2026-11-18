@@ -1,4 +1,5 @@
 import { type ComingUpItem, episodeCode } from '@tvseri.es/schemas';
+import { plural } from '@tvseri.es/utils';
 
 /** The ticket stub: "2 DAYS", "3 WEEKS"; under two weeks in days */
 export function countdown(
@@ -37,7 +38,7 @@ export function ticketText(
         : null;
   const back =
     backAfterMonths && backAfterMonths > 0
-      ? `Back after ${backAfterMonths} ${backAfterMonths === 1 ? 'month' : 'months'}`
+      ? `Back after ${plural(backAfterMonths, 'month')}`
       : null;
   const code = episodeCode({
     episodeNumber: item.episode,

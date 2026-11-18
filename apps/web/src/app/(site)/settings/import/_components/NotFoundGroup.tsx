@@ -1,6 +1,6 @@
 'use client';
 
-import { formatGrouped } from '@/lib/formatCount';
+import { formatGrouped } from '@tvseri.es/utils';
 import type { Fix } from '../_lib/importState';
 import { rowsIn, splitItems } from '../_lib/problemRows';
 import type { ProblemItem } from '../_lib/problems';

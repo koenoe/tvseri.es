@@ -1,9 +1,9 @@
 'use client';
 
+import { plural } from '@tvseri.es/utils';
 import Button from '@/components/ui/button/Button';
 import { Dialog, DialogFooter } from '@/components/ui/dialog/Dialog';
 import { undoGlyph } from '@/components/ui/icon/glyphs';
-import { plural } from '@/lib/format/text';
 import { SOLID_BUTTON } from './styles';
 
 /**

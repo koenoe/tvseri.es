@@ -1,8 +1,8 @@
+import { formatGrouped } from '@tvseri.es/utils';
 import { REST_IS_FINE } from '@/components/ui/error/unavailableCopy';
 import { Ghost, PULSE, TextLine } from '@/components/ui/ghost/ghosts';
 import SectionHead from '@/components/ui/section/SectionHead';
 import { isUnavailable } from '@/lib/cache/unavailable';
-import { formatGrouped } from '@/lib/formatCount';
 import statsPath from '@/lib/routing/statsPath';
 import { joinAnd } from '@/lib/text/fitNames';
 import type { Profile } from '../../_data/profile';

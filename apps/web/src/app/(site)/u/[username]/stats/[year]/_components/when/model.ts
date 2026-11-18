@@ -1,5 +1,5 @@
+import { plural } from '@tvseri.es/utils';
 import { pad2 } from '@/lib/format/pad2';
-import { plural } from '@/lib/format/text';
 
 /** Plural weekday names, Monday first ("Fridays") */
 export const WEEKDAY_NAMES = [

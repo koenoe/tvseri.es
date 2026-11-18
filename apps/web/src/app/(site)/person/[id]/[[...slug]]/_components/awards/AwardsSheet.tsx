@@ -1,14 +1,12 @@
 'use client';
 
 import type { PersonAward } from '@tvseri.es/schemas';
-import { upperFirst } from '@tvseri.es/utils';
+import { plural, upperFirst } from '@tvseri.es/utils';
 import SideSheet from '@/components/ui/dialog/SideSheet';
 import { calendarGlyph, showGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import { RowErrorCard } from '@/components/ui/row/RowError';
-
-import { plural } from '@/lib/format/text';
 
 function AwardList({
   items,

@@ -1,8 +1,7 @@
 import type { TvSeries } from '@tvseri.es/schemas';
-import { daysBetweenUtc, isOver } from '@tvseri.es/utils';
+import { daysBetweenUtc, isOver, plural } from '@tvseri.es/utils';
 
 import { formatDay } from '@/lib/format/datePattern';
-import { plural } from '@/lib/format/text';
 
 import { firstGenre } from '../genres';
 import { seasonsLabel, showSeasons } from '../showFacts';

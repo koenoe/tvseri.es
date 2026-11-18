@@ -1,5 +1,6 @@
 import { landingSlugForId } from '@tvseri.es/constants';
 import type { TvSeries } from '@tvseri.es/schemas';
+import { plural } from '@tvseri.es/utils';
 import Link from 'next/link';
 import { Fragment, type ReactNode } from 'react';
 
@@ -10,7 +11,6 @@ import {
 } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
-import { plural } from '@/lib/format/text';
 import landingPath from '@/lib/routing/landingPath';
 
 function Genres({ genres }: Readonly<{ genres: TvSeries['genres'] }>) {

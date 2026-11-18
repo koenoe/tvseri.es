@@ -1,8 +1,8 @@
 'use client';
 
+import { plural } from '@tvseri.es/utils';
 import { useMemo, useState } from 'react';
 
-import { plural } from '@/lib/format/text';
 import type { ImportStep } from '../_lib/importState';
 import { groupsOf } from '../_lib/importState';
 import { openRows } from '../_lib/problemRows';

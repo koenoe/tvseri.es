@@ -1,9 +1,8 @@
 import { type StatsFinishedShow, seasonCode } from '@tvseri.es/schemas';
 
-import { formatRuntime } from '@tvseri.es/utils';
+import { formatRuntime, plural } from '@tvseri.es/utils';
 
 import type { Fact } from '@/components/ui/accordion/slice';
-import { plural } from '@/lib/format/text';
 import showPath from '@/lib/routing/showPath';
 
 import { monthDay } from '@/lib/stats/weeks';

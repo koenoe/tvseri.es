@@ -1,3 +1,4 @@
+import { plural } from '@tvseri.es/utils';
 import Button from '@/components/ui/button/Button';
 import {
   clockGlyph,
@@ -6,7 +7,6 @@ import {
   undoGlyph,
 } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
-import { plural } from '@/lib/format/text';
 
 import LocalMoment from '../../_components/LocalMoment';
 import type { UndoableImport } from '../_lib/lastImport';

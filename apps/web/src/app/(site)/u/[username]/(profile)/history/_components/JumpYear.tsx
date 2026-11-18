@@ -1,12 +1,11 @@
 'use client';
 
+import { formatGrouped, plural } from '@tvseri.es/utils';
 import { type MouseEvent, memo, useCallback, useId } from 'react';
 
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
-import { plural } from '@/lib/format/text';
-import { formatGrouped } from '@/lib/formatCount';
 import type { MonthKey, JumpYear as Year } from '@/lib/profile/diary';
 import JumpMonthLink from './JumpMonthLink';
 

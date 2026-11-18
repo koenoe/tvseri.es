@@ -1,9 +1,9 @@
+import { plural } from '@tvseri.es/utils';
 import Image from 'next/image';
 import { seasonGlyph, skippedGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import TileLink from '@/components/ui/tile/TileLink';
-import { plural } from '@/lib/format/text';
 import showPath from '@/lib/routing/showPath';
 import { LEDGER_SHOW_ROW, LEDGER_SHOW_TEXT } from './ledgerLayout';
 

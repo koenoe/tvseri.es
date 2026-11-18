@@ -1,4 +1,5 @@
 import type { ListItem } from '@tvseri.es/schemas';
+import { formatGrouped } from '@tvseri.es/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Ghost, PULSE } from '@/components/ui/ghost/ghosts';
@@ -6,7 +7,6 @@ import { bookmarkGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import SectionHead from '@/components/ui/section/SectionHead';
 import { apiFetch } from '@/lib/api/client';
-import { formatGrouped } from '@/lib/formatCount';
 import { readCount } from '@/lib/profile/counts';
 import { libraryPath } from '@/lib/routing/profilePath';
 import { loadOverview } from '../../_data/overview';

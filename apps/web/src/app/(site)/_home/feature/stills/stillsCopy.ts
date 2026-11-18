@@ -1,7 +1,7 @@
 import { episodeCode } from '@tvseri.es/schemas';
+import { plural } from '@tvseri.es/utils';
 
 import { formatDay } from '@/lib/format/datePattern';
-import { plural } from '@/lib/format/text';
 
 /** Keeps "10 episodes" and "June 2023" whole when the headline wraps */
 const NBSP = '\u00a0';

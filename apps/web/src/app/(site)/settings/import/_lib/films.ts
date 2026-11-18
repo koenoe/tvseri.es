@@ -1,3 +1,4 @@
+import { formatGrouped } from '@tvseri.es/utils';
 import { joinAnd, withMore } from '@/lib/text/fitNames';
 import type { ColumnMapping } from './columns';
 import { readRow } from './readRow';
@@ -35,7 +36,7 @@ export function filmsLine(
 ): string {
   const rest = total - titles.length;
   if (titles.length === 0) {
-    return `${total.toLocaleString('en-US')} films and specials`;
+    return `${formatGrouped(total)} films and specials`;
   }
   return rest > 0 ? withMore(titles, total) : joinAnd(titles);
 }

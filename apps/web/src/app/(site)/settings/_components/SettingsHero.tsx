@@ -1,3 +1,4 @@
+import { plural } from '@tvseri.es/utils';
 import { Suspense } from 'react';
 import {
   calendarGlyph,
@@ -7,7 +8,6 @@ import {
 } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
-import { plural } from '@/lib/format/text';
 import { memberSince } from '@/lib/profile/memberSince';
 
 import { loadSettingsCounts } from '../_data/counts';

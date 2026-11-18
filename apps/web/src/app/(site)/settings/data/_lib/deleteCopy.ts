@@ -1,4 +1,4 @@
-import { plural } from '@/lib/format/text';
+import { plural } from '@tvseri.es/utils';
 import type { DeleteAccountError } from '../actions';
 
 /** The dialog's subline, naming the history it deletes. */

@@ -1,12 +1,12 @@
 'use client';
 
+import { plural } from '@tvseri.es/utils';
 import * as m from 'motion/react-m';
 import Link from 'next/link';
 import { type MouseEvent, memo } from 'react';
 
 import cn from '@/lib/cn';
 
-import { plural } from '@/lib/format/text';
 import type { JumpMonth } from '@/lib/profile/diary';
 
 const MONTH_IN = { opacity: 0, y: -4 } as const;

@@ -1,4 +1,4 @@
-import { formatRuntime } from '@tvseri.es/utils';
+import { formatRuntime, plural } from '@tvseri.es/utils';
 import Image from 'next/image';
 import type { DurationTileShow } from '@/app/(site)/_discover/data/duration';
 import ButtonContent from '@/components/ui/button/ButtonContent';
@@ -21,7 +21,6 @@ import { TILE_HOVER_WIDE } from '@/components/ui/tile/tileHover';
 import WatchedOverlay from '@/components/ui/tile/WatchedOverlay';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import cn from '@/lib/cn';
-import { plural } from '@/lib/format/text';
 import showPath from '@/lib/routing/showPath';
 import { durationRowKey } from '../_data/lensModel';
 import { getWeekendShows } from '../_data/weekend';

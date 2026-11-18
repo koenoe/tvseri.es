@@ -1,3 +1,4 @@
+import { plural } from '@tvseri.es/utils';
 import type { PopularItem } from '@/lib/stats/loaders';
 
 /** How many posters sit in a row */
@@ -22,7 +23,7 @@ export function popularMeta(series: PopularItem): string {
   const genre = series.genre?.split(' & ')[0] ?? null;
   const episodes =
     series.episodes && series.episodes > 0
-      ? `${series.episodes} ${series.episodes === 1 ? 'episode' : 'episodes'}`
+      ? plural(series.episodes, 'episode')
       : null;
   return [genre, episodes].filter(Boolean).join(' · ');
 }

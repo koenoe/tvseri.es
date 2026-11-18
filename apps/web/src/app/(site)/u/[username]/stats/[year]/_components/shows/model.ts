@@ -1,8 +1,12 @@
 import type { StatsShowRow } from '@tvseri.es/schemas';
-import { DAY_MS, firstMondayOf, formatDuration } from '@tvseri.es/utils';
+import {
+  DAY_MS,
+  firstMondayOf,
+  formatDuration,
+  plural,
+} from '@tvseri.es/utils';
 
 import { SHORT_MONTHS } from '@/lib/format/months';
-import { plural } from '@/lib/format/text';
 import type { YearState } from '@/lib/stats/statsYear';
 import {
   monthDay,

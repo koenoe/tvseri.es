@@ -1,7 +1,6 @@
-import { DAY_MS } from '@tvseri.es/utils';
+import { DAY_MS, plural } from '@tvseri.es/utils';
 import { utcParts, weekdayDayMonth } from '@/lib/format/date';
 import { WEEKDAY_NAMES } from '@/lib/format/months';
-import { plural } from '@/lib/format/text';
 import { scaledHeight } from '@/lib/scaledHeight';
 import { localDay } from '@/lib/viewer/dayClock';
 

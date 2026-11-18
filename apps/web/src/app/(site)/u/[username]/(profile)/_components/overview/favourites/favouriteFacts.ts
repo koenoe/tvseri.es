@@ -1,10 +1,9 @@
 import { type ListItemFacts, seasonCode } from '@tvseri.es/schemas';
-import { formatRuntime } from '@tvseri.es/utils';
+import { formatRuntime, plural } from '@tvseri.es/utils';
 
 import type { Fact } from '@/components/ui/accordion/slice';
 import { finishedLabel } from '@/lib/format/finished';
 import { statusFact as statusOf } from '@/lib/format/status';
-import { plural } from '@/lib/format/text';
 
 /** "Miniseries", else "2 seasons" */
 function sizeFact(facts: ListItemFacts): Fact | null {

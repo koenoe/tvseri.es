@@ -1,5 +1,4 @@
-import { plural } from '@/lib/format/text';
-import { formatGrouped } from '@/lib/formatCount';
+import { formatGrouped, plural } from '@tvseri.es/utils';
 import { memberSince } from '@/lib/profile/memberSince';
 import { loadSettingsCounts } from '../../_data/counts';
 import { getSettingsSession, getSettingsViewer } from '../../_data/session';

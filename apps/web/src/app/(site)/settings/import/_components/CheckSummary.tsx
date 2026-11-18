@@ -1,7 +1,6 @@
+import { formatGrouped, plural } from '@tvseri.es/utils';
 import { helpGlyph, seasonGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
-import { plural } from '@/lib/format/text';
-import { formatGrouped } from '@/lib/formatCount';
 
 import type { UnmatchedLine } from '../_lib/problems';
 import { LINK, META_ITEM, META_ROW } from './styles';

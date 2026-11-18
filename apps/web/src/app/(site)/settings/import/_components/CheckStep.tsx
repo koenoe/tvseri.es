@@ -1,7 +1,7 @@
 'use client';
 
+import { plural } from '@tvseri.es/utils';
 import { useMemo } from 'react';
-import { plural } from '@/lib/format/text';
 
 import type { ImportProvider } from '../_data/importer';
 import { isCombinedColumn } from '../_lib/columns';

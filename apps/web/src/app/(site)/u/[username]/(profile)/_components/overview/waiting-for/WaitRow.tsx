@@ -3,6 +3,7 @@ import {
   seasonCode,
   type WaitingForItem,
 } from '@tvseri.es/schemas';
+import { plural } from '@tvseri.es/utils';
 import Image from 'next/image';
 
 import {
@@ -80,9 +81,7 @@ export default function WaitRow({
   const progress = waitProgress(item, now);
   const track = dated ? TRACK_LOOK.wait : TRACK_LOOK.waitUndated;
   const finished = waitFinishedLabel(item.finishedAt, now, midSeason);
-  const toGo = dated
-    ? `${item.daysToGo} ${item.daysToGo === 1 ? 'day' : 'days'} to go`
-    : 'Renewed';
+  const toGo = dated ? `${plural(item.daysToGo ?? 0, 'day')} to go` : 'Renewed';
   const label = dated
     ? `${finished ?? 'Finished'}, ${what} · ${formatAirWeekdayDate(item.nextDate as string, now)}; today ${Math.round(progress)}% of the way`
     : `${finished ?? 'Finished'}, no return date yet`;

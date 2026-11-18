@@ -1,6 +1,5 @@
-import { formatDuration } from '@tvseri.es/utils';
+import { formatDuration, plural } from '@tvseri.es/utils';
 
-import { plural } from '@/lib/format/text';
 import { codeRange, shortCodeRange } from '@/lib/marking/copy';
 import type { EpisodeRef } from '@/lib/marking/types';
 

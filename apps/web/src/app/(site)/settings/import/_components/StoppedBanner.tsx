@@ -1,8 +1,8 @@
+import { formatGrouped } from '@tvseri.es/utils';
 import { loginHref } from '@/auth/loginHref';
 import Button from '@/components/ui/button/Button';
 import { warningGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
-import { formatGrouped } from '@/lib/formatCount';
 
 import type { StopReason } from '../_lib/runChunks';
 import { SMALL_BUTTON } from './styles';

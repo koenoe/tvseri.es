@@ -1,6 +1,5 @@
-import { DAY_MS } from '@tvseri.es/utils';
+import { DAY_MS, plural } from '@tvseri.es/utils';
 import { dayRangeText } from '@/lib/format/date';
-import { plural } from '@/lib/format/text';
 import { dateMs, dayRange, monthName, shortDay } from '@/lib/stats/weeks';
 
 /** The five fills */

@@ -1,6 +1,6 @@
 'use client';
 
-import { formatGrouped } from '@/lib/formatCount';
+import { formatGrouped } from '@tvseri.es/utils';
 
 import { useShelfCount } from '../../_lib/shelfCounts';
 

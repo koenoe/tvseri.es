@@ -1,7 +1,6 @@
+import { formatGrouped, plural } from '@tvseri.es/utils';
 import Image from 'next/image';
 import Dot from '@/components/ui/lane/Dot';
-import { plural } from '@/lib/format/text';
-import { formatGrouped } from '@/lib/formatCount';
 
 import type { ImportedShow } from '@/lib/import/contract';
 import { CARD_COUNT, CARD_HEAD, CARD_TITLE } from './styles';

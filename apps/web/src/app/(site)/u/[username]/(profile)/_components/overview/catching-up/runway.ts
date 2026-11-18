@@ -4,7 +4,7 @@ import {
   seasonCode,
   shortCode,
 } from '@tvseri.es/schemas';
-import { formatRuntime } from '@tvseri.es/utils';
+import { formatRuntime, plural } from '@tvseri.es/utils';
 
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
 
@@ -154,7 +154,7 @@ export function runPlan(item: CatchingUpItem): RunPlan {
   const next: RunNext | null = later
     ? {
         chip: seasonCode(later.season),
-        chipTitle: `Season ${later.season}: ${laterWaiting} ${laterWaiting === 1 ? 'episode' : 'episodes'} waiting`,
+        chipTitle: `Season ${later.season}: ${plural(laterWaiting, 'episode')} waiting`,
         hint: `${seasonCode(later.season)} next · ${laterWaiting} waiting`,
         season: later.season,
         waiting: laterWaiting,
@@ -248,7 +248,7 @@ export function runwayView(item: CatchingUpItem): RunwayView | null {
     countdown:
       days === 0
         ? 'The premiere is today'
-        : `${days} ${days === 1 ? 'day' : 'days'} to the premiere`,
+        : `${plural(days, 'day')} to the premiere`,
     date: day,
     hint: `${chip} premieres ${day}`,
     kind: 'upcoming',

@@ -1,7 +1,7 @@
 'use client';
 
 import type { CatchingUpItem } from '@tvseri.es/schemas';
-import { formatRuntime } from '@tvseri.es/utils';
+import { formatRuntime, plural } from '@tvseri.es/utils';
 import Image from 'next/image';
 import { useMemo } from 'react';
 
@@ -68,7 +68,7 @@ export default function CatchingUpRow({
         out: runway.kind === 'out',
       }
     : null;
-  const waiting = `${live.waiting} ${live.waiting === 1 ? 'episode' : 'episodes'} waiting`;
+  const waiting = `${plural(live.waiting, 'episode')} waiting`;
   const season = Number(/^S(\d+)/.exec(live.nextUp)?.[1] ?? 0) || undefined;
   return (
     <li className={CATCHING_UP_ROW}>

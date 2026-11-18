@@ -1,4 +1,4 @@
-import { formatGrouped } from '@/lib/formatCount';
+import { formatGrouped } from '@tvseri.es/utils';
 import type { ShowSummary } from '../../../_discover/data/summaries';
 import type { TileShow } from '../../../_discover/data/tileShow';
 import { formatSeasons } from '../../../_discover/landing/format';

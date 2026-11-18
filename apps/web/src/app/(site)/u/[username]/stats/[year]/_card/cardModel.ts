@@ -3,7 +3,7 @@ import type {
   StatsShowRow,
   StatsSummary,
 } from '@tvseri.es/schemas';
-import { formatGrouped } from '@/lib/formatCount';
+import { formatGrouped } from '@tvseri.es/utils';
 import { WEEKS } from '@/lib/stats/weeks';
 import { joinAnd } from '@/lib/text/fitNames';
 import { streakBracket } from '../_components/header/model';

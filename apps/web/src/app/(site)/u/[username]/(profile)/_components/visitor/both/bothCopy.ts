@@ -4,10 +4,10 @@ import {
   type SharedShowNext,
   seasonCode,
 } from '@tvseri.es/schemas';
+import { plural } from '@tvseri.es/utils';
 
 import { genreNameById } from '@/app/(site)/_discover/data/genreNames';
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
-import { plural } from '@/lib/format/text';
 
 export type NextLabel = Readonly<{
   text: string;

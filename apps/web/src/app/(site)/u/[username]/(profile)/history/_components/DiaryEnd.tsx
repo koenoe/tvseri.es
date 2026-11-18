@@ -1,4 +1,4 @@
-import { formatGrouped } from '@/lib/formatCount';
+import { formatGrouped } from '@tvseri.es/utils';
 
 /**
  * Under the diary: while older months remain, that they load as

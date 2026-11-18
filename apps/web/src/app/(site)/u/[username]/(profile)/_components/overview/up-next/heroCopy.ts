@@ -1,8 +1,7 @@
-import { formatRuntime } from '@tvseri.es/utils';
+import { formatRuntime, plural } from '@tvseri.es/utils';
 
 import type { UpNextFact } from '@/components/up-next/upNextCopy';
 import { statusLabel } from '@/lib/format/status';
-import { plural } from '@/lib/format/text';
 
 /**
  * The profile's own Up next words: what a show is on someone else's
@@ -46,6 +45,6 @@ export function circleLine(
   kind: 'favourite' | 'finished',
   people: number,
 ): string {
-  const who = `${people} ${people === 1 ? 'person' : 'people'} you follow`;
+  const who = `${plural(people, 'person', 'people')} you follow`;
   return kind === 'favourite' ? `A favourite of ${who}` : `Finished by ${who}`;
 }

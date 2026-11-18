@@ -7,6 +7,8 @@
  * the browser), so the server and the client render the same string.
  */
 
+import { formatGrouped } from '@tvseri.es/utils';
+
 /** Inter at 12px, in px per character class (estimates, rounded up a little) */
 const CHAR_PX_AT_12 = {
   digit: 7.2,
@@ -66,5 +68,5 @@ export function joinAnd(names: ReadonlyArray<string>): string {
 export function withMore(shown: ReadonlyArray<string>, total: number): string {
   const names = shown.join(', ');
   const more = total - shown.length;
-  return more > 0 ? `${names} and ${more.toLocaleString('en-US')} more` : names;
+  return more > 0 ? `${names} and ${formatGrouped(more)} more` : names;
 }

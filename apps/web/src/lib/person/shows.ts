@@ -4,8 +4,8 @@ import type {
   PersonShow,
   PersonShows,
 } from '@tvseri.es/schemas';
-import { upperFirst } from '@tvseri.es/utils';
-import { plural, sentenceCase } from '@/lib/format/text';
+import { plural, upperFirst } from '@tvseri.es/utils';
+import { sentenceCase } from '@/lib/format/text';
 import showPath from '@/lib/routing/showPath';
 
 import { formatMonthDay, yearSpan } from './format';

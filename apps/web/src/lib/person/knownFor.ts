@@ -1,5 +1,5 @@
 import type { Movie, PersonShow, TvSeries } from '@tvseri.es/schemas';
-import { plural } from '@/lib/format/text';
+import { plural } from '@tvseri.es/utils';
 import showPath from '@/lib/routing/showPath';
 
 import { crewWork } from './shows';

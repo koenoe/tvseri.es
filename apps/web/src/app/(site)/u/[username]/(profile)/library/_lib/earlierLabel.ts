@@ -1,4 +1,5 @@
 import { LIBRARY_LETTERS } from '@tvseri.es/schemas';
+import { plural } from '@tvseri.es/utils';
 
 type Letter = (typeof LIBRARY_LETTERS)[number];
 
@@ -8,7 +9,7 @@ export function earlierLabel(
   firstShown: Letter | undefined,
   count: number,
 ): string {
-  const shows = `${count.toLocaleString('en-GB')} series`;
+  const shows = plural(count, 'series', 'series');
   const at = firstShown ? LIBRARY_LETTERS.indexOf(firstShown) : -1;
   const above = letters.filter(
     (letter) => LIBRARY_LETTERS.indexOf(letter) < at,

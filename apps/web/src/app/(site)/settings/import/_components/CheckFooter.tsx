@@ -1,6 +1,6 @@
+import { plural } from '@tvseri.es/utils';
 import Button from '@/components/ui/button/Button';
 import { arrowLeftGlyph, downloadGlyph } from '@/components/ui/icon/glyphs';
-import { plural } from '@/lib/format/text';
 import { SOLID_BUTTON } from './styles';
 
 /**

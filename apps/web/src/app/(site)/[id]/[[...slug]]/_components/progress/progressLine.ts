@@ -1,7 +1,6 @@
-import { formatDuration } from '@tvseri.es/utils';
+import { formatDuration, plural } from '@tvseri.es/utils';
 
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
-import { plural } from '@/lib/format/text';
 import { codeOf, openEpisodes, toPercentage } from '@/lib/marking/progress';
 import type { SeriesBase } from '@/lib/marking/types';
 

@@ -1,5 +1,5 @@
 import { hasEnoughPosters } from '@tvseri.es/constants';
-import { formatRuntime } from '@tvseri.es/utils';
+import { formatRuntime, plural } from '@tvseri.es/utils';
 import {
   calendarGlyph,
   clockGlyph,
@@ -105,10 +105,7 @@ function StartCard({
 }>) {
   const label = `${kicker}: ${pick.title}`;
   const href = showPath(pick.id, pick.slug);
-  const episodes =
-    pick.episodes > 0
-      ? `${pick.episodes} episode${pick.episodes === 1 ? '' : 's'}`
-      : null;
+  const episodes = pick.episodes > 0 ? plural(pick.episodes, 'episode') : null;
   // The phone's country card: year and network only (the length is desktop's)
   const lengthClass = second === 'network' ? 'max-md:hidden' : undefined;
   return (

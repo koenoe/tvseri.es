@@ -1,3 +1,4 @@
+import { formatGrouped, plural } from '@tvseri.es/utils';
 import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
 import {
   calendarGlyph,
@@ -14,8 +15,6 @@ import {
 import IdentityLinesGhost from '@/components/ui/identity/IdentityLinesGhost';
 import WatchesOn from '@/components/ui/identity/WatchesOn';
 import SectionHead from '@/components/ui/section/SectionHead';
-import { plural } from '@/lib/format/text';
-import { formatGrouped } from '@/lib/formatCount';
 import type { ProfileCounts } from '@/lib/profile/counts';
 import profilePath from '@/lib/routing/profilePath';
 import { isUnavailable, type StatsUser } from '@/lib/stats/loaders';

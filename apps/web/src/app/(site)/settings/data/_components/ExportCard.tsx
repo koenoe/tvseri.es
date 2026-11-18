@@ -1,5 +1,5 @@
+import { formatGrouped } from '@tvseri.es/utils';
 import { Suspense } from 'react';
-import { formatGrouped } from '@/lib/formatCount';
 import LineSkeleton from '../../_components/LineSkeleton';
 import { loadSettingsCounts } from '../../_data/counts';
 import { getSettingsViewer } from '../../_data/session';

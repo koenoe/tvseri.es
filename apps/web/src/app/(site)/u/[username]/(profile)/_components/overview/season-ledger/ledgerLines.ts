@@ -1,3 +1,4 @@
+import { plural } from '@tvseri.es/utils';
 import { formatMonthYear } from '@/lib/format/date';
 
 /**
@@ -78,7 +79,7 @@ export function missingLabel(open: number): string {
   if (open <= 0) {
     return 'No gaps left';
   }
-  return `${open} ${open === 1 ? 'episode' : 'episodes'} missing`;
+  return `${plural(open, 'episode')} missing`;
 }
 
 /** The holes past the card's rows: how many, and the season to open in the show's history */
@@ -100,8 +101,8 @@ export function chartLabel(seasons: number, open: number): string {
   const gaps =
     open === 0
       ? 'no episodes never logged'
-      : `${open} ${open === 1 ? 'episode' : 'episodes'} never logged`;
-  return `${seasons} ${seasons === 1 ? 'season' : 'seasons'}, one line each; ${gaps}`;
+      : `${plural(open, 'episode')} never logged`;
+  return `${plural(seasons, 'season')}, one line each; ${gaps}`;
 }
 
 /** Every show's choices live in one record, so the key names the show too: S01E03 of show A is not S01E03 of show B */

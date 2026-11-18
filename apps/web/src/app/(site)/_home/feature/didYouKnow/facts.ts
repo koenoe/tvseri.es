@@ -1,10 +1,12 @@
 import type { DidYouKnowFact } from '@tvseri.es/schemas';
-import { isOver as isOverStatus } from '@tvseri.es/utils';
+import {
+  formatGrouped,
+  isOver as isOverStatus,
+  plural,
+} from '@tvseri.es/utils';
 import { DAY_MONTH_YEAR_PATTERN } from '@/lib/format/date';
 
 import { formatDay } from '@/lib/format/datePattern';
-import { plural } from '@/lib/format/text';
-import { formatGrouped } from '@/lib/formatCount';
 
 const WORDS = [
   'zero',

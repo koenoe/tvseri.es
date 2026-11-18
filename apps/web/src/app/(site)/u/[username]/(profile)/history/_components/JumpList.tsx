@@ -1,5 +1,6 @@
 'use client';
 
+import { plural } from '@tvseri.es/utils';
 import { LayoutGroup } from 'motion/react';
 import Link from 'next/link';
 import {
@@ -15,7 +16,6 @@ import MaxMotion from '@/components/motion/MaxMotion';
 import { calendarGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
-import { plural } from '@/lib/format/text';
 import type { MonthKey, JumpYear as Year } from '@/lib/profile/diary';
 import { useDiaryJump } from '../_lib/useDiaryJump';
 import JumpYear from './JumpYear';

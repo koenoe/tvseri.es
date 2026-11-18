@@ -1,6 +1,6 @@
 import type { ThemeLandingFacts } from '@tvseri.es/schemas';
+import { formatGrouped } from '@tvseri.es/utils';
 import { ratingText } from '@/lib/format/rating';
-import { formatGrouped } from '@/lib/formatCount';
 
 /**
  * A theme's name inside a sentence: its first letter lower case ("time

@@ -1,8 +1,8 @@
 import type { Premiere, PremiereKind } from '@tvseri.es/schemas';
+import { plural } from '@tvseri.es/utils';
 import { DAY_MONTH_PATTERN, WEEKDAY_PATTERN } from '@/lib/format/date';
 
 import { formatDay } from '@/lib/format/datePattern';
-import { plural } from '@/lib/format/text';
 
 /**
  * Labels for the Premieres tickets and the Countdown. Dates are `YYYY-MM-DD` calendar days (written the same in

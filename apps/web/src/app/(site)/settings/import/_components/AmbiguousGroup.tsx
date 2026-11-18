@@ -1,7 +1,6 @@
 'use client';
 
-import { plural } from '@/lib/format/text';
-import { formatGrouped } from '@/lib/formatCount';
+import { formatGrouped, plural } from '@tvseri.es/utils';
 import type { SeriesCandidate } from '@/lib/import/contract';
 import type { Fix } from '../_lib/importState';
 import { rowsIn, splitItems } from '../_lib/problemRows';

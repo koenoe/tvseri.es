@@ -1,4 +1,4 @@
-import { daysBetweenUtc } from '@tvseri.es/utils';
+import { daysBetweenUtc, plural } from '@tvseri.es/utils';
 import type { ReactNode } from 'react';
 
 type Props = Readonly<{
@@ -22,9 +22,7 @@ const when = (day: string, today: string) => {
     timeZone: 'UTC',
     weekday: 'short',
   });
-  return days === 0
-    ? `today (${date})`
-    : `${date}, in ${days} day${days === 1 ? '' : 's'}`;
+  return days === 0 ? `today (${date})` : `${date}, in ${plural(days, 'day')}`;
 };
 
 const verdict = (kind: string, onNext: string | null | undefined) => {

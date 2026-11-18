@@ -1,6 +1,6 @@
 import type { TasteSplitGenre } from '@tvseri.es/schemas';
+import { formatGrouped } from '@tvseri.es/utils';
 
-import { formatGrouped } from '@/lib/formatCount';
 import { landingPathFor } from '@/lib/routing/landingPath';
 
 /** One person's line in a split row: the name, the bar and the count */

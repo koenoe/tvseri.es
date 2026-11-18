@@ -5,6 +5,7 @@ import type {
   LibraryShelf,
   LibrarySort,
 } from '@tvseri.es/schemas';
+import { formatGrouped } from '@tvseri.es/utils';
 import {
   type ChangeEvent,
   type KeyboardEvent,
@@ -24,7 +25,6 @@ import {
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 
-import { formatGrouped } from '@/lib/formatCount';
 import { SHELVES } from '../_lib/shelves';
 import SortMenu from './SortMenu';
 import { CHIP, FIELD, PILL, PILL_ON } from './toolbarStyles';

@@ -1,5 +1,5 @@
+import { formatGrouped } from '@tvseri.es/utils';
 import cn from '@/lib/cn';
-import { formatGrouped } from '@/lib/formatCount';
 import statsPath from '@/lib/routing/statsPath';
 import Sparkline from './Sparkline';
 import YearLink from './YearLink';

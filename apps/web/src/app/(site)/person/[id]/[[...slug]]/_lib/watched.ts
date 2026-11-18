@@ -1,6 +1,5 @@
 import type { PersonWatched, PersonWatchedItem } from '@tvseri.es/schemas';
-
-import { plural } from '@/lib/format/text';
+import { plural } from '@tvseri.es/utils';
 
 /**
  * The viewer's watched layer (signed in only). A credit watched completely

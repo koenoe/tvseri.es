@@ -1,4 +1,4 @@
-import { plural } from '@/lib/format/text';
+import { plural } from '@tvseri.es/utils';
 
 /**
  * The text alternative of a bar chart: a visually hidden table (label →

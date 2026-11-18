@@ -1,5 +1,5 @@
 import type { AlmostDoneItem } from '@tvseri.es/schemas';
-import { formatRuntime } from '@tvseri.es/utils';
+import { formatRuntime, plural } from '@tvseri.es/utils';
 
 /**
  * One segment per episode of the season, watched or not by
@@ -43,5 +43,5 @@ export function progressLabel(watched: number, total: number): string {
 
 /** "4 episodes to go" */
 export function closestLabel(toGo: number): string {
-  return `${toGo} ${toGo === 1 ? 'episode' : 'episodes'} to go`;
+  return `${plural(toGo, 'episode')} to go`;
 }

@@ -1,4 +1,5 @@
 import { LANDING_SLUGS } from '@tvseri.es/constants';
+import { formatGrouped } from '@tvseri.es/utils';
 import type { Metadata } from 'next';
 import {
   globeGlyph,
@@ -10,7 +11,6 @@ import RowErrorBoundary from '@/components/ui/row/RowErrorBoundary';
 import { GHOST_LOOK } from '@/components/ui/row/RowGhosts';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import cn from '@/lib/cn';
-import { formatGrouped } from '@/lib/formatCount';
 
 import { countryNames } from '../data/countryNames';
 import { languageName } from '../data/languageName';

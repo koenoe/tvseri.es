@@ -1,5 +1,5 @@
 import type { StatsNight } from '@tvseri.es/schemas';
-import { formatDuration } from '@tvseri.es/utils';
+import { formatDuration, plural } from '@tvseri.es/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -19,7 +19,6 @@ import TitleTreatment, {
   type TitleTreatmentLook,
 } from '@/components/ui/title/TitleTreatment';
 import cn from '@/lib/cn';
-import { plural } from '@/lib/format/text';
 import { episodeRun } from '@/lib/marking/copy';
 import showPath from '@/lib/routing/showPath';
 

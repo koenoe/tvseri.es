@@ -1,5 +1,5 @@
 import { type EpisodeRef, shortCode } from '@tvseri.es/schemas';
-import { formatDuration } from '@tvseri.es/utils';
+import { formatDuration, plural } from '@tvseri.es/utils';
 
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
 import { shortCodeRange } from '@/lib/marking/copy';
@@ -141,7 +141,7 @@ export function planRun(
       todo: [],
     };
   }
-  const count = `${open.length} ${open.length === 1 ? 'episode' : 'episodes'}`;
+  const count = plural(open.length, 'episode');
   const minutes = open.reduce(
     (sum, { index }) => sum + (geometry.weights[index] ?? 0),
     0,

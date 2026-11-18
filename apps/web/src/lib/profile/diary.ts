@@ -8,12 +8,12 @@ import {
   DAY_MS,
   dayKeyIn,
   formatRuntime,
+  plural,
   startOfDayIn,
 } from '@tvseri.es/utils';
 
 import { MONTH_NAMES, SHORT_WEEKDAYS } from '@/lib/format/months';
 import { pad2 } from '@/lib/format/pad2';
-import { plural } from '@/lib/format/text';
 import { episodeRun } from '@/lib/marking/copy';
 import type { DiaryItem } from '@/lib/profile/views';
 

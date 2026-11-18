@@ -1,3 +1,4 @@
+import { plural } from '@tvseri.es/utils';
 import BarTip from '@/components/ui/chart/BarTip';
 import ChartTable from '@/components/ui/chart/ChartTable';
 import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
@@ -5,7 +6,6 @@ import { moonGlyph, sunGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import cn from '@/lib/cn';
-import { plural } from '@/lib/format/text';
 import { getWhen, isUnavailable } from '@/lib/stats/loaders';
 import StatsUnavailable from '../../../_components/StatsUnavailable';
 import type { SectionProps } from '../types';

@@ -1,8 +1,7 @@
 import { shortCode } from '@tvseri.es/schemas';
 
-import { formatDuration } from '@tvseri.es/utils';
+import { formatDuration, plural } from '@tvseri.es/utils';
 
-import { plural } from '@/lib/format/text';
 import type { SeasonProgress } from '@/lib/marking/progress';
 
 import { airWeekday, formatAirDate } from './format';

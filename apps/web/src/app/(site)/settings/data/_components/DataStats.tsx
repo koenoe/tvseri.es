@@ -1,5 +1,5 @@
+import { formatGrouped } from '@tvseri.es/utils';
 import type { ReactNode } from 'react';
-import { formatGrouped } from '@/lib/formatCount';
 
 import {
   loadFirstMarkYear,

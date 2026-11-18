@@ -3,10 +3,9 @@ import {
   type StatsNightEpisode,
   type StatsShowRow,
 } from '@tvseri.es/schemas';
-import { DAY_MS } from '@tvseri.es/utils';
+import { DAY_MS, plural } from '@tvseri.es/utils';
 
 import { longWeekdayMonthDay } from '@/lib/format/date';
-import { plural } from '@/lib/format/text';
 import { dateMs, monthName, shortDay } from '@/lib/stats/weeks';
 
 /** A show's regular seasons and their sizes (`SeriesArt['seasons']`) */

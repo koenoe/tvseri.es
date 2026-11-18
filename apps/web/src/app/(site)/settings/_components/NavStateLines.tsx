@@ -1,6 +1,5 @@
-import { regionName } from '@tvseri.es/utils';
+import { plural, regionName } from '@tvseri.es/utils';
 
-import { plural } from '@/lib/format/text';
 import { importedEpisodes } from '@/lib/import/lastImport';
 
 import { loadPlexStatus } from '../_data/plex';

@@ -4,7 +4,7 @@ import type {
   CirclePick,
   TasteLevel,
 } from '@tvseri.es/schemas';
-import { plural } from '@/lib/format/text';
+import { plural } from '@tvseri.es/utils';
 import { joinAnd } from '@/lib/text/fitNames';
 import { LEVELS } from '../_components/visitor/match/levels';
 

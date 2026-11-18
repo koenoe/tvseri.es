@@ -1,3 +1,5 @@
+import { plural } from '@tvseri.es/utils';
+
 /** One card of Start something new's deck */
 export type StartCard = Readonly<{
   id: number;
@@ -17,8 +19,8 @@ export function seasonsLabel(count: number, out: boolean): string {
   if (count < 1) {
     return '';
   }
-  const noun = count === 1 ? 'season' : 'seasons';
-  return out ? `${count} ${noun} out` : `${count} ${noun}`;
+  const seasons = plural(count, 'season');
+  return out ? `${seasons} out` : seasons;
 }
 
 /** Not now: the top card goes to the back */

@@ -1,6 +1,5 @@
 import { type EpisodeRef, shortCode } from '@tvseri.es/schemas';
-
-import { plural } from '@/lib/format/text';
+import { plural } from '@tvseri.es/utils';
 
 import { codeOf } from '@/lib/marking/progress';
 import type { SeriesBase } from '@/lib/marking/types';

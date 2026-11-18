@@ -5,7 +5,7 @@ import OwnerVisitor from '@/components/ui/viewer/OwnerVisitor';
 import SubpageHeader from '../../_components/subpage/SubpageHeader';
 import { CIRCLE_COPY, visitorCopy } from '../../_lib/circleCopy';
 import CircleGhost from './CircleGhost';
-import { PAGE, VISITOR_HEAD } from './rowBoxes';
+import { PAGE } from './rowBoxes';
 
 /** A bar's fill, inside a block that pulses */
 const BAR_FILL = `inline-block rounded-6 align-middle ${GHOST_FILL}`;
@@ -51,7 +51,7 @@ const owner = (
 /** Someone else's: their name isn't known before the page streams, so ghost lines */
 const visitor = (
   <>
-    <div className={VISITOR_HEAD_GHOST} data-placeholder={VISITOR_HEAD}>
+    <div className={VISITOR_HEAD_GHOST}>
       <div className="flex h-8 items-center">
         <span className={NAME_BAR} />
       </div>

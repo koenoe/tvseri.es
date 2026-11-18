@@ -16,7 +16,7 @@ import { CIRCLE_COPY, circleCounts, visitorCopy } from '../_lib/circleCopy';
 import CircleSkeleton from './_components/CircleSkeleton';
 import OwnerCircle from './_components/OwnerCircle';
 import OwnerCounts from './_components/OwnerCounts';
-import { PAGE, VISITOR_HEAD } from './_components/rowBoxes';
+import { PAGE } from './_components/rowBoxes';
 import VisitorCircle from './_components/VisitorCircle';
 import { loadCirclePeople, loadVisitorCircle } from './_data/people';
 
@@ -93,7 +93,6 @@ async function VisitorPage({ profile }: Readonly<{ profile: Profile }>) {
         className="max-md:hidden"
         count={count}
         description={copy.description}
-        slot={VISITOR_HEAD}
         title={copy.title}
       />
       <VisitorCircle counts={known} lists={lists} username={username} />

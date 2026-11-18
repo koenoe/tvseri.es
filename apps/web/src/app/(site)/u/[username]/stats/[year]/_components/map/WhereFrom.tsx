@@ -9,10 +9,21 @@ import CountryHighlight from './CountryHighlight';
 import { MAP_SIZE, rankCountries } from './model';
 import { worldMapSvg } from './worldMapSvg';
 
-/** The map and its country list (shared with the placeholder) */
-const MAP_ROW = 'grid grid-cols-[minmax(0,1fr)_176px] items-center gap-6';
+/**
+ * The map and its country list (shared with the placeholder). The map's
+ * column stops at its drawn width (`MAP_SIZE`, 580px) and the list centres
+ * in what's left, so it sits balanced between the furthest-east dots (9.4px
+ * in from the map's edge, then the 8px gap) and the card's edge (its 18px
+ * padding): 44px each side on desktop.
+ */
+const MAP_ROW =
+  'grid grid-cols-[minmax(0,580px)_minmax(176px,1fr)] items-center gap-2';
+/** The list's box, a fixed width centred in its column */
+const LIST_BOX = 'w-44 justify-self-center';
 
 const LISTED = 6;
+
+const LIST_CLASS = cn('flex flex-col', LIST_BOX);
 
 /** A country's row, inset and lifted as Stats' list rows are (`ROW_LIFT`) */
 const COUNTRY_ROW = cn(
@@ -24,6 +35,7 @@ const LIST_INSET = 'px-1.5';
 const MORE = cn('pt-2 text-caption text-white/60', LIST_INSET);
 const COUNTRY_GHOSTS_CLASS = cn(
   'flex flex-col justify-center gap-2',
+  LIST_BOX,
   LIST_INSET,
 );
 
@@ -62,7 +74,7 @@ export default async function WhereFrom({ user, year }: SectionProps) {
     >
       <CountryHighlight className={MAP_ROW}>
         <div>{map}</div>
-        <div className="flex flex-col">
+        <div className={LIST_CLASS}>
           <ul className="flex flex-col">
             {listed.map((country) => {
               const code = country.code ?? undefined;

@@ -73,8 +73,8 @@ const contentStyles = cva('relative z-4 flex items-center', {
   variants: {
     layout: {
       floating: 'justify-between gap-8 px-5 py-4 md:px-6',
-      // 64px tall on phones, 32px top from md in the 1280px
-      // page container; the sides are the page gutter
+      // 64px tall on phones (PHONE_BAR_HEIGHT), 32px top from md in the
+      // 1280px page container; the sides are the page gutter
       static: 'h-16 w-full justify-stretch px-gutter md:h-auto md:pt-8',
     },
   },

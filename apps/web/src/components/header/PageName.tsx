@@ -3,9 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 import { usePageNameStore } from './pageNameStore';
-
-/** The phone bar's height: the title is away once it is above this line */
-const BAR_HEIGHT = 48;
+import { PHONE_BAR_HEIGHT } from './phoneBar';
 
 /**
  * Put right after a page's title: on a phone the
@@ -26,13 +24,15 @@ export default function PageName({ name }: Readonly<{ name: string }>) {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry) {
-          // above the bar, not just outside the screen below it
+          // Under the bar, not below the screen. The observer reports only
+          // the crossing of the bar's line, so the title is away from there.
           setTitleAway(
-            !entry.isIntersecting && entry.boundingClientRect.top < 0,
+            !entry.isIntersecting &&
+              entry.boundingClientRect.top < PHONE_BAR_HEIGHT,
           );
         }
       },
-      { rootMargin: `-${BAR_HEIGHT}px 0px 0px 0px` },
+      { rootMargin: `-${PHONE_BAR_HEIGHT}px 0px 0px 0px` },
     );
     observer.observe(element);
     return () => {

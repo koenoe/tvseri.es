@@ -10,14 +10,16 @@ type Callback = (
 ) => void;
 
 let callback: Callback = () => {};
+let rootMargin: string | undefined;
 const disconnect = vi.fn();
 
 beforeEach(() => {
   vi.stubGlobal(
     'IntersectionObserver',
     class {
-      constructor(run: Callback) {
+      constructor(run: Callback, options?: IntersectionObserverInit) {
         callback = run;
+        rootMargin = options?.rootMargin;
       }
       observe() {}
       disconnect = disconnect;
@@ -50,6 +52,22 @@ describe('PageName', () => {
       isIntersecting: true,
     });
     expect(usePageNameStore.getState().titleAway).toBe(false);
+  });
+
+  it('watches the line under the 64px phone bar', () => {
+    render(<PageName name="Crime" />);
+    expect(rootMargin).toBe('-64px 0px 0px 0px');
+  });
+
+  // A finger scroll moves a few px a frame: the title leaves the watched
+  // area just under the bar's line, still on screen behind the bar
+  it('a title that just slid under the bar is away', () => {
+    render(<PageName name="Crime" />);
+    see({
+      boundingClientRect: { top: 62 } as DOMRectReadOnly,
+      isIntersecting: false,
+    });
+    expect(usePageNameStore.getState().titleAway).toBe(true);
   });
 
   it('a title still below the screen is not away', () => {

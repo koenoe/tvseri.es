@@ -1,4 +1,8 @@
-import type { SeriesPrefs, WatchedItem } from '@tvseri.es/schemas';
+import {
+  MIN_WATCHED_AT,
+  type SeriesPrefs,
+  type WatchedItem,
+} from '@tvseri.es/schemas';
 
 import {
   airedEpisodes,
@@ -20,7 +24,6 @@ import {
   type UserState,
 } from './store.ts';
 
-const MIN_WATCHED_AT = Date.UTC(2000, 0, 1);
 const DAY_MS = 86_400_000;
 
 export type When = Readonly<{ dateUnknown?: true; watchedAt: number }>;

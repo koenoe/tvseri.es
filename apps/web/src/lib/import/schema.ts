@@ -1,4 +1,8 @@
-import { ImportIdSchema, PositiveIdSchema } from '@tvseri.es/schemas';
+import {
+  ImportIdSchema,
+  PositiveIdSchema,
+  WatchedAtSchema,
+} from '@tvseri.es/schemas';
 import * as v from 'valibot';
 
 import {
@@ -9,10 +13,6 @@ import {
   type ImportRow,
 } from './contract';
 
-/** Earliest day the API takes: 2000-01-01 */
-const MIN_WATCHED_AT = Date.UTC(2000, 0, 1);
-/** A day of slack for clock skew and time zones, as the API allows */
-const MAX_AHEAD_MS = 24 * 60 * 60 * 1000;
 /** A refused row's cells are sent back for display only: this much of each */
 const SHOWN_MAX_LENGTH = 200;
 
@@ -26,17 +26,7 @@ const CellSchema = v.union([
 ]);
 
 /** Epoch ms inside the API's window, or null: "I don't remember". */
-const WatchedAtSchema = v.nullable(
-  v.pipe(
-    v.number(),
-    v.integer(),
-    v.minValue(MIN_WATCHED_AT, 'watchedAt is before 2000'),
-    v.check(
-      (value) => value <= Date.now() + MAX_AHEAD_MS,
-      'watchedAt is in the future',
-    ),
-  ),
-);
+const ImportWatchedAtSchema = v.nullable(WatchedAtSchema);
 
 const ImportRowSchema = v.object({
   episode: CellSchema,
@@ -46,7 +36,7 @@ const ImportRowSchema = v.object({
   seasonNumber: v.optional(index),
   seriesId: v.optional(PositiveIdSchema),
   title: text,
-  watchedAt: WatchedAtSchema,
+  watchedAt: ImportWatchedAtSchema,
   watchProvider: v.optional(
     v.pipe(v.string(), v.maxLength(IMPORT_MAX_SERVICE_LENGTH)),
   ),

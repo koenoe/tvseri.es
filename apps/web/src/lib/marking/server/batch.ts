@@ -8,12 +8,9 @@ import type {
   TvSeries,
   WatchProvider,
 } from '@tvseri.es/schemas';
+import { MIN_WATCHED_AT, WATCHED_BATCH_MAX } from '@tvseri.es/schemas';
 import { chunk as chunkBy } from '@tvseri.es/utils';
 
-/** The API's batch routes take at most 50 items per request. */
-const BATCH_SIZE = 50;
-
-const MIN_WATCHED_AT = Date.UTC(2000, 0, 1);
 const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})/;
 
 /**
@@ -148,10 +145,10 @@ export function toDeleteItems(
   }));
 }
 
-/** `items` in groups the API's batch routes take (`BATCH_SIZE` by default) */
+/** `items` in groups the API's batch routes take (`WATCHED_BATCH_MAX` by default) */
 export function chunk<T>(
   items: ReadonlyArray<T>,
-  size = BATCH_SIZE,
+  size = WATCHED_BATCH_MAX,
 ): ReadonlyArray<ReadonlyArray<T>> {
   return chunkBy(items, size);
 }

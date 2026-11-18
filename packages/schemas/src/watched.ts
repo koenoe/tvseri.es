@@ -33,7 +33,7 @@ export const EpisodeForWatchedSchema = v.object({
 export type EpisodeForWatched = v.InferOutput<typeof EpisodeForWatchedSchema>;
 
 /** Earliest plausible watch date: 2000-01-01 */
-const MIN_WATCHED_AT = Date.UTC(2000, 0, 1);
+export const MIN_WATCHED_AT = Date.UTC(2000, 0, 1);
 /** Some slack for clock skew between the client and the API */
 const MAX_WATCHED_AT_AHEAD_MS = 24 * 60 * 60 * 1000;
 
@@ -131,6 +131,9 @@ export const WatchedEpisodeEntrySchema = v.object({
  */
 export const ImportIdSchema = v.pipe(v.string(), v.uuid());
 
+/** Most episodes one watched batch request takes (mark and unmark) */
+export const WATCHED_BATCH_MAX = 50;
+
 export const CreateWatchedItemBatchSchema = v.pipe(
   v.array(
     v.object({
@@ -142,7 +145,10 @@ export const CreateWatchedItemBatchSchema = v.pipe(
     }),
   ),
   v.minLength(1, 'Batch cannot be empty.'),
-  v.maxLength(50, 'Batch size too large. Maximum 50 items per request.'),
+  v.maxLength(
+    WATCHED_BATCH_MAX,
+    `Batch size too large. Maximum ${WATCHED_BATCH_MAX} items per request.`,
+  ),
 );
 
 export const DeleteWatchedItemBatchSchema = v.pipe(
@@ -155,7 +161,10 @@ export const DeleteWatchedItemBatchSchema = v.pipe(
     }),
   ),
   v.minLength(1, 'Batch cannot be empty.'),
-  v.maxLength(50, 'Batch size too large. Maximum 50 items per request.'),
+  v.maxLength(
+    WATCHED_BATCH_MAX,
+    `Batch size too large. Maximum ${WATCHED_BATCH_MAX} items per request.`,
+  ),
 );
 
 export type CreateWatchedItem = v.InferOutput<typeof CreateWatchedItemSchema>;

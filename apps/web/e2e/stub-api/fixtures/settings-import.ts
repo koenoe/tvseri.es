@@ -1,6 +1,10 @@
 import { randomUUID } from 'node:crypto';
 
-import type { ImportBatch, LastImport } from '@tvseri.es/schemas';
+import {
+  type ImportBatch,
+  type LastImport,
+  MIN_WATCHED_AT,
+} from '@tvseri.es/schemas';
 
 import type { StubRequest, StubResponse, StubRoute } from '../types.ts';
 import {
@@ -24,7 +28,6 @@ import { fail, isRecord, ok } from './show/http.ts';
  * what the first wrote, and Undo takes only an import's own marks away.
  */
 
-const MIN_WATCHED_AT = Date.UTC(2000, 0, 1);
 const DAY = 86_400_000;
 /** How long the stub's Undo takes ("within a minute or so" in the API) */
 const UNDO_MS = 1_500;

@@ -26,6 +26,9 @@ import PhoneBackdrop from './PhoneBackdrop';
 
 type Props = Readonly<{ series: TvSeries }>;
 
+/** The hero synopsis, clamped to three lines on phones (full text is below) */
+const HERO_DESCRIPTION_TEXT = `${HERO_DESCRIPTION} max-md:line-clamp-3`;
+
 /**
  * The hero: title treatment,
  * facts, the age rating and provider logo, the progress line, the
@@ -70,7 +73,7 @@ export default function Hero({ series }: Props) {
         ) : null}
       </div>
       {series.description ? (
-        <p className={HERO_DESCRIPTION}>{series.description}</p>
+        <p className={HERO_DESCRIPTION_TEXT}>{series.description}</p>
       ) : null}
       <div className={HERO_ACTIONS_ROW}>
         <div className={HERO_RATING_CELL}>

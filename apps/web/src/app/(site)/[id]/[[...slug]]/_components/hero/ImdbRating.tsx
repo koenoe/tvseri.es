@@ -18,35 +18,35 @@ const IMDB_URL = 'https://www.imdb.com/title/';
 
 /**
  * The value and the votes sit close: line boxes as tall as the type (22px
- * under a 24px value, so its baseline is the box's bottom; 18px on phones).
+ * under a 24px value, so its baseline is the box's bottom; 20px on phones).
  * On phones no margin, so the vote count starts about 4px under the value's
  * digits; on desktop a 4px margin puts it about 8px under them.
  */
 const VALUE =
-  'block font-semibold text-[18px] leading-[18px] tabular-nums md:text-[24px] md:leading-[22px]';
+  'block font-semibold text-[20px] leading-5 tabular-nums md:text-[24px] md:leading-[22px]';
 const VOTES = 'block text-caption/none text-white/60 tabular-nums md:mt-1';
 /**
  * The value's line, at least as wide as the placeholder's bar, so the
  * buttons beside the badge sit where they will (a rated or unrated badge)
  */
-const VALUE_LINE = 'flex min-w-[55px] items-baseline gap-1 md:min-w-[65px]';
+const VALUE_LINE = 'flex min-w-[60px] items-baseline gap-1 md:min-w-[65px]';
 const BADGE = 'inline-flex items-center gap-2.5';
-const STAR = 'size-5 shrink-0 md:size-6';
+const STAR = 'size-[22px] shrink-0 md:size-6';
 const OUT_OF = 'text-body-sm/none text-white/60';
 const RATED_STAR = `${STAR} text-[#fde047]`;
 // contrast-exempt: the greyed-out star, decorative
 const UNRATED_STAR = `${STAR} text-white/40`;
 const RATED_BADGE = `${BADGE} text-white`;
 const UNRATED_BADGE = `${BADGE} text-white/60 transition-colors hover:text-white/80`;
-const STAR_GHOST = `size-5 rounded-full md:size-6 ${GHOST_FILL}`;
-const VALUE_GHOST = `h-[18px] w-[55px] rounded-4 md:h-[22px] md:w-[65px] ${GHOST_FILL}`;
+const STAR_GHOST = `size-[22px] rounded-full md:size-6 ${GHOST_FILL}`;
+const VALUE_GHOST = `h-5 w-[60px] rounded-4 md:h-[22px] md:w-[65px] ${GHOST_FILL}`;
 const VOTES_GHOST = `h-2 w-9 rounded-4 ${GHOST_FILL}`;
 
 const imdbHref = (imdbId: string) => `${IMDB_URL}${imdbId}/`;
 
 /**
  * The show's IMDb rating: a filled star, "8.5 / 10" and the votes under it
- * (20px star and 18px value on phones). Links to IMDb
+ * (22px star and 20px value on phones). Links to IMDb
  * when the show has an IMDb id; no vote line without votes (never "0").
  * Without a rating (IMDb has none, or the ratings read failed) a show with
  * an IMDb id gets the same badge greyed out, "– / 10" over "No rating", in

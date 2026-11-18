@@ -13,24 +13,31 @@ import CastSheetButton from './CastSheetButton';
 const STACK =
   'block w-full rounded-8 text-left outline-none focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-4 md:hidden';
 
-/** The stack overlaps so five faces and "+N" fit a phone's width in one line */
+/**
+ * Six slots (five faces and "+N") across the full width, each over the last
+ * by 10px: a sixth of the width plus its share of the overlaps, so the faces
+ * are as big as the phone allows; a show with fewer keeps the same size
+ */
 const CIRCLE =
-  'size-15 shrink-0 rounded-full border-2 border-white not-first:-ml-2.5';
+  'aspect-square w-[calc((100%+50px)/6)] shrink-0 rounded-full border-2 border-white not-first:-ml-2.5';
 
 const PHOTO = cn(CIRCLE, 'object-cover object-top');
 
 /** "+N": the first-tracking prompt's glass */
 const MORE = cn(
   CIRCLE,
-  'flex items-center justify-center font-semibold text-[15px]',
+  'flex items-center justify-center font-semibold text-[17px]',
   PANEL_GLASS,
 );
 
-const LINE = 'mt-2.5 block truncate text-[13px] text-white/75 leading-5';
+/** The names, and the chevron at the line's end now the faces take the row */
+const LINE =
+  'mt-2.5 flex items-center gap-2 text-[13px] text-white/75 leading-5';
 
 /**
- * The phone's cast: five faces of the cast (only those with a photo), "+N"
- * for the rest of the cast and a chevron, and a line naming the first two;
+ * The phone's cast: five faces of the cast (only those with a photo) and
+ * "+N" for the rest across the width, and a line naming the first two with a
+ * chevron;
  * the whole of it opens the sheet with everyone, the crew too.
  */
 export default function CastStack({ cast }: Readonly<{ cast: ShowCast }>) {
@@ -43,23 +50,25 @@ export default function CastStack({ cast }: Readonly<{ cast: ShowCast }>) {
           <Image
             alt=""
             className={PHOTO}
-            height={120}
+            height={160}
             key={person.id}
-            sizes="60px"
+            sizes="20vw"
             src={person.image}
-            width={120}
+            width={160}
           />
         ))}
         {more > 0 ? <span className={MORE}>+{more}</span> : null}
-        <Icon
-          className="ml-auto text-white/60"
-          glyph={chevronRightGlyph}
-          size={20}
-        />
       </span>
       <span aria-hidden="true" className={LINE}>
-        <b className="font-semibold text-white">{cast.line.first}</b>
-        {cast.line.rest}
+        <span className="min-w-0 truncate">
+          <b className="font-semibold text-white">{cast.line.first}</b>
+          {cast.line.rest}
+        </span>
+        <Icon
+          className="ml-auto shrink-0 text-white/60"
+          glyph={chevronRightGlyph}
+          size={16}
+        />
       </span>
     </CastSheetButton>
   );

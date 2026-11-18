@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import CastSheetList from './CastSheetList';
@@ -114,6 +114,30 @@ describe('CastSheetList', () => {
     expect(await screen.findByRole('region', { name: 'Cast' })).toBeTruthy();
     expect(screen.getAllByRole('region')).toHaveLength(1);
     expect(screen.queryByText('Created by')).toBeNull();
+  });
+
+  it('shows a long section’s first 100, then everyone with Show all', async () => {
+    showId = 106;
+    const cast = Array.from({ length: 2622 }, (_, index) => ({
+      ...WHITE,
+      id: 1000 + index,
+      name: `Actor ${index}`,
+    }));
+    vi.stubGlobal('fetch', answer({ cast, crew: [] }));
+    render(<CastSheetList total={2622} />);
+
+    const section = await screen.findByRole('region', { name: 'Cast' });
+    expect(within(section).getAllByRole('listitem')).toHaveLength(100);
+    const showAll = within(section).getByRole('button', {
+      name: 'Show all 2,622',
+    });
+    expect(showAll.getAttribute('aria-expanded')).toBe('false');
+
+    fireEvent.click(showAll);
+    expect(
+      await within(section).findByRole('button', { expanded: true }),
+    ).toBeTruthy();
+    expect(within(section).getAllByRole('listitem')).toHaveLength(2622);
   });
 
   it('says the list didn’t load, and Try again loads it', async () => {

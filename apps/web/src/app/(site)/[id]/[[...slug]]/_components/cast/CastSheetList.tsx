@@ -1,8 +1,12 @@
 'use client';
 
-import { useId } from 'react';
+import { formatGrouped } from '@tvseri.es/utils';
+import { startTransition, useCallback, useId, useState } from 'react';
 
 import Face, { type FaceLook } from '@/components/ui/faces/Face';
+import ExpandButton, {
+  type ExpandLayout,
+} from '@/components/ui/fold/ExpandButton';
 import { SectionError } from '@/components/ui/row/RowError';
 import { GHOST_FILL, GhostLine } from '@/components/ui/row/RowGhosts';
 import personPath from '@/lib/routing/personPath';
@@ -123,6 +127,21 @@ function RowsSkeleton({ count }: Readonly<{ count: number }>) {
 }
 
 /** One of the sheet's sections, under its name; none without anyone */
+/**
+ * A section's first rows: a long-running show lists thousands (Grey's
+ * Anatomy's cast is over 2,600), and rendering them all as the sheet opens
+ * stalls its slide-in on a phone; the regulars come first, the rest open with
+ * "Show all N" in a transition, so the press never blocks
+ */
+const SECTION_CAP = 100;
+
+/** The person page's full-width bar under its lists, here under a section */
+const SHOW_ALL: ExpandLayout = {
+  button:
+    'mt-2 flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-12 bg-white/5 px-4 font-medium text-body-sm text-white transition-colors hover:bg-white/8',
+  chevron: 15,
+};
+
 function Section({
   labelOf,
   people,
@@ -133,19 +152,36 @@ function Section({
   title: string;
 }>) {
   const titleId = useId();
+  const listId = useId();
+  const [open, setOpen] = useState(false);
+  const toggle = useCallback(() => {
+    startTransition(() => setOpen((value) => !value));
+  }, []);
   if (people.length === 0) {
     return null;
   }
+  const capped = people.length > SECTION_CAP;
+  const shown = open || !capped ? people : people.slice(0, SECTION_CAP);
+  const showAll = `Show all ${formatGrouped(people.length)}`;
   return (
     <section aria-labelledby={titleId}>
       <h3 className={SECTION_TITLE} id={titleId}>
         {title}
       </h3>
-      <ul className={LIST}>
-        {people.map((person) => (
+      <ul className={LIST} id={listId}>
+        {shown.map((person) => (
           <PersonRow key={person.id} labelOf={labelOf} person={person} />
         ))}
       </ul>
+      {capped ? (
+        <ExpandButton
+          aria-controls={listId}
+          label={showAll}
+          layout={SHOW_ALL}
+          onClick={toggle}
+          open={open}
+        />
+      ) : null}
     </section>
   );
 }

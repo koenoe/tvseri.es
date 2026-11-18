@@ -1,7 +1,7 @@
 'use client';
 
 import Button from '@/components/ui/button/Button';
-import { copyGlyph, eyeGlyph, skippedGlyph } from '@/components/ui/icon/glyphs';
+import { copyGlyph, eyeGlyph, eyeOffGlyph } from '@/components/ui/icon/glyphs';
 import cn from '@/lib/cn';
 
 import { SM_BUTTON } from '../../_lib/appButtons';
@@ -50,7 +50,7 @@ export default function UrlField({
       <Button
         aria-busy={busy}
         className={SM_BUTTON}
-        icon={revealed ? skippedGlyph : eyeGlyph}
+        icon={revealed ? eyeOffGlyph : eyeGlyph}
         onClick={onToggle}
         variant="quiet"
       >

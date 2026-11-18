@@ -1,5 +1,6 @@
 import { eyeGlyph, skippedGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import type { Glyph } from '@/components/ui/icon/types';
 import cn from '@/lib/cn';
 
 import type { ChipState } from './chips';
@@ -53,52 +54,68 @@ export function markChipClass(
   return cn(BASE, overlay ? OVERLAY[overlay] : STATE[state], className);
 }
 
-const arrow = <path d="M5 12h13M13 6l6 6-6 6" />;
-const ring = <circle cx="12" cy="12" r="6" />;
+/** Not watched: a quiet ring */
+const ringGlyph: Glyph = { outline: <circle cx="12" cy="12" r="8" /> };
+
+/** Next up's →, drawn as wide as an eye so it weighs the same */
+const arrowGlyph: Glyph = {
+  outline: <path d="M3.5 12h16M14 6.5l5.5 5.5-5.5 5.5" />,
+};
 
 /** Every glyph sits in one 11px box, so every chip is the same width */
 const GLYPH_BOX =
   'inline-flex size-[11px] shrink-0 items-center justify-center';
 
+type ChipMark = 'eye' | 'ring' | 'next' | 'skip';
+
 /**
- * The chip's quiet second cue, one per state: a ring for not watched (and
- * not aired), the eye for watched (65%) and "I don't remember" (45%), → for
- * Next up, the app's eye-off for skipped (as on the season line).
+ * What the chip shows: its state, or under a run or the Up to target what
+ * it will become (marked: the eye, unmarked: the ring). Skipped
+ * stays skipped under a run.
+ */
+function chipMark(state: ChipState, overlay?: ChipOverlay): ChipMark {
+  if (state === 'sk') {
+    return 'skip';
+  }
+  if (overlay === 'run' || overlay === 'preview' || overlay === 'target') {
+    return 'eye';
+  }
+  if (overlay === 'unrun' || overlay === 'struck') {
+    return 'ring';
+  }
+  if (state === 'w' || state === 'nd') {
+    return 'eye';
+  }
+  return state === 'nx' ? 'next' : 'ring';
+}
+
+/**
+ * The chip's second cue, one per state, as everywhere else in the app: the
+ * eye for watched (also "I don't remember"), a ring for not watched, →
+ * for Next up (full strength), skip-forward for skipped. One
+ * size, one stroke, 65%.
  */
 export function ChipGlyph({
   overlay,
   state,
 }: Readonly<{ state: ChipState; overlay?: ChipOverlay }>) {
-  const faded = overlay === 'unrun' ? 'opacity-20' : '';
-  if (state === 'w' || state === 'nd' || state === 'sk') {
-    const classes = cn(
-      'size-[11px] shrink-0',
-      state === 'nd' ? 'opacity-45' : 'opacity-65',
-      faded,
+  const mark = chipMark(state, overlay);
+  const quiet = mark === 'next' ? undefined : 'opacity-65';
+  const classes = cn('shrink-0', quiet);
+  if (mark === 'eye') {
+    return (
+      <Icon
+        active
+        className={classes}
+        glyph={eyeGlyph}
+        size={11}
+        strokeWidth={2.2}
+      />
     );
-    if (state === 'sk') {
-      return <Icon className={classes} glyph={skippedGlyph} size={13} />;
-    }
-    return <Icon active className={classes} glyph={eyeGlyph} size={13} />;
   }
-  const isNext = state === 'nx';
-  const quiet = isNext ? '' : 'opacity-45';
-  const shape = isNext ? arrow : ring;
-  return (
-    <span aria-hidden="true" className={GLYPH_BOX}>
-      <svg
-        className={cn('size-[9px]', quiet)}
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2.5}
-        viewBox="0 0 24 24"
-      >
-        {shape}
-      </svg>
-    </span>
-  );
+  const glyph =
+    mark === 'next' ? arrowGlyph : mark === 'skip' ? skippedGlyph : ringGlyph;
+  return <Icon className={classes} glyph={glyph} size={11} strokeWidth={2.2} />;
 }
 
 /** The glyph's box with nothing in it: a placeholder chip's width */

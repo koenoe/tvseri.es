@@ -95,9 +95,12 @@ describe('a fresh sheet', () => {
     const { container } = mount(createSheetUi());
     const shown = () => screen.queryByText('Not watched') !== null;
     expect(shown()).toBe(false);
-    fireEvent.click(screen.getByRole('button', { name: 'Legend' }));
+    // one toggle per breakpoint (the pills row, the phone's hint line), one state
+    const [desktop, phone] = screen.getAllByRole('button', { name: 'Legend' });
+    fireEvent.click(desktop!);
     expect(shown()).toBe(true);
-    fireEvent.click(screen.getByRole('button', { name: 'Legend' }));
+    expect(phone!.getAttribute('aria-expanded')).toBe('true');
+    fireEvent.click(phone!);
     expect(shown()).toBe(false);
     expect(container.textContent).not.toContain('legend ?');
     expect(container.textContent).not.toContain(': null');

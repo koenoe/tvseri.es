@@ -4,9 +4,9 @@ import { useCallback } from 'react';
 
 import {
   bookmarkGlyph,
+  eyeOffGlyph,
   heartGlyph,
   historyGlyph,
-  skippedGlyph,
 } from '@/components/ui/icon/glyphs';
 
 import KeyButton from './KeyButton';
@@ -16,7 +16,7 @@ import type { RemoteMarking } from './marking';
 
 const ICONS = {
   favorites: heartGlyph,
-  hide: skippedGlyph,
+  hide: eyeOffGlyph,
   history: historyGlyph,
   watchlist: bookmarkGlyph,
 } as const;

@@ -151,6 +151,12 @@ export const eyeGlyph: ToggleGlyph = {
   ),
 };
 
+export const eyeOffGlyph: Glyph = {
+  outline: (
+    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68M6.61 6.61A13.53 13.53 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61M2 2l20 20" />
+  ),
+};
+
 export const filmGlyph: Glyph = {
   outline: (
     <path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3zM6.2 5.3l3.1 3.9M12.4 3.4l3.1 4M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -415,7 +421,10 @@ export const shuffleGlyph: Glyph = {
 
 export const skippedGlyph: Glyph = {
   outline: (
-    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68M6.61 6.61A13.53 13.53 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61M2 2l20 20" />
+    <>
+      <path d="M5 5.5v13l10-6.5z" fill="currentColor" />
+      <path d="M19 5v14" />
+    </>
   ),
 };
 

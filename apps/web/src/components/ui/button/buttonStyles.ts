@@ -220,11 +220,15 @@ export function pillSwitchStyles({ className }: WithClassName = {}) {
   );
 }
 
-/** One choice of the pill switch: 28px, a long name truncates (its max width is the caller's) */
+/**
+ * One choice of the pill switch: 28px, a long name truncates (its max width
+ * is the caller's). The label truncates, not the button: the pressed fill
+ * slides in from the old choice and must not be clipped on its way.
+ */
 export function pillSwitchItemStyles({ className }: WithClassName = {}) {
   return cn(
-    'h-7 shrink-0 cursor-pointer truncate whitespace-nowrap rounded-full px-3 text-body-sm font-medium transition-colors duration-300',
-    'text-white/60 hover:text-white/80 aria-pressed:bg-white/14 aria-pressed:text-white aria-pressed:hover:text-white',
+    'relative flex h-7 shrink-0 cursor-pointer items-center whitespace-nowrap rounded-full px-3 text-body-sm font-medium transition-colors duration-300',
+    'text-white/60 hover:text-white/80 aria-pressed:text-white aria-pressed:hover:text-white',
     className,
   );
 }

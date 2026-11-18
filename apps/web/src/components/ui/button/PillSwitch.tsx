@@ -1,5 +1,10 @@
-import type { ComponentProps } from 'react';
+'use client';
 
+import { LayoutGroup } from 'motion/react';
+import * as m from 'motion/react-m';
+import { type ComponentProps, useId } from 'react';
+
+import MaxMotion from '@/components/motion/MaxMotion';
 import { Ghost } from '@/components/ui/ghost/ghosts';
 import cn from '@/lib/cn';
 
@@ -9,7 +14,9 @@ import { pillSwitchItemStyles, pillSwitchStyles } from './buttonStyles';
  * The pill switch on a picture: a group of toggle buttons on
  * one dark rounded ground, one pressed. From your circle's picks and the
  * Countdown's premieres. The caller owns the state and the place
- * (`className`); each choice is a `PillSwitchItem`.
+ * (`className`); each choice is a `PillSwitchItem`. The pressed fill slides
+ * to the new choice (production's spring); each switch is its own layout
+ * group, so two on a page never trade fills.
  *
  * @example
  * <PillSwitch label="Picks">
@@ -22,10 +29,23 @@ export function PillSwitch({
   ...rest
 }: Omit<ComponentProps<'div'>, 'aria-label'> & Readonly<{ label: string }>) {
   const classes = pillSwitchStyles({ className });
-  return <div aria-label={label} className={classes} role="group" {...rest} />;
+  const group = useId();
+  return (
+    <MaxMotion>
+      <LayoutGroup id={group}>
+        <div aria-label={label} className={classes} role="group" {...rest} />
+      </LayoutGroup>
+    </MaxMotion>
+  );
 }
 
+/** Production's tab pill: a short spring with a touch of bounce */
+const SLIDE = { bounce: 0.2, duration: 0.6, type: 'spring' } as const;
+const FILL = 'absolute inset-0 rounded-full bg-white/14';
+const LABEL = 'relative min-w-0 truncate';
+
 export function PillSwitchItem({
+  children,
   className,
   pressed,
   type = 'button',
@@ -33,7 +53,17 @@ export function PillSwitchItem({
 }: ComponentProps<'button'> & Readonly<{ pressed: boolean }>) {
   const classes = pillSwitchItemStyles({ className });
   return (
-    <button aria-pressed={pressed} className={classes} type={type} {...rest} />
+    <button aria-pressed={pressed} className={classes} type={type} {...rest}>
+      {pressed ? (
+        <m.span
+          aria-hidden="true"
+          className={FILL}
+          layoutId="pill-switch-fill"
+          transition={SLIDE}
+        />
+      ) : null}
+      <span className={LABEL}>{children}</span>
+    </button>
   );
 }
 

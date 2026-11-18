@@ -114,8 +114,19 @@ describe('waiting for', () => {
       ],
       status: 'Returning Series',
     });
+    // Caught up mid-season, its finale in 2 days
+    fakeShow({
+      extra: {
+        last_episode_to_air: episode(1, 7, '2026-11-07'),
+        next_episode_to_air: episode(1, 8, '2026-11-14'),
+      },
+      id: 7,
+      seasons: [{ airDate: '2026-09-26', aired: 7, episodes: 8 }],
+      status: 'Returning Series',
+    });
     db.seed('Lists', [
       listItem(USER_ID, 'WATCHED', 1, APR_16),
+      listItem(USER_ID, 'WATCHED', 7, OCT_30),
       listItem(USER_ID, 'WATCHED', 2, OCT_30),
       listItem(USER_ID, 'WATCHED', 3, OCT_30),
       listItem(USER_ID, 'WATCHED', 4, OCT_30),
@@ -184,6 +195,20 @@ describe('waiting for', () => {
     ).json()) as { comingUp: ReadonlyArray<{ seriesId: number }> };
 
     expect(overview.comingUp.map((ticket) => ticket.seriesId)).toContain(5);
+  });
+
+  it('keeps a returning show’s premiere or finale on its Coming up ticket', async () => {
+    setup();
+    const overview = (await (
+      await request('/me/overview', { as: USER_ID })
+    ).json()) as {
+      comingUp: ReadonlyArray<{ kind: string; seriesId: number }>;
+    };
+    const kindOf = (id: number) =>
+      overview.comingUp.find((ticket) => ticket.seriesId === id)?.kind;
+
+    expect(kindOf(5)).toBe('season-premiere');
+    expect(kindOf(7)).toBe('season-finale');
   });
 
   it('is empty when nothing is finished', async () => {

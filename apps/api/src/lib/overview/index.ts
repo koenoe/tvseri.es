@@ -143,7 +143,10 @@ const finishedTickets = (waiting: WaitingFor): ComingUpItem[] =>
     date: item.nextDate,
     daysToGo: item.daysToGo,
     episode: item.nextEpisode ?? 1,
-    kind: item.nextEpisode === 1 ? 'season-premiere' : 'episode',
+    // Waiting for already worked out premiere, finale or episode from TMDB's
+    // season size; a finale guessed from the number alone came out "episode"
+    kind:
+      item.nextKind ?? (item.nextEpisode === 1 ? 'season-premiere' : 'episode'),
     onWatchlist: false,
     posterImage: item.posterImage,
     provider: null,

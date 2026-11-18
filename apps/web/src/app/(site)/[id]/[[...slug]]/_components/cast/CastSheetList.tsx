@@ -18,22 +18,24 @@ import { useShow } from '../../_lib/ShowProvider';
 import { castAndCrewUrl } from './castSheetData';
 
 /**
- * A row: 44px faces on phones, 56 in the side panel. Off-screen rows skip
+ * A row: 44px faces on phones, 56 in the side panel, apart by spacing alone
+ * (a divider between rounded hover fills looked wrong). Off-screen rows skip
  * layout and paint (`content-visibility`): a long-running show lists
- * hundreds.
+ * hundreds. The intrinsic size is the row's real height, so the scrollbar
+ * doesn't jump as rows render.
  */
 const ROW =
-  'relative [contain-intrinsic-size:auto_69px] [content-visibility:auto] after:absolute after:inset-x-3 after:bottom-0 after:h-px after:bg-white/7 md:[contain-intrinsic-size:auto_85px]';
+  '[contain-intrinsic-size:auto_68px] [content-visibility:auto] md:[contain-intrinsic-size:auto_84px]';
 
 /**
  * The list reaches 12px past the sheet's text edge on both sides: the rows'
- * hover fill gets room around the face while the faces, the dividers (inset
- * 12px) and the section titles keep that edge. On the list, not the rows:
+ * hover fill gets room around the face while the faces and the section
+ * titles keep that edge. On the list, not the rows:
  * a row's `content-visibility` clips whatever leaves its box.
  */
 const LIST = '-mx-3';
 
-/** 12px of padding and a 4px gap to the dividers, for the rounded hover fill */
+/** 12px of padding, and 4px above and below so neighbouring hover fills never touch */
 const ROW_BOX =
   'my-1 flex items-center gap-3 rounded-12 px-3 py-2 md:gap-4 md:py-2.5';
 

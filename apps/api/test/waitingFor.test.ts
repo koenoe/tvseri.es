@@ -145,23 +145,10 @@ describe('waiting for', () => {
   it('labels each finished, returning show: date, countdown, renewed', async () => {
     setup();
 
+    // Show 5 is back in 5 days: a Coming up ticket, so not here as well
     expect(await waitingFor()).toEqual({
       endedCount: 2,
       items: [
-        {
-          daysToGo: 5,
-          finishedAt: OCT_30,
-          nextDate: '2026-11-17',
-          nextEpisode: 1,
-          nextKind: 'season-premiere',
-          nextSeason: 2,
-          posterImage: expect.stringContaining('/p5.jpg'),
-          resumingSoon: true,
-          seriesId: 5,
-          slug: 'show-5',
-          state: 'dated',
-          title: 'Show 5',
-        },
         {
           daysToGo: 56,
           finishedAt: APR_16,
@@ -188,6 +175,15 @@ describe('waiting for', () => {
         },
       ],
     });
+  });
+
+  it('hands a return within 30 days to Coming up instead', async () => {
+    setup();
+    const overview = (await (
+      await request('/me/overview', { as: USER_ID })
+    ).json()) as { comingUp: ReadonlyArray<{ seriesId: number }> };
+
+    expect(overview.comingUp.map((ticket) => ticket.seriesId)).toContain(5);
   });
 
   it('is empty when nothing is finished', async () => {

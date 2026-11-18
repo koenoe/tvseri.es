@@ -6,7 +6,7 @@ import type {
   PersonFamilyAndAwards,
   PersonSpouse,
 } from '@tvseri.es/schemas';
-import slugify from 'slugify';
+import { toSlug } from '@tvseri.es/utils';
 
 type Binding = Readonly<Record<string, Readonly<{ value: string }>>>;
 
@@ -94,9 +94,7 @@ const isLabelled = (label?: string) => !!label && !/^Q\d+$/.test(label);
  */
 const tmdbLink = (name: string, known: number | undefined, row: Binding) => {
   const tmdbId = known ?? numericId(row.tmdb?.value);
-  return tmdbId
-    ? { slug: slugify(name, { lower: true, strict: true }), tmdbId }
-    : undefined;
+  return tmdbId ? { slug: toSlug(name), tmdbId } : undefined;
 };
 
 const toFamily = (rows: ReadonlyArray<Binding>) => {

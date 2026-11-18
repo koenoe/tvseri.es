@@ -3,8 +3,7 @@ import type {
   PersonShowCounts,
   PersonShows,
 } from '@tvseri.es/schemas';
-import { buildPosterImageUrl } from '@tvseri.es/utils';
-import slugify from 'slugify';
+import { buildPosterImageUrl, toSlug } from '@tvseri.es/utils';
 
 export type TmdbPersonCredit = Readonly<{
   id: number;
@@ -150,7 +149,7 @@ const toShow = (
       ? buildPosterImageUrl(first.poster_path)
       : '',
     role: characters.length > 0 ? characters.join(' / ') : jobs.join(', '),
-    slug: slugify(first.name ?? '', { lower: true, strict: true }),
+    slug: toSlug(first.name ?? ''),
     voteCount,
     ...(firstAirDate && { year: Number(firstAirDate.slice(0, 4)) }),
     ...(isUpcoming && {

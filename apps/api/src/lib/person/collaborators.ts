@@ -1,6 +1,5 @@
 import type { PersonCollaborator } from '@tvseri.es/schemas';
-import { buildProfileImageUrl } from '@tvseri.es/utils';
-import slugify from 'slugify';
+import { buildProfileImageUrl, toSlug } from '@tvseri.es/utils';
 
 type AggregateEntry = Readonly<{
   id: number;
@@ -135,7 +134,7 @@ export const findCollaborators = (
         name: tally.name,
         role: asCast ? 'Actor' : (bestJob(tally.jobs) ?? 'Actor'),
         showIds: [...tally.shows.keys()],
-        slug: slugify(tally.name, { lower: true, strict: true }),
+        slug: toSlug(tally.name),
       };
     })
     .sort(

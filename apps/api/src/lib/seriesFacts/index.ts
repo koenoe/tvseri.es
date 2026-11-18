@@ -3,7 +3,7 @@ import type {
   SeriesFactsEpisode,
   TmdbTvSeries,
 } from '@tvseri.es/schemas';
-import slugify from 'slugify';
+import { toSlug } from '@tvseri.es/utils';
 
 import { getCacheEntries, setCacheItems } from '@/lib/db/cache';
 import { claim } from '@/lib/db/cache/singleFlight';
@@ -109,7 +109,7 @@ const toSeriesFacts = (series: TmdbTvSeries): SeriesFacts => {
     popularity: series.popularity ?? 0,
     posterPath: series.poster_path ?? null,
     seasons,
-    slug: slugify(series.name ?? '', { lower: true, strict: true }),
+    slug: toSlug(series.name ?? '', series.languages?.[0]),
     status: series.status ?? 'Ended',
     title: series.name ?? '',
     totalRuntime:

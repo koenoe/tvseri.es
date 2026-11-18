@@ -1,7 +1,7 @@
 import 'server-only';
 
 import type { User, WatchProvider } from '@tvseri.es/schemas';
-import { toUsernameSlug } from '@tvseri.es/utils';
+import { toSlug } from '@tvseri.es/utils';
 
 import { apiFetch } from '@/lib/api/client';
 
@@ -85,7 +85,7 @@ export async function resolveProfileUser(
   }
   const own = await loadOwnUser();
   const ownProfile =
-    own && toUsernameSlug(own.username) === toUsernameSlug(username)
+    own && toSlug(own.username) === toSlug(username)
       ? toProfileUser(own)
       : null;
   if (ownProfile) {

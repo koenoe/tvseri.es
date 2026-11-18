@@ -1,6 +1,6 @@
 import type { Episode, Season, TvSeries } from '@tvseri.es/schemas';
+import { toSlug } from '@tvseri.es/utils';
 import { diceCoefficient } from 'dice-coefficient';
-import slugify from 'slugify';
 
 import type {
   EpisodeOption,
@@ -26,8 +26,6 @@ export type Catalog = Readonly<{
 }>;
 
 type Match = 'exact' | 'similar' | 'none';
-
-const toSlug = (value: string) => slugify(value, { lower: true, strict: true });
 
 export const compareTitles = (a: string, b: string): Match => {
   const slugA = toSlug(a);

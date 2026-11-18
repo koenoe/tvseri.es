@@ -1,4 +1,4 @@
-import slugify from 'slugify';
+import toSlug from './toSlug';
 
 const adjectives = [
   'happy',
@@ -234,8 +234,5 @@ export default function generateUsername(): string {
   const noun = getRandomElement(nouns);
   const number = Math.floor(Math.random() * 999) + 1;
 
-  return slugify(`${adjective}-${noun}-${number}`, {
-    lower: true,
-    strict: true,
-  });
+  return toSlug(`${adjective}-${noun}-${number}`);
 }

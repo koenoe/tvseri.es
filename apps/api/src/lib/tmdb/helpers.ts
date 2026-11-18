@@ -20,9 +20,9 @@ import {
   formatSeriesYears,
   generateTmdbImageUrl,
   regionName,
+  toSlug,
   UNKNOWN_COLOR,
 } from '@tvseri.es/utils';
-import slugify from 'slugify';
 
 import { airedBySeason } from '@/lib/seriesFacts/aired';
 
@@ -148,7 +148,7 @@ function normalizeGenres(genres: TmdbTvSeries['genres']) {
       : {
           id: genre.id,
           name: genre.name as string,
-          slug: slugify(genre.name as string, { lower: true, strict: true }),
+          slug: toSlug(genre.name as string),
         },
   );
 }
@@ -178,7 +178,7 @@ export function normalizePersons(
       name: person.name ?? '',
       numberOfEpisodes:
         'total_episode_count' in person ? person.total_episode_count : 0,
-      slug: slugify(person.name as string, { lower: true, strict: true }),
+      slug: toSlug(person.name as string),
     };
   });
 }
@@ -206,11 +206,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     lastAirDate,
     status,
   );
-  const slug = slugify(series.name ?? '', {
-    locale: series.languages?.[0] ?? '',
-    lower: true,
-    strict: true,
-  });
+  const slug = toSlug(series.name ?? '', series.languages?.[0]);
 
   const lastEpisodeToAir = series.last_episode_to_air;
   const nextEpisodeToAir =
@@ -400,10 +396,7 @@ export function normalizeTvSeriesEpisode(episode: TmdbTvSeriesEpisode) {
 export function normalizeMovie(movie: TmdbMovie): Movie {
   const images = extractImages(movie);
 
-  const slug = slugify(movie.title ?? '', {
-    lower: true,
-    strict: true,
-  });
+  const slug = toSlug(movie.title ?? '');
 
   return {
     backdropColor: UNKNOWN_COLOR,

@@ -1,5 +1,5 @@
 import type { EpisodePerson } from '@tvseri.es/schemas';
-import slugify from 'slugify';
+import { toSlug } from '@tvseri.es/utils';
 import { failedJson, notFoundJson, publicJson } from '@/app/api/cacheHeaders';
 import { isTmdbId } from '@/app/api/handlers';
 import { isUnavailable } from '@/lib/cache/unavailable';
@@ -15,11 +15,11 @@ const EPISODE = /^\d{1,4}$/;
 /**
  * A guest star or crew member with the person page's slug, made by the API's
  * own rule (`normalizePersons`): the modal links straight to the canonical
- * URL. Here, not in the modal's module, so slugify stays out of the browser.
+ * URL. Here, not in the modal's module, so the slug code stays out of the browser.
  */
 const withSlug = (person: EpisodePerson) => ({
   ...person,
-  slug: slugify(person.name, { lower: true, strict: true }),
+  slug: toSlug(person.name),
 });
 
 type Params = Readonly<{ id: string; season: string; episode: string }>;

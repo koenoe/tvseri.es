@@ -260,9 +260,6 @@ importers:
       path-to-regexp:
         specifier: ^9.0.0
         version: 9.0.0
-      slugify:
-        specifier: ^1.6.9
-        version: 1.6.9
       sst:
         specifier: 'catalog:'
         version: 4.17.2
@@ -509,9 +506,6 @@ importers:
       sharp:
         specifier: 0.35.5
         version: 0.35.5(@types/node@24.19.2)
-      slugify:
-        specifier: ^1.6.9
-        version: 1.6.9
       sonner:
         specifier: ^2.0.8
         version: 2.0.8(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)

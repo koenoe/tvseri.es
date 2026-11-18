@@ -1,5 +1,5 @@
 import { encodeToBase64Url } from './stringBase64Url';
-import toUsernameSlug from './toUsernameSlug';
+import toSlug from './toSlug';
 
 /**
  * The Users table's keys. The auth service writes a new user and the API
@@ -27,8 +27,7 @@ export const emailKey = (email: string) =>
  * username is already in this slug form (`UsernameSchema`, generated
  * handles), so writes get the same key.
  */
-export const usernameKey = (username: string) =>
-  `USERNAME#${toUsernameSlug(username)}`;
+export const usernameKey = (username: string) => `USERNAME#${toSlug(username)}`;
 
 /**
  * A username's claim: deleted only by the user it names, so sign-up and

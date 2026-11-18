@@ -80,7 +80,7 @@ export {
   zonedParts,
 } from './time/zoned';
 export { default as toQueryString } from './toQueryString';
-export { default as toUsernameSlug } from './toUsernameSlug';
+export { default as toSlug } from './toSlug';
 export {
   emailKey,
   handleClaimKey,

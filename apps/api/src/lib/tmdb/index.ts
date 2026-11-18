@@ -48,8 +48,8 @@ import {
   buildTitleTreatmentImageUrl,
   chunk,
   toQueryString,
+  toSlug,
 } from '@tvseri.es/utils';
-import slugify from 'slugify';
 import { Resource } from 'sst';
 import { readThrough } from '@/lib/db/cache/readThrough';
 import { readThroughStale } from '@/lib/db/cache/readThroughStale';
@@ -1154,7 +1154,7 @@ export async function searchPerson(query: string) {
       knownForDepartment: person.known_for_department,
       name: person.name ?? '',
       popularity: person.popularity ?? 0,
-      slug: slugify(person.name as string, { lower: true, strict: true }),
+      slug: toSlug(person.name as string),
     };
   });
 }
@@ -1205,7 +1205,7 @@ export async function fetchPerson(id: number | string) {
     numberOfEpisodes:
       'total_episode_count' in person ? person.total_episode_count : 0,
     placeOfBirth: person.place_of_birth,
-    slug: slugify(person.name as string, { lower: true, strict: true }),
+    slug: toSlug(person.name as string),
   } as Person;
 }
 

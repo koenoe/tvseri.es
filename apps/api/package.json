@@ -16,7 +16,6 @@
     "date-fns": "^4.4.0",
     "hono": "^4.13.18",
     "path-to-regexp": "^9.0.0",
-    "slugify": "^1.6.9",
     "sst": "catalog:",
     "valibot": "^1.5.0"
   },

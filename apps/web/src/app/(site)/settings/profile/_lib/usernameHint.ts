@@ -4,7 +4,7 @@ import {
   USERNAME_TOO_LONG,
   UsernameSchema,
 } from '@tvseri.es/schemas';
-import { toUsernameSlug } from '@tvseri.es/utils';
+import { toSlug } from '@tvseri.es/utils';
 import * as v from 'valibot';
 
 export type UsernameAvailability = 'available' | 'taken' | 'unknown';
@@ -71,7 +71,7 @@ function ruleMessage(draft: string): string {
   if (draft.length > USERNAME_MAX_LENGTH) {
     return USERNAME_TOO_LONG;
   }
-  const slug = toUsernameSlug(draft);
+  const slug = toSlug(draft);
   const rule = 'Only lowercase letters, numbers and dashes';
   return isUsername(slug) && slug !== draft ? `${rule}: “${slug}” works` : rule;
 }

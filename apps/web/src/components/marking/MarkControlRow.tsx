@@ -70,6 +70,8 @@ export default function MarkControlRow({
   const singleLayer = cn('flex', layer(!pairShown));
   const pairHidden = !pairShown || undefined;
   const singleHidden = pairShown || undefined;
+  const pairLayerId = `pair-${show.id}`;
+  const singleLayerId = `single-${show.id}`;
   return (
     <span className={classes} data-mark-control={state.kind} ref={row}>
       {/* keyed by the series: another series (the decade card's next
@@ -78,7 +80,7 @@ export default function MarkControlRow({
         aria-hidden={pairHidden}
         className={pairLayer}
         data-layer="pair"
-        key={`pair-${show.id}`}
+        key={pairLayerId}
       >
         <MarkPair look={look} show={show} />
       </span>
@@ -87,7 +89,7 @@ export default function MarkControlRow({
           aria-hidden={singleHidden}
           className={singleLayer}
           data-layer="single"
-          key={`single-${show.id}`}
+          key={singleLayerId}
         >
           <MarkSingle look={look} show={show} state={drawn} />
         </span>

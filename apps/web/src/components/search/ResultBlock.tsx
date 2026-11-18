@@ -62,14 +62,17 @@ export default function ResultBlock({
         {LABEL[section.kind]}
       </div>
       <div className={BLOCK_GRID[section.kind]}>
-        {section.cells.map((cell) => (
-          <Option
-            cell={cell}
-            key={cell.key}
-            marked={cell.key === markedKey}
-            onChoose={onChoose}
-          />
-        ))}
+        {section.cells.map((cell) => {
+          const marked = cell.key === markedKey;
+          return (
+            <Option
+              cell={cell}
+              key={cell.key}
+              marked={marked}
+              onChoose={onChoose}
+            />
+          );
+        })}
       </div>
     </div>
   );

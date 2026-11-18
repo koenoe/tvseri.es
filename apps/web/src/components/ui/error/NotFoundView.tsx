@@ -42,10 +42,11 @@ export default function NotFoundView({
   );
   const discovery =
     shows.length > 0 ? <NotFoundPosters pool={shows} /> : undefined;
+  const body = pool.length > 0 ? BODY_WITH_PICK : BODY;
   return (
     <ErrorState
       actions={actions}
-      body={pool.length > 0 ? BODY_WITH_PICK : BODY}
+      body={body}
       code="S04E04"
       discovery={discovery}
       header={header}

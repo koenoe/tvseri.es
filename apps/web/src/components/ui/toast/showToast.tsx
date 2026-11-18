@@ -67,9 +67,8 @@ export function showToast({
   current = toastId;
   version += 1;
   const shownVersion = version;
-  const disc = icon ?? (
-    <Icon glyph={tone === 'error' ? warningGlyph : checkGlyph} size={16} />
-  );
+  const toneGlyph = tone === 'error' ? warningGlyph : checkGlyph;
+  const disc = icon ?? <Icon glyph={toneGlyph} size={16} />;
 
   toast.custom(
     (sonnerId) => (

@@ -29,6 +29,7 @@ export default function PosterArt({
   sizes,
   title,
 }: Props) {
+  const posterAlt = alt ?? title;
   return (
     <span
       className="relative block aspect-2/3 w-full rounded-[var(--tile-radius,12px)] bg-white/5 shadow-[var(--tile-shadow,0_10px_15px_-3px_rgb(0_0_0/0.1),0_4px_6px_-4px_rgb(0_0_0/0.1))] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08)]"
@@ -36,7 +37,7 @@ export default function PosterArt({
     >
       {poster ? (
         <Image
-          alt={alt ?? title}
+          alt={posterAlt}
           className="rounded-[inherit] object-cover"
           fill
           loading={loading}

@@ -46,6 +46,7 @@ export function showSlice({
   seriesId: number;
   title: string;
 }>): SliceParts {
+  const historyHref = `${href}?history`;
   return {
     backdrop: (
       <>
@@ -69,7 +70,7 @@ export function showSlice({
         <SliceCorner side="right">
           <LazyShowRemote
             hasAired
-            historyHref={`${href}?history`}
+            historyHref={historyHref}
             seriesId={seriesId}
             seriesName={title}
             size={32}

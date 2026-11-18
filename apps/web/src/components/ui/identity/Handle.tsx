@@ -61,8 +61,9 @@ export default function Handle({
     </>
   );
   const content = href ? <Link href={href}>{mark}</Link> : mark;
+  const handle = `@${username}`;
   return (
-    <Tag className={line} style={style} title={`@${username}`}>
+    <Tag className={line} style={style} title={handle}>
       {content}
     </Tag>
   );

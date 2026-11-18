@@ -49,13 +49,8 @@ function StreamedToggle({
 }: ToggleProps & Readonly<{ states: ControlStatesRead }>) {
   const resolved = use(states);
   const streamed = resolved?.[props.id] ?? NEW_TO_YOU;
-  return (
-    <WatchlistToggleRow
-      {...props}
-      fadeIn={resolved !== null}
-      streamed={streamed}
-    />
-  );
+  const fadeIn = resolved !== null;
+  return <WatchlistToggleRow {...props} fadeIn={fadeIn} streamed={streamed} />;
 }
 
 function WatchlistToggleFallback(props: ToggleProps) {

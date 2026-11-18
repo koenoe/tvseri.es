@@ -39,6 +39,7 @@ function Still({
     STILL,
     'bg-rk-key after:absolute after:inset-0 after:rounded-6 after:shadow-[inset_0_0_0_1px_rgb(0_0_0/0.06)]',
   );
+  const unoptimized = !isTmdbImage(src);
   return (
     <span className={filled}>
       <Image
@@ -47,7 +48,7 @@ function Still({
         fill
         sizes="(max-width: 767.98px) 144px, 112px"
         src={src}
-        unoptimized={!isTmdbImage(src)}
+        unoptimized={unoptimized}
       />
       {pending ? (
         <span className="absolute inset-0 z-1 flex items-center justify-center bg-white/55">
@@ -101,11 +102,13 @@ export default function BigKey({ marking, seriesId, ...input }: Props) {
       () => close(true, openId),
     );
   };
+  const busy = key.pending || undefined;
+  const ariaDisabled = key.disabled || undefined;
 
   return (
     <button
-      aria-busy={key.pending || undefined}
-      aria-disabled={key.disabled || undefined}
+      aria-busy={busy}
+      aria-disabled={ariaDisabled}
       aria-keyshortcuts="N"
       className={BIG_KEY}
       data-remote-key=""

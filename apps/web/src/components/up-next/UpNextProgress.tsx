@@ -12,13 +12,11 @@ export default function UpNextProgress({
 }: Readonly<{ item: UpNextItem }>) {
   const { toWatch, watched } = progressLabel(item);
   const label = `${watched} · ${toWatch}`;
+  const aired = airedPercent(item);
+  const watchedShare = watchedPercent(item);
   return (
     <span className={UP_NEXT_PROGRESS}>
-      <ProgressTrack
-        aired={airedPercent(item)}
-        label={label}
-        watched={watchedPercent(item)}
-      />
+      <ProgressTrack aired={aired} label={label} watched={watchedShare} />
       <UpNextCaption lead={watched} rest={toWatch} />
     </span>
   );

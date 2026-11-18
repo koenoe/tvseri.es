@@ -25,12 +25,13 @@ export default function OptionLink({
 }: OptionProps & Readonly<{ children: ReactNode; className: string }>) {
   const choose = (event: MouseEvent<HTMLAnchorElement>) =>
     onChoose(cell, event);
+  const id = optionId(cell.key);
   return (
     <TileLink
       aria-selected={marked}
       className={className}
       href={cell.href}
-      id={optionId(cell.key)}
+      id={id}
       onClick={choose}
       // results never prefetch in view (they change per keystroke); intent does
       prefetchOn="intent"

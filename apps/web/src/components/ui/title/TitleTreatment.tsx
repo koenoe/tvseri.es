@@ -56,10 +56,11 @@ export function TitleTreatmentLogo({
   src,
   title,
 }: LogoProps) {
+  const logoAlt = alt ?? title;
   const image =
     look.width === undefined ? (
       <Image
-        alt={alt ?? title}
+        alt={logoAlt}
         className={look.logo}
         draggable={draggable}
         fill
@@ -69,7 +70,7 @@ export function TitleTreatmentLogo({
       />
     ) : (
       <Image
-        alt={alt ?? title}
+        alt={logoAlt}
         className={look.logo}
         draggable={draggable}
         height={look.height}

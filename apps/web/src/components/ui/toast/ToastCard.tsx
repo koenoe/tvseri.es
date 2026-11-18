@@ -82,9 +82,10 @@ export default function ToastCard({
   const stacks = Boolean(secondaryAction && action);
   const card = cn(CARD, stacks && CARD_STACKS);
   const actions = cn(ACTIONS, stacks && ACTIONS_STACKED);
+  const iconClasses = tone === 'error' ? ICON_BARE : ICON_DISC;
   return (
     <div className={card} {...pauseHandlers}>
-      <span className={tone === 'error' ? ICON_BARE : ICON_DISC}>{icon}</span>
+      <span className={iconClasses}>{icon}</span>
       <p
         className="line-clamp-2 min-w-0 flex-1 text-body-sm font-medium max-[600px]:leading-5"
         title={title}

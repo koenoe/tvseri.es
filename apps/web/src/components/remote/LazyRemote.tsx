@@ -54,12 +54,13 @@ function LazyRemote<P extends RemoteMount>({
     return <Remote {...props} {...mount} />;
   }
   const label = remoteLabels(look.seriesName).trigger;
+  const iconSize = look.iconSize ?? 20;
   return (
     <RemoteTrigger
       {...trigger}
       aria-expanded={false}
       className={look.className}
-      iconSize={look.iconSize ?? 20}
+      iconSize={iconSize}
       ink={look.ink}
       label={label}
       size={look.size}

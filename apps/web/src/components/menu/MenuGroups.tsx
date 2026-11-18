@@ -55,38 +55,44 @@ export default function MenuGroups({
 
   const list = (items: ReadonlyArray<MenuItem>, className: string) => (
     <m.ul className="flex flex-col items-start" variants={look.listVariants}>
-      {items.map((item) => (
-        <m.li
-          className="flex"
-          custom={fromBottom(item)}
-          key={item.id}
-          variants={look.wordVariants}
-        >
-          <MenuEntry
-            className={className}
-            item={item}
-            onNavigate={onNavigate}
-          />
-        </m.li>
-      ))}
+      {items.map((item) => {
+        const riseOrder = fromBottom(item);
+        return (
+          <m.li
+            className="flex"
+            custom={riseOrder}
+            key={item.id}
+            variants={look.wordVariants}
+          >
+            <MenuEntry
+              className={className}
+              item={item}
+              onNavigate={onNavigate}
+            />
+          </m.li>
+        );
+      })}
     </m.ul>
   );
 
-  const label = (text: string, first: MenuItem | undefined, later: boolean) => (
-    <m.p
-      className={later ? look.laterLabel : look.label}
-      custom={first ? fromBottom(first) : 0}
-      variants={look.wordVariants}
-    >
-      {text}
-      {later && model.you ? (
-        <span className="normal-case tracking-normal">
-          {' '}
-          · @{model.you.handle}
-        </span>
-      ) : null}
-    </m.p>
-  );
+  const label = (text: string, first: MenuItem | undefined, later: boolean) => {
+    const riseOrder = first ? fromBottom(first) : 0;
+    return (
+      <m.p
+        className={later ? look.laterLabel : look.label}
+        custom={riseOrder}
+        variants={look.wordVariants}
+      >
+        {text}
+        {later && model.you ? (
+          <span className="normal-case tracking-normal">
+            {' '}
+            · @{model.you.handle}
+          </span>
+        ) : null}
+      </m.p>
+    );
+  };
 
   return (
     <>

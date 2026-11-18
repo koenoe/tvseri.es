@@ -73,6 +73,7 @@ export default function RankedTile({
   const ownWidth = fit.tile === 1 ? undefined : '';
   const tileStyle =
     fit.tile === 1 ? undefined : { width: tileWidths(fit.tile) };
+  const posterAlt = `${rank}. ${title}`;
   return (
     <div className="relative flex" data-own-width={ownWidth} style={tileStyle}>
       <span aria-hidden className={numeral} style={numeralStyle}>
@@ -80,7 +81,7 @@ export default function RankedTile({
       </span>
       <div className="relative z-1 ml-auto w-[calc(var(--row-tile)*var(--ranked-poster,0.62069))]">
         <PosterTile
-          alt={`${rank}. ${title}`}
+          alt={posterAlt}
           id={id}
           loading={loading}
           overlay={overlay}

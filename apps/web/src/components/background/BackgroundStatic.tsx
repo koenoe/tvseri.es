@@ -6,8 +6,10 @@ export default function BackgroundStatic({
   image,
   priority = false,
 }: Pick<BackgroundProps, 'color' | 'image' | 'priority'>) {
+  const baseClasses = backgroundBaseStyles();
+
   return (
-    <div className={backgroundBaseStyles()}>
+    <div className={baseClasses}>
       <BackgroundBase color={color} image={image} priority={priority} />
     </div>
   );

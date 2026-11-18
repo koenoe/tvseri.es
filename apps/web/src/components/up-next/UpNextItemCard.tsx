@@ -44,12 +44,10 @@ export default function UpNextItemCard({
 }>) {
   const last = lastWatchedLabel(item, now);
   const pill = last ? { glyph: historyGlyph, text: last } : null;
+  const episodeTitle = item.episodeTitle ?? item.title;
+  const label = itemLabel(item);
   const bar = (
-    <UpNextBar
-      code={item.code}
-      end={episodeEnd}
-      title={item.episodeTitle ?? item.title}
-    >
+    <UpNextBar code={item.code} end={episodeEnd} title={episodeTitle}>
       <UpNextProgress item={item} />
     </UpNextBar>
   );
@@ -60,7 +58,7 @@ export default function UpNextItemCard({
       bar={bar}
       facts={facts}
       href={href}
-      label={itemLabel(item)}
+      label={label}
       loading={loading}
       logo={art?.titleTreatmentImage}
       pill={pill}

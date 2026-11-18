@@ -63,15 +63,18 @@ export default function SliceAccordion({
   return (
     <MaxMotion>
       <div className={ACCORDION} onBlur={resetOnBlur} onPointerLeave={reset}>
-        {slices.map((slice, index) => (
-          <Slice
-            index={index}
-            isOpen={index === open}
-            key={slice.id}
-            onOpen={setOpen}
-            slice={slice}
-          />
-        ))}
+        {slices.map((slice, index) => {
+          const isOpen = index === open;
+          return (
+            <Slice
+              index={index}
+              isOpen={isOpen}
+              key={slice.id}
+              onOpen={setOpen}
+              slice={slice}
+            />
+          );
+        })}
       </div>
     </MaxMotion>
   );

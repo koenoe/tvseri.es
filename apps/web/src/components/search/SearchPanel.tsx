@@ -20,15 +20,15 @@ export default function SearchPanel({ inputRef, onClose, search }: Props) {
   const activeId = marked ? optionId(marked.key) : undefined;
   // An empty field with no recents yet is the field alone (desktop), until
   // a first query's ghost rows need the body.
-  const hasBody =
-    search.phone || view.mode !== 'recents' || view.cells.length > 0;
+  const hasOptions = view.cells.length > 0;
+  const hasBody = search.phone || view.mode !== 'recents' || hasOptions;
   const layout = search.phone ? 'phone' : 'desktop';
 
   return (
     <>
       <SearchField
         activeId={activeId}
-        hasOptions={view.cells.length > 0}
+        hasOptions={hasOptions}
         inputRef={inputRef}
         onClose={onClose}
         onEnter={search.enter}

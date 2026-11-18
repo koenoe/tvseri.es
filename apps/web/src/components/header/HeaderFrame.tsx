@@ -118,7 +118,10 @@ function HeaderFrame({ children }: Readonly<{ children: ReactNode }>) {
     [shouldAnimate],
   );
 
+  const headerClasses = headerStyles({ mode: visual });
+  const containerClasses = containerStyles({ layout });
   const navClasses = cn(navStyles({ layout }), named && 'bg-page');
+  const contentClasses = contentStyles({ layout });
 
   // Layout morphs need domMax (MaxMotion); until it loads the bar draws its
   // current mode without animating
@@ -127,7 +130,7 @@ function HeaderFrame({ children }: Readonly<{ children: ReactNode }>) {
       <GlassDistortion />
       <m.header
         animate={visual}
-        className={headerStyles({ mode: visual })}
+        className={headerClasses}
         data-header-mode={visual}
         data-header-named={named}
         initial={false}
@@ -136,7 +139,7 @@ function HeaderFrame({ children }: Readonly<{ children: ReactNode }>) {
         variants={HEADER_VARIANTS}
       >
         <m.div
-          className={containerStyles({ layout })}
+          className={containerClasses}
           initial={false}
           layout
           layoutDependency={isFloating}
@@ -151,7 +154,7 @@ function HeaderFrame({ children }: Readonly<{ children: ReactNode }>) {
           >
             <HeaderGlass shown={isFloating} transition={opacityTransition} />
             <m.div
-              className={contentStyles({ layout })}
+              className={contentClasses}
               initial={false}
               layout
               layoutDependency={isFloating}

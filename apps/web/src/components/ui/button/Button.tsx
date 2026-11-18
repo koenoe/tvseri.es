@@ -50,11 +50,13 @@ export default function Button({
   const classes = buttonStyles({ className, size, variant });
   const resolvedIconSize = iconSize ?? BUTTON_ICON_SIZE[size ?? 'md'];
   const handleClick = pendingClick(pending, onClick);
+  const busy = pending || undefined;
+  const blocked = pending || ariaDisabled;
 
   return (
     <button
-      aria-busy={pending || undefined}
-      aria-disabled={pending || ariaDisabled}
+      aria-busy={busy}
+      aria-disabled={blocked}
       aria-pressed={pressed}
       className={classes}
       onClick={handleClick}

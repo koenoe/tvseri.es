@@ -13,8 +13,9 @@ export default function ExitGuard({
   children,
 }: Readonly<{ children: ReactNode }>) {
   const present = useIsPresent();
+  const leaving = !present;
   return (
-    <div className="contents" inert={!present}>
+    <div className="contents" inert={leaving}>
       {children}
     </div>
   );

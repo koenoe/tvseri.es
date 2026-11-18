@@ -61,7 +61,6 @@ export default function AppErrorView({ error, retry }: Props) {
   if (isDataDown(error)) {
     return <DataDownView header={header} retry={button} />;
   }
-  return (
-    <ServerErrorView errorId={digestOf(error)} header={header} retry={button} />
-  );
+  const errorId = digestOf(error);
+  return <ServerErrorView errorId={errorId} header={header} retry={button} />;
 }

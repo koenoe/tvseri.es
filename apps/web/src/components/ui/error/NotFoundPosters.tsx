@@ -14,6 +14,8 @@ const SMALL_POSTER: CSSProperties = { '--tile-radius': '8px' } as CSSProperties;
 /** “Or start something new” shows five posters. */
 const POSTERS = 5;
 
+const POSTER_LINK = `block rounded-8 [&>span]:shadow-[0_10px_15px_-3px_rgb(0_0_0/0.25)] ${TILE_HOVER}`;
+
 /**
  * “Or start something new”: five trending posters, 64 ×
  * 96 (58 × 87 on phones), each a link to its show, with a single
@@ -38,17 +40,24 @@ export default function NotFoundPosters({
         Or start something new
       </h2>
       <ul className="flex gap-2">
-        {shows.map((show) => (
-          <li className="w-14.5 min-w-0 md:w-16" key={show.id}>
-            <TileLink
-              className={`block rounded-8 [&>span]:shadow-[0_10px_15px_-3px_rgb(0_0_0/0.25)] ${TILE_HOVER}`}
-              href={showPath(show.id, show.slug)}
-              style={SMALL_POSTER}
-            >
-              <PosterArt poster={show.poster} sizes="64px" title={show.title} />
-            </TileLink>
-          </li>
-        ))}
+        {shows.map((show) => {
+          const href = showPath(show.id, show.slug);
+          return (
+            <li className="w-14.5 min-w-0 md:w-16" key={show.id}>
+              <TileLink
+                className={POSTER_LINK}
+                href={href}
+                style={SMALL_POSTER}
+              >
+                <PosterArt
+                  poster={show.poster}
+                  sizes="64px"
+                  title={show.title}
+                />
+              </TileLink>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );

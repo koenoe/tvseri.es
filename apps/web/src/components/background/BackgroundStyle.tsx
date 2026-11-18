@@ -29,11 +29,12 @@ main,
 [data-site-footer] {
   background-color: var(--main-background-color) !important;
 }`;
+  const styleHref = `page-colour-${hex.slice(1)}`;
 
   return (
     <>
       <style
-        href={`page-colour-${hex.slice(1)}`}
+        href={styleHref}
         // biome-ignore lint/suspicious/noUnknownAttribute: React 19's hoistable <style> (into <head>), not a DOM attribute
         precedence="page-colour"
       >

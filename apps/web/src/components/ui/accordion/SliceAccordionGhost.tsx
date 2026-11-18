@@ -17,16 +17,19 @@ export default function SliceAccordionGhost({
 }: Readonly<{ slices: number }>) {
   return (
     <div aria-hidden="true" className={ROW}>
-      {Array.from({ length: slices }, (_, index) => (
-        <div className={SLICE_GHOST} data-open={index === 0} key={index}>
-          {index === 0 ? (
-            <span className="absolute right-4 bottom-5 left-4 flex flex-col gap-[18px] xl:right-auto xl:bottom-[26px] xl:left-6 xl:w-[440px]">
-              <Ghost className="h-16 w-56 max-w-full rounded-8" />
-              <TextLine className="text-meta" width="w-48" />
-            </span>
-          ) : null}
-        </div>
-      ))}
+      {Array.from({ length: slices }, (_, index) => {
+        const first = index === 0;
+        return (
+          <div className={SLICE_GHOST} data-open={first} key={index}>
+            {first ? (
+              <span className="absolute right-4 bottom-5 left-4 flex flex-col gap-[18px] xl:right-auto xl:bottom-[26px] xl:left-6 xl:w-[440px]">
+                <Ghost className="h-16 w-56 max-w-full rounded-8" />
+                <TextLine className="text-meta" width="w-48" />
+              </span>
+            ) : null}
+          </div>
+        );
+      })}
     </div>
   );
 }

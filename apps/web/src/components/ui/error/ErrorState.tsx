@@ -62,7 +62,8 @@ export default function ErrorState({
   title,
 }: Props) {
   const page: CSSProperties = { backgroundColor: still.ground };
-  const actionsClass = search ? 'mt-4' : 'mt-6';
+  const actionsGap = search ? 'mt-4' : 'mt-6';
+  const actionsClasses = `${actionsGap} flex w-full items-center gap-2 md:gap-3 *:max-md:h-11 *:max-md:flex-1 *:max-md:px-3`;
 
   return (
     <div className="relative isolate flex min-h-dvh flex-col" style={page}>
@@ -83,11 +84,7 @@ export default function ErrorState({
           <ErrorTitle>{title}</ErrorTitle>
           <p className="mt-3 max-w-130 text-body text-white/80">{body}</p>
           {search ? <div className="mt-6 w-full md:w-120">{search}</div> : null}
-          <div
-            className={`${actionsClass} flex w-full items-center gap-2 md:gap-3 *:max-md:h-11 *:max-md:flex-1 *:max-md:px-3`}
-          >
-            {actions}
-          </div>
+          <div className={actionsClasses}>{actions}</div>
           {footnote ? (
             <p className="mt-4 text-caption text-white/60 tabular-nums">
               {footnote}

@@ -71,10 +71,11 @@ export default function UnauthorizedView(props: Props) {
   if (props.variant === 'profile') {
     const { header, statsYear, username } = props;
     const checking = statsYear === undefined;
+    const hiddenWhileChecking = checking || undefined;
     const statsLink =
       typeof statsYear === 'number' || checking ? (
         <ButtonLink
-          aria-hidden={checking || undefined}
+          aria-hidden={hiddenWhileChecking}
           className={checking ? 'invisible' : undefined}
           href={statsPath(username, statsYear ?? new Date().getUTCFullYear())}
           icon={statsGlyph}
@@ -90,6 +91,7 @@ export default function UnauthorizedView(props: Props) {
         {statsLink}
       </>
     );
+    const title = `Sign in to see @${username}’s profile.`;
     return (
       <ErrorState
         actions={actions}
@@ -98,7 +100,7 @@ export default function UnauthorizedView(props: Props) {
         header={header}
         kicker="Sign in needed"
         still={PROFILE_STILL}
-        title={`Sign in to see @${username}’s profile.`}
+        title={title}
       />
     );
   }

@@ -146,14 +146,10 @@ export default function KeyButton({
     }
     onSelect?.();
   };
+  const busy = pending || undefined;
 
   return (
-    <button
-      {...common}
-      aria-busy={pending || undefined}
-      onClick={run}
-      type="button"
-    >
+    <button {...common} aria-busy={busy} onClick={run} type="button">
       {body}
     </button>
   );

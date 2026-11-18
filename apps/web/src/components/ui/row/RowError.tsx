@@ -88,9 +88,11 @@ export default function RowError({
       <RowErrorCard state={state} title={heading.title} />
     );
   const slotsClass = cn('relative', reserve);
+  const retrying = state === 'retrying';
+  const ghostLook = retrying ? 'retrying' : 'failed';
   return (
     <RowFrame
-      aria-busy={state === 'retrying'}
+      aria-busy={retrying}
       inset={inset}
       look={look}
       tiles={tiles}
@@ -104,10 +106,7 @@ export default function RowError({
       */}
       <div className="relative pt-[var(--row-rail-pt,24px)] pb-6">
         <div className={slotsClass}>
-          <RowGhosts
-            caption={caption}
-            look={state === 'retrying' ? 'retrying' : 'failed'}
-          />
+          <RowGhosts caption={caption} look={ghostLook} />
           {card}
         </div>
       </div>
@@ -184,6 +183,7 @@ function CardBody({
   state,
   title,
 }: Readonly<{ title: string }> & State) {
+  const failedTitle = didNotLoad(title);
   if (state === 'retrying') {
     return (
       <FailedCard
@@ -192,7 +192,7 @@ function CardBody({
         look={ROW_FAILED}
         mark={showMark}
         role="alert"
-        title={didNotLoad(title)}
+        title={failedTitle}
       />
     );
   }
@@ -204,7 +204,7 @@ function CardBody({
         body={REST_IS_FINE}
         look={ROW_FAILED}
         mark={showMark}
-        title={didNotLoad(title)}
+        title={failedTitle}
       />
     );
   }
@@ -215,7 +215,7 @@ function CardBody({
       look={ROW_FAILED}
       mark={showMark}
       role="alert"
-      title={didNotLoad(title)}
+      title={failedTitle}
     />
   );
 }

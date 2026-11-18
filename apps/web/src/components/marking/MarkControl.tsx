@@ -54,9 +54,10 @@ function StreamedMarkControl({
 }: Readonly<{ look: MarkLook; show: MarkShow; states: ControlStatesRead }>) {
   const resolved = use(states);
   const streamed = resolved?.[show.id] ?? NEW_TO_YOU;
+  const fadeIn = resolved !== null;
   return (
     <MarkControlRow
-      fadeIn={resolved !== null}
+      fadeIn={fadeIn}
       look={look}
       show={show}
       streamed={streamed}

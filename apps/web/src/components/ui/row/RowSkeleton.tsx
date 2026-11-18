@@ -53,6 +53,7 @@ export default function RowSkeleton({
   titleGhost,
 }: Props) {
   const titleId = `${id}-title`;
+  const shownTitle = titleGhost ? <TitleGhost /> : titleContent;
   return (
     <RowFrame
       aria-busy
@@ -67,7 +68,7 @@ export default function RowSkeleton({
         subtitleGlyph={subtitleGlyph}
         switcher={switcher}
         title={title}
-        titleContent={titleGhost ? <TitleGhost /> : titleContent}
+        titleContent={shownTitle}
         titleId={titleId}
       />
       {switcher ? (

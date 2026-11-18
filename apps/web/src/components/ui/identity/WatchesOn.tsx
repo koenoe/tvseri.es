@@ -61,6 +61,7 @@ function Logos({ providers }: Readonly<{ providers: ReadonlyArray<Service> }>) {
   const shown = capped ? providers.slice(0, MAX_LOGOS - 1) : providers;
   const rest = providers.slice(shown.length);
   const restNames = rest.map((provider) => provider.name).join(', ');
+  const restLabel = `and ${restNames}`;
   return (
     <span className="flex min-w-0 items-center gap-1">
       {shown.map((provider) => (
@@ -74,7 +75,7 @@ function Logos({ providers }: Readonly<{ providers: ReadonlyArray<Service> }>) {
       ))}
       {capped ? (
         <Badge
-          aria-label={`and ${restNames}`}
+          aria-label={restLabel}
           className="shrink-0"
           title={restNames}
           variant="count"

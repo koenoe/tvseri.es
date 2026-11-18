@@ -130,15 +130,18 @@ function Results({
 }>) {
   return (
     <div className="transition-opacity duration-150 ease-out starting:opacity-0">
-      {sections.map((section, index) => (
-        <ResultBlock
-          first={index === 0}
-          key={section.kind}
-          markedKey={markedKey}
-          onChoose={onChoose}
-          section={section}
-        />
-      ))}
+      {sections.map((section, index) => {
+        const first = index === 0;
+        return (
+          <ResultBlock
+            first={first}
+            key={section.kind}
+            markedKey={markedKey}
+            onChoose={onChoose}
+            section={section}
+          />
+        );
+      })}
     </div>
   );
 }

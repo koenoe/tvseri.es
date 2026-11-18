@@ -90,10 +90,11 @@ export function TryAgain({
   const glyph = pending ? 'animate-spin' : undefined;
   const shown = pending ? RETRYING : IDLE;
   const hidden = pending ? IDLE : RETRYING;
+  const busy = pending || undefined;
   return (
     <button
-      aria-busy={pending || undefined}
-      aria-disabled={pending || undefined}
+      aria-busy={busy}
+      aria-disabled={busy}
       className={classes}
       onClick={handleClick}
       type="button"

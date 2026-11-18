@@ -27,7 +27,6 @@ export default function MaxMotion({
   children,
 }: Readonly<{ children: ReactNode }>) {
   const max = useMaxFeatures();
-  return (
-    <StableLazyMotion features={max ?? NOT_YET}>{children}</StableLazyMotion>
-  );
+  const features = max ?? NOT_YET;
+  return <StableLazyMotion features={features}>{children}</StableLazyMotion>;
 }

@@ -185,20 +185,6 @@ async function tmdbFetch(path: string, options?: BetterFetchOption) {
   });
 }
 
-/**
- * A show's raw TMDB images: English, text-free and its original language's,
- * the set the show page, the admin picker and the series facts choose from
- */
-const fetchRawTvSeriesImages = async (
-  id: number | string,
-  originalLanguage: string | undefined,
-) =>
-  (await tmdbFetch(`/3/tv/${id}/images`, {
-    query: {
-      include_image_language: `en,null,${originalLanguage ?? ''}`,
-    },
-  })) as TmdbTvSeriesImages | undefined;
-
 const fetchRawTvSeries = async (
   id: number | string,
   includeImages = false,
@@ -218,34 +204,18 @@ const fetchRawTvSeries = async (
     return series;
   }
 
-  const images = await fetchRawTvSeriesImages(
-    series.id,
-    series.original_language,
-  );
+  const images = (await tmdbFetch(`/3/tv/${series.id}/images`, {
+    query: {
+      include_image_language: `en,null,${series.original_language ?? ''}`,
+    },
+  })) as TmdbTvSeriesImages | undefined;
 
   return images ? { ...series, images } : series;
 };
 
-/**
- * The raw TMDB details of a show (with external ids) and its images, for the
- * series facts' default backdrop; undefined when the show is unknown. The
- * images are best-effort: without them the facts keep `backdrop_path`
- * rather than failing.
- */
-export const fetchRawTvSeriesDetails = async (id: number | string) => {
-  const series = await fetchRawTvSeries(id);
-  if (!series) {
-    return series;
-  }
-  const images = await fetchRawTvSeriesImages(
-    series.id,
-    series.original_language,
-  ).catch((error: unknown) => {
-    logWarn(`TMDB images failed for ${series.id}, using backdrop_path`, error);
-    return undefined;
-  });
-  return images ? { ...series, images } : series;
-};
+/** The raw TMDB details of a show (with external ids), undefined when unknown */
+export const fetchRawTvSeriesDetails = (id: number | string) =>
+  fetchRawTvSeries(id);
 
 /**
  * The show, its keywords and its recommendations in one TMDB call
@@ -480,7 +450,11 @@ export async function fetchTvSeriesImages(
   id: number | string,
   originalLanguage?: string,
 ): Promise<Omit<SeriesImages, 'preferred'> | undefined> {
-  const response = await fetchRawTvSeriesImages(id, originalLanguage);
+  const response = (await tmdbFetch(`/3/tv/${id}/images`, {
+    query: {
+      include_image_language: `en,null,${originalLanguage ?? ''}`,
+    },
+  })) as TmdbTvSeriesImages | undefined;
 
   if (!response) {
     return undefined;

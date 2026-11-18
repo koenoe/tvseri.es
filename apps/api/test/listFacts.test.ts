@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { preferredImagesPk } from '@/lib/db/preferredImages/keys';
 
 import { db } from './db';
-import { onTmdb } from './fakeHttp';
 import { fakeShow } from './fixtures/tmdb';
 import { episodes, listItem, seedWatched } from './library';
 import { request } from './request';
@@ -262,27 +261,6 @@ describe('?include=facts on list reads (Favourites accordion)', () => {
           'PreferredImages' in (command.input.RequestItems ?? {}),
       );
       expect(pickReads).toHaveLength(1);
-    });
-
-    it("draws the show page's text-free default, and a pick over it", async () => {
-      setup();
-      onTmdb('/tv/1/images', {
-        backdrops: [
-          { file_path: '/titled1.jpg', iso_639_1: 'en' },
-          { file_path: '/plain1.jpg', iso_639_1: null },
-        ],
-      });
-
-      expect((await backdrops())[0]).toEqual([
-        1,
-        expect.stringContaining('/plain1.jpg'),
-      ]);
-
-      db.seed('PreferredImages', [pick(1, '/picked1.jpg')]);
-      expect((await backdrops())[0]).toEqual([
-        1,
-        expect.stringContaining('/picked1.jpg'),
-      ]);
     });
 
     it("keeps TMDB's backdrop when the picks can't be read", async () => {

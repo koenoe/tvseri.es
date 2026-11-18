@@ -210,7 +210,7 @@ describe('GET /series/summaries', () => {
 
     expect(body['1']?.id).toBe(1);
     expect(db.dump('Cache').map((item) => String(item.pk))).toContain(
-      'CACHE#series-facts:v2:1',
+      'CACHE#series-facts:v1:1',
     );
   });
 

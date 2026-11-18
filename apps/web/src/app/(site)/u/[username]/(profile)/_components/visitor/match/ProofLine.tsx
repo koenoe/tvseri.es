@@ -11,7 +11,7 @@ import {
 } from './matchCopy';
 
 const NAME =
-  '-mx-[3px] rounded-[5px] px-[3px] py-px font-semibold text-white underline decoration-[rgb(var(--acr)/0.6)] decoration-2 underline-offset-[3px] transition-[background-color,color,box-shadow] hover:bg-[var(--ac)] hover:text-ground-deep hover:no-underline focus-visible:bg-[var(--ac)] focus-visible:text-ground-deep focus-visible:no-underline focus-visible:outline-0';
+  '-mx-[3px] rounded-[5px] px-[3px] py-px font-semibold text-white underline decoration-[rgb(var(--acr)/0.6)] decoration-2 underline-offset-[3px] transition-[background-color,color,box-shadow] hover:bg-[var(--ac)] hover:text-ground-deep hover:no-underline focus-visible:bg-[var(--ac)] focus-visible:text-ground-deep focus-visible:no-underline focus-visible:outline-hidden';
 
 /**
  * Two lines, always: its ghost's (`MatchCardSkeleton`), so long titles never

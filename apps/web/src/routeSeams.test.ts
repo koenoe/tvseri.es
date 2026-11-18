@@ -139,7 +139,7 @@ describe('privateImportViolations', () => {
     const sources = [
       {
         file: `${PROFILE}/history/_components/Diary.tsx`,
-        text: `import { buildDiary } from '../_lib/diary';\nimport Dot from '../../_components/blocks/Dot';`,
+        text: `import { buildDiary } from '../_lib/diary';\nimport LoadAbove from '../../_components/blocks/LoadAbove';`,
       },
       {
         file: `${PROFILE}/@aside/history/layout.tsx`,

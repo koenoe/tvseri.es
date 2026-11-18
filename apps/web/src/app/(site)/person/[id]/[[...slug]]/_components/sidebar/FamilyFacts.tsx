@@ -43,6 +43,7 @@ function FamilyLink({ href, name }: Readonly<{ href: string; name: string }>) {
 }
 
 const FACTS_GHOST = `${FACTS} max-lg:gap-2.5 ${PULSE}`;
+const FAMILY_FACTS = `${FACTS} max-lg:gap-2.5`;
 const ICON_GHOST = cn(
   'size-[13px] shrink-0 rounded-full lg:size-[15px]',
   GHOST_FILL,
@@ -106,7 +107,7 @@ export default async function FamilyFacts({
   return (
     <div
       aria-label="Family and awards"
-      className={`${FACTS} max-lg:gap-2.5`}
+      className={FAMILY_FACTS}
       data-slot="person-family"
       role="group"
     >

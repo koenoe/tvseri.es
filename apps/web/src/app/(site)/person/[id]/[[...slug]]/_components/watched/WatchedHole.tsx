@@ -17,13 +17,12 @@ import SeedWatched from './SeedWatched';
  * the line share it, so the line lands in the space already there.
  */
 const FRAME = 'border-t-2 border-white/8 pt-4 lg:pt-7';
+const PLACEHOLDER_FRAME = `${FRAME} box-content h-6`;
+const WATCHED_FACTS = `${FACTS} ${FRAME}`;
 
 export function WatchedPlaceholder() {
   return (
-    <SignedInOnly
-      className={`${FRAME} box-content h-6`}
-      placeholder="person-watched"
-    />
+    <SignedInOnly className={PLACEHOLDER_FRAME} placeholder="person-watched" />
   );
 }
 
@@ -76,7 +75,7 @@ export default async function WatchedHole({
     <>
       <div
         aria-label="Watched, signed in"
-        className={`${FACTS} ${FRAME}`}
+        className={WATCHED_FACTS}
         data-slot="person-watched"
         role="group"
       >

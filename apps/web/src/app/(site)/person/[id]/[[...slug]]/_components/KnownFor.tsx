@@ -87,22 +87,24 @@ export default async function KnownFor({ id }: Readonly<{ id: number }>) {
     >
       <SectionHead id="person-known-for" title="Known for" />
       <div className={ROW}>
-        {tiles.map((tile) =>
-          tile.href ? (
+        {tiles.map((tile) => {
+          const showId = `show-${tile.id}`;
+          const filmId = `film-${tile.id}`;
+          return tile.href ? (
             <TileLink
               aria-label={tile.aria}
               className={TILE}
               href={tile.href}
-              key={`show-${tile.id}`}
+              key={showId}
             >
               <TileBody tile={tile} />
             </TileLink>
           ) : (
-            <div className={TILE} key={`film-${tile.id}`}>
+            <div className={TILE} key={filmId}>
               <TileBody tile={tile} />
             </div>
-          ),
-        )}
+          );
+        })}
         <span aria-hidden="true" className="w-0 shrink-0 lg:hidden" />
       </div>
     </section>

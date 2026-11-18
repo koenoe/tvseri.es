@@ -105,30 +105,37 @@ function Axis({ view }: Readonly<{ view: CareerView }>) {
     'absolute top-0 text-caption whitespace-nowrap',
     markerClass,
   );
+  const markerAt = { left: `${marker.at}%` };
   return (
     <>
       <div aria-hidden="true" className={AXIS_COLUMNS}>
         <span />
         <span className="relative">
-          {view.axis.desktop.map((tick) => (
-            <span
-              className="absolute top-0 hidden -translate-x-1/2 text-caption whitespace-nowrap text-white/60 tabular-nums lg:block"
-              key={tick.label}
-              style={{ left: `${tick.at}%` }}
-            >
-              {tick.label}
-            </span>
-          ))}
-          {view.axis.phone.map((tick) => (
-            <span
-              className="absolute top-0 -translate-x-1/2 text-caption whitespace-nowrap text-white/60 tabular-nums lg:hidden"
-              key={tick.label}
-              style={{ left: `${tick.at}%` }}
-            >
-              {tick.label}
-            </span>
-          ))}
-          <span className={markerLabelClass} style={{ left: `${marker.at}%` }}>
+          {view.axis.desktop.map((tick) => {
+            const tickAt = { left: `${tick.at}%` };
+            return (
+              <span
+                className="absolute top-0 hidden -translate-x-1/2 text-caption whitespace-nowrap text-white/60 tabular-nums lg:block"
+                key={tick.label}
+                style={tickAt}
+              >
+                {tick.label}
+              </span>
+            );
+          })}
+          {view.axis.phone.map((tick) => {
+            const tickAt = { left: `${tick.at}%` };
+            return (
+              <span
+                className="absolute top-0 -translate-x-1/2 text-caption whitespace-nowrap text-white/60 tabular-nums lg:hidden"
+                key={tick.label}
+                style={tickAt}
+              >
+                {tick.label}
+              </span>
+            );
+          })}
+          <span className={markerLabelClass} style={markerAt}>
             {marker.label}
           </span>
         </span>
@@ -137,16 +144,19 @@ function Axis({ view }: Readonly<{ view: CareerView }>) {
         aria-hidden="true"
         className="pointer-events-none absolute top-6 right-0 bottom-0 left-[116px] lg:left-[184px]"
       >
-        {view.grid.map((at) => (
-          <i
-            className="absolute top-0 bottom-0 w-px bg-white/5"
-            key={at}
-            style={{ left: `${at}%` }}
-          />
-        ))}
+        {view.grid.map((at) => {
+          const lineAt = { left: `${at}%` };
+          return (
+            <i
+              className="absolute top-0 bottom-0 w-px bg-white/5"
+              key={at}
+              style={lineAt}
+            />
+          );
+        })}
         <i
           className="absolute top-0 bottom-0 w-px bg-white/28"
-          style={{ left: `${marker.at}%` }}
+          style={markerAt}
         />
       </span>
     </>
@@ -159,44 +169,44 @@ function Rows({
 }: Readonly<{ personId: number; view: CareerView }>) {
   return (
     <>
-      {view.rows.map((row) => (
-        <TileLink
-          className={ROW}
-          data-career-row=""
-          href={row.href}
-          key={row.id}
-        >
-          <span className="flex min-w-0 flex-col gap-px pl-1 lg:block lg:pl-2">
-            <span className={NAME_LABEL}>{row.name}</span>
-            <span className="sr-only">{row.details}</span>
-            <span aria-hidden="true" className={SUB}>
-              {row.years}
+      {view.rows.map((row) => {
+        const captionAt = captionStyle(row.caption);
+        return (
+          <TileLink
+            className={ROW}
+            data-career-row=""
+            href={row.href}
+            key={row.id}
+          >
+            <span className="flex min-w-0 flex-col gap-px pl-1 lg:block lg:pl-2">
+              <span className={NAME_LABEL}>{row.name}</span>
+              <span className="sr-only">{row.details}</span>
+              <span aria-hidden="true" className={SUB}>
+                {row.years}
+              </span>
             </span>
-          </span>
-          <span className={TRACK}>
-            <CareerMarks
-              bar={row.bar}
-              personId={personId}
-              runs={row.runs}
-              seriesId={row.id}
-              weight={row.weight}
-            />
-            <span
-              aria-hidden="true"
-              className={CAPTION}
-              style={captionStyle(row.caption)}
-            >
-              <CaptionItem icon={row.voice ? micGlyph : userGlyph}>
-                {row.role}
-              </CaptionItem>
-              <CaptionItem icon={seasonGlyph}>{row.episodes}</CaptionItem>
-              <CaptionItem icon={calendarGlyph}>{row.years}</CaptionItem>
+            <span className={TRACK}>
+              <CareerMarks
+                bar={row.bar}
+                personId={personId}
+                runs={row.runs}
+                seriesId={row.id}
+                weight={row.weight}
+              />
+              <span aria-hidden="true" className={CAPTION} style={captionAt}>
+                <CaptionItem icon={row.voice ? micGlyph : userGlyph}>
+                  {row.role}
+                </CaptionItem>
+                <CaptionItem icon={seasonGlyph}>{row.episodes}</CaptionItem>
+                <CaptionItem icon={calendarGlyph}>{row.years}</CaptionItem>
+              </span>
             </span>
-          </span>
-        </TileLink>
-      ))}
+          </TileLink>
+        );
+      })}
       {view.upcoming.map((row) => {
         const style = { right: `calc(${row.captionRight}% + 4px)` };
+        const barAt = barStyle(row.bar.start, row.bar.end, 1);
         return (
           <TileLink
             className={ROW}
@@ -212,10 +222,7 @@ function Rows({
               </span>
             </span>
             <span className={TRACK}>
-              <i
-                className={UPCOMING_BAR}
-                style={barStyle(row.bar.start, row.bar.end, 1)}
-              />
+              <i className={UPCOMING_BAR} style={barAt} />
               <span
                 aria-hidden="true"
                 className={UPCOMING_CAPTION}
@@ -259,13 +266,16 @@ function GuestRow({
         </span>
       </span>
       <span className={TRACK}>
-        {view.ticks.map((at, index) => (
-          <i
-            className="absolute top-[15px] h-2.5 w-0.5 rounded-[1px] bg-white/38 lg:top-2.5"
-            key={index}
-            style={{ left: `calc(${at}% - 1px)` }}
-          />
-        ))}
+        {view.ticks.map((at, index) => {
+          const tickAt = { left: `calc(${at}% - 1px)` };
+          return (
+            <i
+              className="absolute top-[15px] h-2.5 w-0.5 rounded-[1px] bg-white/38 lg:top-2.5"
+              key={index}
+              style={tickAt}
+            />
+          );
+        })}
         <span aria-hidden="true" className={CAPTION} style={style}>
           <CaptionItem icon={usersGlyph}>
             {view.count} one-off roles

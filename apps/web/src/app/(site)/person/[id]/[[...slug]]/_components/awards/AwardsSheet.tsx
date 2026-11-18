@@ -19,22 +19,25 @@ function AwardList({
     <section className="flex flex-col gap-1.5">
       <h3 className="text-overline text-white/80 uppercase">{title}</h3>
       <ul className="flex flex-col">
-        {items.map((item) => (
-          <li
-            className="flex min-h-15 flex-col justify-center gap-1.5 border-t border-white/6 py-2"
-            key={`${item.award}|${item.year ?? ''}|${item.work ?? ''}`}
-          >
-            <b className="text-body-sm font-semibold">
-              {upperFirst(item.award)}
-            </b>
-            <MetaRow className="gap-3">
-              <MetaItem icon={showGlyph} shrink>
-                {item.work}
-              </MetaItem>
-              <MetaItem icon={calendarGlyph}>{item.year}</MetaItem>
-            </MetaRow>
-          </li>
-        ))}
+        {items.map((item) => {
+          const awardId = `${item.award}|${item.year ?? ''}|${item.work ?? ''}`;
+          return (
+            <li
+              className="flex min-h-15 flex-col justify-center gap-1.5 border-t border-white/6 py-2"
+              key={awardId}
+            >
+              <b className="text-body-sm font-semibold">
+                {upperFirst(item.award)}
+              </b>
+              <MetaRow className="gap-3">
+                <MetaItem icon={showGlyph} shrink>
+                  {item.work}
+                </MetaItem>
+                <MetaItem icon={calendarGlyph}>{item.year}</MetaItem>
+              </MetaRow>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );
@@ -99,9 +102,10 @@ export default function AwardsSheet({
   }
   const won = items.filter((item) => item.won);
   const nominated = items.filter((item) => !item.won);
+  const counts = countLine(won.length, nominated.length);
   return (
     <SideSheet
-      description={countLine(won.length, nominated.length)}
+      description={counts}
       onOpenChange={onOpenChange}
       open={open}
       title={title}

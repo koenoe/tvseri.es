@@ -16,9 +16,10 @@ const CIRCLE = `${RING} inline-flex size-8 shrink-0 items-center justify-center 
 const imdbUrl = (imdbId: string) => `https://www.imdb.com/name/${imdbId}/`;
 
 function ImdbLink({ href, name }: Readonly<{ href: string; name: string }>) {
+  const label = `${name} on IMDb`;
   return (
     <a
-      aria-label={`${name} on IMDb`}
+      aria-label={label}
       className={IMDB}
       href={href}
       rel="noopener noreferrer"
@@ -40,9 +41,10 @@ export function LinksFallback({
   if (!imdbId) {
     return null;
   }
+  const href = imdbUrl(imdbId);
   return (
     <div className={ROW}>
-      <ImdbLink href={imdbUrl(imdbId)} name={name} />
+      <ImdbLink href={href} name={name} />
     </div>
   );
 }
@@ -76,9 +78,10 @@ export default async function Links({
       {imdbHref ? <ImdbLink href={imdbHref} name={name} /> : null}
       {socials.map((link) => {
         const label = SOCIAL_LABELS[link.type] ?? link.type;
+        const linkLabel = `${name} on ${label}`;
         return (
           <a
-            aria-label={`${name} on ${label}`}
+            aria-label={linkLabel}
             className={CIRCLE}
             href={link.url}
             key={link.type}

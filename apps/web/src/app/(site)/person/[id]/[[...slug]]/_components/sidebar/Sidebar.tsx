@@ -45,9 +45,10 @@ export default function Sidebar({ person }: Readonly<{ person: Person }>) {
   const died = !!person.deathdate;
   const bio = person.biography?.trim();
   const nameStyle = nameFit(person.name);
+  const sidebarLabel = `About ${person.name}`;
 
   return (
-    <aside aria-label={`About ${person.name}`} className={PERSON_SIDEBAR}>
+    <aside aria-label={sidebarLabel} className={PERSON_SIDEBAR}>
       <div className={PERSON_SIDE_HEADER}>
         <Portrait image={person.image} name={person.name} />
         <section
@@ -66,14 +67,14 @@ export default function Sidebar({ person }: Readonly<{ person: Person }>) {
             </div>
           ) : null}
           <div className={FACTS}>
-            {life.facts.map((fact) => (
-              <Fact
-                icon={fact.icon === 'calendar' ? calendarGlyph : pinGlyph}
-                key={fact.icon}
-              >
-                {fact.text}
-              </Fact>
-            ))}
+            {life.facts.map((fact) => {
+              const glyph = fact.icon === 'calendar' ? calendarGlyph : pinGlyph;
+              return (
+                <Fact icon={glyph} key={fact.icon}>
+                  {fact.text}
+                </Fact>
+              );
+            })}
             <Suspense fallback={occupationFallback}>
               <Occupation
                 department={person.knownForDepartment}

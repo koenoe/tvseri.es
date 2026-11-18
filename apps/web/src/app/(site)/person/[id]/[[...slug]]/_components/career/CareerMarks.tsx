@@ -61,13 +61,10 @@ export default function CareerMarks({
 
   if (!signedIn) {
     const softClass = cn(base, 'bg-white/26');
-    return runs.map((run) => (
-      <i
-        className={softClass}
-        key={run.start}
-        style={barStyle(run.start, run.end)}
-      />
-    ));
+    return runs.map((run) => {
+      const runAt = barStyle(run.start, run.end);
+      return <i className={softClass} key={run.start} style={runAt} />;
+    });
   }
 
   const fraction = watched?.fraction ?? 0;
@@ -128,13 +125,9 @@ export default function CareerMarks({
     <>
       {pieces.map((piece) => {
         const pieceClass = cn(base, piece.lit ? 'bg-white/92' : outline);
-        return (
-          <i
-            className={pieceClass}
-            key={`${piece.start}-${piece.lit}`}
-            style={barStyle(piece.start, piece.end)}
-          />
-        );
+        const pieceId = `${piece.start}-${piece.lit}`;
+        const pieceAt = barStyle(piece.start, piece.end);
+        return <i className={pieceClass} key={pieceId} style={pieceAt} />;
       })}
       {watched ? (
         <span className={labelClass} style={labelStyle}>

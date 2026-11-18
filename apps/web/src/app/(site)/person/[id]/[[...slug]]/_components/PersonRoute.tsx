@@ -36,5 +36,6 @@ export default async function PersonRoute({
     permanentRedirect(route.path);
   }
   const { person, shows } = route.loaded;
-  return <PersonContent person={person} tvCredits={hasTvCredits(shows)} />;
+  const tvCredits = hasTvCredits(shows);
+  return <PersonContent person={person} tvCredits={tvCredits} />;
 }

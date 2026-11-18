@@ -177,9 +177,10 @@ export default function ShowsList({
         className="-mx-gutter flex gap-1 overflow-x-auto px-gutter scrollbar-none lg:mx-0 lg:self-start lg:rounded-12 lg:bg-black/22 lg:p-1.5"
         role="group"
       >
-        {pills.map((id) => (
-          <FilterPill id={id} key={id} on={id === filter} onPick={onPick} />
-        ))}
+        {pills.map((id) => {
+          const on = id === filter;
+          return <FilterPill id={id} key={id} on={on} onPick={onPick} />;
+        })}
       </div>
       <div
         className={LIST_BOX}

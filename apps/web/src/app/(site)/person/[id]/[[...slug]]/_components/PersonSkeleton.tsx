@@ -29,6 +29,10 @@ const PORTRAIT_GHOST = cn(
 const IMDB_GHOST = cn('block h-8 w-[72px] rounded-full', GHOST_FILL);
 const PILL_ROW = cn('lg:-mt-2.5', PULSE);
 const BIOGRAPHY_GHOST = cn('flex flex-col gap-2', PULSE);
+const NAME_BAR = `${BAR} h-10 w-4/5 lg:h-14`;
+const FACT_BAR = `${BAR} h-4 w-3/5`;
+const SHORT_FACT_BAR = `${BAR} h-4 w-1/2`;
+const MORE_BAR = `${BAR} h-3 w-12`;
 
 /**
  * While the person resolves (a first visit, a client navigation): the whole
@@ -46,24 +50,25 @@ export default function PersonSkeleton() {
             <div className={HEADER_GHOST}>
               <span className={PORTRAIT_GHOST} />
               <span className="flex flex-col gap-3 self-stretch lg:gap-4.5">
-                <span className={`${BAR} h-10 w-4/5 lg:h-14`} />
-                <span className={`${BAR} h-4 w-3/5`} />
-                <span className={`${BAR} h-4 w-1/2`} />
+                <span className={NAME_BAR} />
+                <span className={FACT_BAR} />
+                <span className={SHORT_FACT_BAR} />
               </span>
             </div>
             <div className={PILL_ROW}>
               <span className={IMDB_GHOST} />
             </div>
             <div className={BIOGRAPHY_GHOST}>
-              {[0, 1, 2].map((line) => (
-                <span className="flex h-7 items-center" key={line}>
-                  <span
-                    className={`${BAR} h-3 ${line === 2 ? 'w-3/5' : 'w-full'}`}
-                  />
-                </span>
-              ))}
+              {[0, 1, 2].map((line) => {
+                const lineBar = `${BAR} h-3 ${line === 2 ? 'w-3/5' : 'w-full'}`;
+                return (
+                  <span className="flex h-7 items-center" key={line}>
+                    <span className={lineBar} />
+                  </span>
+                );
+              })}
               <span className="flex h-5 items-center">
-                <span className={`${BAR} h-3 w-12`} />
+                <span className={MORE_BAR} />
               </span>
             </div>
             <FamilyFactsSkeleton />

@@ -62,18 +62,18 @@ export function CareerSkeleton() {
       <div className="h-[46px] lg:hidden" />
       <div className={CAREER_LANE}>
         <div className="h-6" />
-        {CAREER_BARS.map((bar) => (
-          <div
-            className="grid h-[52px] grid-cols-[104px_minmax(0,1fr)] items-center gap-3 lg:h-[30px] lg:grid-cols-[168px_minmax(0,1fr)] lg:gap-4"
-            key={bar.start}
-          >
-            <span className={CAREER_NAME} />
-            <span
-              className={CAREER_BAR}
-              style={{ marginLeft: `${bar.start}%`, width: `${bar.width}%` }}
-            />
-          </div>
-        ))}
+        {CAREER_BARS.map((bar) => {
+          const barAt = { marginLeft: `${bar.start}%`, width: `${bar.width}%` };
+          return (
+            <div
+              className="grid h-[52px] grid-cols-[104px_minmax(0,1fr)] items-center gap-3 lg:h-[30px] lg:grid-cols-[168px_minmax(0,1fr)] lg:gap-4"
+              key={bar.start}
+            >
+              <span className={CAREER_NAME} />
+              <span className={CAREER_BAR} style={barAt} />
+            </div>
+          );
+        })}
       </div>
     </section>
   );

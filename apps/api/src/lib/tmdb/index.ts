@@ -218,15 +218,6 @@ export const fetchRawTvSeriesDetails = (id: number | string) =>
   fetchRawTvSeries(id);
 
 /**
- * The show's IMDb id (null when TMDB has none) and its number of seasons;
- * undefined when there's no such show.
- */
-/**
- * TMDB data only: no preferred images and no dominant colour lookups.
- * Use it where `backdropColor`/preferred images aren't rendered (e.g. stats,
- * mutations), it saves 1-2 DynamoDB reads and possibly a Lambda invoke.
- */
-/**
  * The show, its keywords and its recommendations in one TMDB call
  * (append_to_response), for the home picks.
  */
@@ -256,6 +247,11 @@ export async function fetchTvSeriesForPicks(id: number | string) {
   };
 }
 
+/**
+ * TMDB data only: no preferred images and no dominant colour lookups. For
+ * where `backdropColor` and preferred images aren't rendered (stats,
+ * mutations): it saves 1-2 DynamoDB reads and possibly a Lambda invoke.
+ */
 export async function fetchTvSeriesBase(
   id: number | string,
 ): Promise<TvSeries | undefined> {
@@ -446,8 +442,8 @@ async function fetchTvSeriesListWithImages(ids: ReadonlyArray<number>) {
 /**
  * Fetches a poster list with bounded concurrency. Series that don't exist (or
  * an odd failure) are dropped; more than 10% failures throw (see mapSettled).
- * Posters don't need
- * preferred images or the dominant colour, so this skips both lookups.
+ * Posters don't need preferred images or the dominant colour, so this skips
+ * both lookups.
  */
 const fetchTvSeriesPosterList = (ids: ReadonlyArray<number>) =>
   mapSettled(ids, (id) => fetchTvSeriesBase(id), TMDB_CONCURRENCY);
@@ -550,16 +546,15 @@ type RegionProviders = NonNullable<
 /**
  * A show's where-to-watch for every region, as TMDB gives it (only the
  * flat-rate, free and ad-supported offers we show), stored per show for a
- * day: the same
- * for every viewer, so the profile's tickets, the single-episode mark and the
- * show page share one TMDB call per show a day.
+ * day: the same for every viewer, so the profile's tickets, the
+ * single-episode mark and the show page share one TMDB call per show a day.
  */
 const watchProvidersOf = (id: number | string) =>
   readThroughStale<TmdbTvSeriesWatchProviders | null>(
     `tmdb-watch-providers:v3:${id}`,
     CACHE_LIFE.short.sMaxAge,
-    // Kept a week to stand in; a read waits for a refresh (at low priority)
-    // of one it has only what is left of its refresh wait
+    // Kept a week to stand in; with a stored copy, a read waits on the
+    // (low-priority) refresh only for what is left of its refresh wait
     7 * 24 * 60 * 60,
     async () => {
       const response = (await tmdbFetch(`/3/tv/${id}/watch/providers`)) as
@@ -724,7 +719,7 @@ export async function fetchTvSeriesSeason(
   if (response.air_date) {
     airDate = new Date(response.air_date).toISOString();
   } else {
-    // If season air_date is null, find the earliest aired episode's date
+    // No season air_date: the earliest aired episode's date
     const airedEpisodesWithDates = episodes.filter(
       (episode) => episode.hasAired && episode.airDate,
     );
@@ -1165,8 +1160,8 @@ const TMDB_GENDERS: Readonly<Record<number, NonNullable<Person['gender']>>> = {
   3: 'non-binary',
 };
 
-// A person's details are read by three routes of the person page, each in its
-// own Lambda: one stored copy (lifetime: lib/person/lifetime.ts)
+// A person's details are read by several routes of the person page, each in
+// its own Lambda: one stored copy (lifetime: lib/person/lifetime.ts)
 
 export async function fetchPerson(id: number | string) {
   const person = await readThroughStale<TmdbPerson | null>(
@@ -1363,7 +1358,7 @@ export async function findByExternalId({
 }
 
 const CREATED_SHOWS_TTL = 7 * 24 * 60 * 60;
-// A person TMDB doesn't know is asked about again after a day
+// A person with no created shows (or unknown to TMDB) is asked again after a day
 const NO_CREATED_SHOWS_TTL = 24 * 60 * 60;
 // Creators looked up per show: writers' rooms can list many
 const MAX_CREATORS = 2;

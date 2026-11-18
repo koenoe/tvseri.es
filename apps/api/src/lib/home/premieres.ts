@@ -48,9 +48,8 @@ const releasePattern = async (
 
 /**
  * Premieres are drawn on their backdrop (the row's tickets, the Countdown's
- * card), so one without it is left out: the row never shows a premiere
- * without an image. `skippedCountdown` names a
- * big premiere close enough for the Countdown that was left out for it: the
+ * card), so one without it is left out. `skippedCountdown` names a big
+ * premiere close enough for the Countdown that was left out for it: the
  * feature slot then falls through to the day's feature.
  */
 export const withArtwork = (
@@ -88,7 +87,8 @@ const compute = async (
   });
   let failed = discovered.failed;
 
-  // Returning shows: look at the next episode to find season premieres
+  // Returning shows: the next episode says whether it is a season premiere,
+  // a finale or a special
   const returning = discovered.airing.slice(0, MAX_DETAILS);
   const details = await mapSettledPartial(returning, async (item) => {
     const series = await fetchTvSeriesBase(item.id);

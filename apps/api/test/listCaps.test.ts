@@ -13,8 +13,8 @@ import { onGet, onMatch, requestedUrls } from './fakeHttp';
 
 /**
  * Each MDBList list is read only as far as the product draws it: a list
- * that grows on MDBList (trending went from 10 shows to 76) must not fan
- * out into TMDB lookups for shows nobody sees.
+ * that grows on MDBList must not fan out into TMDB lookups for shows nobody
+ * sees.
  */
 
 const MDBLIST = 'https://api.mdblist.com/lists/koenoe';

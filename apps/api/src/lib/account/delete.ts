@@ -76,10 +76,11 @@ const deleteClaims = async (userId: string) => {
  * Delete account, as steps on a queue (lambdas/deleteAccount.ts):
  * - `data`: follows (both ways; the follow stream fixes the other users'
  *   counts) and the watched history (the watched stream then clears lists);
- * - `lists` (15 min later, once the stream settled): lists and prefs, the
- *   cache keys, then the Users item;
- * - `sweep` (15 min later): watched and lists once more, for rows written
- *   while it ran.
+ * - `lists` (15 min later, once the stream settled): lists and prefs,
+ *   sign-ins, the cache keys, the handle and email claims, then the Users
+ *   item;
+ * - `sweep` (15 min later): follows, watched, sign-ins and lists once more,
+ *   for rows written while it ran.
  * Every step deletes final state only, so any of them can run again.
  */
 const DELETE_ACCOUNT_STEPS = ['data', 'lists', 'sweep'] as const;

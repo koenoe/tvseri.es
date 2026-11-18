@@ -181,7 +181,7 @@ export const findPathsFrom = async <S extends KnownShow>(
   let failed = 0;
   const outOfTime = (): PathSearch<S> => ({ connections: [], partial: true });
 
-  // 1. The start's cast
+  // The start's cast
   const startRead = await settle([start], source.castOf, []);
   failed += startRead.failed;
   const startCast = startRead.values[0] ?? [];
@@ -191,7 +191,7 @@ export const findPathsFrom = async <S extends KnownShow>(
   }
   const inStart = new Set(startCast.map((member) => member.id));
 
-  // 2. The leads' other shows: the candidates in between
+  // The leads' other shows: the candidates in between
   if (!source.hasTime()) {
     return outOfTime();
   }
@@ -218,7 +218,7 @@ export const findPathsFrom = async <S extends KnownShow>(
     return { connections: [], partial: failed > 0 };
   }
 
-  // 3. The casts in between: the start's lead there, and their leads from outside the start
+  // The casts in between: the start's lead there, and their leads from outside the start
   if (!source.hasTime()) {
     return outOfTime();
   }
@@ -249,7 +249,7 @@ export const findPathsFrom = async <S extends KnownShow>(
     return { connections: [], partial: failed > 0 };
   }
 
-  // 4. Their leads' other shows: the candidate ends
+  // Their leads' other shows: the candidate ends
   if (!source.hasTime()) {
     return outOfTime();
   }
@@ -300,7 +300,7 @@ export const findPathsFrom = async <S extends KnownShow>(
     return { connections: [], partial: failed > 0 };
   }
 
-  // 5. The ends' casts: none may share someone with the start
+  // The ends' casts: none may share someone with the start
   if (!source.hasTime()) {
     return outOfTime();
   }
@@ -316,7 +316,7 @@ export const findPathsFrom = async <S extends KnownShow>(
       if (!cast || shareSomeone(startCast, cast)) {
         return [];
       }
-      // `second` is a member of the bridge's cast: their part there
+      // `second`'s part in the end
       const there = cast.find((member) => member.id === second.id);
       return [
         {

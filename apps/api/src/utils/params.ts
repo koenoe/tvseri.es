@@ -101,7 +101,7 @@ export const SeriesSearchQuerySchema = v.object({
 
 /**
  * `?region=gb`: a country code, written upper case. An empty value counts as
- * absent, like before.
+ * absent.
  */
 export const RegionQuerySchema = v.object({
   region: v.optional(

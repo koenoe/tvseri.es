@@ -1,8 +1,3 @@
-/**
- * Pure calculation functions for stats.
- * These are unit-testable without any external dependencies.
- */
-
 import type { StatsMetrics, WatchedItem } from '@tvseri.es/schemas';
 import {
   addDays,
@@ -16,9 +11,6 @@ type MetricsItem = Readonly<
   Pick<WatchedItem, 'runtime' | 'seriesId' | 'watchedAt'>
 >;
 
-/**
- * Calculate the longest consecutive day streak from watched items.
- */
 const calculateLongestStreak = (items: ReadonlyArray<MetricsItem>): number => {
   const uniqueDays = new Set(
     items.map((item) => startOfDay(item.watchedAt).getTime()),
@@ -55,9 +47,6 @@ const getDaysInPeriod = (year: number): number => {
   return isLeapYear(new Date(year, 0, 1)) ? 366 : 365;
 };
 
-/**
- * Calculate all stats metrics from watched items.
- */
 export const calculateMetrics = (
   items: ReadonlyArray<MetricsItem>,
   year: number,
@@ -76,9 +65,6 @@ export const calculateMetrics = (
   return { avgPerDay, episodeCount, longestStreak, seriesCount, totalRuntime };
 };
 
-/**
- * Get unique series IDs from watched items.
- */
 export const getUniqueSeriesIds = (
   items: ReadonlyArray<Readonly<Pick<WatchedItem, 'seriesId'>>>,
 ): number[] => [...new Set(items.map((item) => item.seriesId))];

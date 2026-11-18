@@ -177,7 +177,7 @@ const getChunk = async (
  * Reads any number of items from one table by key.
  *
  * Splits into 100-key batches (bounded concurrency) and retries
- * `UnprocessedKeys` with exponential backoff. Missing items are simply absent
+ * `UnprocessedKeys` with exponential backoff. Missing items are absent
  * from the result; order is not guaranteed. Duplicate keys are removed
  * (BatchGetItem rejects them).
  *

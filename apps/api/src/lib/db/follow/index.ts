@@ -180,9 +180,9 @@ export async function follow({
   const item = marshall({
     createdAt: now,
     followerId: userId,
-    followingId: targetUserId, // For getting followers of targetUserId
+    followingId: targetUserId,
     gsi1pk: followersPk(targetUserId),
-    gsi1sk: createSortKey(now, userId), // For getting users that userId is following
+    gsi1sk: createSortKey(now, userId),
     gsi2pk: followingPk(userId),
     gsi2sk: createSortKey(now, targetUserId),
     pk: followKey,
@@ -237,7 +237,7 @@ export async function isFollowing({
 
 /**
  * Resolves which of `targetUserIds` the viewer follows and is followed by,
- * in a single BatchGetItem (instead of 2 GetItems per user).
+ * in batched reads (BatchGetItem) instead of 2 GetItems per user.
  */
 async function getFollowStatuses({
   viewerId,

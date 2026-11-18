@@ -7,10 +7,7 @@ import { getMetricsStore, runWithMetrics } from '@/lib/metrics';
 import { sendMessage } from '@/lib/sqs';
 import type { Variables } from './auth';
 
-/**
- * Send a metric record to SQS for async processing.
- * Fire-and-forget - errors are logged but don't affect the response.
- */
+/** Fire-and-forget: an error is logged and never affects the response */
 const sendMetric = (record: ApiMetricRecord): void => {
   sendMessage(Resource.MetricsQueue.url, record).catch((error) => {
     console.error('[metrics] Failed to send metric to SQS:', error);
@@ -35,17 +32,9 @@ const toRouteLabel = (routePath: string) =>
   routePath.replace(PARAM_CONSTRAINT, '');
 
 /**
- * Metrics middleware for collecting API performance data.
- *
- * Captures:
- * - Request latency
- * - Status codes (including errors, see below)
- * - Cache status (from CloudFront header)
- * - Client context (platform, device, country)
- * - All dependency metrics (TMDB, MDBList, DynamoDB, etc.)
- *
- * Sends metrics to SQS for async batch processing to DynamoDB.
- * Only samples a percentage of requests to reduce SQS costs.
+ * Records a sample of requests (API_METRICS_SAMPLE_RATE, to keep SQS
+ * costs down) on the metrics queue: latency, status, client platform and
+ * country, and every dependency call (TMDB, MDBList, DynamoDB...).
  *
  * When a handler throws, Hono runs app.onError and sets its response on
  * `c.res` before control returns here, so `c.res.status` is the status the
@@ -112,7 +101,6 @@ export const metrics = (): MiddlewareHandler<{ Variables: Variables }> => {
       type: 'api',
     };
 
-    // Send to SQS (fire and forget - don't block response)
     sendMetric(record);
   };
 };

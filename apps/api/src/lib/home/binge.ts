@@ -4,9 +4,8 @@ import type { BingeShow, TvSeries } from '@tvseri.es/schemas';
 const CHOICES = 4;
 
 /**
- * Aired episodes per regular season, in season order (specials are already
- * left out by the TMDB mapping). Seasons with nothing aired yet are dropped,
- * so the plan only counts what can be watched tonight.
+ * Aired episodes per regular season, in season order. Seasons with nothing
+ * aired yet are dropped, so the plan only counts what can be watched tonight.
  */
 export const episodesPerSeason = (series: TvSeries): number[] =>
   (series.seasons ?? [])

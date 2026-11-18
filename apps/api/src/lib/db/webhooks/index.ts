@@ -89,7 +89,7 @@ export const generateWebhookToken = async (input: {
   type: string;
 }): Promise<WebhookToken> => {
   const previousRows = await findAllWebhookTokensByUserAndType(input);
-  // A new URL keeps the settings (pause, whose plays count) of the newest
+  // A new URL keeps the settings (pause, whose plays count) of the newest row
   const previous = [...previousRows].sort((a, b) =>
     b.createdAt.localeCompare(a.createdAt),
   )[0];

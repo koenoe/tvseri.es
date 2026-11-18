@@ -34,8 +34,8 @@ import {
  * - only Collaborators' 15 `aggregate_credits` stay per person, stored with
  *   their result (PERSON_FRESH, lifetime.ts).
  *
- * A cold page of a prolific person was ~50-225 TMDB calls; with the shows'
- * facts warm it is the credits, the person, the external ids, Known for's
+ * With the shows' facts warm, a cold page of a prolific person costs the
+ * credits, the person, the external ids, Known for's
  * search and the 15 aggregate credits.
  */
 
@@ -44,7 +44,7 @@ const MAX_UPCOMING_LOOKUPS = 40;
 // Career bars: a prolific host could otherwise mean hundreds of lookups; the
 // biggest shows get their bars
 const MAX_CAREER_LOOKUPS = 80;
-// Collaborators are looked for in his biggest shows only (one call each)
+// Collaborators are looked for in the person's biggest shows only (one call each)
 const COLLABORATOR_SHOWS = 15;
 // Above this share of shows without facts (TMDB failing), the answer is not
 // built: a partial career would be stored as fresh (mapSettled's rule)
@@ -121,7 +121,7 @@ const personCredits = (id: number | string) =>
 
 /**
  * Cast and crew merged per show, "Self" appearances split out, no genre
- * drops (`fetchPersonTvCredits` stays as it is for the mobile app).
+ * drops (unlike `fetchPersonTvCredits`, which Home and Discover read).
  * Undefined for a person TMDB doesn't know.
  */
 export const fetchPersonShows = async (
@@ -161,7 +161,7 @@ export const fetchPersonCareer = (id: number | string) =>
   );
 
 /**
- * People in 2+ of his 15 biggest shows (intersected `aggregate_credits`),
+ * People in 2+ of the person's 15 biggest shows (intersected `aggregate_credits`),
  * stored in the Cache table (PERSON_FRESH).
  */
 export const fetchPersonCollaborators = (id: number | string) =>

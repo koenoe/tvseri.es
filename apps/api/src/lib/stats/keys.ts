@@ -1,7 +1,3 @@
-/**
- * Stats cache key management - single source of truth for all stats cache keys.
- */
-
 const STATS_CACHE_KEYS = [
   'favorites-count',
   'spotlight',
@@ -44,9 +40,6 @@ const KEY_VERSIONS: Partial<Record<StatsCacheKey, string>> = {
   when: 'v2',
 };
 
-/**
- * Build a cache key for a specific stats type.
- */
 export const buildStatsCacheKey = (
   userId: string,
   year: number,

@@ -25,10 +25,11 @@ import { getCacheEntry } from './index';
  * - `readClaim(key)` returns a live claim's value (e.g. the circuit breaker's
  *   `openUntil`), else undefined: one eventually consistent GetItem.
  *
- * Callers: the day builds' "one build in flight" (readThroughDay.ts) and the
- * upstream circuit breaker's shared open state (lib/upstream/breaker.ts).
- * Errors other than a lost condition are thrown: the caller decides whether
- * to proceed without the claim.
+ * Used for "one build or refresh in flight" (readThroughDay.ts,
+ * readThroughStale.ts, lib/seriesFacts, lib/mdblist) and the circuit
+ * breaker's shared open state (lib/upstream/breaker.ts). Errors other than
+ * a lost condition are thrown: the caller decides whether to proceed
+ * without the claim.
  */
 
 const claimKey = (key: string) => `claim:${key}`;

@@ -452,7 +452,7 @@ describe('consumers: GET /duration/where-to-start', () => {
     expect((await get(path('theme=crime'))).status).toBe(400);
     expect((await get(path('theme=heist'))).status).toBe(400);
     expect((await get(path('theme=constructor'))).status).toBe(400);
-    // the old id parameter is gone
+    // an id parameter is refused
     expect((await get(path('keyword=4565'))).status).toBe(400);
     expect((await get(path('country=GBR'))).status).toBe(400);
     expect((await get(path('country=ZZ'))).status).toBe(400);

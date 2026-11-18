@@ -1,7 +1,3 @@
-/**
- * Aggregation functions for stats (genres, providers, countries).
- */
-
 import { WATCH_PROVIDER_PREDEFINED_COLOR } from '@tvseri.es/constants';
 import type {
   StatsGenreItem,
@@ -43,9 +39,6 @@ const topSeries = (episodes: ProviderEntry['episodes']) =>
     .slice(0, PROVIDER_SERIES_NAMED)
     .map(([id, { title }]) => ({ id, title }));
 
-/**
- * Aggregate genre counts from a list of TV series.
- */
 export const aggregateGenres = (
   seriesList: ReadonlyArray<StatsSeriesMeta | null | undefined>,
   limit = 10,
@@ -71,9 +64,7 @@ const getPredefinedColor = (name: string): string | undefined =>
     name as keyof typeof WATCH_PROVIDER_PREDEFINED_COLOR
   ];
 
-/**
- * Aggregate streaming provider stats from watched items.
- */
+/** Providers by how many series were watched on them, each with its top series */
 export const aggregateProviders = async (
   items: ReadonlyArray<ProviderItem>,
   limit = 10,
@@ -125,9 +116,6 @@ export const aggregateProviders = async (
   return stats.sort((a, b) => b.count - a.count).slice(0, limit);
 };
 
-/**
- * Aggregate country stats from a list of TV series.
- */
 export const aggregateCountries = (
   seriesList: ReadonlyArray<StatsSeriesMeta | null | undefined>,
 ): Record<string, number> => {

@@ -111,7 +111,7 @@ app.get(
   },
 );
 
-// Frequent collaborators: people in 2+ of his shows
+// Frequent collaborators: people in 2+ of the person's shows
 app.get(
   '/:id{[0-9]{1,10}}/collaborators',
   vValidator('param', IdParamSchema),

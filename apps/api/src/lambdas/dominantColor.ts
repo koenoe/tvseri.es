@@ -48,7 +48,7 @@ export const handler: Handler<ProcessImageEvent, ProcessImageResult> = async (
     const imageBuffer = Buffer.from(await data.arrayBuffer());
     if (event.mode === 'logo') {
       // A file sharp can't read won't read next time either: it is answered
-      // (drawn white, as before the check) so it is stored, not retried
+      // (drawn white) so it is stored, not retried
       const silhouette = await survivesSilhouette(imageBuffer).catch(
         (decodeError: unknown) => {
           console.error('Logo check could not read the image:', decodeError);

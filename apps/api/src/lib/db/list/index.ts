@@ -142,7 +142,7 @@ export const getListItemsCount = async (
   const condition = byAddedCondition(input);
 
   return countQuery({
-    IndexName: 'gsi2', // Always use gsi2 for count since we don't need sorting
+    IndexName: 'gsi2', // A count needs no order; gsi2 also takes the date range
     TableName: Resource.Lists.name,
     ...condition,
   });
@@ -166,7 +166,7 @@ export const getAllListItems = async (
       endDate: input.endDate,
       listId: input.listId,
       options: {
-        cursor, // Dynamo DB limit
+        cursor,
         limit: 1000,
         sortBy: input.sortBy,
         sortDirection: input.sortDirection,
@@ -318,9 +318,10 @@ const unchangedSince = (read: ReadEntry) =>
  * touches is still as `read` found it: a put over an item (or its absence),
  * deletes of items (an item read as absent is checked still absent) and
  * items only checked (`keep`), each conditional; `alsoRemove` lists are
- * deleted unconditionally with them. For writers that decided from an earlier read
- * (the nightly job): when the watched stream changed the lists meanwhile
- * (a mark at the same moment), nothing is written and it answers false.
+ * deleted unconditionally with them. For writers that decided from an
+ * earlier read (the nightly job, the mark request): when the watched stream
+ * changed the lists meanwhile (a mark at the same moment), nothing is
+ * written and it answers false.
  */
 export const moveListItems = async (
   input: Readonly<{
@@ -633,7 +634,7 @@ export const hasListItems = async (userId: string, listId: string) => {
 
 /**
  * Which of the shows are in each of the given lists, and when each was added
- * (`createdAt`): one BatchGetItem of `ids × listIds` keys, so keep both short.
+ * (`createdAt`): a BatchGetItem of `ids × listIds` keys, so keep both short.
  */
 export const getListEntries = async (
   userId: string,

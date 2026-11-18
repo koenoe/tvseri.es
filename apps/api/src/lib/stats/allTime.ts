@@ -11,8 +11,8 @@ import { timeZoneForCountry } from './timeZone';
 /**
  * The years with watches and the first watch per series: one cached segment
  * (cleared by every mark), folded from the per-show summaries (lib/rollups)
- * or, until they're complete, from a base-table Query of every watched item. Years and months count in the
- * user's zone: pass it when the caller knows it (a cached answer in another
+ * or, until they're complete, from a base-table Query of every watched item.
+ * Years and months count in the user's zone: pass it when the caller knows it (a cached answer in another
  * zone, after a country change, is computed again); without it, a cached
  * answer in any zone will do (the first watch per series doesn't depend on
  * it) and a miss reads the user's zone.

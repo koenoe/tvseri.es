@@ -1,8 +1,3 @@
-/**
- * Stats API endpoints.
- * All business logic is delegated to lib/stats modules.
- */
-
 import type { StatsYears, StatsZone } from '@tvseri.es/schemas';
 import { type Context, Hono } from 'hono';
 import {
@@ -53,16 +48,16 @@ app.get('/:id/stats/:year/spotlight', user(), yearMiddleware(), async (c) =>
   statsJson(c, await getYearSpotlight(c.get('user').id, c.get('year'))),
 );
 
-/**
- * A segment derived from the year's watched items. On a miss it computes and
- * caches only itself (see computeYearSegment).
- */
 const isInZone = (value: unknown, timeZone: string) =>
   typeof value !== 'object' ||
   value === null ||
   !('timeZone' in value) ||
   value.timeZone === timeZone;
 
+/**
+ * A segment derived from the year's watched items. On a miss it computes and
+ * caches only itself (see computeYearSegment).
+ */
 const yearSegment =
   (segment: YearSegment) => async (c: Context<{ Variables: Variables }>) => {
     const { country, id: userId } = c.get('user');
@@ -82,7 +77,6 @@ const yearSegment =
     );
   };
 
-// Weekly watch data
 app.get(
   '/:id/stats/:year/weekly',
   user(),
@@ -90,7 +84,6 @@ app.get(
   yearSegment('weekly'),
 );
 
-// Genre stats
 app.get(
   '/:id/stats/:year/genres',
   user(),
@@ -98,7 +91,6 @@ app.get(
   yearSegment('genres'),
 );
 
-// Provider/streaming service stats
 app.get(
   '/:id/stats/:year/providers',
   user(),
@@ -106,7 +98,6 @@ app.get(
   yearSegment('providers'),
 );
 
-// Country stats
 app.get(
   '/:id/stats/:year/countries',
   user(),
@@ -114,7 +105,6 @@ app.get(
   yearSegment('countries'),
 );
 
-// Watched series list (unique series with poster info)
 app.get(
   '/:id/stats/:year/watched-series',
   user(),

@@ -27,7 +27,7 @@ import { createLimiter } from '@/utils/limit';
  * - `AGG#SHOW#<seriesId>`: `asOf` (when the read it was built from started),
  *   `c` episode codes (season × 10,000 + episode), `t` watchedAt in ms
  *   (negative: "I don't remember", the time it was marked), `r` runtimes;
- *   specials included (consumers leave them out as they do today). A show
+ *   specials included (consumers leave them out). A show
  *   with more than MAX_ITEMS watched items is stored as `{ overflow: true }`
  *   and its readers read the show itself. A show with nothing watched keeps
  *   an empty summary (a tombstone: `asOf` and empty columns, ~60 bytes, no

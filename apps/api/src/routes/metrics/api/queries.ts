@@ -45,7 +45,6 @@ export const buildPk = (
   return pk;
 };
 
-/** Query by pk and sk prefix. */
 export const queryByPkAndPrefix = (pk: string, skPrefix: string) =>
   queryItemsByPrefix<ApiMetricAggregate>(
     Resource.MetricsApiAggregated.name,
@@ -105,7 +104,6 @@ export const aggregateSummaries = (
   const totalRequests = items.reduce((sum, item) => sum + item.requestCount, 0);
   if (totalRequests === 0) return null;
 
-  // Collect histograms from items and merge for accurate percentiles
   const histograms = items
     .map((item) => item.latency.histogram?.bins)
     .filter((bins): bins is number[] => bins !== undefined && bins.length > 0);
@@ -114,7 +112,6 @@ export const aggregateSummaries = (
 
   const mergedBins = mergeHistogramBins(histograms);
 
-  // Aggregate latency ratings if present
   let ratings: LatencyRatings | undefined;
   const itemsWithRatings = items.filter((item) => item.latency.ratings);
   if (itemsWithRatings.length > 0) {
@@ -137,7 +134,6 @@ export const aggregateSummaries = (
     ratings,
   };
 
-  // Sum status codes by category and individual codes
   const statusCodes: {
     clientError: number;
     codes: Record<string, number>;
@@ -157,7 +153,6 @@ export const aggregateSummaries = (
       statusCodes.redirect += item.statusCodes.redirect ?? 0;
       statusCodes.clientError += item.statusCodes.clientError ?? 0;
       statusCodes.serverError += item.statusCodes.serverError ?? 0;
-      // Merge individual codes
       if (item.statusCodes.codes) {
         for (const [code, count] of Object.entries(item.statusCodes.codes)) {
           statusCodes.codes[code] = (statusCodes.codes[code] ?? 0) + count;
@@ -166,7 +161,6 @@ export const aggregateSummaries = (
     }
   }
 
-  // Calculate error rate from status codes
   const totalErrors = statusCodes.clientError + statusCodes.serverError;
   const errorRate = Math.round((totalErrors / totalRequests) * 10000) / 100;
 
@@ -192,7 +186,6 @@ export const aggregateSummaries = (
       ) / 100;
   }
 
-  // Aggregate dependencies if present
   let dependencies: Record<string, DependencyStats> | undefined;
   const depsWithData = items.filter((item) => item.dependencies);
   if (depsWithData.length > 0) {
@@ -298,8 +291,7 @@ export const aggregateSummaries = (
     }
   }
 
-  // Calculate throughput (requests per minute)
-  // Count unique dates to get the actual number of days with data
+  // Requests per minute, over the days that have data
   const uniqueDates = new Set(items.map((item) => item.date));
   const daysWithData = uniqueDates.size;
   const minutesInPeriod = daysWithData * 1440; // 1440 minutes per day

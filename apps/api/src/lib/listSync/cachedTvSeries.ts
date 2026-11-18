@@ -2,7 +2,7 @@ import type { TvSeries } from '@tvseri.es/schemas';
 
 import { fetchTvSeriesBase } from '@/lib/tmdb';
 
-const TTL_MS = 15 * 60 * 1000; // 15 minutes
+const TTL_MS = 15 * 60 * 1000;
 const MAX_ENTRIES = 500;
 
 type Entry = Readonly<{
@@ -19,7 +19,7 @@ type Entry = Readonly<{
 const cache = new Map<number, Entry>();
 
 /**
- * Background Lambdas only need list fields and episode counts, so this uses
+ * List placement only needs list fields and episode counts, so this uses
  * the slim fetch (no preferred images / dominant colour lookups).
  */
 export const cachedTvSeries = async (id: number): Promise<TvSeries | null> => {

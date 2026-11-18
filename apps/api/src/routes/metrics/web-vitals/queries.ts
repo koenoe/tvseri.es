@@ -38,12 +38,7 @@ export const buildPk = (
   return pk;
 };
 
-/**
- * Query by pk and sk prefix.
- *
- * @param pk - The partition key (date with optional filters)
- * @param skPrefix - The sort key prefix (SUMMARY, R#, C#, D#)
- */
+/** Query by pk and sk prefix (SUMMARY, R#, C#, D#) */
 const queryByPkAndPrefix = (pk: string, skPrefix: string) =>
   queryItemsByPrefix<WebVitalAggregate>(
     Resource.MetricsWebVitalsAggregated.name,
@@ -138,7 +133,6 @@ export const aggregateSummaries = (
       poor: items.reduce((sum, item) => sum + item[metricName].ratings.poor, 0),
     };
 
-    // Collect histograms from items that have them
     const histograms = items
       .map((item) => item[metricName].histogram?.bins)
       .filter(
@@ -192,17 +186,14 @@ export const aggregateSummaries = (
     };
   };
 
-  // Aggregate each metric
   const CLS = aggregateMetric('CLS');
   const FCP = aggregateMetric('FCP');
   const INP = aggregateMetric('INP');
   const LCP = aggregateMetric('LCP');
   const TTFB = aggregateMetric('TTFB');
 
-  // Recalculate RES from the merged p75 values using Vercel's methodology:
-  // - Uses Lighthouse 10 log-normal scoring curves
-  // - Weighted: LCP 30%, INP 30%, CLS 25%, FCP 15%
-  // - TTFB is intentionally excluded from RES
+  // RES from the merged p75 values (Lighthouse 10 log-normal curves, the
+  // weights above); TTFB is left out of it on purpose
   const score = computeRESFromStats({ CLS, FCP, INP, LCP });
 
   return {

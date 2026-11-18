@@ -16,11 +16,8 @@ import { seedUser, USER_ID } from './seed';
 /**
  * What a cold person page costs TMDB for a prolific person, once the
  * shows' series facts are warm (every profile, Library and landing read keeps
- * them so). Before shared data this page made ~99 calls: tv_credits and the 8
- * undated lookups three times (Shows, Career, Collaborators each in their own
- * Lambda), 52 `/tv/:id` for the career bars, 15 aggregate credits, the person
- * three times, the external ids and Known for's search; and the signed-in
- * Watched line made 1 + 8 again on every view.
+ * them so): the stored credits are shared by Shows, Career, Collaborators and
+ * the signed-in Watched line, so no route asks TMDB for them again.
  */
 
 const PERSON = 7;

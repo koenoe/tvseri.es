@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 /**
  * The years list (History's months, Jump to) is cached until the next mark
  * clears it. A read that started before a mark must not store what it read
- * after the mark cleared the cache: that kept the old years for a day (a
- * whole month missing from History after marks).
+ * after the mark cleared the cache: that would keep the old years for a day
+ * (a whole month missing from History after marks).
  */
 
 type Stored = Readonly<{ asOf: number; value: unknown }>;

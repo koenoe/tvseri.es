@@ -31,7 +31,7 @@ import { logWarn } from '@/utils/logWarn';
 
 /**
  * Calls a day across every Lambda, well under the paid plan's 100,000.
- * Lower it to 800 if the key is ever the free one (1,000 a day) again.
+ * Lower it to 800 if the key is ever the free one (1,000 a day).
  */
 export const DAILY_CAP = 80_000;
 

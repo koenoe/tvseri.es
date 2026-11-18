@@ -22,8 +22,8 @@ import { PREF_SERIES_PREFIX, prefSk, userPk } from '../list/keys';
  * Per-user, per-show prefs live in the Lists table next to the list items:
  * `pk USER#<userId>`, `sk PREF#SERIES#<seriesId>`. They carry no GSI keys, so
  * no list index ever sees them. Any Query on `pk = USER#...` must therefore
- * use `begins_with(sk, 'LIST#')` (or `PREF#`). Delete account must include
- * them.
+ * use `begins_with(sk, 'LIST#')` (or `PREF#`). Delete account removes them
+ * with the rest of the partition.
  */
 export const prefsKey = (userId: string, seriesId: number) => ({
   pk: userPk(userId),
@@ -280,7 +280,7 @@ const unhideSeries = async (userId: string, seriesId: number) => {
  * episodes are un-skipped, and a hidden show with a regular episode among
  * them comes back. Imports and Undo putting marks back only un-skip
  * (`clearSkipped`): they restore history, they are no new watching.
- * Specials count nowhere, here neither.
+ * A special alone doesn't unhide a show.
  */
 export const afterWatching = async (items: ReadonlyArray<MarkedItem>) => {
   await Promise.all([
@@ -321,7 +321,7 @@ export const restoreSkipped = async (
 };
 
 /**
- * The prefs of many shows in one BatchGetItem; shows without prefs are absent
+ * The prefs of many shows in batched reads (BatchGetItem); shows without prefs are absent
  * from the map. `consistent`: as `getSeriesPrefs`.
  */
 export const getSeriesPrefsMany = async (

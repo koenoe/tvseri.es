@@ -12,7 +12,7 @@ import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 
 import type { StatsSeriesMeta } from './aggregations';
 
-const CACHE_TTL = 7 * 24 * 60 * 60; // 7 days
+const CACHE_TTL = 7 * 24 * 60 * 60;
 
 const cacheKey = (id: number) => `stats-series:v1:${id}`;
 

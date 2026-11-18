@@ -41,7 +41,7 @@ const bestJob = (jobs: Tally['jobs']) =>
 
 /**
  * People who are in 2+ of the given shows (cast or crew), most shows first.
- * `personId` himself is left out.
+ * `personId` is left out.
  */
 export const findCollaborators = (
   personId: number,
@@ -118,7 +118,7 @@ export const findCollaborators = (
         ...[...tally.jobs.values()].map((stat) => stat.shows),
       );
       const asCast = tally.castShows >= crewShows;
-      // Their character with the most episodes across his shared shows, for
+      // Their character with the most episodes across the shared shows, for
       // the face's caption ("Lois")
       const character = asCast
         ? [...tally.characters].sort(([, a], [, b]) => b - a)[0]?.[0]

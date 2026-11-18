@@ -11,7 +11,7 @@ import { Resource } from 'sst';
 import { batchGet, batchWrite } from '../batch';
 import client from '../client';
 
-const DEFAULT_TTL = 86400; // 24 hours in seconds
+const DEFAULT_TTL = 86400;
 const KEY_PREFIX = 'CACHE#';
 
 const nowInSeconds = () => Math.floor(Date.now() / 1000);
@@ -80,7 +80,7 @@ export const setCacheItem = async <T>(
 /**
  * `setCacheItem` for a value built from a read that started at `asOf` (epoch
  * ms): stored only if the item holds nothing newer, the guard the per-show
- * summaries use (lib/rollups). A read that started before an invalidation
+ * summaries use too (lib/rollups); the stats cache writes through it. A read that started before an invalidation
  * (`invalidateCacheItemsAsOf`) or before a newer stored read writes nothing.
  * Returns whether it was stored.
  */
@@ -273,10 +273,7 @@ type CounterOptions = Readonly<{
   ttl: number | null;
 }>;
 
-/**
- * Reads a counter. An item past its expiresAt is a miss, since the TTL sweeper
- * can take up to ~48 hours to delete it.
- */
+/** An item past its `expiresAt` is a miss, as in `isExpired` */
 export const getCounter = async (key: string): Promise<number | undefined> => {
   try {
     const result = await client.send(
@@ -399,8 +396,8 @@ export const replaceCounter = async (
  * Takes one from a daily-style allowance: atomically adds 1 to the counter
  * at `key` while it is below `cap` (one conditional UpdateItem; a missing
  * counter starts at 1 and expires after `ttl` seconds). Returns whether the
- * one was taken: false once the counter has reached `cap`. Used to keep an
- * external service under its quota across every Lambda (lib/mdblist).
+ * one was taken: false once the counter has reached `cap`. Keeps an external
+ * service under its quota across every Lambda (lib/upstream/allowance.ts).
  */
 export const takeFromAllowance = async (
   key: string,

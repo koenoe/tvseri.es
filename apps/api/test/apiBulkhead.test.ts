@@ -237,8 +237,7 @@ describe('API bulkhead', () => {
     expect(await targetOf(method, samplePath(pattern))).toBe(ROUTES[key]);
   });
 
-  // Marks still look series and episodes up on TMDB until they read cached
-  // show data (another branch); they are on the write function either way
+  // Marks read series and episodes too, yet every one is a write
   it('puts every mark and unmark on the write function: season, show and bulk', async () => {
     const series = '/user/u_1/watched/series/1';
     const marks = [

@@ -51,10 +51,7 @@ const toDynamoItem = (record: MetricRecord) => {
 };
 
 /**
- * Metrics processor Lambda.
- * Receives batched metrics from SQS and writes them to DynamoDB.
- *
- * Returns partial batch failures to avoid reprocessing successful messages
+ * Writes batched metrics from SQS to DynamoDB. Returns partial batch failures to avoid reprocessing successful messages
  * (pk uses a random shard, so a re-processed message becomes a duplicate row).
  * DynamoDB UnprocessedItems are retried with backoff by writeBatch; only
  * messages whose items remain unprocessed are reported as failures.

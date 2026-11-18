@@ -41,7 +41,6 @@ const calculateWeekly = (
   items: ReadonlyArray<StatsWatchedItem>,
   year: number,
 ): StatsWeeklyItem[] => {
-  // Create 53 weeks of data
   const weekCounts = Array.from({ length: 53 }, (_, i) => ({
     episodes: 0,
     runtimeHours: 0,
@@ -58,7 +57,6 @@ const calculateWeekly = (
     }
   });
 
-  // Convert runtime to hours
   weekCounts.forEach((week) => {
     week.runtimeHours = Math.round((week.totalRuntime / 60) * 10) / 10;
   });
@@ -66,7 +64,6 @@ const calculateWeekly = (
   return weekCounts;
 };
 
-// Unique series with poster info
 const calculateWatchedSeries = (
   items: ReadonlyArray<StatsWatchedItem>,
 ): StatsWatchedSeriesItem[] => {

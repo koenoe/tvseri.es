@@ -1,10 +1,7 @@
 /**
- * Data fetching functions for stats.
- *
- * NOTE: We intentionally do NOT cache the raw watched items array in DynamoDB.
- * The array can be very large (thousands of episodes) and would exceed
- * DynamoDB's 400KB item size limit. Instead, we use in-memory request deduplication
- * and only cache the computed stats (which are small) in the individual endpoint handlers.
+ * The raw watched items are never stored in the Cache table: thousands of
+ * episodes would pass DynamoDB's 400 KB item limit. Concurrent reads are
+ * deduplicated in memory; only the computed stats (small) are cached.
  */
 
 import type { WatchedItem } from '@tvseri.es/schemas';
@@ -44,7 +41,7 @@ export type StatsWatchedItem = Readonly<
 >;
 
 /**
- * Get a year's watched regular episodes (only the attributes stats read;
+ * A year's watched regular episodes (only the attributes stats read;
  * specials never count, see countsInStats). Deduplicates concurrent requests
  * for the same user+year combination.
  */
@@ -67,8 +64,8 @@ export const getWatchedItemsForYear = async (
  * The regular watches of a year in the user's zone (the heatmap's days): the
  * UTC year widened by the largest zone offset on both sides, then only the
  * watches whose local date is in the year (specials never count, see
- * countsInStats). New Year's Eve in New York belongs to the
- * old year, New Year's morning in Tokyo to the new one.
+ * countsInStats). New Year's Eve in New York belongs to the old year, New
+ * Year's morning in Tokyo to the new one.
  */
 export const getWatchedItemsForLocalYear = async (
   userId: string,

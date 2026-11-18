@@ -7,8 +7,8 @@ import { request } from './request';
 
 /**
  * `/collection/trending` carries what the spotlight's derived hook line
- * needs (rule 3): the top three cast and a
- * creator's best-known other show.
+ * needs: the top three cast and a creator's
+ * best-known other show.
  */
 
 const trending = (ids: number[]) =>

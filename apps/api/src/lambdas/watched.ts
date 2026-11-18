@@ -80,10 +80,8 @@ export const handler = async (event: DynamoDBStreamEvent) => {
   const groups = new Map<string, SeriesGroup>();
   // Users whose years list (the all-time segment) is cleared
   const allTimeToInvalidate = new Set<string>();
-  // Track runtime and episode count changes per user for incremental updates
   const runtimeChanges = new Map<string, number>();
   const countChanges = new Map<string, number>();
-  // Users who watched something in this batch
   const activeUserIds = new Set<string>();
 
   for (const record of event.Records) {
@@ -109,8 +107,8 @@ export const handler = async (event: DynamoDBStreamEvent) => {
     // year sections are not (the stats profile: fresh a day)
     allTimeToInvalidate.add(watchedItem.userId);
 
-    // Track runtime and count change for this user (only for INSERT/REMOVE, not MODIFY;
-    // specials never count in stats)
+    // Only INSERT and REMOVE move the counters, not MODIFY; specials never
+    // count in stats
     const runtime = watchedItem.runtime || 0;
     if (
       (record.eventName === 'INSERT' || record.eventName === 'REMOVE') &&

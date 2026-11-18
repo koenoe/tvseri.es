@@ -79,9 +79,6 @@ const attemptSignal = (ms: number, signal?: AbortSignal | null) => {
  * retries per `policy` and tracks every attempt's duration and status for the
  * metrics. Returns `{ data, error }` like better-fetch; a timeout or network
  * error on the last attempt throws.
- *
- * @param source - Identifier for this data source (e.g., 'tmdb', 'mdblist')
- * @param options - Options passed to createFetch (no `retry`/`timeout`: the policy owns them)
  */
 export const createInstrumentedFetch = (
   source: string,
@@ -132,7 +129,6 @@ export const createInstrumentedFetch = (
       clear();
       const duration = Math.round(performance.now() - start);
 
-      // Separate path and query params
       const [endpoint, queryString] = path.split('?');
       const params = queryString
         ? Object.fromEntries(new URLSearchParams(queryString))

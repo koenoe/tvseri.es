@@ -16,8 +16,8 @@ import { readWatchProviders } from '@/lib/watchProviders';
 import client from '../client';
 
 /**
- * Internal activity fields on the user item, used to decide whose watched
- * status gets re-checked. Never part of a public user response.
+ * Internal fields on the user item (a pending account deletion, the
+ * watched-status re-check). Never part of a public user response.
  */
 export type UserActivity = Readonly<{
   /** Set when the user asked to delete their account (epoch ms) */
@@ -28,7 +28,7 @@ export type UserActivity = Readonly<{
   lastRecheckAt?: string;
 }>;
 
-/** A user as stored, including the internal activity fields */
+/** A user as stored, including the internal fields */
 export type UserRecord = Readonly<User & UserActivity>;
 
 /** Constant hash key of the sparse `active` index (activePk) */
@@ -115,7 +115,7 @@ export const findUser = async (
 };
 
 /**
- * Splits the internal activity fields off a stored user, so the user can be
+ * Splits the internal fields off a stored user, so the user can be
  * returned in a response.
  */
 export const splitUserRecord = ({
@@ -379,7 +379,8 @@ export const updateUser = async (
 
 /**
  * Stamps when Get started was first completed. Never rewrites the item
- * or bumps `updatedAt`; a second stamp is a no-op. Returns the stored time.
+ * or bumps `updatedAt`. Returns `now` when this call stamped it; null when
+ * it was stamped before or the user is gone.
  */
 export const markGetStartedDone = async (
   userId: string,

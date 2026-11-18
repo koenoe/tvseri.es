@@ -7,8 +7,8 @@ import { readStoredEntry, type Stored } from './readThroughStale';
 import { claim } from './singleFlight';
 
 /**
- * Read-through for builds keyed by day (Home's feature, toy and premieres,
- * Discover's go-deeper, the duration tiles), with two guards a plain
+ * Read-through for builds keyed by day (Home's feature, toy, premieres, New
+ * this week and Connected by; Discover's go-deeper; the duration tiles), with two guards a plain
  * readThrough lacks at UTC midnight, when every one of them goes cold at once:
  *
  * - **One build in flight per key across Lambdas**: a reader that finds no

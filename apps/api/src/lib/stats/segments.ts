@@ -211,16 +211,16 @@ const toNight = (
   runtimeMinutes: items.reduce((sum, item) => sum + (item.runtime || 0), 0),
 });
 
+/** Daytime is 06:00 to 18:00 local ("Daytime mostly on weekends") */
+const DAY_STARTS_AT_HOUR = 6;
+const DAY_ENDS_AT_HOUR = 18;
+
 /**
  * Hour-of-day, weekday and the biggest nights, in the user's zone. Items that
  * share a timestamp with another were marked watched in bulk (Mark season
  * writes one time for all): they say nothing about when anyone watched, so
  * they are left out.
  */
-/** Daytime is 06:00 to 18:00 local ("Daytime mostly on weekends") */
-const DAY_STARTS_AT_HOUR = 6;
-const DAY_ENDS_AT_HOUR = 18;
-
 export const calculateWhen = (
   items: ReadonlyArray<SegmentItem>,
   timeZone: string,
@@ -377,7 +377,7 @@ type Spotted = Readonly<{
  * The year's first or last watch from a few items read from that end:
  * the earliest or the latest `watchedAt`, and among items marked in one go
  * (one time) the lowest episode first, the highest last, as Home's "Last
- * watched" (Stats once named S01E01 for S01E01–E04 marked together).
+ * watched".
  */
 export const spotlightItem = <T extends Spotted>(
   items: ReadonlyArray<T>,

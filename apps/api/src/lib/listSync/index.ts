@@ -216,28 +216,6 @@ const applyPlan = async (userId: string, plan: Plan, placedAt?: number) => {
 /** In progress and Finished as read before the show's watched items */
 type ReadPlacement = Readonly<{ IN_PROGRESS: ReadEntry; WATCHED: ReadEntry }>;
 
-/**
- * A show's watched items changed: rebuild its summary and place it in the
- * lists, from one consistent read of its items as they are now (not the
- * records of a batch), so the outcome doesn't depend on record order,
- * batching or redelivery. One rule for both callers:
- *
- * - the stream: `placement` left out (TMDB, else stored facts) and no
- *   `read`: unconditional writes, its read being the newest;
- * - the mark request: the show from stored data (`placement`; undefined
- *   leaves the lists to the stream) and the lists as `read` before the
- *   items: written only if still so (a concurrent mark's sync is newer).
- *
- * The summary write and the placement are independent: one failing never
- * skips the other; a failure is thrown once both have settled (the stream
- * retries its batch). Returns the state applied, null when TMDB doesn't
- * know the show, undefined when the lists were left to the stream.
- *
- * The nightly job is the third writer of the same rule but works in bulk
- * (one read of every item, plans only for shows that disagree, summaries
- * built together): it shares `planSeriesLists`, `listWrites` and
- * `writeRollup` with this, not this function.
- */
 type PlaceInput = Readonly<{
   userId: string;
   seriesId: number;
@@ -271,6 +249,28 @@ const placeShow = async ({
   return plan.state;
 };
 
+/**
+ * A show's watched items changed: rebuild its summary and place it in the
+ * lists, from one consistent read of its items as they are now (not the
+ * records of a batch), so the outcome doesn't depend on record order,
+ * batching or redelivery. One rule for both callers:
+ *
+ * - the stream: `placement` left out (TMDB, else stored facts) and no
+ *   `read`: unconditional writes, its read being the newest;
+ * - the mark request: the show from stored data (`placement`; undefined
+ *   leaves the lists to the stream) and the lists as `read` before the
+ *   items: written only if still so (a concurrent mark's sync is newer).
+ *
+ * The summary write and the placement are independent: one failing never
+ * skips the other; a failure is thrown once both have settled (the stream
+ * retries its batch). Returns the state applied, null when TMDB doesn't
+ * know the show, undefined when the lists were left to the stream.
+ *
+ * The nightly job is the third writer of the same rule but works in bulk
+ * (one read of every item, plans only for shows that disagree, summaries
+ * built together): it shares `planSeriesLists`, `listWrites` and
+ * `writeRollup` with this, not this function.
+ */
 export const resyncShow = async (
   input: PlaceInput,
 ): Promise<ListState | null | undefined> => {
@@ -293,8 +293,8 @@ export const resyncShow = async (
 /**
  * The conditional executor of `listWrites`, for the nightly job and the mark
  * request, which decided from reads that a mark at the same moment can
- * overtake: the list writes are one transaction that
- * applies only if In progress and Finished are still as `read` found them
+ * overtake: the list writes are one transaction that applies only if In
+ * progress and Finished are still as `read` found them
  * (the stream re-puts an item with a new `createdAt` on every sync). When
  * they changed, nothing is written (the stream's sync of that mark is the
  * truth) and it answers false. The watchlist follows only a made change.
@@ -611,9 +611,9 @@ const DROPPED_BATCH_WINDOW_MS = 48 * 60 * 60 * 1000;
  *
  * A plan that changes nothing (TMDB doesn't know the show, or lists nothing
  * aired) is skipped without claiming a slot of the cap. Shows whose lists
- * agree with their watched items are never written, nor
- * are the shows the finished-show check just moved: the list read is
- * eventually consistent and could still show them in both lists.
+ * agree with their watched items are never written, nor are the shows the
+ * finished-show check just moved: the list read is eventually consistent
+ * and could still show them in both lists.
  */
 const reconcileUserLists = async (
   userId: string,
@@ -642,9 +642,8 @@ const reconcileUserLists = async (
   }
   const listedDisagreeing = [...disagree];
   // Watched, in neither list: only a recent mark (a dropped batch). Older,
-  // it was healed already or removed from In progress by hand (production's
-  // tile Remove), which leaves exactly this state; a show on the watchlist
-  // is left alone too
+  // it was healed already or removed from In progress by hand, which leaves
+  // exactly this state; a show on the watchlist is left alone too
   const unlisted = [...watchedBySeries]
     .filter(
       ([seriesId, { lastWatchedAt, regular }]) =>
@@ -714,9 +713,10 @@ const changesLists = (plan: Plan, isListed: boolean) =>
 
 /**
  * The nightly job for one user: the finished-show check, then the reconcile
- * (which reads the lists as the check left them), then the counter heal from
- * the reconcile's read of every watched item (no extra read). Every list change counts
- * against `budget`; what it refuses is left for a later night.
+ * (which reads the lists as the check left them), then the counter heal and
+ * the per-show summaries from the reconcile's read of every watched item (no
+ * extra read). Every list change counts against `budget`; what it refuses is
+ * left for a later night.
  */
 export const validateUserLists = async (
   input: Readonly<{

@@ -249,7 +249,7 @@ const claimRefreshes = async (ids: ReadonlyArray<number>) => {
 /**
  * The facts of many shows for the personal routes (profile overview,
  * Library, Home rows, Waiting for, ledger, Circle, match): what they have,
- * a show without facts is simply absent. Bounded per read so one view never
+ * a show without facts is absent. Bounded per read so one view never
  * becomes hundreds of TMDB calls:
  *
  * - facts stored less than 7 days ago are served; past their soft life (a

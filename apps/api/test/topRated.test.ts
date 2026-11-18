@@ -8,7 +8,7 @@ import { onGet, onTmdb, requestedUrls } from './fakeHttp';
 import { request } from './request';
 
 /**
- * `GET /collection/top-rated`: the owner's MDBList list (`imdb-top-rated-by-koen`)
+ * `GET /collection/top-rated`: the site's curated MDBList list (`imdb-top-rated-by-koen`)
  * as poster cards, in the list's order. Home's daily pick deck and Discover's
  * numbered All-time favourites both read it.
  */

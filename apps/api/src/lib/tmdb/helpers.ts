@@ -92,8 +92,8 @@ const isPngOrSvg = (path: string | null | undefined) =>
  * The images a show uses when no admin pick is saved ("Automatic"), from
  * TMDB's own image order: the first text-free backdrop and the first English
  * PNG/SVG logo (else one without a language; never one in another language,
- * which an English page can't read: the title is drawn as text
- * instead). Shared by the series object and the admin picker's "Auto"
+ * which an English page can't read: the title is drawn as text instead).
+ * Shared by the series object and the admin picker's "Auto"
  * badges.
  */
 export function pickAutomaticImages(images: RawImages) {
@@ -249,8 +249,8 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
         }
       : null;
   // The one aired rule for regular seasons (lib/seriesFacts/aired.ts): a
-  // special as TMDB's last aired episode doesn't count them as 0. The
-  // next episode counts from the start of its air date here.
+  // special as TMDB's last aired episode doesn't zero them. The next episode
+  // counts as aired from the start of its air date.
   const airedPerSeason = airedBySeason({
     last: toEpisode(lastEpisodeToAir ?? null),
     next: toEpisode(nextEpisodeToAir ?? null),

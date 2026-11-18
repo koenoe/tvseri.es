@@ -64,7 +64,6 @@ export const cacheHeader = (
     parts.push(`stale-if-error=${config.staleWhileRevalidate}`);
   }
 
-  // Add immutable directive for the immutable profile
   if (profile === 'immutable') {
     parts.push('immutable');
   }

@@ -21,7 +21,7 @@ import {
 } from '@/lib/metrics/dependencyEndpoint';
 
 const AGGREGATE_TTL_DAYS = 30;
-/** Number of top items to store in leaderboards */
+/** Rows kept in each leaderboard */
 const TOP_ITEMS_LIMIT = 25;
 /** Scales counts from sampled data back up to totals (10 for a 10% sample) */
 const SAMPLE_RATE_MULTIPLIER = sampleMultiplier(API_METRICS_SAMPLE_RATE);
@@ -31,9 +31,8 @@ const LATENCY_FAST_THRESHOLD = 200;
 const LATENCY_MODERATE_THRESHOLD = 500;
 
 /**
- * Calculate percentile statistics from an array of numbers.
- * Includes histogram bins for accurate multi-day aggregation.
- * Counts are extrapolated based on SAMPLE_RATE_MULTIPLIER.
+ * Percentiles plus histogram bins (so several days can be merged
+ * accurately); counts are scaled up by SAMPLE_RATE_MULTIPLIER.
  */
 const calculatePercentiles = (values: number[]): PercentileStats => {
   if (values.length === 0) {
@@ -56,7 +55,6 @@ const calculatePercentiles = (values: number[]): PercentileStats => {
     return sorted[Math.max(0, index)] as number;
   };
 
-  // Calculate latency ratings
   let fast = 0;
   let moderate = 0;
   let slow = 0;
@@ -70,7 +68,6 @@ const calculatePercentiles = (values: number[]): PercentileStats => {
     }
   }
 
-  // Build histogram and extrapolate bin counts from sample
   const rawBins = buildLatencyHistogramBins(values);
   const extrapolatedBins = rawBins.map((bin) => bin * SAMPLE_RATE_MULTIPLIER);
 
@@ -89,9 +86,6 @@ const calculatePercentiles = (values: number[]): PercentileStats => {
   };
 };
 
-/**
- * Classify status code into category.
- */
 const classifyStatusCode = (
   code: number,
 ): 'success' | 'redirect' | 'clientError' | 'serverError' => {
@@ -102,9 +96,8 @@ const classifyStatusCode = (
 };
 
 /**
- * Calculate Apdex (Application Performance Index) from latency values.
- *
- * Apdex is an open standard that measures user satisfaction:
+ * Apdex (Application Performance Index), an open standard for user
+ * satisfaction:
  * - Satisfied: latency ≤ T
  * - Tolerating: T < latency ≤ 4T
  * - Frustrated: latency > 4T
@@ -134,7 +127,7 @@ const calculateApdex = (latencies: number[]): Apdex => {
   const total = latencies.length;
   const score = (satisfied + tolerating * 0.5) / total;
 
-  // Extrapolate counts from sample, score stays the same (it's a ratio)
+  // The counts are scaled up; the score is a ratio and stays as measured
   return {
     frustrated: frustrated * SAMPLE_RATE_MULTIPLIER,
     satisfied: satisfied * SAMPLE_RATE_MULTIPLIER,
@@ -144,9 +137,8 @@ const calculateApdex = (latencies: number[]): Apdex => {
 };
 
 /**
- * Aggregate API metrics into MetricsApi table.
- *
- * KEY DESIGN: Filters in pk, dimension in sk
+ * A day's API metrics as MetricsApiAggregated rows: filters in pk, the
+ * dimension in sk.
  *
  * pk patterns:
  *   "<date>"                    → No filters
@@ -180,9 +172,7 @@ const aggregateApiMetrics = (
       success: 0,
     };
     for (const rec of recs) {
-      // Category totals (extrapolated from sample)
       breakdown[classifyStatusCode(rec.statusCode)] += SAMPLE_RATE_MULTIPLIER;
-      // Individual code counts (extrapolated from sample)
       const codeKey = String(rec.statusCode);
       breakdown.codes![codeKey] =
         (breakdown.codes![codeKey] ?? 0) + SAMPLE_RATE_MULTIPLIER;
@@ -265,7 +255,6 @@ const aggregateApiMetrics = (
       { durations, errorCount, byOperation },
     ] of depsBySource) {
       const percentiles = calculatePercentiles(durations);
-      // Extrapolate count from sample
       const count = durations.length * SAMPLE_RATE_MULTIPLIER;
       const throughput = count > 0 ? Math.round((count / 1440) * 100) / 100 : 0;
 
@@ -316,9 +305,6 @@ const aggregateApiMetrics = (
     return result;
   };
 
-  /**
-   * Build top endpoints leaderboard from a map of endpoint -> records.
-   */
   const buildTopEndpoints = (
     endpointMap: Map<string, ApiMetricRecord[]>,
   ): Array<{
@@ -350,7 +336,6 @@ const aggregateApiMetrics = (
         const errorRate =
           count > 0 ? Math.round((errorCount / count) * 10000) / 100 : 0;
 
-        // Collect unique dependency names
         const depNames = new Set<string>();
         for (const rec of recs) {
           for (const dep of rec.dependencies) {
@@ -358,7 +343,6 @@ const aggregateApiMetrics = (
           }
         }
 
-        // Extrapolate counts and histogram bins from sample
         const rawBins = buildLatencyHistogramBins(latencies);
 
         return {
@@ -379,10 +363,7 @@ const aggregateApiMetrics = (
       .slice(0, TOP_ITEMS_LIMIT);
   };
 
-  /**
-   * Calculate top countries for an endpoint.
-   * Groups records by country and returns top N by request count.
-   */
+  /** An endpoint's countries, the most requests first */
   const calculateTopCountries = (
     recs: ApiMetricRecord[],
   ): Array<{
@@ -424,7 +405,6 @@ const aggregateApiMetrics = (
         const errorRate =
           count > 0 ? Math.round((errorCount / count) * 10000) / 100 : 0;
 
-        // Extrapolate counts and histogram bins from sample
         const rawBins = buildLatencyHistogramBins(latencies);
 
         return {
@@ -476,17 +456,14 @@ const aggregateApiMetrics = (
     };
   };
 
-  // Single dimensions
   const byEndpoint = new Map<string, ApiMetricRecord[]>();
   const byPlatform = new Map<string, ApiMetricRecord[]>();
   const byCountry = new Map<string, ApiMetricRecord[]>();
 
-  // 2-way combos
   const byPlatformCountry = new Map<string, ApiMetricRecord[]>();
   const byPlatformEndpoint = new Map<string, ApiMetricRecord[]>();
   const byCountryEndpoint = new Map<string, ApiMetricRecord[]>();
 
-  // 3-way combo
   const byPlatformCountryEndpoint = new Map<string, ApiMetricRecord[]>();
 
   for (const rec of records) {
@@ -494,7 +471,6 @@ const aggregateApiMetrics = (
     const platform = rec.client.platform;
     const country = rec.country;
 
-    // Single dimensions
     (
       byEndpoint.get(endpoint) ?? byEndpoint.set(endpoint, []).get(endpoint)
     )?.push(rec);
@@ -505,7 +481,6 @@ const aggregateApiMetrics = (
       rec,
     );
 
-    // 2-way combos
     const pcKey = `${platform}#${country}`;
     (
       byPlatformCountry.get(pcKey) ??
@@ -524,7 +499,6 @@ const aggregateApiMetrics = (
       byCountryEndpoint.set(ceKey, []).get(ceKey)
     )?.push(rec);
 
-    // 3-way combo
     const pceKey = `${platform}#${country}#${endpoint}`;
     (
       byPlatformCountryEndpoint.get(pceKey) ??
@@ -534,10 +508,8 @@ const aggregateApiMetrics = (
 
   const aggregates: ApiMetricAggregate[] = [];
 
-  // Build top endpoints leaderboard (sorted by request count)
   const topEndpoints = buildTopEndpoints(byEndpoint);
 
-  // SUMMARY - overall stats for the day
   aggregates.push(
     createAggregate(records, date, 'SUMMARY', undefined, {
       dependencies: aggregateDependencies(records),
@@ -545,7 +517,6 @@ const aggregateApiMetrics = (
     }),
   );
 
-  // Endpoints (sk: E#<endpoint>)
   for (const [endpoint, recs] of byEndpoint) {
     aggregates.push(
       createAggregate(
@@ -564,7 +535,6 @@ const aggregateApiMetrics = (
     );
   }
 
-  // Platforms (sk: P#<platform>)
   for (const [platform, recs] of byPlatform) {
     aggregates.push(
       createAggregate(recs, date, `P#${platform}`, {
@@ -574,7 +544,6 @@ const aggregateApiMetrics = (
     );
   }
 
-  // Countries (sk: C#<country>)
   for (const [country, recs] of byCountry) {
     aggregates.push(
       createAggregate(recs, date, `C#${country}`, {
@@ -587,7 +556,6 @@ const aggregateApiMetrics = (
   for (const [platform, platformRecs] of byPlatform) {
     const pk = `${date}#P#${platform}`;
 
-    // Build top endpoints for this platform
     const platformEndpointMap = new Map<string, ApiMetricRecord[]>();
     for (const [key, recs] of byPlatformEndpoint) {
       if (key.startsWith(`${platform}#`)) {
@@ -597,7 +565,6 @@ const aggregateApiMetrics = (
     }
     const platformEndpoints = buildTopEndpoints(platformEndpointMap);
 
-    // SUMMARY for this platform
     aggregates.push(
       createAggregate(platformRecs, pk, 'SUMMARY', undefined, {
         dependencies: aggregateDependencies(platformRecs),
@@ -605,7 +572,6 @@ const aggregateApiMetrics = (
       }),
     );
 
-    // Endpoints for this platform
     for (const [peKey, recs] of byPlatformEndpoint) {
       const [keyPlatform, ...rest] = peKey.split('#');
       const keyEndpoint = rest.join('#');
@@ -619,7 +585,6 @@ const aggregateApiMetrics = (
       }
     }
 
-    // Countries for this platform
     for (const [pcKey, recs] of byPlatformCountry) {
       const [keyPlatform, keyCountry] = pcKey.split('#') as [string, string];
       if (keyPlatform === platform) {
@@ -631,7 +596,6 @@ const aggregateApiMetrics = (
   for (const [country, countryRecs] of byCountry) {
     const pk = `${date}#C#${country}`;
 
-    // Build top endpoints for this country
     const countryEndpointMap = new Map<string, ApiMetricRecord[]>();
     for (const [key, recs] of byCountryEndpoint) {
       if (key.startsWith(`${country}#`)) {
@@ -641,7 +605,6 @@ const aggregateApiMetrics = (
     }
     const countryEndpoints = buildTopEndpoints(countryEndpointMap);
 
-    // SUMMARY for this country
     aggregates.push(
       createAggregate(countryRecs, pk, 'SUMMARY', undefined, {
         dependencies: aggregateDependencies(countryRecs),
@@ -649,7 +612,6 @@ const aggregateApiMetrics = (
       }),
     );
 
-    // Endpoints for this country
     for (const [ceKey, recs] of byCountryEndpoint) {
       const [keyCountry, ...rest] = ceKey.split('#');
       const keyEndpoint = rest.join('#');
@@ -662,7 +624,6 @@ const aggregateApiMetrics = (
       }
     }
 
-    // Platforms for this country
     for (const [pcKey, recs] of byPlatformCountry) {
       const [keyPlatform, keyCountry] = pcKey.split('#') as [string, string];
       if (keyCountry === country) {
@@ -675,7 +636,6 @@ const aggregateApiMetrics = (
     const [platform, country] = pcKey.split('#') as [string, string];
     const pk = `${date}#P#${platform}#C#${country}`;
 
-    // Build top endpoints for this platform + country combo
     const pcEndpointMap = new Map<string, ApiMetricRecord[]>();
     for (const [key, recs] of byPlatformCountryEndpoint) {
       if (key.startsWith(`${platform}#${country}#`)) {
@@ -685,7 +645,6 @@ const aggregateApiMetrics = (
     }
     const pcEndpoints = buildTopEndpoints(pcEndpointMap);
 
-    // SUMMARY for this platform + country combo
     aggregates.push(
       createAggregate(pcRecs, pk, 'SUMMARY', undefined, {
         dependencies: aggregateDependencies(pcRecs),
@@ -693,7 +652,6 @@ const aggregateApiMetrics = (
       }),
     );
 
-    // Endpoints for this platform + country combo
     for (const [pceKey, recs] of byPlatformCountryEndpoint) {
       const [keyPlatform, keyCountry, ...rest] = pceKey.split('#');
       const keyEndpoint = rest.join('#');

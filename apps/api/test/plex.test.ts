@@ -505,7 +505,7 @@ describe('Plex URLs and the edge store', () => {
 describe('one token per user and provider', () => {
   const OLD_TOKEN = '111111111111111111111111';
 
-  /** A second row for the user (two overlapping creates before this fix) */
+  /** A second row for the user (two overlapping creates) */
   const seedSecondToken = () => {
     edgeKeys.set(`wh:${OLD_TOKEN}`, 'plex');
     seedLegacyToken(OLD_TOKEN);

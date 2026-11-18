@@ -15,9 +15,6 @@ type FollowItem = {
   followingId: string;
 };
 
-/**
- * Atomically increment or decrement a user's follower/following count
- */
 const updateUserCount = async (
   userId: string,
   field: 'followerCount' | 'followingCount',
@@ -51,15 +48,8 @@ const updateUserCount = async (
 };
 
 /**
- * DynamoDB Stream handler for maintaining follower/following counts on User records.
- *
- * When a follow relationship is created (INSERT):
- * - Increment followerCount for the followed user
- * - Increment followingCount for the follower
- *
- * When a follow relationship is removed (REMOVE):
- * - Decrement followerCount for the followed user
- * - Decrement followingCount for the follower
+ * Keeps the follower/following counts on User records: a follow's INSERT
+ * increments both sides, its REMOVE decrements them.
  *
  * A failing batch throws; the event source mapping bisects it and retries,
  * then sends it to the DLQ. Deltas that were already applied before the

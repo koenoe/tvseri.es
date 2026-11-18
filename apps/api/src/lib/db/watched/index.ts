@@ -290,7 +290,7 @@ export const unmarkWatchedInBatch = async (
   await batchWrite(Resource.Watched.name, deleteRequests);
 };
 
-// Fetches a season from TMDB; 400 when it hasn't started airing yet
+// 400 for a season that hasn't started airing yet
 const fetchAiredSeason = async (
   tvSeriesId: number | string,
   seasonNumber: number,
@@ -578,7 +578,7 @@ const seriesKeyCondition = (input: SeriesInput) => ({
   KeyConditionExpression: 'gsi1pk = :pk',
 });
 
-/** The items of a read, normalized for a response (keys dropped, image URLs) */
+/** The items of a read, normalised for a response (keys dropped, image URLs) */
 const toReadWatchedItems = <K extends keyof WatchedItem>(
   items: ReadonlyArray<Record<string, AttributeValue>> | undefined,
 ): ReadWatchedItem<K>[] =>
@@ -586,7 +586,7 @@ const toReadWatchedItems = <K extends keyof WatchedItem>(
     normalizeWatchedItem(unmarshall(item) as Pick<WatchedItem, K>),
   ) ?? [];
 
-/** Every page of a watched-item Query, normalized, newest sort key first */
+/** Every page of a watched-item Query, normalised, in the Query's order */
 const readAllPages = async <K extends keyof WatchedItem>(
   input: QueryInput,
 ): Promise<ReadWatchedItem<K>[]> => {
@@ -669,8 +669,8 @@ type SummaryRow = Readonly<{
 
 /**
  * The summary rows of a base-table Query (a few attributes: reads are billed
- * by item size, so they cost what a COUNT does), consistent: the summaries
- * are rebuilt from them right after a write
+ * by item size, not by what is projected, so this costs what a COUNT does),
+ * consistent: the summaries are rebuilt from them right after a write
  */
 async function* readSummaryRows(
   key: Pick<QueryInput, 'ExpressionAttributeValues' | 'KeyConditionExpression'>,

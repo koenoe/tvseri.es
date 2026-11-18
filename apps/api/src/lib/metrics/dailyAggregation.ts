@@ -14,7 +14,7 @@ export const sampleMultiplier = (sampleRate: number) =>
  * A daily aggregation: reads one day's raw metrics (every shard of
  * `<source>#<date>`), aggregates them and writes the aggregates.
  *
- * By default it aggregates the PREVIOUS day, so all metrics are collected.
+ * By default it aggregates the previous day, so all metrics are collected.
  * A manual run can name the day: `{ "aggregation": "api", "date": "2025-12-11" }`.
  */
 export const dailyAggregationHandler =
@@ -33,7 +33,6 @@ export const dailyAggregationHandler =
     tableName: () => string;
   }>) =>
   async (event: unknown): Promise<void> => {
-    // Allow overriding date via event payload for manual runs/testing
     const eventDate =
       event && typeof event === 'object' && 'date' in event
         ? (event as { date: string }).date

@@ -82,7 +82,6 @@ const processScrobble = async (record: SQSRecord) => {
 
   const metadata = normalizePlexMetadata(plex.output);
 
-  // Try to find episode by external IDs first
   let episode: Episode | undefined;
   let tvSeries: TvSeries | undefined;
 
@@ -112,8 +111,7 @@ const processScrobble = async (record: SQSRecord) => {
     }
   }
 
-  // If no episode found via external IDs or no external IDs, try fuzzy
-  // search (it needs the title and both numbers)
+  // Else a fuzzy search (it needs the title and both numbers)
   const { episodeNumber, seasonNumber, seriesTitle } = metadata;
   if (
     !episode &&
@@ -140,7 +138,6 @@ const processScrobble = async (record: SQSRecord) => {
     }
   }
 
-  // If still no episode found, skip
   if (!episode || !tvSeries) {
     const reason = !metadata.externalIds
       ? 'No external IDs found in payload, and no fuzzy result'

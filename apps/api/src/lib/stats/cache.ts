@@ -1,8 +1,3 @@
-/**
- * Stats-specific cache operations.
- * Uses the generic cache module with stats-specific key patterns.
- */
-
 import {
   getCacheItem,
   getCacheItems,
@@ -14,12 +9,9 @@ import { logWarn } from '@/utils/logWarn';
 
 import { buildStatsCacheKey, type StatsCacheKey } from './keys';
 
-const CACHE_TTL = 86400; // 24 hours
+const CACHE_TTL = 86400;
 
-/**
- * Get a cached stats value.
- * Best-effort: a cache failure is treated as a miss.
- */
+/** Best-effort: a cache failure is a miss */
 export const getStatsCache = async <T>(
   userId: string,
   year: number,
@@ -34,9 +26,8 @@ export const getStatsCache = async <T>(
 };
 
 /**
- * Reads several stats values (of any user/year) in one BatchGetItem. Returns
- * them in the order asked; misses are `undefined`.
- * Best-effort: a cache failure is treated as all misses.
+ * Several of a user's stats values in one batched read, in the order asked;
+ * misses are `undefined`. Best-effort: a cache failure is all misses.
  */
 export const getStatsCaches = async <T>(
   entries: ReadonlyArray<readonly [year: number, key: StatsCacheKey]>,
@@ -54,10 +45,7 @@ export const getStatsCaches = async <T>(
   }
 };
 
-/**
- * Set a stats cache value with default TTL.
- * Best-effort: a cache failure doesn't fail the request.
- */
+/** Best-effort: a cache failure doesn't fail the request */
 export const setStatsCache = async <T>(
   userId: string,
   year: number,

@@ -17,7 +17,7 @@ const SHARED_TTL = 7 * 86400;
 const MISSING_TTL = 86400;
 const TRENDING_TTL = 3600;
 const CONCURRENCY = 5;
-/** In-progress shows read for "up to date" (one Watched query each) */
+/** In-progress shows checked for "up to date" */
 const MAX_UP_TO_DATE_CHECKS = 6;
 /** "Top rated": a show many people rate highly */
 const TOP_RATED = { minAverage: 8, minVotes: 1000 } as const;

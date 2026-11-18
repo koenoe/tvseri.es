@@ -189,7 +189,7 @@ describe('delete account', () => {
     // Its own code: the web signs this session out, never one it couldn't verify
     expect(await me.json()).toMatchObject({ message: 'AccountGone' });
 
-    // Step 1: follows and watched history
+    // `data`: follows and watched history
     await runQueue();
     expect(keysOf('Watched')).toEqual([
       `USER#${OTHER_USER_ID}|SERIES#1#S001#E001`,
@@ -202,7 +202,7 @@ describe('delete account', () => {
       }),
     ]);
 
-    // Step 2, after the watched stream settled: lists, prefs, cache, user
+    // `lists`, after the watched stream settled: lists, prefs, cache, user
     await runQueue();
     expect(keysOf('Lists')).toEqual([
       `USER#${OTHER_USER_ID}|LIST#WATCHLIST#ITEM#5`,
@@ -212,7 +212,7 @@ describe('delete account', () => {
     ]);
     expect(db.dump('Users').map((user) => user.id)).toEqual([OTHER_USER_ID]);
 
-    // Step 3: one last sweep for rows the stream re-added meanwhile
+    // `sweep`: one last pass for rows the stream re-added meanwhile
     expect(queued()).toEqual([
       expect.objectContaining({
         body: { step: 'sweep', userId: USER_ID },

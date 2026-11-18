@@ -14,8 +14,8 @@ const POOL_TTL = 7 * 86_400;
 const WEEK_TTL = 21 * 86_400;
 
 /**
- * "Hidden gems": rated 8 or more by 50 to 1,000 voters, first aired
- * in the last ten years (from 1 January of the week's year), with a poster.
+ * "Hidden gems": rated 8 or more by 50 to 1,000 voters, first aired on or
+ * after 1 January ten years before the week's year, with a poster.
  * The same for everyone: one Cache-table entry per year, refreshed weekly
  * (4 TMDB calls a week, never per request).
  */

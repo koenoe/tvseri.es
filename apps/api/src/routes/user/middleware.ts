@@ -34,9 +34,6 @@ const userMiddleware = <T extends UserVariables>(): MiddlewareHandler<{
   };
 };
 
-/**
- * Shorthand for userMiddleware
- */
 export const user = userMiddleware;
 
 /**
@@ -74,9 +71,6 @@ const YearParamSchema = v.pipe(
   v.maxValue(2100),
 );
 
-/**
- * Middleware to validate year param.
- */
 export const yearMiddleware = <
   T extends { year: number },
 >(): MiddlewareHandler<{ Variables: T }> => {

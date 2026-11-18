@@ -56,7 +56,7 @@ const whatsOn = async (
 ): Promise<Toy | undefined> => {
   const since = new Date(`${date}T00:00:00Z`);
   since.setUTCDate(since.getUTCDate() - AIRING_DAYS);
-  // The service icons (one TMDB call); without them every channel shows its wordmark
+  // The service icons (one TMDB call); without them the remote's icon slots stay empty
   const providers = await fetchWatchProviders('US').catch((error: unknown) => {
     logWarn('What’s on: watch providers failed', error);
     report(1);
@@ -64,7 +64,7 @@ const whatsOn = async (
   });
 
   /**
-   * The channel's marks: its service icon (else its wordmark) on the remote,
+   * The channel's marks: its service icon on the remote (none without one),
    * its wordmark in the caption ('' when TMDB has none). The network is a
    * stored read (`fetchNetwork`), so a day's build asks TMDB only for a
    * network not read this month

@@ -25,7 +25,6 @@ app.get('/:id', vValidator('param', IdParamSchema), async (c) => {
   const { user } = c.get('auth')!;
   const { id } = c.req.valid('param');
 
-  // Independent reads, together
   const [allFacts, prefs, watched] = await Promise.all([
     getSeriesFacts([id]),
     getSeriesPrefs(user.id, id),

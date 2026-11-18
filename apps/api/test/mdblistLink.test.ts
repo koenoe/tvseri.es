@@ -10,7 +10,7 @@ import { seedUser, USER_ID } from './seed';
  * imports. With the key read on first use, they load and run without the
  * `MdblistApiKey` link (SST throws "not linked" for a resource a Lambda
  * doesn't link, which is what the missing entry below reproduces), and
- * infra no longer links it to them. Only the API functions (catalogue:
+ * infra doesn't link it to them. Only the API functions (catalogue:
  * lists for trending, Home, go-deeper, spotlight) call MDBList.
  */
 type Raw = Record<string, unknown>;

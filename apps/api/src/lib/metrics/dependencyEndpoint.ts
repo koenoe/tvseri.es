@@ -30,7 +30,7 @@ const TMDB_NUMERIC_ID_RESOURCES = new Set([
   'tv',
 ]);
 
-/** TMDB resources that should have IDs normalized */
+/** TMDB resources whose ids are folded into `:id` */
 const TMDB_ID_RESOURCES = new Set([
   'account',
   'collection',

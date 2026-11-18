@@ -5,14 +5,14 @@ import {
   normalizeDependencyEndpoint,
 } from './dependencyEndpoint';
 
-// Pinned on path-to-regexp 8 before the move to 9 (ESM only; ambiguous
-// matches turned non-greedy; no extra optional trailing delimiter after an
-// explicit one). Every pattern here has one parameter per segment, so the
-// output must not change. Quirks are pinned on purpose: a TMDB list keyword
+// Pins the output across path-to-regexp majors (9 made ambiguous matches
+// non-greedy and dropped the optional trailing delimiter after an explicit
+// one): every pattern here has one parameter per segment, so the output must
+// not change. Quirks are pinned on purpose: a TMDB list keyword
 // (`/3/tv/popular`) folds into `:id`, and a path past the deepest pattern
 // is kept as it is.
 
-/** [endpoint, kept by the TMDB id check, normalized] */
+/** [endpoint, kept by the TMDB id check, normalised] */
 const TMDB: ReadonlyArray<readonly [string, boolean, string]> = [
   ['/3/tv/1399', true, '/3/tv/:id'],
   ['/3/tv/1399/', true, '/3/tv/:id'],
@@ -63,7 +63,7 @@ const TMDB: ReadonlyArray<readonly [string, boolean, string]> = [
   ['/3/tv/1399/season/2/episode/x', true, '/3/tv/:id/season/:num/episode/:num'],
 ];
 
-/** [endpoint, normalized] */
+/** [endpoint, normalised] */
 const MDBLIST: ReadonlyArray<readonly [string, string]> = [
   ['/lists/user/123', '/lists/user/:id'],
   ['/lists/user/someone', '/lists/user/:username'],

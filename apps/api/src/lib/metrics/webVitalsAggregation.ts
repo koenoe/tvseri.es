@@ -23,9 +23,8 @@ const SAMPLE_RATE_MULTIPLIER = sampleMultiplier(WEB_VITALS_SAMPLE_RATE);
 const AGGREGATE_TTL_DAYS = 30;
 
 /**
- * Aggregate Web Vital metrics into MetricsWebVitals table.
- *
- * KEY DESIGN: Filters in pk, dimension in sk
+ * A day's Web Vitals as MetricsWebVitalsAggregated rows: filters in pk, the
+ * dimension in sk.
  *
  * pk patterns:
  *   "<date>"                         → No filters
@@ -110,11 +109,7 @@ const aggregateWebVitals = (
     const TTFB = createMetricStats(recs, 'TTFB');
     const stats = { CLS, FCP, INP, LCP, TTFB };
 
-    // Calculate RES using Vercel's methodology:
-    // - Uses p75 values (not ratings) for each metric
-    // - Applies Lighthouse 10 log-normal scoring curves
-    // - Weighted: LCP 30%, INP 30%, CLS 25%, FCP 15%
-    // - TTFB is intentionally excluded from RES
+    // RES from the p75s (packages/utils realExperienceScore.ts)
     const score = computeRESFromStats(stats);
 
     return {
@@ -135,17 +130,14 @@ const aggregateWebVitals = (
     };
   };
 
-  // Single dimensions
   const byRoute = new Map<string, WebVitalRecord[]>();
   const byCountry = new Map<string, WebVitalRecord[]>();
   const byDevice = new Map<string, WebVitalRecord[]>();
 
-  // 2-way combos
   const byDeviceCountry = new Map<string, WebVitalRecord[]>();
   const byDeviceRoute = new Map<string, WebVitalRecord[]>();
   const byCountryRoute = new Map<string, WebVitalRecord[]>();
 
-  // 3-way combo
   const byDeviceCountryRoute = new Map<string, WebVitalRecord[]>();
 
   for (const rec of records) {
@@ -153,14 +145,12 @@ const aggregateWebVitals = (
     const country = rec.country;
     const device = rec.device.type;
 
-    // Single dimensions
     (byRoute.get(route) ?? byRoute.set(route, []).get(route))?.push(rec);
     (byCountry.get(country) ?? byCountry.set(country, []).get(country))?.push(
       rec,
     );
     (byDevice.get(device) ?? byDevice.set(device, []).get(device))?.push(rec);
 
-    // 2-way combos
     const dcKey = `${device}#${country}`;
     (
       byDeviceCountry.get(dcKey) ?? byDeviceCountry.set(dcKey, []).get(dcKey)
@@ -176,7 +166,6 @@ const aggregateWebVitals = (
       byCountryRoute.get(crKey) ?? byCountryRoute.set(crKey, []).get(crKey)
     )?.push(rec);
 
-    // 3-way combo
     const dcrKey = `${device}#${country}#${route}`;
     (
       byDeviceCountryRoute.get(dcrKey) ??
@@ -186,7 +175,6 @@ const aggregateWebVitals = (
 
   const aggregates: WebVitalAggregate[] = [];
 
-  // Build topRoutes and topCountries for SUMMARY
   const topRoutes: WebVitalTopItem[] = [];
   for (const [route, recs] of byRoute) {
     const agg = createAggregate(recs, '', '');
@@ -209,7 +197,6 @@ const aggregateWebVitals = (
   }
   topCountries.sort((a, b) => b.pageviews - a.pageviews);
 
-  // SUMMARY
   aggregates.push(
     createAggregate(records, date, 'SUMMARY', undefined, {
       topCountries: topCountries.slice(0, 25),
@@ -217,7 +204,6 @@ const aggregateWebVitals = (
     }),
   );
 
-  // Routes (sk: R#<route>)
   for (const [route, recs] of byRoute) {
     aggregates.push(
       createAggregate(recs, date, `R#${route}`, {
@@ -227,7 +213,6 @@ const aggregateWebVitals = (
     );
   }
 
-  // Countries (sk: C#<country>)
   for (const [country, recs] of byCountry) {
     aggregates.push(
       createAggregate(recs, date, `C#${country}`, {
@@ -237,7 +222,6 @@ const aggregateWebVitals = (
     );
   }
 
-  // Devices (sk: D#<device>)
   for (const [device, recs] of byDevice) {
     aggregates.push(
       createAggregate(recs, date, `D#${device}`, {
@@ -250,10 +234,8 @@ const aggregateWebVitals = (
   for (const [device, deviceRecs] of byDevice) {
     const pk = `${date}#D#${device}`;
 
-    // SUMMARY for this device
     aggregates.push(createAggregate(deviceRecs, pk, 'SUMMARY'));
 
-    // Routes for this device
     for (const [drKey, recs] of byDeviceRoute) {
       const [keyDevice, keyRoute] = drKey.split('#') as [string, string];
       if (keyDevice === device) {
@@ -261,7 +243,6 @@ const aggregateWebVitals = (
       }
     }
 
-    // Countries for this device
     for (const [dcKey, recs] of byDeviceCountry) {
       const [keyDevice, keyCountry] = dcKey.split('#') as [string, string];
       if (keyDevice === device) {
@@ -273,10 +254,8 @@ const aggregateWebVitals = (
   for (const [country, countryRecs] of byCountry) {
     const pk = `${date}#C#${country}`;
 
-    // SUMMARY for this country
     aggregates.push(createAggregate(countryRecs, pk, 'SUMMARY'));
 
-    // Routes for this country
     for (const [crKey, recs] of byCountryRoute) {
       const [keyCountry, keyRoute] = crKey.split('#') as [string, string];
       if (keyCountry === country) {
@@ -284,7 +263,6 @@ const aggregateWebVitals = (
       }
     }
 
-    // Devices for this country
     for (const [dcKey, recs] of byDeviceCountry) {
       const [keyDevice, keyCountry] = dcKey.split('#') as [string, string];
       if (keyCountry === country) {
@@ -297,10 +275,8 @@ const aggregateWebVitals = (
     const [device, country] = dcKey.split('#') as [string, string];
     const pk = `${date}#D#${device}#C#${country}`;
 
-    // SUMMARY for this device + country combo
     aggregates.push(createAggregate(dcRecs, pk, 'SUMMARY'));
 
-    // Routes for this device + country combo
     for (const [dcrKey, recs] of byDeviceCountryRoute) {
       const [keyDevice, keyCountry, keyRoute] = dcrKey.split('#') as [
         string,

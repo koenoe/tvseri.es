@@ -199,8 +199,8 @@ describe('email code flow', () => {
   });
 
   // An email refusal (a failed send, then the per-address cap) leads with
-  // Google: the note says email codes are unavailable and
-  // the Google button, already first, takes the focus
+  // Google: the note says email codes are unavailable and the Google
+  // button, already first, takes the focus
   const GOOGLE_FOCUSED =
     /<a autofocus="" class="a-btn w"[^>]*href="\/google\/authorize"/;
 

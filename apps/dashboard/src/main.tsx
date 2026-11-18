@@ -22,7 +22,7 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       retry: 1,
       // Auth failures show the router's error state (with "Try again");
-      // other query errors stay with the page as before.
+      // other query errors stay with the page.
       throwOnError: isAuthError,
     },
   },

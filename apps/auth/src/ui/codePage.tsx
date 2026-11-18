@@ -55,8 +55,8 @@ type Props = Readonly<{
 }>;
 
 /**
- * The code page: the address the code went to, one real input
- * drawn as six slots on a season line, Sign in, and resend with a cooldown.
+ * The code page: the address the code went to, one real input drawn as six
+ * slots on a season line, Sign in, and resend with a cooldown.
  * Without JS it is one wide field and a button; every action is a post.
  */
 export function CodePage({

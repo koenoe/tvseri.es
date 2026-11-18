@@ -30,7 +30,7 @@ import {
 import { CustomTooltip } from './custom-tooltip';
 import { useChartScale } from './use-chart-scale';
 
-// Between the tooltip cursor and the active dots, as Recharts 2's render order had it
+// Above the tooltip cursor, under the active dots
 const LINE_Z_INDEX =
   (DefaultZIndexes.cursorLine + DefaultZIndexes.activeDot) / 2;
 

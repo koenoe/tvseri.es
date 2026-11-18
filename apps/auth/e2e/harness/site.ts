@@ -48,8 +48,8 @@ export function createHarness(origin: string) {
           `<!doctype html><title>Site callback</title><h1>Site callback</h1><pre id="query">${JSON.stringify(c.req.queries())}</pre>`,
         );
       })
-      // The start page with four providers: the
-      // layout follows the issuer's list, so render it with a longer one
+      // The start page with four providers: the layout follows the issuer's
+      // list, so render it with a longer one
       .get('/__test/start-4', () =>
         htmlPage(
           StartPage({

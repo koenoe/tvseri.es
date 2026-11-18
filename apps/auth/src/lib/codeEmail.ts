@@ -1,17 +1,17 @@
 import { formatCodeLifetime } from './codeLifetime';
 
 /**
- * The sign-in code email : the site's
- * dark ground edge to edge, “tvseri.es” as plain text, a thin rule down the
- * left of the column with a white segment beside the code, and the code as
- * the headline. Two short lines, nothing to click, no image, nothing hosted.
+ * The sign-in code email: the site's dark ground edge to edge, “tvseri.es”
+ * as plain text, a thin rule down the left of the column with a white
+ * segment beside the code, and the code as the headline. Two short lines,
+ * nothing to click, no image, nothing hosted.
  *
  * Built for mail clients: tables and inline styles, system fonts, one small
  * `<style>` for Apple's data detectors and the phone sizes. The code is one
  * unbroken text run (a double-click selects it, Apple Mail + Safari offer
- * it for autofill) near the word “code”, and right after it at the end of the subject. Nothing
- * a client could turn into a link: the domain carries a zero-width
- * non-joiner before its dot, and `format-detection` is off.
+ * it for autofill) near the word “code”, and ends the subject. Nothing a
+ * client could turn into a link: the domain carries a zero-width non-joiner
+ * before its dot, and `format-detection` is off.
  */
 
 const FONT =

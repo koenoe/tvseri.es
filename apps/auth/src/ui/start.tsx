@@ -63,10 +63,10 @@ export type StartPageProps = Readonly<{
 }>;
 
 /**
- * The start page: both ways in on one page. The provider
- * buttons come from the issuer's list (Google first and white), the email
- * form posts `action=request` straight to the code provider, whose start
- * state renders this same page with its errors.
+ * The start page: both ways in on one page. The provider buttons come from
+ * the issuer's list (Google first and white), the email form posts
+ * `action=request` straight to the code provider, whose start state renders
+ * this same page with its errors.
  */
 export function StartPage({
   email = '',

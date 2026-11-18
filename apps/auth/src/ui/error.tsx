@@ -4,11 +4,10 @@ import { Layout } from './layout';
 import { htmlPage } from './page';
 
 /**
- * The lost-state page: the
- * sign-in this browser started can't be found (cookies gone, another
- * browser, older than a day, a provider URL opened directly). A 400, so
- * S04E00; the picture is a CSS test card, so nothing else loads.
- * The way forward starts a fresh login on the site.
+ * The lost-state page: the sign-in this browser started can't be found
+ * (cookies gone, another browser, older than a day, a provider URL opened
+ * directly). A 400, so S04E00; the picture is a CSS test card, so nothing
+ * else loads. The way forward starts a fresh login on the site.
  */
 function LostStatePage({ site }: Readonly<{ site: string }>) {
   return (

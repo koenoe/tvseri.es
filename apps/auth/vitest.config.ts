@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { defineConfig } from 'vitest/config';
 
-// The deployed bundle imports `ui.css` as text and fonts as bytes
+// The deployed bundle imports the CSS as text and fonts as bytes
 // (infra/auth.ts `nodejs.loader`); Vite would treat them as assets. Each is
 // resolved to a virtual id so Vite's own plugins skip it.
 const AS_TEXT = '\0as-text:';

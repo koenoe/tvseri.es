@@ -52,11 +52,7 @@ const markerVariants = cva('absolute w-0.5 -translate-x-1/2 left-3/4', {
   },
 });
 
-/**
- * Get grey shade based on zone status.
- * Poor = darkest, needs improvement = medium, good = lightest.
- * Subtle differences to match Vercel's design.
- */
+/** Inactive zones get three different greys, so neighbouring segments stay apart. */
 function getGreyShade(status: RatingStatus): string {
   if (status === 'poor') return 'bg-muted-foreground/20';
   if (status === 'needsImprovement') return 'bg-muted-foreground/60';
@@ -78,11 +74,10 @@ function PercentileBarComponent({
   const metricConfig = METRICS_CONFIG[metric];
   const totalRatings = ratings.good + ratings.needsImprovement + ratings.poor;
 
-  // Active zone is determined by the actual P75 value against metric thresholds
   const p75Status = getMetricStatus(metric, p75Value);
   const activeZone: RatingStatus = p75Status;
 
-  // If no ratings data, show 100% in the zone matching the p75 status
+  // Without ratings, the p75's zone fills the whole bar
   const hasRatingsData = totalRatings > 0;
 
   const zones: ZoneData[] = [
@@ -127,9 +122,7 @@ function PercentileBarComponent({
 
   return (
     <div className="w-full">
-      {/* Bar container */}
       <div className="relative w-full">
-        {/* Zone segments */}
         <div className={barVariants({ variant })}>
           {zones.map((zone) => {
             const isActive = activeZone === zone.status;
@@ -160,7 +153,6 @@ function PercentileBarComponent({
           })}
         </div>
 
-        {/* P75 marker - vertical line extending above and below the bar */}
         <div className={markerClasses} />
       </div>
 

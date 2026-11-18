@@ -20,7 +20,6 @@ function proxy() {
   return result;
 }
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     tanstackRouter({

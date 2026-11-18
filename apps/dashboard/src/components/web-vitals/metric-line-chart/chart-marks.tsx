@@ -76,7 +76,7 @@ type CursorProps = Readonly<{
   top?: number;
 }>;
 
-/** Just the vertical line; the lines' active dots mark the values. */
+/** Only the vertical line; the lines' active dots mark the values. */
 export function CustomCursor({ height, points, top }: CursorProps) {
   const x = points?.[0]?.x;
   if (x === undefined) return null;

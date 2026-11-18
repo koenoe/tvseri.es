@@ -20,19 +20,13 @@ function formatDate(dateStr: string): string {
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
-/**
- * Get display value for a metric.
- * For RES, calculate score at the given percentile level.
- * For other metrics, convert ms to display units if needed.
- */
+/** RES is the score from each metric's value at `percentile`; the others are in threshold units. */
 function getMetricDisplayValue(
   metric: MetricType,
   item: MetricSeriesItem,
   percentile: PercentileKey,
 ): number {
   if (metric === 'res') {
-    // Calculate RES at this percentile level using the corresponding
-    // percentile values from each metric
     return computeRealExperienceScore({
       CLS: item.CLS[percentile],
       FCP: item.FCP[percentile],
@@ -44,9 +38,6 @@ function getMetricDisplayValue(
   return toThresholdUnits(metric, item[toWebVitalName(metric)][percentile]);
 }
 
-/**
- * Format a value for display in tooltips.
- */
 export function formatValueForDisplay(
   metric: MetricType,
   value: number,
@@ -62,9 +53,6 @@ export function formatValueForDisplay(
   return formatted.replace(/\.?0+$/, '');
 }
 
-/**
- * Get tick config (color and indicator) based on value for Y-axis rendering.
- */
 export function getTickConfig(
   value: number,
   metric: MetricType,

@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// The ops range for this app's harness (tools/agents: “others 3190–3199”)
+// A port from tools/agents' range for everything else (3190–3199)
 const port = Number(process.env.AUTH_E2E_PORT ?? 3193);
 
 /**

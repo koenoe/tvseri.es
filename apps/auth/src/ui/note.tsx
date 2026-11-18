@@ -11,8 +11,8 @@ export type NoteCopy = Readonly<{
 }>;
 
 /**
- * The quiet note under a title: what happened in bold,
- * then what to do, with the other way in named when one is blocked.
+ * The quiet note under a title: what happened in bold, then what to do,
+ * with the other way in named when one is blocked.
  */
 export function Note({ copy }: Readonly<{ copy: NoteCopy }>) {
   const Icon = copy.icon;

@@ -1,9 +1,9 @@
 /**
  * The one inline script of the sign-in pages, served verbatim:
  * a `String.raw` with no interpolation, so a regex like `\D` reaches the
- * browser as written (a template literal with `html``…``` once turned it into
- * `D`). Its hash is in the CSP (assets.ts) and `client.test.ts` runs it in
- * jsdom against the rendered pages.
+ * browser as written (a plain template literal would turn it into `D`). Its
+ * hash is in the CSP (assets.ts) and `client.test.ts` runs it in jsdom
+ * against the rendered pages.
  *
  * Everything it adds is an enhancement: without it every action is a plain
  * form post or link. It adds: the `js` class (the code field painted as six
@@ -13,8 +13,8 @@
  * digits (red, drawn selected) but the field itself starts empty: wherever
  * a click puts the caret, typing or pasting is a new code, and nothing is
  * sent until six new digits are in. The server's page still carries the
- * digits in the field, so without the script they stay to correct. It runs in <head>, so the `js` class is set
- * before the first paint. Forms carry an input named `action` (OpenAuth's
+ * digits in the field, so without the script they stay to correct. It runs
+ * in <head>, so the `js` class is set before the first paint. Forms carry an input named `action` (OpenAuth's
  * field), so `form.action` is that input: read the attribute instead.
  */
 export const CLIENT_SCRIPT = String.raw`(function(){

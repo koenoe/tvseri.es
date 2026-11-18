@@ -32,10 +32,7 @@ function toCoords(
   });
 }
 
-/**
- * Generate a smooth (Catmull-Rom) sparkline path.
- * Best for latency/continuous metrics where smooth curves are preferred.
- */
+/** A smooth (Catmull-Rom) path, for continuous metrics like latency. */
 export function getSmoothSparklinePath(
   points: ReadonlyArray<number>,
   width: number = SPARKLINE_WIDTH,
@@ -70,10 +67,7 @@ export function getSmoothSparklinePath(
   return d;
 }
 
-/**
- * Generate a sharp (linear) sparkline path.
- * Best for error rates and discrete data where exact values matter.
- */
+/** A straight-segment path, for error rates where exact values matter. */
 export function getSharpSparklinePath(
   points: ReadonlyArray<number>,
   width: number = SPARKLINE_WIDTH,
@@ -88,9 +82,7 @@ export function getSharpSparklinePath(
   return `M ${coords.join(' L ')}`;
 }
 
-/**
- * Calculate Y position for a flat line (when there's no variation in data).
- */
+/** The height of a series without variation, against `maxValue`. */
 export function getFlatLineY(
   value: number,
   maxValue: number,

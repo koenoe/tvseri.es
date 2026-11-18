@@ -62,16 +62,16 @@ const checkClaims = (
 };
 
 /**
- * The email code provider's UI. Its start state is the start
- * page itself (the form there posts `action=request` here), so a failed send
- * shows on the page the person was on, with what they typed put back. The
- * code state is the code page.
+ * The email code provider's UI. Its start state is the start page itself
+ * (the form there posts `action=request` here), so a failed send shows on
+ * the page the person was on, with what they typed put back. The code state
+ * is the code page.
  */
 export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
   const hasGoogle = Object.hasOwn(options.providers, 'google');
   // Email refused (a failed send, then this address's 5 codes in 15
-  // minutes): say so plainly and lead with Google, which
-  // works now. The Google button, already first, takes the focus.
+  // minutes): say so plainly and lead with Google, which works now. The
+  // Google button, already first, takes the focus.
   const startNotes: Partial<Record<CodeProviderError['type'], NoteCopy>> = {
     rate_limited: warn(
       'Email codes for this address are paused for 15 minutes.',

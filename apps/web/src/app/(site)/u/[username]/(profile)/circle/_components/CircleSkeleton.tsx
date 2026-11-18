@@ -15,8 +15,15 @@ const BAR = `${BAR_FILL} ${PULSE}`;
 /** A handle of a usual length (a generated one is two words and a number) for the visitor line's ghost */
 const STAND_IN = 'quiet-heron-5120';
 
+const COUNT_BAR = `h-3 w-[150px] ${BAR}`;
+const LINK_BAR = `h-3 w-3 ${BAR}`;
+const VISITOR_HEAD_GHOST = `flex flex-col gap-2 max-md:hidden ${PULSE}`;
+const NAME_BAR = `h-7 w-[120px] ${BAR_FILL}`;
+const DESCRIPTION_GHOST = `rounded-6 [box-decoration-break:clone] ${GHOST_FILL}`;
+const SECTION_TITLE_BAR = `h-[18px] w-[120px] ${BAR}`;
+
 /** The header's count while it loads: "8 following · 6 followers" is about this wide */
-const countGhost = <span className={`h-3 w-[150px] ${BAR}`} />;
+const countGhost = <span className={COUNT_BAR} />;
 
 /** Your own Circle: the title, description and first section are static copy */
 const owner = (
@@ -30,7 +37,7 @@ const owner = (
     <section>
       <SectionHead
         id="circle-following-ph"
-        link={<span className={`h-3 w-3 ${BAR}`} />}
+        link={<span className={LINK_BAR} />}
         size="side"
         title={CIRCLE_COPY.following}
       />
@@ -44,26 +51,21 @@ const owner = (
 /** Someone else's: their name isn't known before the page streams, so ghost lines */
 const visitor = (
   <>
-    <div
-      className={`flex flex-col gap-2 max-md:hidden ${PULSE}`}
-      data-placeholder={VISITOR_HEAD}
-    >
+    <div className={VISITOR_HEAD_GHOST} data-placeholder={VISITOR_HEAD}>
       <div className="flex h-8 items-center">
-        <span className={`h-7 w-[120px] ${BAR_FILL}`} />
+        <span className={NAME_BAR} />
       </div>
       {/* the line itself in ghost bars, with a name of a usual length, so
           it wraps where theirs will at 800 and 1100px */}
       <div className="text-meta text-transparent">
-        <span
-          className={`rounded-6 [box-decoration-break:clone] ${GHOST_FILL}`}
-        >
+        <span className={DESCRIPTION_GHOST}>
           {visitorCopy(STAND_IN).description}
         </span>
       </div>
     </div>
     <section>
       <div className="flex h-6 items-center">
-        <span className={`h-[18px] w-[120px] ${BAR}`} />
+        <span className={SECTION_TITLE_BAR} />
       </div>
       <div className="mt-4">
         <CircleGhost owner={false} />

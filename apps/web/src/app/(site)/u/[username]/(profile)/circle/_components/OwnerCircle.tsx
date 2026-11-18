@@ -7,6 +7,9 @@ import CircleSection from './CircleSection';
 import OwnerPersonRow from './OwnerPersonRow';
 import { LIST } from './rowBoxes';
 
+const FOLLOWING_LIST = `${LIST} mt-4 md:mt-5`;
+const FOLLOWERS_LIST = `${LIST} mt-4`;
+
 /**
  * Your own Circle under the page title: the
  * people you follow, closest taste first, then those who follow you that
@@ -17,6 +20,7 @@ export default function OwnerCircle({
   people,
 }: Readonly<{ people: CirclePeople }>) {
   const { capped, followers, following, followingCount } = people;
+  const followNobodySub = followNobodyLine(followers.length);
   return (
     <div className="flex flex-col gap-8">
       <CircleSection
@@ -28,15 +32,16 @@ export default function OwnerCircle({
           <div className="mt-4">
             <EmptyState
               glyph={usersGlyph}
-              sub={followNobodyLine(followers.length)}
+              sub={followNobodySub}
               title={CIRCLE_COPY.followNobody}
             />
           </div>
         ) : (
-          <ul className={`${LIST} mt-4 md:mt-5`}>
-            {following.map((row, index) => (
-              <OwnerPersonRow first={index === 0} key={row.id} row={row} />
-            ))}
+          <ul className={FOLLOWING_LIST}>
+            {following.map((row, index) => {
+              const first = index === 0;
+              return <OwnerPersonRow first={first} key={row.id} row={row} />;
+            })}
           </ul>
         )}
       </CircleSection>
@@ -46,14 +51,11 @@ export default function OwnerCircle({
           id="circle-followers"
           title={CIRCLE_COPY.followsYou}
         >
-          <ul className={`${LIST} mt-4`}>
-            {followers.map((row, index) => (
-              <OwnerPersonRow
-                first={index === 0 && following.length === 0}
-                key={row.id}
-                row={row}
-              />
-            ))}
+          <ul className={FOLLOWERS_LIST}>
+            {followers.map((row, index) => {
+              const first = index === 0 && following.length === 0;
+              return <OwnerPersonRow first={first} key={row.id} row={row} />;
+            })}
           </ul>
         </CircleSection>
       ) : null}

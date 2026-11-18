@@ -86,11 +86,12 @@ async function VisitorPage({ profile }: Readonly<{ profile: Profile }>) {
   // the counts are a nicety beside the lists: without them the titles go bare
   const known = isUnavailable(counts) ? null : counts;
   const copy = visitorCopy(username);
+  const count = known ? circleCounts(known) : undefined;
   return (
     <div className={PAGE} data-slot="circle">
       <SubpageHeader
         className="max-md:hidden"
-        count={known ? circleCounts(known) : undefined}
+        count={count}
         description={copy.description}
         slot={VISITOR_HEAD}
         title={copy.title}

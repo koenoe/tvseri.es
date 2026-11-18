@@ -11,6 +11,8 @@ import { LEAD, LINE } from './rowBoxes';
 const FOLLOWS_YOU = ['Follows you'] as const;
 const NO_TAGS = [] as const;
 
+const LEVEL_LINE = `flex min-w-0 items-center gap-2 text-meta whitespace-nowrap text-white/60 ${LINE.level}`;
+
 /**
  * A row on your own Circle: the match ring, "Follows you" on a mutual (in
  * the "Follows you" section the heading says it), the level and
@@ -23,13 +25,10 @@ export default function OwnerPersonRow({
 }: Readonly<{ first?: boolean; row: CircleRow }>) {
   const { level } = row.match;
   const levelClass = level ? LEVELS[level].text : 'text-white/80';
+  const levelWord = `shrink-0 font-semibold ${levelClass}`;
   const line = (
-    <div
-      className={`flex min-w-0 items-center gap-2 text-meta whitespace-nowrap text-white/60 ${LINE.level}`}
-    >
-      <b className={`shrink-0 font-semibold ${levelClass}`}>
-        {levelLine(level)}
-      </b>
+    <div className={LEVEL_LINE}>
+      <b className={levelWord}>{levelLine(level)}</b>
       <span className="min-w-0 truncate">{proofLine(row.match)}</span>
     </div>
   );
@@ -53,13 +52,14 @@ export default function OwnerPersonRow({
       username={row.username}
     />
   );
+  const tags = row.followsYou && row.following ? FOLLOWS_YOU : NO_TAGS;
   return (
     <PersonRow
       action={action}
       first={first}
       lead={lead}
       line={line}
-      tags={row.followsYou && row.following ? FOLLOWS_YOU : NO_TAGS}
+      tags={tags}
       username={row.username}
       watching={row.watching}
     />

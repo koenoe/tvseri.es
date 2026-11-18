@@ -14,6 +14,8 @@ import VisitorPersonRow from './VisitorPersonRow';
 
 const getId = (person: FollowItem) => person.id;
 
+const PEOPLE_LIST = `${LIST} mt-4`;
+
 /**
  * One of someone else's two Circle lists, 24 rows a page, the next page
  * loading as you scroll (each row with what that person is watching).
@@ -44,14 +46,13 @@ export default function VisitorList({
   return (
     <>
       <InfiniteScroll hasMore={canLoadMore} loadMore={loadMore}>
-        <ul className={`${LIST} mt-4`}>
-          {items.map((person, index) => (
-            <VisitorPersonRow
-              first={marksFirst && index === 0}
-              key={person.id}
-              person={person}
-            />
-          ))}
+        <ul className={PEOPLE_LIST}>
+          {items.map((person, index) => {
+            const first = marksFirst && index === 0;
+            return (
+              <VisitorPersonRow first={first} key={person.id} person={person} />
+            );
+          })}
         </ul>
       </InfiniteScroll>
       <PaginationNotice onRetry={loadMore} status={status} />

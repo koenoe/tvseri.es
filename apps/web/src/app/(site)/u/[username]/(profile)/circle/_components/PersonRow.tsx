@@ -12,6 +12,11 @@ import WatchingLine from './WatchingLine';
 const TAG =
   'inline-flex h-[22px] shrink-0 items-center rounded-6 bg-white/10 px-2 text-[11px] leading-5 font-semibold whitespace-nowrap text-white/85';
 
+const PERSON_ROW = `group/person bg-white/[.035] ${ROW}`;
+const NAME_LINE = `flex min-w-0 items-center gap-2.5 text-[16px] leading-6 font-semibold md:text-[17px] ${LINE.name}`;
+const PHONE_TAGS = `h-8 gap-2 md:hidden ${ACTION}`;
+const GO_MARK = `bg-white/6 text-white/70 transition-colors group-hover/person:text-white ${GO}`;
+
 /**
  * One person on the Circle, owner's and visitor's: the
  * lead (match ring or the visitor's plain circle), the name with its tags,
@@ -44,15 +49,13 @@ export default function PersonRow({
   const nameTag = action ? TAG : `${TAG} max-md:hidden`;
   return (
     <li
-      className={`group/person bg-white/[.035] ${ROW}`}
+      className={PERSON_ROW}
       data-person={username}
       data-slot={first ? FIRST_ROW : undefined}
     >
       {lead}
       <div className="min-w-0">
-        <div
-          className={`flex min-w-0 items-center gap-2.5 text-[16px] leading-6 font-semibold md:text-[17px] ${LINE.name}`}
-        >
+        <div className={NAME_LINE}>
           <Link
             className="truncate outline-0 after:absolute after:inset-0 after:rounded-16 focus-visible:after:outline-2 focus-visible:after:outline-white"
             href={href}
@@ -71,7 +74,7 @@ export default function PersonRow({
       {action ? (
         <div className={ACTION}>{action}</div>
       ) : (
-        <div className={`h-8 gap-2 md:hidden ${ACTION}`}>
+        <div className={PHONE_TAGS}>
           {tags.map((tag) => (
             <span className={TAG} key={tag}>
               {tag}
@@ -79,10 +82,7 @@ export default function PersonRow({
           ))}
         </div>
       )}
-      <span
-        aria-hidden="true"
-        className={`bg-white/6 text-white/70 transition-colors group-hover/person:text-white ${GO}`}
-      >
+      <span aria-hidden="true" className={GO_MARK}>
         <Icon glyph={chevronRightGlyph} size={16} />
       </span>
     </li>

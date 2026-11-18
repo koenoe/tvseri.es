@@ -21,6 +21,8 @@ export default function VisitorCircle({
 }>) {
   const copy = visitorCopy(username);
   const base = `/api/u/${encodeURIComponent(username)}/social`;
+  const followingEndpoint = `${base}/following`;
+  const followersEndpoint = `${base}/followers`;
   return (
     <div className="flex flex-col gap-8">
       <CircleSection
@@ -30,7 +32,7 @@ export default function VisitorCircle({
       >
         <VisitorList
           empty={copy.followingEmpty}
-          endpoint={`${base}/following`}
+          endpoint={followingEndpoint}
           first={lists.following}
           marksFirst
         />
@@ -42,7 +44,7 @@ export default function VisitorCircle({
       >
         <VisitorList
           empty={copy.followersEmpty}
-          endpoint={`${base}/followers`}
+          endpoint={followersEndpoint}
           first={lists.followers}
         />
       </CircleSection>

@@ -5,14 +5,14 @@ import Icon from '@/components/ui/icon/Icon';
 
 import { LINE } from './rowBoxes';
 
+const WATCHING_LINE = `flex min-w-0 items-center gap-2 text-meta whitespace-nowrap text-white/80 ${LINE.watching}`;
+
 /** "◔ Watching Frieren", or "Not watching anything right now" */
 export default function WatchingLine({
   watching,
 }: Readonly<{ watching: WatchingNow | null }>) {
   return (
-    <div
-      className={`flex min-w-0 items-center gap-2 text-meta whitespace-nowrap text-white/80 ${LINE.watching}`}
-    >
+    <div className={WATCHING_LINE}>
       {watching ? (
         <>
           <Icon

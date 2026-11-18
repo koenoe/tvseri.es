@@ -5,14 +5,16 @@ import { useBackground } from '@/components/background/BackgroundProvider';
 import hexToRgb from '@/components/background/hexToRgb';
 
 /**
- * A dark top fade, so the header row reads on bright backdrops, and a fade
+ * A dark top fade that holds behind the header row (the first 8%, where the
+ * old shade measured 4.5:1 or better on 40 backdrops) so it reads on bright
+ * art, then lets the art through; and a fade
  * to the page colour from the bottom, so the hero's text below the art's
  * upper half reads and the art meets the page with no edge.
  */
 export const phoneHeroShade = (color: string) => {
   const rgb = hexToRgb(color).join(',');
   return {
-    background: `linear-gradient(180deg, rgba(20,17,13,0.55) 0%, rgba(20,17,13,0) 22%), linear-gradient(0deg, rgb(${rgb}) 0%, rgba(${rgb},0.75) 30%, rgba(${rgb},0) 58%)`,
+    background: `linear-gradient(180deg, rgba(20,17,13,0.65) 0%, rgba(20,17,13,0.5) 8%, rgba(20,17,13,0) 24%), linear-gradient(0deg, rgb(${rgb}) 0%, rgba(${rgb},0.75) 30%, rgba(${rgb},0) 58%)`,
   };
 };
 

@@ -17,6 +17,7 @@ import {
   aggregateDependencyOperationsWithSeries,
   aggregateSummaries,
   buildPk,
+  dayErrorRate,
   getSummaries,
   queryByPkAndPrefix,
   queryEndpointTimeSeries,
@@ -64,7 +65,7 @@ app.get('/', vValidator('query', ApiMetricsSummaryQuerySchema), async (c) => {
     series: summaries.map((s) => ({
       apdex: s.apdex,
       date: s.date,
-      errorRate: s.errorRate,
+      errorRate: dayErrorRate(s),
       latency: s.latency,
       requestCount: s.requestCount,
     })),
@@ -145,7 +146,7 @@ app.get(
         const series = items
           .map((item) => ({
             date: item.date,
-            errorRate: item.errorRate,
+            errorRate: dayErrorRate(item),
             p75: item.latency.p75,
             p90: item.latency.p90,
             p95: item.latency.p95,
@@ -248,7 +249,7 @@ app.get(
         apdex: item.apdex,
         date: item.date,
         dependencies: item.dependencies,
-        errorRate: item.errorRate,
+        errorRate: dayErrorRate(item),
         latency: item.latency,
         requestCount: item.requestCount,
       })),

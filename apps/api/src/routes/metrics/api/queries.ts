@@ -97,6 +97,13 @@ export const queryEndpointTimeSeries = (
  * Uses histogram merging for accurate percentile calculation when histograms
  * are available, falling back to weighted averages for legacy data.
  */
+/**
+ * A stored day's error rate as a percentage, the unit of every rate the
+ * routes send: the aggregate item keeps it as a fraction.
+ */
+export const dayErrorRate = (day: Pick<ApiMetricAggregate, 'errorRate'>) =>
+  toPercent(day.errorRate, 1);
+
 export const aggregateSummaries = (
   items: ApiMetricAggregate[],
 ): AggregatedApiMetrics | null => {

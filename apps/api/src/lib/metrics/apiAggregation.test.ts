@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   aggregateDependencyOperationsWithSeries,
   aggregateSummaries,
+  dayErrorRate,
 } from '@/routes/metrics/api/queries';
 
 import { aggregateApiMetrics } from './apiAggregation';
@@ -79,5 +80,22 @@ describe('dependency error rates after sampling', () => {
     );
     expect(operation?.errorRate).toBe(20);
     expect(operation?.series.map((day) => day.errorRate)).toEqual([20, 20]);
+  });
+});
+
+describe('a day’s error rate in a series', () => {
+  it('is a percentage, like the period’s', () => {
+    const date = '2026-11-17';
+    const records = Array.from({ length: 10 }, (_, index) =>
+      record(index, 200, index < 3 ? 500 : 200),
+    );
+    const day = aggregateApiMetrics(records, date).find(
+      (item) => item.pk === date && item.sk === 'SUMMARY',
+    );
+    if (!day) {
+      throw new Error('no SUMMARY item');
+    }
+    expect(dayErrorRate(day)).toBe(30);
+    expect(dayErrorRate(day)).toBe(aggregateSummaries([day])?.errorRate);
   });
 });

@@ -63,7 +63,7 @@ Biome, not ESLint/Prettier: single quotes, semicolons, trailing commas, `(x) => 
 
 ### React
 
-- No inline computed props: assign to a variable before passing to JSX.
+- No inline computed props: assign to a variable before passing to JSX. Plain values, property reads, literals and a simple `a ? b : c` between plain values stay inline.
 - `memo()` components set `displayName` before export.
 - Props are typed as `Readonly<{...}>`, not `interface`.
 - Split components past ~100 lines; avoid big JSX blocks.

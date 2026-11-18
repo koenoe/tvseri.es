@@ -24,6 +24,8 @@ import {
   buildOutNow,
   buildPaused,
   buildUpNext,
+  returnsSoon,
+  waitingForLater,
 } from './blocks';
 
 // In-progress shows read (their per-show summaries), most recently added first
@@ -137,28 +139,20 @@ const withTicketDetails = async (
 
 /** Finished shows that return within 30 days are tickets too */
 const finishedTickets = (waiting: WaitingFor): ComingUpItem[] =>
-  waiting.items
-    .filter(
-      (item) =>
-        item.state === 'dated' &&
-        item.nextDate &&
-        item.daysToGo !== undefined &&
-        item.daysToGo <= 30,
-    )
-    .map((item) => ({
-      date: item.nextDate as string,
-      daysToGo: item.daysToGo as number,
-      episode: item.nextEpisode ?? 1,
-      kind: item.nextEpisode === 1 ? 'season-premiere' : 'episode',
-      onWatchlist: false,
-      posterImage: item.posterImage,
-      provider: null,
-      release: null,
-      season: item.nextSeason,
-      seriesId: item.seriesId,
-      slug: item.slug,
-      title: item.title,
-    }));
+  waiting.items.filter(returnsSoon).map((item) => ({
+    date: item.nextDate as string,
+    daysToGo: item.daysToGo as number,
+    episode: item.nextEpisode ?? 1,
+    kind: item.nextEpisode === 1 ? 'season-premiere' : 'episode',
+    onWatchlist: false,
+    posterImage: item.posterImage,
+    provider: null,
+    release: null,
+    season: item.nextSeason,
+    seriesId: item.seriesId,
+    slug: item.slug,
+    title: item.title,
+  }));
 
 type OverviewOptions = Readonly<{
   /**
@@ -283,6 +277,6 @@ export const getOverview = async (
     upNext,
     // Computed here anyway (Coming up's finished shows), so the profile
     // page needs no second request for it
-    ...(!upNextOnly && { waitingFor: waiting }),
+    ...(!upNextOnly && { waitingFor: waitingForLater(waiting) }),
   };
 };

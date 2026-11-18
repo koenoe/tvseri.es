@@ -1,4 +1,8 @@
-import type { SeriesFacts } from '@tvseri.es/schemas';
+import type {
+  SeriesFacts,
+  WaitingFor,
+  WaitingForItem,
+} from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
 import { analyzeShow, type ShowInput } from './analyze';
@@ -9,6 +13,7 @@ import {
   buildOutNow,
   buildPaused,
   buildUpNext,
+  waitingForLater,
 } from './blocks';
 
 const NOW = Date.parse('2026-11-12T12:00:00Z');
@@ -493,5 +498,35 @@ describe('Time left (the show page’s rule: each episode’s own runtime)', () 
       runtime: null,
       timeLeftMinutes: null,
     });
+  });
+});
+
+describe('waitingForLater', () => {
+  const item = (
+    seriesId: number,
+    extra: Pick<WaitingForItem, 'state'> & Partial<WaitingForItem>,
+  ): WaitingForItem => ({
+    nextSeason: 2,
+    posterImage: '',
+    resumingSoon: false,
+    seriesId,
+    slug: `s-${seriesId}`,
+    title: `Show ${seriesId}`,
+    ...extra,
+  });
+
+  it('drops returns within 30 days (they are Coming up tickets) and keeps the rest', () => {
+    const waiting: WaitingFor = {
+      endedCount: 2,
+      items: [
+        item(1, { daysToGo: 10, nextDate: day(10), state: 'dated' }),
+        item(2, { daysToGo: 30, nextDate: day(30), state: 'dated' }),
+        item(3, { daysToGo: 45, nextDate: day(45), state: 'dated' }),
+        item(4, { state: 'renewed' }),
+      ],
+    };
+    const later = waitingForLater(waiting);
+    expect(later.items.map((entry) => entry.seriesId)).toEqual([3, 4]);
+    expect(later.endedCount).toBe(2);
   });
 });

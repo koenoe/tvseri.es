@@ -8,6 +8,8 @@ import type {
   PausedItem,
   PremiereRunway,
   UpNextItem,
+  WaitingFor,
+  WaitingForItem,
 } from '@tvseri.es/schemas';
 import {
   buildPosterImageUrl,
@@ -26,6 +28,19 @@ const PAUSED_AFTER = 90 * DAY_MS;
 const ALMOST_DONE_MAX = 2;
 const SEASON_COMPLETE_DAYS = 14;
 const WINDOW_DAYS = 30;
+
+/** A finished show back within Coming up's window: a ticket there, not a Waiting for row */
+export const returnsSoon = (item: WaitingForItem): boolean =>
+  item.state === 'dated' &&
+  Boolean(item.nextDate) &&
+  item.daysToGo !== undefined &&
+  item.daysToGo <= WINDOW_DAYS;
+
+/** Waiting for without the returns that moved to Coming up, so no show is in both */
+export const waitingForLater = (waiting: WaitingFor): WaitingFor => ({
+  ...waiting,
+  items: waiting.items.filter((item) => !returnsSoon(item)),
+});
 
 const poster = (state: ShowState) =>
   state.facts.posterPath ? buildPosterImageUrl(state.facts.posterPath) : '';

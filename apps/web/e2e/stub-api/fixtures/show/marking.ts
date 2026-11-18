@@ -144,22 +144,6 @@ const markEpisodes = (
   );
 };
 
-/** One episode (any episode of a started show; re-marking re-dates it). */
-export const markEpisode = (
-  state: UserState,
-  userId: string,
-  show: StubShow,
-  episode: StubEpisode,
-  body: MarkBody,
-): WatchedItem[] => {
-  markEpisodes(state, userId, show, [episode], body, { overwrite: true });
-  return [
-    seriesWatched(state, show.id).get(
-      episodeKey(episode.season, episode.number),
-    ) as WatchedItem,
-  ];
-};
-
 /** A season: its aired episodes that aren't watched yet. */
 export const markSeason = (
   state: UserState,

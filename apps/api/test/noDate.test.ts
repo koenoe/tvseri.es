@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-
 import { fakeShow } from './fixtures/tmdb';
+import { markEpisode } from './markEpisode';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
 
@@ -36,14 +36,11 @@ const count = async () => {
 describe('no date ("I don\'t remember")', () => {
   it('marks one episode without a date: in progress, out of history', async () => {
     setup();
-    const response = await request(
-      `/user/${USER_ID}/watched/series/${SHOW}/season/1/episode/2`,
-      {
-        as: USER_ID,
-        body: { dateUnknown: true, watchProvider: null },
-        method: 'POST',
-      },
-    );
+    const response = await markEpisode({
+      dateUnknown: true,
+      episode: 2,
+      show: SHOW,
+    });
     expect(response.status).toBe(201);
     const [item] = (await response.json()) as Array<Record<string, unknown>>;
     expect(item).toMatchObject({ dateUnknown: true, episodeNumber: 2 });
@@ -62,10 +59,7 @@ describe('no date ("I don\'t remember")', () => {
 
   it('leaves dateUnknown out of responses for dated marks', async () => {
     setup();
-    const response = await request(
-      `/user/${USER_ID}/watched/series/${SHOW}/season/1/episode/1`,
-      { as: USER_ID, body: { watchProvider: null }, method: 'POST' },
-    );
+    const response = await markEpisode({ episode: 1, show: SHOW });
     const [item] = (await response.json()) as Array<Record<string, unknown>>;
     expect(item).not.toHaveProperty('dateUnknown');
     expect(await history()).toHaveLength(1);
@@ -143,14 +137,7 @@ describe('no date ("I don\'t remember")', () => {
   it('marks one episode on a chosen date', async () => {
     setup();
     const watchedAt = Date.UTC(2025, 5, 1, 20);
-    await request(
-      `/user/${USER_ID}/watched/series/${SHOW}/season/1/episode/1`,
-      {
-        as: USER_ID,
-        body: { watchedAt, watchProvider: null },
-        method: 'POST',
-      },
-    );
+    await markEpisode({ episode: 1, show: SHOW, watchedAt });
     expect(await history()).toEqual([
       expect.objectContaining({ episodeNumber: 1, watchedAt }),
     ]);
@@ -158,14 +145,11 @@ describe('no date ("I don\'t remember")', () => {
 
   it('rejects a date in the future', async () => {
     setup();
-    const response = await request(
-      `/user/${USER_ID}/watched/series/${SHOW}/season/1/episode/1`,
-      {
-        as: USER_ID,
-        body: { watchedAt: Date.now() + 7 * 86_400_000, watchProvider: null },
-        method: 'POST',
-      },
-    );
+    const response = await markEpisode({
+      episode: 1,
+      show: SHOW,
+      watchedAt: Date.now() + 7 * 86_400_000,
+    });
     expect(response.status).toBe(400);
   });
 });

@@ -83,7 +83,7 @@ export const WatchedItemSchema = v.object({
 export type WatchedItem = Readonly<v.InferOutput<typeof WatchedItemSchema>>;
 
 /**
- * Body of the mark-watched routes (episode, season, show). Without
+ * Body of the mark-watched routes (season, show). Without
  * `watchedAt` or `dateUnknown` the mark is "Just now".
  */
 export const CreateWatchedItemSchema = v.intersect([

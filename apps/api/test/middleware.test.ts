@@ -87,10 +87,8 @@ describe('auth middleware', () => {
     it.each([
       ['POST', 'watched/series/1', { watchProvider: null }],
       ['POST', 'watched/series/1/season/1', { watchProvider: null }],
-      ['POST', 'watched/series/1/season/1/episode/1', { watchProvider: null }],
       ['DELETE', 'watched/series/1', undefined],
       ['DELETE', 'watched/series/1/season/1', undefined],
-      ['DELETE', 'watched/series/1/season/1/episode/1', undefined],
       ['POST', 'watched/batch', [batchItem(OTHER_USER_ID)]],
       ['POST', 'watched/batch/delete', [unmarkItem(OTHER_USER_ID)]],
       ['POST', 'list/watchlist', listItem],

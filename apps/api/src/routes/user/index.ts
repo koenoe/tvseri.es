@@ -41,12 +41,10 @@ import {
   getWatchedCount,
   markSeasonWatched,
   markTvSeriesWatched,
-  markWatched,
   markWatchedInBatch,
   PROGRESS_ATTRIBUTES,
   unmarkSeasonWatched,
   unmarkTvSeriesWatched,
-  unmarkWatched,
   unmarkWatchedInBatch,
 } from '@/lib/db/watched';
 import { isImportOpen } from '@/lib/imports';
@@ -58,12 +56,11 @@ import {
   getAllTimeWatchedCount,
   getAllTimeWatchedRuntime,
 } from '@/lib/profileCounters';
-import { fetchTvSeriesEpisode, fetchTvSeriesWatchProvider } from '@/lib/tmdb';
+import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
 import { requireAuth } from '@/middleware/auth';
 import { cacheHeader } from '@/utils/cacheHeader';
 import {
   ItemIdParamSchema,
-  MarkEpisodeParamSchema,
   MarkSeasonParamSchema,
   MarkSeriesParamSchema,
   NumericIdSchema,
@@ -363,53 +360,6 @@ app.post(
   },
 );
 
-app.post(
-  '/:id/watched/series/:series-id{[0-9]+}/season/:season{[0-9]+}/episode/:episode{[0-9]+}',
-  user(),
-  requireIsMe(),
-  vValidator('param', MarkEpisodeParamSchema),
-  vValidator('query', WatchedViewQuerySchema),
-  vValidator('json', CreateWatchedItemSchema),
-  async (c) => {
-    const body = c.req.valid('json');
-    const user = c.get('user');
-    const {
-      'series-id': tvSeriesId,
-      season: seasonNumber,
-      episode: episodeNumber,
-    } = c.req.valid('param');
-
-    const [tvSeries, watchProvider, episode] = await Promise.all([
-      fetchAiredSeries(tvSeriesId),
-      parseWatchProviderFromBody(body, tvSeriesId),
-      fetchTvSeriesEpisode(tvSeriesId, seasonNumber, episodeNumber),
-    ]);
-
-    if (!tvSeries || !episode) {
-      return c.notFound();
-    }
-
-    const watchedItem = await markWatched({
-      episode: {
-        airDate: episode.airDate,
-        episodeNumber: episode.episodeNumber,
-        runtime: episode.runtime,
-        seasonNumber: episode.seasonNumber,
-        stillPath: episode.stillPath,
-        title: episode.title,
-      },
-      tvSeries,
-      userId: user.id,
-      watchProvider,
-      ...whenFromBody(body),
-    });
-    await afterWatching([watchedItem]);
-    await syncListsForMark(user.id, [tvSeries.id], tvSeries);
-
-    return markWatchedResponse(c, [watchedItem], c.req.valid('query').view);
-  },
-);
-
 app.delete(
   '/:id/watched/series/:series-id{[0-9]+}',
   user(),
@@ -442,30 +392,6 @@ app.delete(
     const { season: seasonNumber } = c.req.valid('param');
 
     await unmarkSeasonWatched({
-      seasonNumber,
-      tvSeries,
-      userId: user.id,
-    });
-    await syncListsForMark(user.id, [tvSeries.id], tvSeries);
-
-    return c.json({ message: 'OK' });
-  },
-);
-
-app.delete(
-  '/:id/watched/series/:series-id{[0-9]+}/season/:season{[0-9]+}/episode/:episode{[0-9]+}',
-  user(),
-  requireIsMe(),
-  vValidator('param', MarkEpisodeParamSchema),
-  series(),
-  async (c) => {
-    const tvSeries = c.get('series');
-    const user = c.get('user');
-    const { season: seasonNumber, episode: episodeNumber } =
-      c.req.valid('param');
-
-    await unmarkWatched({
-      episodeNumber,
       seasonNumber,
       tvSeries,
       userId: user.id,

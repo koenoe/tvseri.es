@@ -11,13 +11,10 @@ import {
   meOf,
   plexMarks,
   providersFor,
-  resetSettings,
   settingsOf,
   stubPlexUrlWorks,
-  type ViewerName,
 } from './settings/store.ts';
 import { fail, isRecord, isResponse, ok, requireViewer } from './show/http.ts';
-import { VIEWERS } from './show/store.ts';
 
 /**
  * Settings: the profile, services and region, the
@@ -238,17 +235,5 @@ export const routes: readonly StubRoute[] = [
       params.type === 'plex' ? ok(plexStatus(viewer)) : fail(404, 'Not found'),
     ),
     path: '/webhook/type/:type/status',
-  },
-  {
-    handle: ({ body }) => {
-      const viewer =
-        isRecord(body) && typeof body.viewer === 'string'
-          ? (body.viewer as ViewerName)
-          : undefined;
-      resetSettings(viewer && viewer in VIEWERS ? viewer : undefined);
-      return ok({ ok: true });
-    },
-    method: 'POST',
-    path: '/__stub/settings-reset',
   },
 ];

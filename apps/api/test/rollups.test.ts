@@ -16,6 +16,7 @@ import { calculateAllTime } from '@/lib/stats/segments';
 import { db } from './db';
 import { fakeShow } from './fixtures/tmdb';
 import { lambdaContext } from './lambdaContext';
+import { markEpisode } from './markEpisode';
 import { measureReads } from './readUnits';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
@@ -167,14 +168,11 @@ describe('per-show summaries', () => {
     seedUser();
     setupShows();
     await runNightly();
-    const response = await request(
-      `/user/${USER_ID}/watched/series/${SHOWS[0]}/season/1/episode/2`,
-      {
-        as: USER_ID,
-        body: { watchedAt: Date.UTC(2025, 0, 2), watchProvider: null },
-        method: 'POST',
-      },
-    );
+    const response = await markEpisode({
+      episode: 2,
+      show: SHOWS[0]!,
+      watchedAt: Date.UTC(2025, 0, 2),
+    });
     expect(response.status).toBe(201);
     expect((await readShowItems(USER_ID, [SHOWS[0]!])).get(SHOWS[0]!)).toEqual([
       expect.objectContaining({ episodeNumber: 2, seasonNumber: 1 }),

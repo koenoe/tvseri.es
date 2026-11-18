@@ -6,6 +6,7 @@ import { db, sqsMessages } from './db';
 import { fakeShow } from './fixtures/tmdb';
 import { lambdaContext } from './lambdaContext';
 import { listItem, seedLibrary } from './library';
+import { markEpisode, unmarkEpisode } from './markEpisode';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
 import { listItems, recordWrites, streamEvent, withStream } from './stream';
@@ -21,24 +22,14 @@ const newShow = (episodes = 3) => {
 const JAN_2025 = Date.UTC(2025, 0, 1);
 const day = (n: number) => JAN_2025 + n * 86_400_000;
 
-const episodePath = (show: number, episode: number) =>
-  `/user/${USER_ID}/watched/series/${show}/season/1/episode/${episode}`;
-
 const mark = async (show: number, episode: number, watchedAt: number) => {
-  const response = await request(episodePath(show, episode), {
-    as: USER_ID,
-    body: { watchedAt, watchProvider: null },
-    method: 'POST',
-  });
+  const response = await markEpisode({ episode, show, watchedAt });
   expect(response.status).toBe(201);
 };
 
 const unmark = async (show: number, episode: number) => {
-  const response = await request(episodePath(show, episode), {
-    as: USER_ID,
-    method: 'DELETE',
-  });
-  expect(response.status).toBe(200);
+  const response = await unmarkEpisode({ episode, show });
+  expect(response.status).toBe(201);
 };
 
 const row = (show: number, episodeNumber: number, watchedAt: number) => ({
@@ -417,14 +408,12 @@ describe('In progress keeps its order on an unmark or Undo import', () => {
     });
     await withStream(async () => {
       await mark(show, 1, day(1));
-      const special = await request(
-        `/user/${USER_ID}/watched/series/${show}/season/0/episode/1`,
-        {
-          as: USER_ID,
-          body: { watchedAt: day(4), watchProvider: null },
-          method: 'POST',
-        },
-      );
+      const special = await markEpisode({
+        episode: 1,
+        season: 0,
+        show,
+        watchedAt: day(4),
+      });
       expect(special.status).toBe(201);
     });
     expect(inProgressItem(show)).toMatchObject({ createdAt: day(4) });

@@ -11,6 +11,7 @@ import {
 } from './fakeHttp';
 import { fakeShow } from './fixtures/tmdb';
 import { listItem } from './library';
+import { markEpisode } from './markEpisode';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
 import { listItems, withStream } from './stream';
@@ -27,15 +28,7 @@ const mark = async (
   show: number,
   episode: number,
   watchedAt = Date.UTC(2025, 0, episode),
-) =>
-  request(
-    `/user/${USER_ID}/watched/series/${show}/season/1/episode/${episode}`,
-    {
-      as: USER_ID,
-      body: { watchedAt, watchProvider: null },
-      method: 'POST',
-    },
-  );
+) => markEpisode({ episode, show, watchedAt });
 
 const batchRow = (show: number) => ({
   episode: {

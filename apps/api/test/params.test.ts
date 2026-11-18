@@ -53,15 +53,13 @@ describe('/user/:id/watched/count uses the validated query', () => {
   });
 });
 
-describe('mark routes: series, season and episode numbers', () => {
+describe('mark routes: series and season numbers', () => {
   const marks = [
     ['POST', '/series/0'],
     ['POST', '/series/1/season/1000'],
-    ['POST', '/series/1/season/1/episode/10000'],
-    ['POST', '/series/1/season/99999999999999999999/episode/1'],
+    ['POST', '/series/1/season/99999999999999999999'],
     ['DELETE', '/series/12345678901'],
     ['DELETE', '/series/1/season/1000'],
-    ['DELETE', '/series/1/season/1/episode/10000'],
   ] as const;
 
   it('rejects a number out of range before asking TMDB or the database', async () => {

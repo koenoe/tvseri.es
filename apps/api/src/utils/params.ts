@@ -76,11 +76,6 @@ export const MarkSeasonParamSchema = v.object({
   ...MarkSeriesParamSchema.entries,
   season: numberParam(999),
 });
-
-export const MarkEpisodeParamSchema = v.object({
-  ...MarkSeasonParamSchema.entries,
-  episode: numberParam(9999),
-});
 const MAX_IDS = 50;
 
 /**

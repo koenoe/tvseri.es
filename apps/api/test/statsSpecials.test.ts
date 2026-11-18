@@ -5,9 +5,9 @@ import type {
   StatsYears,
 } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
-
 import { db } from './db';
 import { fakeShow } from './fixtures/tmdb';
+import { markEpisode, unmarkEpisode } from './markEpisode';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
 import { withStream } from './stream';
@@ -78,10 +78,9 @@ const runtime = async () =>
 /** Marks or unmarks an episode and delivers the stream records */
 const stream = (season: number, episode: number, method: 'DELETE' | 'POST') =>
   withStream(async () =>
-    request(
-      `/user/${USER_ID}/watched/series/${SHOW}/season/${season}/episode/${episode}`,
-      { as: USER_ID, body: { watchProvider: null }, method },
-    ),
+    method === 'POST'
+      ? markEpisode({ episode, season, show: SHOW })
+      : unmarkEpisode({ episode, season, show: SHOW }),
   );
 
 describe('stats leave specials out', () => {

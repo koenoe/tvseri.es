@@ -1,6 +1,5 @@
 import {
   type AttributeValue,
-  DeleteItemCommand,
   PutItemCommand,
   QueryCommand,
 } from '@aws-sdk/client-dynamodb';
@@ -289,26 +288,6 @@ export const unmarkWatchedInBatch = async (
   }));
 
   await batchWrite(Resource.Watched.name, deleteRequests);
-};
-
-export const unmarkWatched = async (
-  input: Readonly<{
-    userId: string;
-    tvSeries: TvSeriesForWatched;
-    seasonNumber: number;
-    episodeNumber: number;
-    runtime?: number;
-  }>,
-) => {
-  const command = new DeleteItemCommand({
-    Key: marshall({
-      pk: watchedPk(input.userId),
-      sk: episodeSk(input.tvSeries.id, input.seasonNumber, input.episodeNumber),
-    }),
-    TableName: Resource.Watched.name,
-  });
-
-  await client.send(command);
 };
 
 // Fetches a season from TMDB; 400 when it hasn't started airing yet

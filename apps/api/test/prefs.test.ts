@@ -7,6 +7,7 @@ import { onTmdb } from './fakeHttp';
 import { fakeShow } from './fixtures/tmdb';
 import { lambdaContext } from './lambdaContext';
 import { listItem, seedWatched } from './library';
+import { markEpisode } from './markEpisode';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
 
@@ -100,14 +101,7 @@ describe('per-show prefs', () => {
   it('marking a skipped episode watched clears the skip', async () => {
     setup();
     await patch({ skip: ['S01E02', 'S01E03', 'S02E01'] });
-    await request(
-      `/user/${USER_ID}/watched/series/${SHOW}/season/1/episode/2`,
-      {
-        as: USER_ID,
-        body: { watchProvider: null },
-        method: 'POST',
-      },
-    );
+    await markEpisode({ episode: 2, show: SHOW });
     expect(await prefs()).toMatchObject({ skipped: ['S01E03', 'S02E01'] });
 
     await request(`/user/${USER_ID}/watched/series/${SHOW}/season/1`, {
@@ -328,10 +322,7 @@ describe('a mark brings a hidden show back', () => {
   it('an episode, season, whole-show or batch mark unhides it', async () => {
     setup();
     const marks = [
-      () =>
-        post(`/watched/series/${SHOW}/season/1/episode/1`, {
-          watchProvider: null,
-        }),
+      () => markEpisode({ episode: 1, show: SHOW }),
       () => post(`/watched/series/${SHOW}/season/1`, { watchProvider: null }),
       () => post(`/watched/series/${SHOW}`, { watchProvider: null }),
       () => post('/watched/batch', [batchRow(2, 1)]),

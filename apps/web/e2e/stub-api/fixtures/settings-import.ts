@@ -22,8 +22,6 @@ import { fail, isRecord, ok } from './show/http.ts';
  * the settings store's `lastImport`. Marks written by an import are kept per
  * viewer (`importMarks`: episode key -> import id), so a second import skips
  * what the first wrote, and Undo takes only an import's own marks away.
- *
- * Reset with `POST /__stub/settings-reset`.
  */
 
 const MIN_WATCHED_AT = Date.UTC(2000, 0, 1);

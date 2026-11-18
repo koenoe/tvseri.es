@@ -9,6 +9,7 @@ import { db, sqsMessages } from './db';
 import { fakeShow } from './fixtures/tmdb';
 import { lambdaContext } from './lambdaContext';
 import { episodes, listItem, seedWatched } from './library';
+import { markEpisode } from './markEpisode';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
 import { listItems, streamEvent, withStream } from './stream';
@@ -34,10 +35,7 @@ const JAN_2026 = Date.UTC(2026, 0, 1);
 const day = (n: number) => JAN_2026 + n * 86_400_000;
 
 const mark = async (show: number, episode: number, watchedAt: number) => {
-  const response = await request(
-    `/user/${USER_ID}/watched/series/${show}/season/1/episode/${episode}`,
-    { as: USER_ID, body: { watchedAt, watchProvider: null }, method: 'POST' },
-  );
+  const response = await markEpisode({ episode, show, watchedAt });
   expect(response.status).toBe(201);
 };
 

@@ -23,8 +23,6 @@ const ROUTES: Readonly<Record<string, Target>> = {
   'DELETE /user/:id/watched/series/:series-id{[0-9]+}': 'write',
   'DELETE /user/:id/watched/series/:series-id{[0-9]+}/season/:season{[0-9]+}':
     'write',
-  'DELETE /user/:id/watched/series/:series-id{[0-9]+}/season/:season{[0-9]+}/episode/:episode{[0-9]+}':
-    'write',
   'DELETE /webhook/type/:type{plex}': 'write',
   'GET /collection/most-popular-this-month': 'catalogue',
   'GET /collection/top-rated': 'catalogue',
@@ -159,8 +157,6 @@ const ROUTES: Readonly<Record<string, Target>> = {
   'POST /user/:id/watched/series/:series-id{[0-9]+}': 'write',
   'POST /user/:id/watched/series/:series-id{[0-9]+}/season/:season{[0-9]+}':
     'write',
-  'POST /user/:id/watched/series/:series-id{[0-9]+}/season/:season{[0-9]+}/episode/:episode{[0-9]+}':
-    'write',
   'POST /webhook/type/:type{plex}': 'write',
   'PUT /admin/preferred-images/series/:id{[0-9]+}': 'catalogue',
   'PUT /me': 'write',
@@ -243,15 +239,13 @@ describe('API bulkhead', () => {
 
   // Marks still look series and episodes up on TMDB until they read cached
   // show data (another branch); they are on the write function either way
-  it('puts every mark and unmark on the write function: episode, season, show and bulk', async () => {
+  it('puts every mark and unmark on the write function: season, show and bulk', async () => {
     const series = '/user/u_1/watched/series/1';
     const marks = [
       ['POST', series],
       ['DELETE', series],
       ['POST', `${series}/season/2`],
       ['DELETE', `${series}/season/2`],
-      ['POST', `${series}/season/2/episode/3`],
-      ['DELETE', `${series}/season/2/episode/3`],
       ['POST', '/user/u_1/watched/batch'],
       ['POST', '/user/u_1/watched/batch/delete'],
     ] as const;

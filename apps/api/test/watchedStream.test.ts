@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 import { handler } from '@/lambdas/watched';
 import { fakeShow } from './fixtures/tmdb';
+import { markEpisode } from './markEpisode';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
 
@@ -24,10 +25,11 @@ const item = ({ episode, season }: Mark) => ({
 /** Marks through the API, then runs the stream subscriber on the inserts */
 const markAndStream = async (marks: ReadonlyArray<Mark>) => {
   for (const mark of marks) {
-    const response = await request(
-      `/user/${USER_ID}/watched/series/${SHOW}/season/${mark.season}/episode/${mark.episode}`,
-      { as: USER_ID, body: { watchProvider: null }, method: 'POST' },
-    );
+    const response = await markEpisode({
+      episode: mark.episode,
+      season: mark.season,
+      show: SHOW,
+    });
     expect(response.status).toBe(201);
   }
   const event = {

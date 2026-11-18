@@ -53,7 +53,6 @@ import {
 import {
   checkWatchedAt,
   clearSkipped,
-  markEpisode,
   markSeason,
   markShow,
   parseMarkBody,
@@ -368,7 +367,7 @@ const markResponse = (
   );
 
 const markRoute =
-  (scope: 'episode' | 'season' | 'show'): StubRoute['handle'] =>
+  (scope: 'season' | 'show'): StubRoute['handle'] =>
   (request) => {
     const who = asMe(request);
     if (who === undefined) {
@@ -402,27 +401,13 @@ const markRoute =
     if (season === null) {
       return fail(400, 'Invalid season number');
     }
-    if (scope === 'season') {
-      return episodesOf(show, season).length === 0
-        ? NOT_FOUND
-        : markResponse(
-            request,
-            markSeason(state, viewer.id, show, season, body),
-          );
-    }
-    const number = toNumber(request.params.e);
-    const episode =
-      number === null ? undefined : findEpisode(show, season, number);
-    return episode
-      ? markResponse(
-          request,
-          markEpisode(state, viewer.id, show, episode, body),
-        )
-      : NOT_FOUND;
+    return episodesOf(show, season).length === 0
+      ? NOT_FOUND
+      : markResponse(request, markSeason(state, viewer.id, show, season, body));
   };
 
 const unmarkRoute =
-  (scope: 'episode' | 'season' | 'show'): StubRoute['handle'] =>
+  (scope: 'season' | 'show'): StubRoute['handle'] =>
   (request) => {
     const who = asMe(request);
     if (who === undefined) {
@@ -436,12 +421,10 @@ const unmarkRoute =
       return NOT_FOUND;
     }
     const season = scope === 'show' ? undefined : toNumber(request.params.n);
-    const episode =
-      scope === 'episode' ? toNumber(request.params.e) : undefined;
-    if (season === null || episode === null) {
-      return fail(400, 'Invalid season or episode number');
+    if (season === null) {
+      return fail(400, 'Invalid season number');
     }
-    unmark(who.state, show.id, { episode, season });
+    unmark(who.state, show.id, { season });
     return ok({ message: 'OK' });
   };
 
@@ -699,11 +682,6 @@ const userRoutes: readonly StubRoute[] = [
     path: '/user/:id/watched/series/:sid/season/:n',
   },
   {
-    handle: markRoute('episode'),
-    method: 'POST',
-    path: '/user/:id/watched/series/:sid/season/:n/episode/:e',
-  },
-  {
     handle: unmarkRoute('show'),
     method: 'DELETE',
     path: '/user/:id/watched/series/:sid',
@@ -712,11 +690,6 @@ const userRoutes: readonly StubRoute[] = [
     handle: unmarkRoute('season'),
     method: 'DELETE',
     path: '/user/:id/watched/series/:sid/season/:n',
-  },
-  {
-    handle: unmarkRoute('episode'),
-    method: 'DELETE',
-    path: '/user/:id/watched/series/:sid/season/:n/episode/:e',
   },
   ...listRoutes,
 ];

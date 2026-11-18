@@ -14,8 +14,7 @@ import { PEOPLE } from '../user-profile/people.ts';
  * The settings streams' slice of the stub: per viewer, what Settings reads
  * and writes (profile edits, services, region, the last import, the Plex
  * link, a pending deletion) and the numbers the hero shows. It lives as long
- * as the stub process; `resetSettings()` restores the seeds
- * (`POST /__stub/settings-reset`, optional `{ "viewer": "rae" }`).
+ * as the stub process.
  *
  * Viewers come from the show stream's store (`alex`, `rae`, `nina`, `sam`).
  */
@@ -364,12 +363,3 @@ export const meOf = (state: SettingsState): User =>
   state.lastImport
     ? { ...state.user, lastImport: state.lastImport }
     : state.user;
-
-/** Restores one viewer's seeds, or everyone's. */
-export const resetSettings = (viewer?: ViewerName): void => {
-  if (viewer) {
-    stateById.set(VIEWERS[viewer].id, seedFor(viewer));
-    return;
-  }
-  stateById.clear();
-};

@@ -1,12 +1,6 @@
 import type { AlmostDoneItem } from '@tvseri.es/schemas';
 import { formatRuntime } from '@tvseri.es/utils';
 
-/** The episode number of a `S02E06` code (null when it isn't one) */
-export function episodeNumber(code: string): number | null {
-  const match = /^S\d+E(\d+)$/i.exec(code);
-  return match ? Number(match[1]) : null;
-}
-
 /**
  * One segment per episode of the season, watched or not by
  * the episodes the API names as still to watch, wherever they sit: E01

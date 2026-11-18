@@ -1,10 +1,11 @@
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { SCROBBLE_PROVIDERS } from '@tvseri.es/constants';
-import type {
-  ExportEverything,
-  ExportedListItem,
-  ExportedWatchedItem,
-  User,
+import {
+  compareEpisodes,
+  type ExportEverything,
+  type ExportedListItem,
+  type ExportedWatchedItem,
+  type User,
 } from '@tvseri.es/schemas';
 import { Resource } from 'sst';
 
@@ -80,8 +81,7 @@ const fetchWatched = async (
       (a, b) =>
         a.markedAt - b.markedAt ||
         a.seriesId - b.seriesId ||
-        a.seasonNumber - b.seasonNumber ||
-        a.episodeNumber - b.episodeNumber,
+        compareEpisodes(a, b),
     );
 };
 

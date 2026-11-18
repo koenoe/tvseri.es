@@ -1,4 +1,8 @@
-import { episodeCode, parseEpisodeCode } from '@tvseri.es/schemas';
+import {
+  type EpisodeRef,
+  episodeCode,
+  parseEpisodeCode,
+} from '@tvseri.es/schemas';
 
 /**
  * Which list a show belongs in for a user: Finished once
@@ -22,8 +26,6 @@ export const decideListState = ({
   }
   return watchedCount + skippedCount >= airedCount ? 'watched' : 'in_progress';
 };
-
-type EpisodeRef = Readonly<{ seasonNumber: number; episodeNumber: number }>;
 
 /**
  * How many skips count as done: those of a regular episode that has aired

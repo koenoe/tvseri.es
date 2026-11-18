@@ -1,4 +1,8 @@
-import type { StatsNightEpisode, StatsShowRow } from '@tvseri.es/schemas';
+import {
+  compareEpisodes,
+  type StatsNightEpisode,
+  type StatsShowRow,
+} from '@tvseri.es/schemas';
 import { DAY_MS } from '@tvseri.es/utils';
 
 import { longWeekdayMonthDay } from '@/lib/format/date';
@@ -40,10 +44,7 @@ export function dominantSeries(
 }
 
 const ordered = (items: ReadonlyArray<StatsNightEpisode>) =>
-  [...items].sort(
-    (a, b) =>
-      a.seasonNumber - b.seasonNumber || a.episodeNumber - b.episodeNumber,
-  );
+  [...items].sort(compareEpisodes);
 
 /** Every episode of every regular season was in the night */
 function coversShow(

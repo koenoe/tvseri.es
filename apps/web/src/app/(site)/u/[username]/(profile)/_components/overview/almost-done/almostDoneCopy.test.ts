@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 
 import {
   closestLabel,
-  episodeNumber,
   finishLabel,
   progressLabel,
   seasonSegments,
@@ -10,11 +9,6 @@ import {
 } from './almostDoneCopy';
 
 describe('Almost done copy', () => {
-  it('reads the episode number from the code', () => {
-    expect(episodeNumber('S02E06')).toBe(6);
-    expect(episodeNumber('nope')).toBeNull();
-  });
-
   it('draws the episodes still to watch at the end of the season', () => {
     expect(seasonSegments({ seasonTotal: 6, unwatchedEpisodes: [6] })).toEqual({
       segments: [true, true, true, true, true, false],

@@ -1,4 +1,4 @@
-import type { AlmostDoneItem } from '@tvseri.es/schemas';
+import { type AlmostDoneItem, parseEpisodeCode } from '@tvseri.es/schemas';
 import { formatRuntime } from '@tvseri.es/utils';
 import Image from 'next/image';
 
@@ -9,7 +9,6 @@ import showPath from '@/lib/routing/showPath';
 
 import ToggleEye from '../../blocks/ToggleEye';
 import {
-  episodeNumber,
   FINISH_WORDS,
   finishLabel,
   progressLabel,
@@ -29,7 +28,7 @@ export default function AlmostDoneRow({
   const { segments, total, watched } = seasonSegments(item);
   const progress = { label: progressLabel(watched, total), segments };
   const time = formatRuntime(item.timeLeftMinutes);
-  const episode = episodeNumber(item.code) ?? 1;
+  const episode = parseEpisodeCode(item.code)?.episodeNumber ?? 1;
   const poster = (
     <span className={ALMOST_DONE_POSTER_FRAME}>
       {item.posterImage ? (

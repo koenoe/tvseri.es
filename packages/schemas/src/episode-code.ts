@@ -23,6 +23,12 @@ export const shortCode = (episodeNumber: number) => `E${pad(episodeNumber)}`;
  */
 export const seasonCode = (seasonNumber: number) => `S${pad(seasonNumber)}`;
 
+/** Episode order, for `sort`: by season, then by episode (S01E10 before S02E01) */
+export const compareEpisodes = (
+  a: Readonly<{ episodeNumber: number; seasonNumber: number }>,
+  b: Readonly<{ episodeNumber: number; seasonNumber: number }>,
+) => a.seasonNumber - b.seasonNumber || a.episodeNumber - b.episodeNumber;
+
 /** What `EpisodeCodeSchema` accepts: `S02E05`, `s2e5`, `S002E005` */
 export const EPISODE_CODE_PATTERN = /^S(\d{1,3})E(\d{1,4})$/i;
 

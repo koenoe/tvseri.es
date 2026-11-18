@@ -1,4 +1,5 @@
 import {
+  compareEpisodes,
   episodeCode,
   type StatsDaily,
   type StatsYears,
@@ -152,13 +153,10 @@ export function jumpRange(
   };
 }
 
-const byCode = (a: DiaryItem, b: DiaryItem) =>
-  a.seasonNumber - b.seasonNumber || a.episodeNumber - b.episodeNumber;
-
 type Draft = { latest: number; items: DiaryItem[] };
 
 function toRow(dayKey: string, draft: Draft): DiaryRow {
-  const items = [...draft.items].sort(byCode);
+  const items = [...draft.items].sort(compareEpisodes);
   // the grouping guarantees one item at least
   const first = items[0] as DiaryItem;
   const last = items.at(-1) as DiaryItem;

@@ -1,4 +1,5 @@
 import {
+  compareEpisodes,
   MIN_WATCHED_AT,
   type SeriesPrefs,
   type WatchedItem,
@@ -109,9 +110,6 @@ export const clearSkipped = (
   }
 };
 
-const byEpisode = (a: WatchedItem, b: WatchedItem): number =>
-  a.seasonNumber - b.seasonNumber || a.episodeNumber - b.episodeNumber;
-
 export const watchedList = (
   state: UserState,
   seriesId: number,
@@ -119,7 +117,7 @@ export const watchedList = (
 ): WatchedItem[] =>
   [...seriesWatched(state, seriesId).values()]
     .filter((item) => season === undefined || item.seasonNumber === season)
-    .sort(byEpisode);
+    .sort(compareEpisodes);
 
 const markEpisodes = (
   state: UserState,

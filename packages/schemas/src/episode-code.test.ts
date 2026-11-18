@@ -2,6 +2,7 @@ import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
 import {
+  compareEpisodes,
   episodeCode,
   parseEpisodeCode,
   seasonCode,
@@ -73,5 +74,19 @@ describe('episode codes as storage keys', () => {
   ])('refuses %j', (input) => {
     expect(v.safeParse(EpisodeCodeSchema, input).success).toBe(false);
     expect(parseEpisodeCode(input)).toBeNull();
+  });
+});
+
+describe('compareEpisodes', () => {
+  it('orders by season, then by episode', () => {
+    const ref = (seasonNumber: number, episodeNumber: number) => ({
+      episodeNumber,
+      seasonNumber,
+    });
+    expect([ref(2, 1), ref(1, 10), ref(1, 2)].sort(compareEpisodes)).toEqual([
+      ref(1, 2),
+      ref(1, 10),
+      ref(2, 1),
+    ]);
   });
 });

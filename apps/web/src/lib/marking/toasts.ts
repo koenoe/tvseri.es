@@ -1,4 +1,4 @@
-import type { EpisodeRef } from '@tvseri.es/schemas';
+import { compareEpisodes, type EpisodeRef } from '@tvseri.es/schemas';
 import type { ActionError } from '@/lib/actions/result';
 import {
   ERROR_MESSAGE,
@@ -59,10 +59,7 @@ type Run = {
 };
 
 const sortRefs = (refs: ReadonlyArray<EpisodeRef>) =>
-  [...refs].sort(
-    (a, b) =>
-      a.seasonNumber - b.seasonNumber || a.episodeNumber - b.episodeNumber,
-  );
+  [...refs].sort(compareEpisodes);
 
 /**
  * Whether `ref` extends the run at either end in its season: the toast shows

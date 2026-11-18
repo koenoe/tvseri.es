@@ -1,4 +1,4 @@
-import { episodeCode, shortCode } from '@tvseri.es/schemas';
+import { compareEpisodes, episodeCode, shortCode } from '@tvseri.es/schemas';
 
 import type { EpisodeRef } from './types';
 
@@ -10,9 +10,6 @@ import type { EpisodeRef } from './types';
 export const shortCodeRange = (first: number, last: number) =>
   first === last ? shortCode(first) : `${shortCode(first)}–${shortCode(last)}`;
 
-const byPosition = (a: EpisodeRef, b: EpisodeRef) =>
-  a.seasonNumber - b.seasonNumber || a.episodeNumber - b.episodeNumber;
-
 /**
  * A run of episodes in one line, lowest to highest whatever order they come
  * in: "S02E03–E05" inside one season (the E repeats),
@@ -20,13 +17,13 @@ const byPosition = (a: EpisodeRef, b: EpisodeRef) =>
  * twice), empty for none.
  */
 export function episodeRun(refs: ReadonlyArray<EpisodeRef>): string {
-  const sorted = [...refs].sort(byPosition);
+  const sorted = [...refs].sort(compareEpisodes);
   const first = sorted[0];
   const last = sorted.at(-1);
   if (!first || !last) {
     return '';
   }
-  if (byPosition(first, last) === 0) {
+  if (compareEpisodes(first, last) === 0) {
     return episodeCode(first);
   }
   return first.seasonNumber === last.seasonNumber

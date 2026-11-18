@@ -87,14 +87,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Headless runs use Chromium's headless shell only, not the full browser
       - name: Install browsers
         run: pnpm --filter @tvseri.es/web exec playwright install --only-shell chromium webkit
 
       # Classic scrollbars, drawn: the runner has classic ones, and with
-      # Playwright's --hide-scrollbars kept the page reserved their 15px
-      # gutter while clientWidth still read the whole window, a state no
-      # browser has (`E2E_CLASSIC_SCROLLBARS`, playwright.config.ts)
+      # Playwright's --hide-scrollbars the page reserves their 15px gutter
+      # while clientWidth reads the whole window, a state no browser has
+      # (`E2E_CLASSIC_SCROLLBARS`, playwright.config.ts)
       #
       # Two workers, set: the runners differ in cores, and Playwright's default
       # (half of them) gave some shards 1 worker and others 2, 7.5 against 2.5

@@ -65,6 +65,7 @@ import {
 } from '@/lib/person/lifetime';
 import type { TmdbPersonExternalIds } from '@/lib/person/links';
 import type { PersonTvCredits } from '@/lib/person/shows';
+import { readPreferredImages } from '@/lib/preferredBackdrops';
 import { upstreamBaseUrl } from '@/lib/upstream/baseUrl';
 import { breakerFor } from '@/lib/upstream/breaker';
 import { budgetFor, TMDB_CONCURRENCY } from '@/lib/upstream/budget';
@@ -73,10 +74,7 @@ import calculateAge from '@/utils/calculateAge';
 import { dedupe } from '@/utils/dedupe';
 import { createLimiter, mapSettled } from '@/utils/limit';
 import { logWarn } from '@/utils/logWarn';
-import {
-  findPreferredImages,
-  findPreferredImagesForMany,
-} from '../db/preferredImages';
+import { findPreferredImages } from '../db/preferredImages';
 import detectDominantColorFromImage, {
   detectDominantColorsFromImages,
 } from '../detectDominantColorFromImage';
@@ -402,14 +400,7 @@ async function fetchTvSeriesListWithImages(ids: ReadonlyArray<number>) {
       },
       TMDB_CONCURRENCY,
     ),
-    // Best-effort: without them the series keep their TMDB backdrops
-    findPreferredImagesForMany(ids).catch((error: unknown) => {
-      logWarn(
-        'Batched preferred images read failed, continuing without them',
-        error,
-      );
-      return new Map<number, PreferredImages>();
-    }),
+    readPreferredImages(ids),
   ]);
 
   const seriesList = fetched.map(({ series }) => series);

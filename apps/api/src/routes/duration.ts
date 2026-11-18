@@ -10,6 +10,11 @@ import {
   fetchWhereToStart,
   type WhereToStartFilter,
 } from '@/lib/duration';
+import {
+  drawnShows,
+  drawnTiles,
+  drawnWhereToStart,
+} from '@/lib/duration/drawn';
 import { cacheHeader, PARTIAL_CACHE_CONTROL } from '@/utils/cacheHeader';
 
 /** A partial answer (a show TMDB failed on) stays out of the CDN for long */
@@ -74,14 +79,14 @@ const WhereToStartQuerySchema = v.pipe(
 app.get('/', async (c) => {
   const { partial, value } = await fetchDurationTiles();
   c.header('Cache-Control', durationCacheControl(partial));
-  return c.json(value);
+  return c.json(await drawnTiles(value));
 });
 
 // Finish it this weekend
 app.get('/weekend', async (c) => {
   const { partial, value } = await fetchFinishThisWeekend();
   c.header('Cache-Control', durationCacheControl(partial));
-  return c.json(value);
+  return c.json(await drawnShows(value));
 });
 
 // Where to start, per genre, theme or country
@@ -90,7 +95,9 @@ app.get(
   vValidator('query', WhereToStartQuerySchema),
   async (c) => {
     c.header('Cache-Control', cacheHeader('medium'));
-    return c.json(await fetchWhereToStart(c.req.valid('query')));
+    return c.json(
+      await drawnWhereToStart(await fetchWhereToStart(c.req.valid('query'))),
+    );
   },
 );
 
@@ -105,7 +112,7 @@ app.get(
       c.req.valid('query').page,
     );
     c.header('Cache-Control', durationCacheControl(partial));
-    return c.json(value);
+    return c.json(await drawnShows(value));
   },
 );
 

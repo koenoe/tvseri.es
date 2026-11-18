@@ -19,8 +19,9 @@ app.use(requireAuthAdmin());
 
 /**
  * Writes the preferred images and starts a purge of the paths that show them
- * (the series pages and the trending collection, with any query such as the
- * web's `?colour=` version), answering without waiting for the purge. A purge
+ * (the series pages, the trending collection and the Duration answers,
+ * which draw a show's pick, with any query such as the web's `?colour=`
+ * version), answering without waiting for the purge. A purge
  * CloudFront refuses is logged by `invalidatePaths` and doesn't fail the
  * write.
  */
@@ -30,7 +31,7 @@ async function writeAndPurge(
 ): Promise<AdminWriteResult> {
   await Promise.all([
     write,
-    invalidatePaths([`/series/${id}*`, '/collection/trending*']),
+    invalidatePaths([`/series/${id}*`, '/collection/trending*', '/duration*']),
   ]);
   return { message: 'OK' };
 }

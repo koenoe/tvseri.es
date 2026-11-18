@@ -1,3 +1,4 @@
+import { BatchGetItemCommand } from '@aws-sdk/client-dynamodb';
 import type {
   DurationPage,
   DurationTiles,
@@ -5,6 +6,8 @@ import type {
   WhereToStart,
 } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
+
+import { preferredImagesPk } from '@/lib/db/preferredImages/keys';
 
 import { freshHoursLeft, storedRows } from './cacheRows';
 import { db } from './db';
@@ -457,5 +460,90 @@ describe('consumers: GET /duration/where-to-start', () => {
     expect((await get(path('country=GBR'))).status).toBe(400);
     expect((await get(path('country=ZZ'))).status).toBe(400);
     expect((await get(path('country=1'))).status).toBe(400);
+  });
+});
+
+describe("duration shows: the admin's backdrop, else TMDB's", () => {
+  const pick = (seriesId: number) =>
+    db.seed('PreferredImages', [
+      {
+        backdropColor: '#112233',
+        backdropImagePath: `/picked${seriesId}.jpg`,
+        pk: preferredImagesPk(seriesId),
+      },
+    ]);
+  const pickReads = () =>
+    db.calls.filter(
+      (command) =>
+        command instanceof BatchGetItemCommand &&
+        'PreferredImages' in (command.input.RequestItems ?? {}),
+    );
+
+  it('reads the pick after the day’s cached build, so a new pick shows at once', async () => {
+    onTmdb('/discover/tv', ids(1, 2), { query: { with_type: '2' } });
+    show(1, { minutes: 50, seasons: [6] });
+    show(2, { minutes: 60, seasons: [4] });
+    await get<FinishThisWeekend>('/duration/weekend');
+    await get<DurationPage>('/duration/under-6-hours');
+    pick(1);
+
+    const weekend = await get<FinishThisWeekend>('/duration/weekend');
+    const page = await get<DurationPage>('/duration/under-6-hours');
+
+    for (const items of [weekend.body.items, page.body.items]) {
+      const byId = Object.fromEntries(
+        items.map((s) => [s.id, s.backdropImage]),
+      );
+      expect(byId).toEqual({
+        1: expect.stringContaining('/picked1.jpg'),
+        2: expect.stringContaining('/b2.jpg'),
+      });
+    }
+  });
+
+  it('draws Where to start’s picks and backups with it', async () => {
+    onTmdb('/genre/tv/list', { genres: [{ id: 80, name: 'Crime' }] });
+    onTmdb('/discover/tv', ids(1, 2, 3, 4), { query: { with_genres: '80' } });
+    show(1, { minutes: 62, seasons: [4] });
+    show(2, { minutes: 50, seasons: [10] });
+    show(3, { minutes: 50, seasons: [13, 13, 13, 13, 13], votes: 5000 });
+    show(4, { minutes: 50, seasons: [13, 13, 13, 13, 13], votes: 9000 });
+    pick(1);
+    pick(3);
+
+    const { body } = await get<WhereToStart>(
+      '/duration/where-to-start?genre=crime',
+    );
+
+    expect(body.picks.map((p) => [p.show.id, p.show.backdropImage])).toEqual([
+      [1, expect.stringContaining('/picked1.jpg')],
+      [2, expect.stringContaining('/b2.jpg')],
+      [4, expect.stringContaining('/b4.jpg')],
+    ]);
+    expect(body.backups?.map((p) => p.show.backdropImage)).toEqual([
+      expect.stringContaining('/picked3.jpg'),
+    ]);
+  });
+
+  it('reads the five tiles’ picks in one batch read', async () => {
+    onTmdb(
+      '/discover/tv',
+      { ...ids(1, 2, 3, 4), total_results: 20000 },
+      { query: { 'vote_count.gte': '200' } },
+    );
+    onTmdb('/discover/tv', ids(1), { query: { with_type: '2' } });
+    onTmdb('/discover/tv', ids(1), { query: { with_status: '3' } });
+    show(1, { minutes: 50, seasons: [5] });
+    show(2, { seasons: [10, 10, 10, 10, 10] });
+    show(3, { seasons: [10], status: 'Returning Series' });
+    show(4, { seasons: [10, 10] });
+    await get<DurationTiles>('/duration');
+    pick(1);
+    db.calls.length = 0;
+
+    const { body } = await get<DurationTiles>('/duration');
+
+    expect(body.tiles[0]?.preview[0]?.backdropImage).toContain('/picked1.jpg');
+    expect(pickReads()).toHaveLength(1);
   });
 });

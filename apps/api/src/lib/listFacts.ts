@@ -9,6 +9,7 @@ import { buildBackdropImageUrl } from '@tvseri.es/utils';
 import { getListEntries } from '@/lib/db/list';
 import { getSeriesPrefsMany } from '@/lib/db/prefs';
 import { analyzeShow, type WatchedEpisode } from '@/lib/overview/analyze';
+import { pickedBackdrop, readPreferredImages } from '@/lib/preferredBackdrops';
 import { readShowItems } from '@/lib/rollups';
 import { getSeriesFacts } from '@/lib/seriesFacts';
 
@@ -46,9 +47,11 @@ const inProgressState = (
 
 /**
  * `?include=facts` on a list page (the Favourites accordion): each item's
- * series facts and the list owner's own progress. Costs one facts lookup per
- * item, one BatchGetItem for the owner's Finished / In progress entries and
- * prefs, and one Watched query per in-progress item: meant for small pages.
+ * series facts, its backdrop (the admin's pick, else TMDB's) and the list
+ * owner's own progress. Costs one facts lookup per item, one BatchGetItem
+ * for the admins' picks, one for the owner's Finished / In progress entries
+ * and prefs, and one Watched query per in-progress item: meant for small
+ * pages.
  */
 export const withListFacts = async <T extends Pick<ListItem, 'id'>>(
   ownerId: string,
@@ -56,9 +59,12 @@ export const withListFacts = async <T extends Pick<ListItem, 'id'>>(
   now: number,
 ): Promise<Array<T & Readonly<{ facts: ListItemFacts | null }>>> => {
   const ids = items.map((item) => item.id);
-  const [facts, entries] = await Promise.all([
+  // The picks are read here, not stored with the facts (a week-long shared
+  // cache), so an admin's new pick shows on the next read
+  const [facts, entries, picks] = await Promise.all([
     getSeriesFacts(ids),
     getListEntries(ownerId, ids, ['WATCHED', 'IN_PROGRESS']),
+    readPreferredImages(ids),
   ]);
   const finished = entries.get('WATCHED') ?? new Map<number, number>();
   const inProgress = [...(entries.get('IN_PROGRESS')?.keys() ?? [])].filter(
@@ -91,9 +97,13 @@ export const withListFacts = async <T extends Pick<ListItem, 'id'>>(
       ...item,
       facts: showFacts
         ? {
-            backdropImage: showFacts.backdropPath
-              ? buildBackdropImageUrl(showFacts.backdropPath)
-              : '',
+            backdropImage: pickedBackdrop(
+              picks,
+              item.id,
+              showFacts.backdropPath
+                ? buildBackdropImageUrl(showFacts.backdropPath)
+                : '',
+            ),
             progress: progressOf(item.id, showFacts),
             seasonCount: showFacts.seasons.length,
             status: showFacts.status,

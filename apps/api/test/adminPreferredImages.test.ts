@@ -52,12 +52,16 @@ const save = (method: 'PUT' | 'DELETE') =>
   });
 
 describe.each(['PUT', 'DELETE'] as const)('%s preferred images', (method) => {
-  it('purges the show and trending and answers without waiting for it', async () => {
+  it('purges the show, trending and the Duration answers and answers without waiting for it', async () => {
     const response = await save(method);
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ message: 'OK' });
-    expect(created).toEqual(['/series/5*', '/collection/trending*']);
+    expect(created).toEqual([
+      '/series/5*',
+      '/collection/trending*',
+      '/duration*',
+    ]);
     // Only the purge itself: no check of its progress
     expect(sent).toHaveLength(1);
   });

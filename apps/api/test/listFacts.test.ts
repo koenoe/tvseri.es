@@ -1,6 +1,8 @@
 import { BatchGetItemCommand } from '@aws-sdk/client-dynamodb';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { preferredImagesPk } from '@/lib/db/preferredImages/keys';
+
 import { db } from './db';
 import { fakeShow } from './fixtures/tmdb';
 import { episodes, listItem, seedWatched } from './library';
@@ -167,6 +169,77 @@ describe('?include=facts on list reads (Favourites accordion)', () => {
     expect((await favourites('?include=facts&limit=100')).status).toBe(400);
     // Without facts the page stays up to 100
     expect((await favourites('?limit=100')).status).toBe(200);
+  });
+
+  describe("the backdrop: the admin's pick, else TMDB's", () => {
+    const pick = (seriesId: number, path: string) => ({
+      backdropColor: '#112233',
+      backdropImagePath: path,
+      pk: preferredImagesPk(seriesId),
+    });
+    const backdrops = async () => {
+      const { items } = (await (
+        await favourites('?include=facts&limit=5')
+      ).json()) as { items: Item[] };
+      return items.map((item) => [item.id, item.facts?.backdropImage]);
+    };
+
+    it('reads the pick after the cached facts, so a new pick shows at once', async () => {
+      setup();
+      // The facts are cached by this first read, before any pick is saved
+      expect((await backdrops())[0]).toEqual([
+        1,
+        expect.stringContaining('/b1.jpg'),
+      ]);
+      db.seed('PreferredImages', [
+        pick(1, '/picked1.jpg'),
+        pick(2, '/picked2.jpg'),
+      ]);
+
+      expect(await backdrops()).toEqual([
+        [1, expect.stringContaining('/picked1.jpg')],
+        // TMDB has no backdrop for show 2: the pick still draws it
+        [2, expect.stringContaining('/picked2.jpg')],
+        [3, ''],
+        [4, ''],
+      ]);
+    });
+
+    it('reads every pick of the page in one batch read', async () => {
+      setup();
+      db.calls.length = 0;
+
+      await backdrops();
+
+      const pickReads = db.calls.filter(
+        (command) =>
+          command instanceof BatchGetItemCommand &&
+          'PreferredImages' in (command.input.RequestItems ?? {}),
+      );
+      expect(pickReads).toHaveLength(1);
+    });
+
+    it("keeps TMDB's backdrop when the picks can't be read", async () => {
+      setup();
+      db.seed('PreferredImages', [pick(1, '/picked1.jpg')]);
+      const send = db.send.bind(db);
+      const spy = vi.spyOn(db, 'send').mockImplementation(async (command) => {
+        if (
+          command instanceof BatchGetItemCommand &&
+          'PreferredImages' in (command.input.RequestItems ?? {})
+        ) {
+          throw new Error('throttled');
+        }
+        return send(command);
+      });
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      expect((await backdrops())[0]).toEqual([
+        1,
+        expect.stringContaining('/b1.jpg'),
+      ]);
+      spy.mockRestore();
+    });
   });
 
   it('refuses an unknown include', async () => {

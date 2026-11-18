@@ -58,7 +58,7 @@ export default async function StatsSidebar({
         className="flex flex-col gap-3"
       >
         <SectionHead id="stats-side-years" size="side" title="Years" />
-        <YearsList rows={rows} username={user.username} />
+        <YearsList fold rows={rows} username={user.username} />
       </section>
     </div>
   );

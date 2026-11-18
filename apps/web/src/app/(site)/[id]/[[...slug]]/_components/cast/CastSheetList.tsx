@@ -22,20 +22,26 @@ import { castAndCrewUrl } from './castSheetData';
  * hundreds.
  */
 const ROW =
-  'border-white/7 border-b [contain-intrinsic-size:auto_65px] [content-visibility:auto] md:[contain-intrinsic-size:auto_81px]';
+  'relative [contain-intrinsic-size:auto_69px] [content-visibility:auto] after:absolute after:inset-x-3 after:bottom-0 after:h-px after:bg-white/7 md:[contain-intrinsic-size:auto_85px]';
 
 /**
- * 8px in from the sides, so the hover's rounded fill clears the face, and
- * 8px out again (-mx-2), so faces and names stay on the sheet title's edge
+ * The list reaches 12px past the sheet's text edge on both sides: the rows'
+ * hover fill gets room around the face while the faces, the dividers (inset
+ * 12px) and the section titles keep that edge. On the list, not the rows:
+ * a row's `content-visibility` clips whatever leaves its box.
  */
-const ROW_BOX = '-mx-2 flex items-center gap-3 px-2 py-2.5 md:gap-4 md:py-3';
+const LIST = '-mx-3';
 
-/** A section's name, on the rows' 8px inset */
+/** 12px of padding and a 4px gap to the dividers, for the rounded hover fill */
+const ROW_BOX =
+  'my-1 flex items-center gap-3 rounded-12 px-3 py-2 md:gap-4 md:py-2.5';
+
+/** A section's name, on the sheet's text edge */
 const SECTION_TITLE = 'pt-4 pb-1 text-overline text-white/80 uppercase';
 
 const CIRCLE = 'size-11 shrink-0 rounded-full md:size-14';
 
-const GHOST_ROW = `${ROW} ${ROW_BOX}`;
+const GHOST_LIST = `${LIST} animate-ghost`;
 
 const GHOST_CIRCLE = `${CIRCLE} ${GHOST_FILL}`;
 
@@ -44,7 +50,7 @@ const SHEET_FACE: FaceLook = {
   blank: `${CIRCLE} bg-white/10`,
   caption: 'flex min-w-0 flex-col',
   // the app's subtle row hover, not an underline: the whole row is the link
-  link: `${ROW_BOX} rounded-8 outline-none transition-colors hover:bg-white/5 focus-visible:bg-white/5 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2`,
+  link: `${ROW_BOX} outline-none transition-colors hover:bg-white/6 focus-visible:bg-white/6 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2`,
   name: 'truncate font-semibold text-[14px] leading-5 md:text-[15px] md:leading-[22px]',
   photo: `${CIRCLE} object-cover object-top`,
   role: 'truncate text-[12px] text-white/60 leading-4 md:text-[13px] md:leading-[18px]',
@@ -80,23 +86,25 @@ function RowsSkeleton({ count }: Readonly<{ count: number }>) {
   return (
     <div aria-hidden="true" data-placeholder="cast-sheet">
       <p className={SECTION_TITLE}>Cast</p>
-      <ul className="animate-ghost">
+      <ul className={GHOST_LIST}>
         {rows.map((index) => (
-          <li className={GHOST_ROW} key={index}>
-            <span className={GHOST_CIRCLE} />
-            <span className="flex flex-col">
-              <GhostLine
-                className="h-5 md:h-[22px]"
-                inPulse
-                look="loading"
-                width="w-40"
-              />
-              <GhostLine
-                className="h-4 md:h-[18px]"
-                inPulse
-                look="loading"
-                width="w-28"
-              />
+          <li className={ROW} key={index}>
+            <span className={ROW_BOX}>
+              <span className={GHOST_CIRCLE} />
+              <span className="flex flex-col">
+                <GhostLine
+                  className="h-5 md:h-[22px]"
+                  inPulse
+                  look="loading"
+                  width="w-40"
+                />
+                <GhostLine
+                  className="h-4 md:h-[18px]"
+                  inPulse
+                  look="loading"
+                  width="w-28"
+                />
+              </span>
             </span>
           </li>
         ))}
@@ -119,7 +127,7 @@ function Section({
       <h3 className={SECTION_TITLE} id={titleId}>
         {title}
       </h3>
-      <ul>
+      <ul className={LIST}>
         {people.map((person) => (
           <PersonRow key={person.id} person={person} />
         ))}

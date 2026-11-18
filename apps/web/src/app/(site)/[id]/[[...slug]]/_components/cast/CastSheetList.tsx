@@ -24,10 +24,11 @@ import { castAndCrewUrl } from './castSheetData';
 const ROW =
   'border-white/7 border-b [contain-intrinsic-size:auto_65px] [content-visibility:auto] md:[contain-intrinsic-size:auto_81px]';
 
-const ROW_BOX = 'flex items-center gap-3 py-2.5 md:gap-4 md:py-3';
+/** 8px in from the sides, so the hover's rounded fill clears the face */
+const ROW_BOX = 'flex items-center gap-3 px-2 py-2.5 md:gap-4 md:py-3';
 
-/** A section's name */
-const SECTION_TITLE = 'pt-4 pb-1 text-overline text-white/80 uppercase';
+/** A section's name, on the rows' 8px inset */
+const SECTION_TITLE = 'px-2 pt-4 pb-1 text-overline text-white/80 uppercase';
 
 const CIRCLE = 'size-11 shrink-0 rounded-full md:size-14';
 
@@ -39,8 +40,9 @@ const GHOST_CIRCLE = `${CIRCLE} ${GHOST_FILL}`;
 const SHEET_FACE: FaceLook = {
   blank: `${CIRCLE} bg-white/10`,
   caption: 'flex min-w-0 flex-col',
-  link: `group/row ${ROW_BOX} rounded-8 outline-none focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2`,
-  name: 'truncate font-semibold text-[14px] leading-5 group-hover/row:underline md:text-[15px] md:leading-[22px]',
+  // the app's subtle row hover, not an underline: the whole row is the link
+  link: `${ROW_BOX} rounded-8 outline-none transition-colors hover:bg-white/5 focus-visible:bg-white/5 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2`,
+  name: 'truncate font-semibold text-[14px] leading-5 md:text-[15px] md:leading-[22px]',
   photo: `${CIRCLE} object-cover object-top`,
   role: 'truncate text-[12px] text-white/60 leading-4 md:text-[13px] md:leading-[18px]',
   size: 112,

@@ -1,51 +1,64 @@
+'use client';
+
 import type { WatchProvider } from '@tvseri.es/schemas';
+import { useState } from 'react';
 
-import ServiceTile from './ServiceTile';
+import { arrowDownGlyph } from '@/components/ui/icon/glyphs';
+import Icon from '@/components/ui/icon/Icon';
+import ServicesList from './ServicesList';
+import { SHELF_CARD_CLASS, SHELF_HEAD_CLASS } from './shelfLook';
 
-/** The shelf's box and its tile grid: the placeholder takes the same */
-export const SHELF_CARD_CLASS =
-  'flex flex-col gap-6 rounded-[20px] bg-[linear-gradient(160deg,rgb(0_255_255/0.07),rgb(255_255_255/0.03)_45%)] p-6 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.08)]';
-export const SHELF_GRID_CLASS =
-  'grid grid-cols-3 gap-2.5 md:grid-cols-6 md:gap-4';
+const HEADING = 'your-services';
 
 /**
- * "Your services": the selected ones as big tiles with a check, in the order
- * they were picked (the cyan dot means yours).
+ * "Your services": the selected ones as a ranked list (the cyan dot means
+ * yours). Where to watch shows the highest one that streams a series, so
+ * the order is the viewer's to set. One polite live region reads out
+ * every move and removal.
  */
 export default function ServicesShelf({
+  onReorder,
   onToggle,
+  popularTitle,
   selected,
 }: Readonly<{
+  onReorder: (order: ReadonlyArray<number>) => void;
   onToggle: (provider: WatchProvider) => void;
+  /** "Popular in the United Kingdom": where the empty shelf points */
+  popularTitle: string;
   selected: ReadonlyArray<WatchProvider>;
 }>) {
+  const [status, setStatus] = useState('');
+  const count = selected.length;
   return (
-    <section aria-labelledby="your-services" className={SHELF_CARD_CLASS}>
-      <div className="flex items-center gap-3">
-        <span className="size-2 rounded-full bg-cyan" />
-        <h3 className="text-body" id="your-services">
+    <section aria-labelledby={HEADING} className={SHELF_CARD_CLASS}>
+      <div className={SHELF_HEAD_CLASS}>
+        <span className="size-2 shrink-0 rounded-full bg-cyan" />
+        <h3 className="text-body outline-none" id={HEADING} tabIndex={-1}>
           Your services
         </h3>
-        <span className="text-meta text-white/60 tabular-nums">
-          {selected.length}
-        </span>
+        <span className="text-meta text-white/60 tabular-nums">{count}</span>
       </div>
-      {selected.length > 0 ? (
-        <div className={SHELF_GRID_CLASS}>
-          {selected.map((provider) => (
-            <ServiceTile
-              key={provider.id}
-              onToggle={onToggle}
-              provider={provider}
-              variant="big"
-            />
-          ))}
-        </div>
+      {count > 0 ? (
+        <ServicesList
+          headingId={HEADING}
+          onAnnounce={setStatus}
+          onReorder={onReorder}
+          onToggle={onToggle}
+          selected={selected}
+        />
       ) : (
-        <p className="rounded-14 bg-white/3 p-[18px] text-meta text-white/60">
-          None yet: tap a service below.
+        <p className="flex items-start gap-2.5 rounded-14 bg-white/3 p-[18px] text-meta text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.08)]">
+          <Icon className="mt-0.5 shrink-0" glyph={arrowDownGlyph} size={16} />
+          <span>
+            None yet. Add the ones you pay for from{' '}
+            <b className="font-medium text-white">{popularTitle}</b> below.
+          </span>
         </p>
       )}
+      <p aria-live="polite" className="sr-only">
+        {status}
+      </p>
     </section>
   );
 }

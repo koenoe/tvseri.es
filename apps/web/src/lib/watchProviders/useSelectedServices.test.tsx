@@ -84,4 +84,20 @@ describe('useSelectedServices', () => {
       expect.objectContaining({ title: 'Added Netflix' }),
     );
   });
+
+  it('a reorder saves the list in its new order, shows it at once, and toasts nothing', async () => {
+    const { result } = renderHook(() => useSelectedServices([A, B]));
+    act(() => result.current.reorder([B.id, A.id]));
+    expect(sent).toEqual([['Prime Video', 'Netflix']]);
+    expect(names(result.current.selected)).toEqual(['Prime Video', 'Netflix']);
+    await act(async () => pending[0]?.({ ok: true }));
+    expect(names(result.current.selected)).toEqual(['Prime Video', 'Netflix']);
+    expect(toast).not.toHaveBeenCalled();
+  });
+
+  it('the order it already has sends nothing', () => {
+    const { result } = renderHook(() => useSelectedServices([A, B]));
+    act(() => result.current.reorder([A.id, B.id]));
+    expect(sent).toEqual([]);
+  });
 });

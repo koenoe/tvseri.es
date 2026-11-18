@@ -9,16 +9,17 @@ import { updateWatchProviders } from './actions';
 import { createSaveLedger } from './saveLedger';
 import {
   servicesReducer,
+  type ToggleAction,
   toggleAction,
   type WatchProviderAction,
 } from './servicesReducer';
 
-const inverse = (action: WatchProviderAction): WatchProviderAction => ({
+const inverse = (action: ToggleAction): ToggleAction => ({
   provider: action.provider,
   type: action.type === 'add' ? 'remove' : 'add',
 });
 
-const titleOf = ({ provider, type }: WatchProviderAction) =>
+const titleOf = ({ provider, type }: ToggleAction) =>
   `${type === 'add' ? 'Added' : 'Removed'} ${provider.name}`;
 
 /**
@@ -29,7 +30,8 @@ const titleOf = ({ provider, type }: WatchProviderAction) =>
  * (`createSaveLedger`), so a failed save next to a later successful one
  * shows what the server has. `undo: false` leaves out the "Added Netflix"
  * toast (Get started, where the chip itself says it); a failed save always
- * says so.
+ * says so. A reorder (a drag or the Move menu) saves the same way without a
+ * toast: the tile is where it was dropped, and dragging back undoes it.
  */
 export function useSelectedServices(
   initial: ReadonlyArray<WatchProvider>,
@@ -41,7 +43,7 @@ export function useSelectedServices(
   const [, startSaving] = useTransition();
 
   const apply = useCallback(
-    (action: WatchProviderAction, announce: boolean) => {
+    (action: WatchProviderAction, toastFor: ToggleAction | null) => {
       const { list, seq } = ledger.want(action);
       startSaving(async () => {
         applyOptimistic(action);
@@ -55,13 +57,13 @@ export function useSelectedServices(
         }
         setCommitted(ledger.settle(seq, ok));
       });
-      if (announce && undo) {
+      if (toastFor && undo) {
         showToast({
           action: {
             label: 'Undo',
-            onClick: () => apply(inverse(action), false),
+            onClick: () => apply(inverse(toastFor), null),
           },
-          title: titleOf(action),
+          title: titleOf(toastFor),
         });
       }
     },
@@ -69,10 +71,23 @@ export function useSelectedServices(
   );
 
   const toggle = useCallback(
-    (provider: WatchProvider) =>
-      apply(toggleAction(ledger.wanted, provider), true),
+    (provider: WatchProvider) => {
+      const action = toggleAction(ledger.wanted, provider);
+      apply(action, action);
+    },
     [apply, ledger],
   );
 
-  return { selected, toggle };
+  /** The services in this order (ids); the order they're in: nothing */
+  const reorder = useCallback(
+    (order: ReadonlyArray<number>) => {
+      const action = { order, type: 'reorder' } as const;
+      if (servicesReducer(ledger.wanted, action) !== ledger.wanted) {
+        apply(action, null);
+      }
+    },
+    [apply, ledger],
+  );
+
+  return { reorder, selected, toggle };
 }

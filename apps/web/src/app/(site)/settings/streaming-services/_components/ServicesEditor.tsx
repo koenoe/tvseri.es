@@ -48,7 +48,7 @@ export default function ServicesEditor({
   providers: ReadonlyArray<WatchProvider>;
 }>) {
   const { choose, region } = useRegion(initialRegion);
-  const { selected, toggle } = useSelectedServices(initialSelected);
+  const { reorder, selected, toggle } = useSelectedServices(initialSelected);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
@@ -87,6 +87,7 @@ export default function ServicesEditor({
   const name = regionName(region);
   const regionLineText = regionLine(region, detected);
   const popular = popularLabel(name, query);
+  const popularTitle = popularLabel(name, '');
   return (
     <>
       <RegionCard
@@ -115,7 +116,12 @@ export default function ServicesEditor({
         />
       ) : null}
       {open && !CountryCombobox ? <ComboboxSkeleton /> : null}
-      <ServicesShelf onToggle={toggle} selected={selected} />
+      <ServicesShelf
+        onReorder={reorder}
+        onToggle={toggle}
+        popularTitle={popularTitle}
+        selected={selected}
+      />
       <PopularCard
         label={popular}
         onQuery={onQuery}

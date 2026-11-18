@@ -90,7 +90,6 @@ export default function PopularCard({
               key={provider.id}
               onToggle={onToggle}
               provider={provider}
-              variant="rest"
             />
           ))}
         </div>

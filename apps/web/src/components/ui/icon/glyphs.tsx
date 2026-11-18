@@ -176,6 +176,19 @@ export const globeGlyph: Glyph = {
   ),
 };
 
+export const gripGlyph: Glyph = {
+  outline: (
+    <>
+      <circle cx="9" cy="6" fill="currentColor" r="1.4" stroke="none" />
+      <circle cx="9" cy="12" fill="currentColor" r="1.4" stroke="none" />
+      <circle cx="9" cy="18" fill="currentColor" r="1.4" stroke="none" />
+      <circle cx="15" cy="6" fill="currentColor" r="1.4" stroke="none" />
+      <circle cx="15" cy="12" fill="currentColor" r="1.4" stroke="none" />
+      <circle cx="15" cy="18" fill="currentColor" r="1.4" stroke="none" />
+    </>
+  ),
+};
+
 export const heartGlyph: ToggleGlyph = {
   filled: (
     <path
@@ -242,6 +255,15 @@ export const infoGlyph: Glyph = {
   ),
 };
 
+export const keyboardGlyph: Glyph = {
+  outline: (
+    <>
+      <rect height="12" rx="2" width="19" x="2.5" y="6" />
+      <path d="M6.5 10h1M10.5 10h1M14.5 10h1M8 14h8" />
+    </>
+  ),
+};
+
 export const languageGlyph: Glyph = {
   outline: (
     <path d="m5 8 6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6" />
@@ -287,6 +309,14 @@ export const moreGlyph: Glyph = {
       <circle cx="19" cy="12" fill="currentColor" r="1.9" stroke="none" />
     </>
   ),
+};
+
+export const moveBottomGlyph: Glyph = {
+  outline: <path d="M6 20h12M12 4v11M7 11l5 5 5-5" />,
+};
+
+export const moveTopGlyph: Glyph = {
+  outline: <path d="M6 4h12M12 20V9M7 13l5-5 5 5" />,
 };
 
 export const networkGlyph: Glyph = {

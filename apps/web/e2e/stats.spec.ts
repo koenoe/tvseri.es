@@ -597,8 +597,6 @@ test.describe('stats', () => {
     context,
     page,
   }) => {
-    // Its success path needs the stub API to know the auth stub's viewers
-    // (`/me/library-ids`, the list routes).
     await signInAs(context, 'alex');
     await page.goto(PAGE);
     const popular = page.locator('section', {

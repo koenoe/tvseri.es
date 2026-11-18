@@ -33,7 +33,7 @@ describe('visibleTabs', () => {
     );
   });
 
-  it('drops Stats without a year of dated episodes', () => {
+  it('drops Stats without any stored episode', () => {
     expect(
       labels({ followers: 3, following: 3, hasStats: false }),
     ).not.toContain('Stats');

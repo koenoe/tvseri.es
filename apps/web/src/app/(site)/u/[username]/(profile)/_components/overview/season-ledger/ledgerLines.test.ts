@@ -143,7 +143,7 @@ describe('seasonRuns for whole seasons', () => {
 });
 
 describe('nextLabel', () => {
-  it('names a short next show, and says "Next show" for a long one', () => {
+  it('names a short next show, and says "Next series" for a long one', () => {
     expect(nextLabel('The Chosen')).toBe('Next: The Chosen');
     expect(nextLabel('Midsomer Murders: The Lost Years')).toBe('Next series');
   });

@@ -1,4 +1,4 @@
-import { eyeGlyph, skippedGlyph } from '@/components/ui/icon/glyphs';
+import { eyeGlyph, ringGlyph, skippedGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import type { Glyph } from '@/components/ui/icon/types';
 import cn from '@/lib/cn';
@@ -53,9 +53,6 @@ export function markChipClass(
 ): string {
   return cn(BASE, overlay ? OVERLAY[overlay] : STATE[state], className);
 }
-
-/** Not watched: a quiet ring */
-const ringGlyph: Glyph = { outline: <circle cx="12" cy="12" r="8" /> };
 
 /** Next up's →, drawn as wide as an eye so it weighs the same */
 const arrowGlyph: Glyph = {

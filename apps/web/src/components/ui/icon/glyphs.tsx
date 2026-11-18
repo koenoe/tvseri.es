@@ -377,6 +377,8 @@ export const refreshGlyph: Glyph = {
   outline: <path d="M21 12a9 9 0 1 1-2.64-6.36L21 8M21 3v5h-5" />,
 };
 
+export const ringGlyph: Glyph = { outline: <circle cx="12" cy="12" r="8" /> };
+
 export const routeGlyph: Glyph = {
   outline: (
     <path d="M3 19a3 3 0 1 0 6 0a3 3 0 1 0 -6 0M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15M15 5a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />

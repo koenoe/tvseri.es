@@ -1,6 +1,6 @@
 import { plural } from '@tvseri.es/utils';
 import Image from 'next/image';
-import { seasonGlyph, skippedGlyph } from '@/components/ui/icon/glyphs';
+import { ringGlyph, seasonGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import TileLink from '@/components/ui/tile/TileLink';
@@ -65,7 +65,7 @@ export default function LedgerShowRow({
         </span>
         <MetaRow fit="drop">
           <MetaItem icon={seasonGlyph}>{seasons}</MetaItem>
-          <MetaItem icon={skippedGlyph}>{missingLabel(open)}</MetaItem>
+          <MetaItem icon={ringGlyph}>{missingLabel(open)}</MetaItem>
         </MetaRow>
       </span>
     </div>

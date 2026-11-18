@@ -137,15 +137,11 @@ describe('loadCast', () => {
       'Role 6',
       'Role 7',
     ]);
-    expect(result.line).toEqual({
-      first: 'Person 2',
-      rest: ', Person 3 and 13 more',
-    });
     expect(result.castCount).toBe(15);
     expect(result.peopleCount).toBe(15);
   });
 
-  it('counts the crew in everyone, but not in the cast’s "+N" or line', async () => {
+  it('counts the crew in everyone, but not in the cast’s "+N"', async () => {
     const crewRow = (id: number, department: string) => ({
       department,
       id,
@@ -171,7 +167,6 @@ describe('loadCast', () => {
     }
 
     expect(result.castCount).toBe(2);
-    expect(result.line).toEqual({ first: 'Person 2', rest: ' and Person 3' });
     expect(result.peopleCount).toBe(4);
   });
 

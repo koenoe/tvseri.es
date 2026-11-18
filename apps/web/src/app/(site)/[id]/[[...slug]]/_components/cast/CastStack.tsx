@@ -1,8 +1,6 @@
 import Image from 'next/image';
 import { PANEL_GLASS } from '@/components/ui/glass/glass';
-import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
-import Icon from '@/components/ui/icon/Icon';
-import { GHOST_FILL, GhostLine } from '@/components/ui/row/RowGhosts';
+import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
 import cn from '@/lib/cn';
 import { peopleCount } from '@/lib/series/castAndCrew';
 
@@ -30,14 +28,9 @@ const MORE = cn(
   PANEL_GLASS,
 );
 
-/** The names, and the chevron at the line's end now the faces take the row */
-const LINE =
-  'mt-2.5 flex items-center gap-2 text-[13px] text-white/75 leading-5';
-
 /**
  * The phone's cast: five faces of the cast (only those with a photo) and
- * "+N" for the rest across the width, and a line naming the first two with a
- * chevron;
+ * "+N" for the rest across the width;
  * the whole of it opens the sheet with everyone, the crew too.
  */
 export default function CastStack({ cast }: Readonly<{ cast: ShowCast }>) {
@@ -59,17 +52,6 @@ export default function CastStack({ cast }: Readonly<{ cast: ShowCast }>) {
         ))}
         {more > 0 ? <span className={MORE}>+{more}</span> : null}
       </span>
-      <span aria-hidden="true" className={LINE}>
-        <span className="min-w-0 truncate">
-          <b className="font-semibold text-white">{cast.line.first}</b>
-          {cast.line.rest}
-        </span>
-        <Icon
-          className="ml-auto shrink-0 text-white/60"
-          glyph={chevronRightGlyph}
-          size={16}
-        />
-      </span>
     </CastSheetButton>
   );
 }
@@ -78,7 +60,7 @@ const GHOST_FACES = Array.from({ length: 6 }, (_, index) => index);
 
 const GHOST_CIRCLE = cn(CIRCLE, 'border-transparent', GHOST_FILL);
 
-/** The stack's space while the credits load: six circles and the line */
+/** The stack's space while the credits load: six circles */
 export function CastStackSkeleton() {
   return (
     <span className="block md:hidden">
@@ -87,7 +69,6 @@ export function CastStackSkeleton() {
           <span className={GHOST_CIRCLE} key={index} />
         ))}
       </span>
-      <GhostLine className="mt-2.5 h-5" inPulse look="loading" width="w-3/4" />
     </span>
   );
 }

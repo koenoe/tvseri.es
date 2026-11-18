@@ -7,7 +7,6 @@ import {
   crewSectionOf,
   faceLabel,
   peopleCount,
-  stackLine,
   toCastAndCrew,
   toCastStack,
   toCrewSections,
@@ -287,29 +286,6 @@ describe('toCastStack', () => {
     expect(toCastStack(withBlank).map((person) => person.id)).toEqual([
       10, 11, 12, 13, 14,
     ]);
-  });
-});
-
-describe('stackLine', () => {
-  it('names the first two of the cast and counts the rest of the cast', () => {
-    expect(stackLine([WHITE, EDEBIRI], 21)).toEqual({
-      first: 'Jeremy Allen White',
-      rest: ', Ayo Edebiri and 19 more',
-    });
-  });
-
-  it('joins exactly two with "and", never "and 0 more"', () => {
-    expect(stackLine([WHITE, EDEBIRI], 2)).toEqual({
-      first: 'Jeremy Allen White',
-      rest: ' and Ayo Edebiri',
-    });
-  });
-
-  it('names one alone', () => {
-    expect(stackLine([WHITE], 1)).toEqual({
-      first: 'Jeremy Allen White',
-      rest: '',
-    });
   });
 });
 

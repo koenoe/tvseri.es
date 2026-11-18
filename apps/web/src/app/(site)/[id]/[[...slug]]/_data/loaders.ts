@@ -20,7 +20,6 @@ import {
 import {
   type CastCrewPerson,
   countPeople,
-  stackLine,
   toCastPerson,
   toCastStack,
 } from '@/lib/series/castAndCrew';
@@ -66,9 +65,7 @@ export type ShowCast = Readonly<{
   faces: ReadonlyArray<CastCrewPerson>;
   /** The phone stack: the first five of the cast with a photo */
   stack: ReadonlyArray<CastCrewPerson>;
-  /** The stack's line: the first two of the cast, photo or not */
-  line: Readonly<{ first: string; rest: string }>;
-  /** The whole cast, for the "+N"s and the stack's line */
+  /** The whole cast, for the "+N"s */
   castCount: number;
   /** Everyone the sheet lists, each once: the cast, the creators and the crew */
   peopleCount: number;
@@ -92,7 +89,6 @@ export async function loadCast(
   return {
     castCount: cast.length,
     faces: cast.slice(0, CAST_SIZE).map(toCastPerson),
-    line: stackLine(cast.slice(0, 2), cast.length),
     peopleCount: countPeople(creators, cast, credits?.crew ?? []),
     stack: toCastStack(cast),
   };

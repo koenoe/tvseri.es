@@ -233,26 +233,6 @@ export const countPeople = (
   ...groups: ReadonlyArray<ReadonlyArray<Pick<Credit, 'id'>>>
 ): number => new Set(groups.flat().map((person) => person.id)).size;
 
-/**
- * The phone stack's line: the first two of the cast and how many more
- * ("Jeremy Allen White", ", Ayo Edebiri", " and 18 more"). `castCount`
- * counts the whole cast, not only the names given.
- */
-export function stackLine(
-  cast: ReadonlyArray<Pick<CastCrewPerson, 'name'>>,
-  castCount: number,
-): Readonly<{ first: string; rest: string }> {
-  const [first, second] = cast;
-  if (!first || !second) {
-    return { first: first?.name ?? '', rest: '' };
-  }
-  const more = castCount - 2;
-  if (more <= 0) {
-    return { first: first.name, rest: ` and ${second.name}` };
-  }
-  return { first: first.name, rest: `, ${second.name} and ${more} more` };
-}
-
 /** "21 people", "1 person", "1,204 people" */
 export const peopleCount = (total: number): string =>
   plural(total, 'person', 'people');

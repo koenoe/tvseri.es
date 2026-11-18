@@ -26,8 +26,6 @@ const FACES = Array.from({ length: 10 }, (_, index) =>
 
 const STACK = FACES.slice(0, 5);
 
-const LINE = { first: 'Actor 2', rest: ', Actor 3 and 18 more' };
-
 describe('Cast', () => {
   beforeEach(() => {
     vi.mocked(loadCast).mockReset();
@@ -48,7 +46,6 @@ describe('Cast', () => {
     vi.mocked(loadCast).mockResolvedValue({
       castCount: 20,
       faces: FACES,
-      line: LINE,
       peopleCount: 21,
       stack: STACK,
     });
@@ -57,8 +54,8 @@ describe('Cast', () => {
     const stack = screen.getByRole('button', { name: 'Cast, 20 people' });
     // the rest of the cast: the creator is in the sheet, not the stack
     expect(stack.textContent).toContain('+15');
-    expect(stack.textContent).toContain('Actor 2, Actor 3 and 18 more');
-    expect(stack.querySelector('b')?.textContent).toBe('Actor 2');
+    // faces and "+N" only: no names line under them
+    expect(stack.querySelector('b')).toBeNull();
     const more = screen.getByRole('button', {
       name: 'All cast and crew, 21 people',
     });
@@ -71,7 +68,6 @@ describe('Cast', () => {
     vi.mocked(loadCast).mockResolvedValue({
       castCount: 10,
       faces: FACES,
-      line: LINE,
       peopleCount: 11,
       stack: STACK,
     });
@@ -87,7 +83,6 @@ describe('Cast', () => {
     vi.mocked(loadCast).mockResolvedValue({
       castCount: 3,
       faces: FACES.slice(0, 3),
-      line: { first: 'Actor 2', rest: ', Actor 3 and 1 more' },
       peopleCount: 3,
       stack: FACES.slice(0, 2),
     });
@@ -102,7 +97,6 @@ describe('Cast', () => {
     vi.mocked(loadCast).mockResolvedValue({
       castCount: 0,
       faces: [],
-      line: { first: '', rest: '' },
       peopleCount: 1,
       stack: [],
     });

@@ -30,17 +30,18 @@ export const HERO_META_ROW =
 
 /** On the 24px gutter on phones too */
 export const HERO_PROMPT_SLOT =
-  'col-start-1 mt-1 min-w-0 max-md:row-start-3 md:row-start-2 md:mt-0 md:w-[973px] md:max-w-full';
+  'col-start-1 mt-1 min-w-0 max-md:row-start-4 md:row-start-2 md:mt-0 md:w-[973px] md:max-w-full';
 
 /**
  * The synopsis: four fifths of the 1216 page, wider than
  * the progress line and the prompt above it: fewer lines, so the hero stays
- * short. On desktop it sits above the actions (row 3); on phones it follows
- * the actions and prompt (row 4), clamped to three lines by `Hero` so the
- * hero stays short there too (the full text is in the Storyline band below).
+ * short. On desktop it sits above the actions (row 3); on phones it sits
+ * right under the progress line and above the rating (row 2, 20px below the
+ * line), clamped to three lines by `Hero` so the hero stays short there too
+ * (the full text is in the Storyline band below).
  */
 export const HERO_DESCRIPTION =
-  'col-start-1 mb-6 max-w-[973px] text-body text-white/80 max-md:row-start-4 md:row-start-3 md:group-data-docked/hero:hidden';
+  'col-start-1 mb-6 max-w-[973px] text-body text-white/80 max-md:row-start-2 max-md:mt-5 md:row-start-3 md:group-data-docked/hero:hidden';
 
 /**
  * The rating's cell in the actions row: on phones it pushes the buttons to
@@ -52,4 +53,4 @@ export const HERO_DESCRIPTION =
 export const HERO_RATING_CELL = 'empty:hidden max-md:mr-auto';
 
 export const HERO_ACTIONS_ROW =
-  'col-start-1 flex items-center max-md:row-start-2 md:row-start-4 md:mb-6 md:gap-12 md:group-data-docked/hero:hidden';
+  'col-start-1 flex items-center max-md:row-start-3 md:row-start-4 md:mb-6 md:gap-12 md:group-data-docked/hero:hidden';

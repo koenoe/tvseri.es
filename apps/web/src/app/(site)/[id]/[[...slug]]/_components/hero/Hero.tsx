@@ -26,19 +26,20 @@ import PhoneBackdrop from './PhoneBackdrop';
 
 type Props = Readonly<{ series: TvSeries }>;
 
+/** Phones clamp the synopsis to three lines (the Storyline band has it all) */
+const DESCRIPTION = `${HERO_DESCRIPTION} max-md:line-clamp-3`;
+
 /**
  * The hero: title treatment,
  * facts, the age rating and provider logo, the progress line, the
  * first-tracking prompt (static shell content, hidden by a pre-paint hint
  * where it isn't for the viewer), the
- * description (desktop) and the rating with the actions. Each viewer hole
- * renders once; a grid places it. Rows 1 and 2 share a fixed-height spacer
- * (457 + 48px on desktop, 376px on phones), the facts sit bottom-aligned in
- * row 1, so the page below never moves. Desktop: the prompt closes the block,
- * then the description, then the actions. Phone: the actions close the block
- * and the prompt follows it. The cached shell draws what is the same for
- * every viewer; the viewer's parts are Suspense holes whose skeletons hold
- * their space.
+ * description and the rating with the actions, in that order at every
+ * width. Each viewer hole renders once; a grid places it. The title group
+ * sits bottom-aligned on a fixed-height spacer (`HERO_SPACER`), so the page
+ * below never moves. The cached shell draws what is the same for every
+ * viewer; the viewer's parts are Suspense holes whose skeletons hold their
+ * space.
  */
 export default function Hero({ series }: Props) {
   const imdbId = series.externalIds?.imdbId ?? null;
@@ -70,7 +71,7 @@ export default function Hero({ series }: Props) {
         ) : null}
       </div>
       {series.description ? (
-        <p className={HERO_DESCRIPTION}>{series.description}</p>
+        <p className={DESCRIPTION}>{series.description}</p>
       ) : null}
       <div className={HERO_ACTIONS_ROW}>
         <div className={HERO_RATING_CELL}>

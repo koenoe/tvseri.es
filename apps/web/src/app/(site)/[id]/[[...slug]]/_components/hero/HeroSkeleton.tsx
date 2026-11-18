@@ -44,10 +44,24 @@ const META_GHOST = cn(HERO_META_ROW, PULSE);
 const DESCRIPTION_GHOST = cn(HERO_DESCRIPTION, PULSE);
 
 /**
+ * The description's lines: three 22px lines on phones (its clamp), two 28px
+ * lines on desktop, the last one shorter.
+ */
+const DESCRIPTION_LINES = [
+  { bar: 'w-full', line: '' },
+  { bar: 'w-full md:w-4/5', line: '' },
+  { bar: 'w-4/5', line: 'md:hidden' },
+].map(({ bar, line }) => ({
+  bar: `h-3 ${BAR} ${bar}`,
+  line: cn('flex h-[22px] items-center md:h-7', line),
+}));
+
+/**
  * The hero for a show that is not known yet (the page's loading shell): the
  * hero's own grid and cells, with quiet bars where the title, facts,
- * description and actions go. The description is two lines, the typical
- * show's at its width; the actions are the four circles and the rating.
+ * description and actions go. The description is the typical show's at its
+ * width (two lines on desktop, the three-line clamp on phones); the actions
+ * are the four circles and the rating.
  */
 export default function HeroSkeleton() {
   return (
@@ -72,14 +86,11 @@ export default function HeroSkeleton() {
         </div>
       </div>
       <div aria-hidden="true" className={DESCRIPTION_GHOST}>
-        {[0, 1].map((line) => {
-          const lineClasses = `h-3 ${BAR} ${line === 1 ? 'w-4/5' : 'w-full'}`;
-          return (
-            <span className="flex h-7 items-center" key={line}>
-              <span className={lineClasses} />
-            </span>
-          );
-        })}
+        {DESCRIPTION_LINES.map(({ bar, line }) => (
+          <span className={line} key={bar}>
+            <span className={bar} />
+          </span>
+        ))}
       </div>
       <div className={HERO_ACTIONS_ROW}>
         <div className={HERO_RATING_CELL}>

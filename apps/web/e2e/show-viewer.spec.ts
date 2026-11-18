@@ -86,8 +86,9 @@ test('a mark survives going Home and pressing Back', async ({ page }) => {
 });
 
 // On a phone the hero's rows sit close (title to facts, facts to the
-// progress text, progress text to the rating and actions) and the progress
-// line is a 44px tap target. Measured between boxes.
+// progress text, progress text to the next row: the prompt, the synopsis or
+// the rating and actions) and the progress line is a 44px tap target.
+// Measured between boxes.
 const heroGaps = async (page: Page, width: number) => {
   await page.setViewportSize({ height: 844, width });
   await phoneScrollbars(page, width);
@@ -103,18 +104,27 @@ const heroGaps = async (page: Page, width: number) => {
         };
       };
       const title = line.parentElement?.querySelector('h1');
+      const actionsRow = document.querySelector(
+        '[data-slot="actions"]',
+      )?.parentElement;
+      // the first row after the title group that draws anything
+      const next = [
+        document.querySelector('[data-prompt] [role="group"]'),
+        actionsRow?.previousElementSibling,
+        actionsRow,
+      ].find((node) => (node?.getBoundingClientRect().height ?? 0) > 0);
       const rows = {
-        actionsRow: box(
-          document.querySelector('[data-slot="actions"]')?.parentElement,
-        ),
+        actionsRow: box(actionsRow),
         meta: box(title?.nextElementSibling),
+        next: box(next),
         text: box(line.firstElementChild),
         title: box(title),
       };
       return {
-        actionsGap: rows.actionsRow.top - rows.text.bottom,
+        actionsBelow: rows.actionsRow.top - rows.text.bottom,
         line: line.getBoundingClientRect().height,
         metaGap: rows.meta.top - rows.title.bottom,
+        nextGap: rows.next.top - rows.text.bottom,
         textGap: rows.text.top - rows.meta.bottom,
       };
     });
@@ -128,9 +138,10 @@ test(`the phone hero's rows stack in order and the progress line is a tap target
 }) => {
   const gaps = await heroGaps(page, 390);
   expect(gaps.line).toBeGreaterThanOrEqual(44);
-  // in order, never overlapping, the two rows around the progress text
-  // spaced alike and no tighter than the facts under the title
-  expect(gaps.metaGap).toBeGreaterThanOrEqual(0);
-  expect(gaps.textGap).toBeGreaterThanOrEqual(gaps.metaGap);
-  expect(gaps.actionsGap).toBeCloseTo(gaps.textGap, 0);
+  // in order, never overlapping: 16px under the title and under the facts,
+  // 20px from the progress text to the next row, the actions last
+  expect(gaps.metaGap).toBeCloseTo(16, 0);
+  expect(gaps.textGap).toBeCloseTo(16, 0);
+  expect(gaps.nextGap).toBeCloseTo(20, 0);
+  expect(gaps.actionsBelow).toBeGreaterThanOrEqual(gaps.nextGap);
 });

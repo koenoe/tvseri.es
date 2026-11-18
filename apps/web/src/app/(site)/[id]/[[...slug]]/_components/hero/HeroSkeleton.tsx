@@ -35,7 +35,7 @@ const GENRES_BAR = `ml-4 h-3.5 w-16 md:w-40 ${BAR}`;
 
 const TITLE_GHOST = cn(
   HERO_TITLE_SPACE,
-  'block h-10 w-[240px] rounded-8 md:h-24 md:w-[420px]',
+  'block h-20 w-[300px] rounded-8 md:h-24 md:w-[420px]',
   GHOST_FILL,
   PULSE,
 );

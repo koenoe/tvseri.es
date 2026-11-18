@@ -1,6 +1,7 @@
 import type { TvSeries } from '@tvseri.es/schemas';
 import { Fragment } from 'react';
 
+import { TEXT_LINK_HOVER } from '@/components/header/headerIconButton';
 import TileLink from '@/components/ui/tile/TileLink';
 import { PERSON_PREFETCH } from '@/components/ui/tile/tilePrefetch';
 import cn from '@/lib/cn';
@@ -25,7 +26,7 @@ export default function CreatedBy({
           <Fragment key={creator.id}>
             {index > 0 ? ', ' : null}
             <TileLink
-              className="hover:underline"
+              className={TEXT_LINK_HOVER}
               href={href}
               prefetchOn={PERSON_PREFETCH}
             >

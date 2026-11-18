@@ -48,7 +48,7 @@ describe('GET /api/series/:id/credits', () => {
     },
   );
 
-  it('serves the creators, then the cast, trimmed, on the short CDN life', async () => {
+  it('serves the cast and the crew (the creators), trimmed, on the short CDN life', async () => {
     vi.mocked(loadSeries).mockResolvedValue(SERIES);
     vi.mocked(loadSeriesCredits).mockResolvedValue({
       cast: [person(2, 'Jeremy Allen White', 'Carmy Berzatto')],
@@ -58,22 +58,26 @@ describe('GET /api/series/:id/credits', () => {
 
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toBe(CACHE_HEADERS.short);
-    expect(await res.json()).toEqual([
-      {
-        id: 1,
-        image: '1.jpg',
-        name: 'Christopher Storer',
-        role: 'Creator',
-        slug: 'christopher-storer',
-      },
-      {
-        id: 2,
-        image: '2.jpg',
-        name: 'Jeremy Allen White',
-        role: 'Carmy Berzatto',
-        slug: 'jeremy-allen-white',
-      },
-    ]);
+    expect(await res.json()).toEqual({
+      cast: [
+        {
+          id: 2,
+          image: '2.jpg',
+          name: 'Jeremy Allen White',
+          role: 'Carmy Berzatto',
+          slug: 'jeremy-allen-white',
+        },
+      ],
+      crew: [
+        {
+          id: 1,
+          image: '1.jpg',
+          name: 'Christopher Storer',
+          role: 'Creator',
+          slug: 'christopher-storer',
+        },
+      ],
+    });
     expect(loadSeriesCredits).toHaveBeenCalledWith(136315);
   });
 

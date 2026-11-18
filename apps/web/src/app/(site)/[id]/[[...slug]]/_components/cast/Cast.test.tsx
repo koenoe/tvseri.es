@@ -24,7 +24,9 @@ const FACES = Array.from({ length: 10 }, (_, index) =>
   face(index + 2, `Actor ${index + 2}`, `Role ${index + 2}`),
 );
 
-const STACK = [face(1, 'Christopher Storer', 'Creator'), ...FACES.slice(0, 4)];
+const STACK = FACES.slice(0, 5);
+
+const LINE = { first: 'Actor 2', rest: ', Actor 3 and 18 more' };
 
 describe('Cast', () => {
   beforeEach(() => {
@@ -42,22 +44,21 @@ describe('Cast', () => {
     expect(refresh).toHaveBeenCalledTimes(1);
   });
 
-  it('draws the phone stack and the row’s "+N", both opening everyone', async () => {
+  it('draws the phone stack of the cast and the row’s "+N", both opening everyone', async () => {
     vi.mocked(loadCast).mockResolvedValue({
       castCount: 20,
       faces: FACES,
+      line: LINE,
       peopleCount: 21,
       stack: STACK,
     });
     const { container } = render(await Cast({ creators: [], seriesId: 1 }));
 
-    const stack = screen.getByRole('button', {
-      name: 'Cast and crew, 21 people',
-    });
-    expect(stack.textContent).toContain('+16');
-    expect(stack.textContent).toContain(
-      'Christopher Storer, Actor 2 and 19 more',
-    );
+    const stack = screen.getByRole('button', { name: 'Cast, 20 people' });
+    // the rest of the cast: the creator is in the sheet, not the stack
+    expect(stack.textContent).toContain('+15');
+    expect(stack.textContent).toContain('Actor 2, Actor 3 and 18 more');
+    expect(stack.querySelector('b')?.textContent).toBe('Actor 2');
     const more = screen.getByRole('button', {
       name: 'All cast and crew, 21 people',
     });
@@ -70,6 +71,7 @@ describe('Cast', () => {
     vi.mocked(loadCast).mockResolvedValue({
       castCount: 10,
       faces: FACES,
+      line: LINE,
       peopleCount: 11,
       stack: STACK,
     });
@@ -77,15 +79,31 @@ describe('Cast', () => {
 
     expect(screen.queryByRole('button', { name: /^All / })).toBeNull();
     expect(
-      screen.getByRole('button', { name: 'Cast and crew, 11 people' }),
+      screen.getByRole('button', { name: 'Cast, 10 people' }),
     ).toBeTruthy();
   });
 
-  it('reserves nothing without anyone', async () => {
+  it('counts the cast without a photo in the stack’s "+N"', async () => {
+    vi.mocked(loadCast).mockResolvedValue({
+      castCount: 3,
+      faces: FACES.slice(0, 3),
+      line: { first: 'Actor 2', rest: ', Actor 3 and 1 more' },
+      peopleCount: 3,
+      stack: FACES.slice(0, 2),
+    });
+    render(await Cast({ creators: [], seriesId: 1 }));
+
+    const stack = screen.getByRole('button', { name: 'Cast, 3 people' });
+    expect(stack.querySelectorAll('img')).toHaveLength(2);
+    expect(stack.textContent).toContain('+1');
+  });
+
+  it('reserves nothing without a cast, even with creators', async () => {
     vi.mocked(loadCast).mockResolvedValue({
       castCount: 0,
       faces: [],
-      peopleCount: 0,
+      line: { first: '', rest: '' },
+      peopleCount: 1,
       stack: [],
     });
     const { container } = render(await Cast({ creators: [], seriesId: 1 }));

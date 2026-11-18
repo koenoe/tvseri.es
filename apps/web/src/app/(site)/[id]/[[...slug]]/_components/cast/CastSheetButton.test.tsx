@@ -29,27 +29,28 @@ describe('CastSheetButton', () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => ({
-        json: async () => [
-          {
-            id: 1,
-            image: '',
-            name: 'Christopher Storer',
-            role: 'Creator',
-            slug: 'christopher-storer',
-          },
-        ],
+        json: async () => ({
+          cast: [],
+          crew: [
+            {
+              id: 1,
+              image: '',
+              name: 'Christopher Storer',
+              role: 'Creator',
+              slug: 'christopher-storer',
+            },
+          ],
+        }),
         ok: true,
       })),
     );
     render(
-      <CastSheetButton className="" label="Cast and crew, 1 person" total={1}>
+      <CastSheetButton className="" label="Cast, 1 person" total={1}>
         faces
       </CastSheetButton>,
     );
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Cast and crew, 1 person' }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: 'Cast, 1 person' }));
 
     const sheet = await screen.findByRole('dialog', { name: 'Cast & crew' });
     expect(sheet.textContent).toContain('The Bear · 1 person');

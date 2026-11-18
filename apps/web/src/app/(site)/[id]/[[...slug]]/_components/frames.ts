@@ -7,10 +7,11 @@
 export const CAST_FRAME = 'mx-auto max-w-page px-gutter';
 
 /**
- * "Created by"'s line, from md: on phones the creators lead the cast's
- * stack instead. Desktop's actions row carries its own 24px above it.
+ * "Created by"'s line, at every width. Desktop's actions row carries its own
+ * 24px above it; the phone's carries none, so the line takes the 32px the
+ * stack keeps under the actions.
  */
-export const CREATED_BY_LINE = 'max-md:hidden';
+export const CREATED_BY_LINE = 'max-md:mt-8';
 
 export const EPISODES_SECTION =
   'relative z-26 mx-auto mt-10 mb-16 w-full max-w-page px-gutter md:mb-22';

@@ -18,6 +18,7 @@ import Icon from '@/components/ui/icon/Icon';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import NetworkWordmark from '@/components/ui/network/NetworkWordmark';
+import TileLink from '@/components/ui/tile/TileLink';
 import cn from '@/lib/cn';
 import showPath from '@/lib/routing/showPath';
 
@@ -33,8 +34,19 @@ import {
 } from './deckLayout';
 import { dealRandom, type StartCard, sendToBack } from './startCards';
 
+/** The top card's link: over its slot, above every card (the top is z 5) */
+const POSTER_LINK = 'absolute inset-0 z-6 rounded-14';
+
+/** The title links to the show, as the poster above it does */
+const TITLE_LINK =
+  'min-w-0 truncate rounded-4 underline-offset-4 hover:underline';
+
 /** The card on top: its provider and title, then what there is to know */
-function Face({ card, dealt }: Readonly<{ card: StartCard; dealt: boolean }>) {
+function Face({
+  card,
+  dealt,
+  href,
+}: Readonly<{ card: StartCard; dealt: boolean; href: string }>) {
   const initial = dealt ? { opacity: 0, y: 6 } : false;
   return (
     <m.div
@@ -58,9 +70,9 @@ function Face({ card, dealt }: Readonly<{ card: StartCard; dealt: boolean }>) {
             width={128}
           />
         ) : null}
-        <span className="min-w-0 truncate" title={card.title}>
+        <TileLink className={TITLE_LINK} href={href} title={card.title}>
           {card.title}
-        </span>
+        </TileLink>
       </span>
       <MetaRow className="max-w-full justify-center" fit="drop">
         <MetaItem icon={seasonGlyph}>{card.seasons}</MetaItem>
@@ -72,9 +84,10 @@ function Face({ card, dealt }: Readonly<{ card: StartCard; dealt: boolean }>) {
 
 /**
  * Start something new's card: the deck, the show on top and three buttons.
- * ✕ Not now sends the top card to the back, Pick one deals a random one,
- * → opens the show. On the Popular this week deck (`add`) the middle button
- * saves the show on top instead.
+ * The top card's poster and title link to the show (the cards behind are
+ * pictures only). ✕ Not now sends the top card to the back, Pick one deals
+ * a random one, → opens the show. On the Popular this week deck (`add`)
+ * the middle button saves the show on top instead.
  */
 export default function StartDeck({
   badge,
@@ -113,8 +126,10 @@ export default function StartDeck({
         className="absolute inset-0 bg-[radial-gradient(70%_55%_at_50%_38%,rgb(255_0_128/0.1),transparent_70%)]"
       />
       {badge}
-      <DeckFan cards={cards} dealt={dealt} order={order} />
-      <Face card={top} dealt={dealt} key={top.id} />
+      <DeckFan cards={cards} dealt={dealt} order={order}>
+        <TileLink aria-label={top.title} className={POSTER_LINK} href={href} />
+      </DeckFan>
+      <Face card={top} dealt={dealt} href={href} key={top.id} />
       <div className={DECK_BUTTONS}>
         <CircleButton
           disabled={alone}

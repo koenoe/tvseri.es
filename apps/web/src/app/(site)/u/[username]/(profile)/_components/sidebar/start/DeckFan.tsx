@@ -2,6 +2,7 @@
 
 import * as m from 'motion/react-m';
 import Image from 'next/image';
+import type { ReactNode } from 'react';
 
 import { DECK_CARD, DECK_FAN } from './deckLayout';
 import { type StartCard, slotAt } from './startCards';
@@ -16,15 +17,19 @@ const SPRING = { damping: 28, stiffness: 240, type: 'spring' } as const;
 /**
  * The fanned deck: the top card straight, four behind it
  * tilted and darker. Cards keep their identity, so a deal is the cards
- * sliding to their new slots (transform and opacity only). Place it inside
- * a `LazyMotion`.
+ * sliding to their new slots (transform and opacity only). The cards are
+ * pictures only; `children` (the top card's link) sits over the top slot.
+ * Place it inside a `LazyMotion`.
  */
 export default function DeckFan({
   cards,
+  children,
   dealt,
   order,
 }: Readonly<{
   cards: ReadonlyArray<StartCard>;
+  /** Over the top slot, above every card: the current pick's link */
+  children?: ReactNode;
   /** False until the first deal: the server-rendered fan must not animate in */
   dealt: boolean;
   order: ReadonlyArray<number>;
@@ -34,7 +39,7 @@ export default function DeckFan({
     .flatMap((id) => cards.filter((card) => card.id === id));
   const transition = dealt ? SPRING : { duration: 0 };
   return (
-    <div aria-hidden="true" className={DECK_FAN}>
+    <div className={DECK_FAN}>
       {visible.map((card) => {
         const slot = slotAt(order.indexOf(card.id));
         const animate = {
@@ -48,6 +53,7 @@ export default function DeckFan({
         return (
           <m.div
             animate={animate}
+            aria-hidden="true"
             className={CARD}
             initial={false}
             key={card.id}
@@ -70,6 +76,7 @@ export default function DeckFan({
           </m.div>
         );
       })}
+      {children}
     </div>
   );
 }

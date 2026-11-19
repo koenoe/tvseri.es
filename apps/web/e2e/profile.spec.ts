@@ -118,9 +118,9 @@ test.describe('profile signed in', () => {
     await expect(
       page.locator('[data-slot="profile-identity"][data-kept]'),
     ).toHaveCount(1);
-    // the overview's blocks went with the overview
+    // the overview's blocks went with the overview (the tail sits outside the aside)
     await expect(
-      sidebar.getByRole('region', { name: 'Watchlist' }),
+      page.getByRole('region', { name: 'Start something new' }),
     ).toHaveCount(0);
   });
 

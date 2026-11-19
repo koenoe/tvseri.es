@@ -8,6 +8,9 @@ import Icon from '@/components/ui/icon/Icon';
 
 import type { MonthKey, JumpYear as Year } from '@/lib/profile/diary';
 import JumpMonthLink from './JumpMonthLink';
+import { JUMP_MONTHS, JUMP_YEAR } from './jumpStyles';
+
+const YEAR_ROW = `group/year ${JUMP_YEAR} text-body-sm font-medium text-white/80 transition-colors hover:bg-white/5 aria-expanded:font-semibold aria-expanded:text-white`;
 
 /**
  * A year in Jump to and, open, its months. Memoised: `active` is the
@@ -41,7 +44,7 @@ function JumpYear({
         aria-controls={hasMonths ? monthsId : undefined}
         aria-expanded={hasMonths ? open : undefined}
         aria-label={yearLabel}
-        className="group/year flex h-9 w-full items-center gap-2.5 rounded-8 px-3 text-body-sm font-medium text-white/80 transition-colors hover:bg-white/5 aria-expanded:font-semibold aria-expanded:text-white"
+        className={YEAR_ROW}
         onClick={toggle}
         type="button"
       >
@@ -57,7 +60,7 @@ function JumpYear({
         </span>
       </button>
       {open && hasMonths ? (
-        <ul className="flex flex-col gap-0.5 pt-0.5" id={monthsId}>
+        <ul className={JUMP_MONTHS} id={monthsId}>
           {year.months.map((month) => {
             const on = month.key === active;
             return (

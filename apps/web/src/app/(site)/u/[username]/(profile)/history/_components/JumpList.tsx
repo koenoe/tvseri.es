@@ -20,11 +20,11 @@ import Icon from '@/components/ui/icon/Icon';
 import type { MonthKey, JumpYear as Year } from '@/lib/profile/diary';
 import { useDiaryJump } from '../_lib/useDiaryJump';
 import JumpYear from './JumpYear';
+import { JUMP_WEEK, JUMP_YEARS } from './jumpStyles';
 
 type Week = Readonly<{ episodes: number; last: string | null }>;
 
-/** The years' list (no `-mx-3`: the rows sit on the column's edges) */
-const YEARS = 'flex flex-col gap-0.5';
+const WEEK = `${JUMP_WEEK} bg-[rgb(0_255_255/0.07)] text-body-sm font-semibold text-white shadow-[inset_0_0_0_1px_rgb(0_255_255/0.18)]`;
 
 const weekLine = ({ episodes, last }: Week) =>
   last ? `${plural(episodes, 'episode')} · ${last}` : 'No episodes yet';
@@ -106,11 +106,7 @@ export default function JumpList({
   return (
     <MaxMotion>
       {week ? (
-        <Link
-          className="mb-2.5 flex h-10 items-center gap-2.5 rounded-10 bg-[rgb(0_255_255/0.07)] px-3 text-body-sm font-semibold text-white shadow-[inset_0_0_0_1px_rgb(0_255_255/0.18)]"
-          href={basePath}
-          onClick={pick}
-        >
+        <Link className={WEEK} href={basePath} onClick={pick}>
           <Icon className="text-cyan" glyph={calendarGlyph} size={16} />
           This week
           <span className="ml-auto text-meta font-medium text-white/60">
@@ -121,13 +117,13 @@ export default function JumpList({
       <LayoutGroup id={group}>
         {fold ? (
           <YearsFold
-            className={YEARS}
+            className={JUMP_YEARS}
             reveal={activeYear ?? null}
             rows={rows}
             selected={fold.opened}
           />
         ) : (
-          <ul className={YEARS}>{rows.map((item) => item.row)}</ul>
+          <ul className={JUMP_YEARS}>{rows.map((item) => item.row)}</ul>
         )}
       </LayoutGroup>
     </MaxMotion>

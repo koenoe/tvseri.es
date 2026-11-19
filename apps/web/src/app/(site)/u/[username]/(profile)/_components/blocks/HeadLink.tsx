@@ -12,13 +12,20 @@ export default function HeadLink({
   children,
   className,
   href,
-}: Readonly<{ children: ReactNode; className?: string; href: string }>) {
+  label,
+}: Readonly<{
+  children: ReactNode;
+  className?: string;
+  href: string;
+  /** a fuller name than the visible text ("Watchlist, 55 series"), starting with it */
+  label?: string;
+}>) {
   const classes = cn(
     'flex shrink-0 items-center gap-1 whitespace-nowrap text-body-sm font-medium text-white/60 transition-colors hover:text-white',
     className,
   );
   return (
-    <Link className={classes} href={href}>
+    <Link aria-label={label} className={classes} href={href}>
       {children}
       <Icon glyph={chevronRightGlyph} size={13} />
     </Link>

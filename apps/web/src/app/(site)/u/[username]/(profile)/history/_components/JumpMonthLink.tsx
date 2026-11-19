@@ -8,6 +8,7 @@ import { type MouseEvent, memo } from 'react';
 import cn from '@/lib/cn';
 
 import type { JumpMonth } from '@/lib/profile/diary';
+import { JUMP_MONTH } from './jumpStyles';
 
 const MONTH_IN = { opacity: 0, y: -4 } as const;
 const SHOWN = { opacity: 1, y: 0 } as const;
@@ -35,7 +36,8 @@ function JumpMonthLink({
   const href = `${basePath}?month=${month.key}`;
   const label = `${month.title}, ${plural(month.episodes, 'episode')}`;
   const linkClasses = cn(
-    'relative ml-6 flex h-[30px] items-center rounded-8 px-3 text-meta text-white/80 transition-colors hover:bg-white/6',
+    'relative text-meta text-white/80 transition-colors hover:bg-white/6',
+    JUMP_MONTH,
     on && 'font-semibold text-[#171717] hover:bg-transparent',
   );
   const countClasses = cn(

@@ -1,6 +1,6 @@
 import type { Profile } from '../../_data/profile';
 import Hole from '../blocks/Hole';
-import { NOT_ON_PHONE } from '../shell/overviewLayout';
+import { NOT_ON_PHONE, ONLY_ON_PHONE } from '../shell/overviewLayout';
 import {
   MATCH_BOX_CLASS,
   MATCH_RULE_CLASS,
@@ -36,26 +36,34 @@ export function SidebarHead({ profile }: Readonly<{ profile: Profile }>) {
 
 /**
  * The sidebar's last blocks (`@tail`), after the page in the DOM
- * (`overviewLayout.ts`). Owner: Watchlist, Start something new (not on a
- * phone: Home has its own pick), the year so far. Visitor: Watchlist, their
- * year. Each block streams in its own hole.
+ * (`overviewLayout.ts`). Owner: Start something new, which is their
+ * watchlist and links to it (not on a phone: Home has its own pick, so a
+ * phone keeps the Watchlist row instead), the year so far. Visitor:
+ * Watchlist, their year. Each block streams in its own hole.
  */
 export function SidebarTail({ profile }: Readonly<{ profile: Profile }>) {
+  const watchlist = (
+    <Hole fallback={<WatchlistBlockSkeleton />} title="Watchlist">
+      <WatchlistBlock profile={profile} />
+    </Hole>
+  );
   return (
     <>
-      <Hole fallback={<WatchlistBlockSkeleton />} title="Watchlist">
-        <WatchlistBlock profile={profile} />
-      </Hole>
       {profile.viewer === 'owner' ? (
-        <div className={NOT_ON_PHONE}>
-          <Hole
-            fallback={<StartSomethingNewSkeleton />}
-            title="Start something new"
-          >
-            <StartSomethingNew profile={profile} />
-          </Hole>
-        </div>
-      ) : null}
+        <>
+          <div className={ONLY_ON_PHONE}>{watchlist}</div>
+          <div className={NOT_ON_PHONE}>
+            <Hole
+              fallback={<StartSomethingNewSkeleton />}
+              title="Start something new"
+            >
+              <StartSomethingNew profile={profile} />
+            </Hole>
+          </div>
+        </>
+      ) : (
+        watchlist
+      )}
       <Hole fallback={<YearSoFarSkeleton />} title="This year so far">
         <YearSoFar profile={profile} />
       </Hole>

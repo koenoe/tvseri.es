@@ -16,8 +16,11 @@ import type { Glyph } from '@/components/ui/icon/types';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import SectionHead from '@/components/ui/section/SectionHead';
 import cn from '@/lib/cn';
+import { readCount } from '@/lib/profile/counts';
 import type { Profile } from '../../_data/profile';
+import { orNull } from '../../_lib/orNull';
 import EmptyState from '../blocks/EmptyState';
+import { LinkGhost } from '../blocks/LaneGhost';
 
 import {
   DECK_BUTTONS,
@@ -31,6 +34,7 @@ import {
 import { loadStartDeck, type StartSource } from './start/loadStart';
 import StartDeck from './start/StartDeck';
 import { slotAt } from './start/startCards';
+import WatchlistLink from './start/WatchlistLink';
 
 const NOT_NOW = circleButtonStyles({ className: FLAT, size: 44 });
 
@@ -59,9 +63,10 @@ function Badge({
 
 /**
  * Start something new: one show from your watchlist, with the rest fanned
- * behind it. Owner only. With fewer than three saved shows the deck is
- * shows your circle finished, else Popular this week (where the middle
- * button saves the show instead of dealing).
+ * behind it, and the way to the whole watchlist in its header (the owner's
+ * sidebar has no Watchlist row beside it). Owner only. With fewer than
+ * three saved shows the deck is shows your circle finished, else Popular
+ * this week (where the middle button saves the show instead of dealing).
  */
 export default async function StartSomethingNew({
   profile,
@@ -69,11 +74,20 @@ export default async function StartSomethingNew({
   if (profile.viewer !== 'owner') {
     return null;
   }
-  const deck = await loadStartDeck(profile);
+  const [deck, count] = await Promise.all([
+    loadStartDeck(profile),
+    orNull(readCount(profile.user.id, 'watchlist')),
+  ]);
+  const link = <WatchlistLink count={count} username={profile.user.username} />;
   if (deck.cards.length === 0) {
     return (
       <section aria-labelledby="s-start" className="flex flex-col gap-4">
-        <SectionHead id="s-start" size="side" title="Start something new" />
+        <SectionHead
+          id="s-start"
+          link={link}
+          size="side"
+          title="Start something new"
+        />
         <EmptyState
           className={CALM}
           glyph={trendingGlyph}
@@ -88,7 +102,12 @@ export default async function StartSomethingNew({
     deck.source === 'watchlist' ? null : <Badge source={deck.source} />;
   return (
     <section aria-labelledby="s-start" className="flex flex-col gap-4">
-      <SectionHead id="s-start" size="side" title="Start something new" />
+      <SectionHead
+        id="s-start"
+        link={link}
+        size="side"
+        title="Start something new"
+      />
       <StartDeck badge={badge} cards={deck.cards} mode={mode} />
     </section>
   );
@@ -100,14 +119,21 @@ const FAN = [4, 3, 2, 1, 0].map(slotAt);
 const GHOST_DECK = cn(DECK_FRAME, DECK_TOP, PULSE);
 
 /**
- * The block while it streams: the real title, the card as a flat panel with
+ * The block while it streams: the real title and the watchlist link as a
+ * bar, the card as a flat panel with
  * the fan's five cards in their places, the face's two lines and the three
  * buttons as flat shapes (the watchlist deck: no source badge).
  */
 export function StartSomethingNewSkeleton() {
+  const link = <LinkGhost alone width="w-20" />;
   return (
     <div aria-hidden="true" className="flex flex-col gap-4">
-      <SectionHead id="s-start-sk" size="side" title="Start something new" />
+      <SectionHead
+        id="s-start-sk"
+        link={link}
+        size="side"
+        title="Start something new"
+      />
       <div className={GHOST_DECK}>
         <div className={DECK_FAN}>
           {FAN.map((slot) => {

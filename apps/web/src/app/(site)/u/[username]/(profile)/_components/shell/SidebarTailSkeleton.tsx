@@ -4,7 +4,7 @@ import OwnerVisitor from '@/components/ui/viewer/OwnerVisitor';
 import { StartSomethingNewSkeleton } from '../sidebar/StartSomethingNew';
 import { WatchlistBlockSkeleton } from '../sidebar/WatchlistBlock';
 import { YearSoFarSkeleton } from '../sidebar/YearSoFar';
-import { NOT_ON_PHONE } from './overviewLayout';
+import { NOT_ON_PHONE, ONLY_ON_PHONE } from './overviewLayout';
 
 /**
  * The sidebar's last blocks (`@tail`): under the sidebar on a desktop
@@ -27,8 +27,8 @@ function Ghost({
 /**
  * The sidebar's last blocks before the profile resolves, at their real
  * size. Both variants are in the shell and one shows before the first
- * paint (`OwnerVisitor`): yours (Watchlist, Start something new, this
- * year) or someone else's (Watchlist, their year).
+ * paint (`OwnerVisitor`): yours (Watchlist on a phone, Start something
+ * new wider; this year) or someone else's (Watchlist, their year).
  */
 export default function SidebarTailSkeleton() {
   return (
@@ -36,9 +36,11 @@ export default function SidebarTailSkeleton() {
       <OwnerVisitor
         owner={
           <>
-            <Ghost name="watchlist">
-              <WatchlistBlockSkeleton />
-            </Ghost>
+            <div className={ONLY_ON_PHONE}>
+              <Ghost name="watchlist">
+                <WatchlistBlockSkeleton />
+              </Ghost>
+            </div>
             <div className={NOT_ON_PHONE}>
               <Ghost name="start-something-new">
                 <StartSomethingNewSkeleton />

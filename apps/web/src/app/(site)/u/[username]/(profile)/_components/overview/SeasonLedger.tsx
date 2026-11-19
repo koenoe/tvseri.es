@@ -84,7 +84,9 @@ function HoleGhost() {
 
 /** The ledger's placeholder: the show, a two-column chart and three holes */
 export function SeasonLedgerSkeleton() {
-  const link = <LinkGhost width="w-36" />;
+  // as wide as "Next series ›": a header row wraps by its items' full
+  // width, so a longer bar would wrap where the real link doesn't
+  const link = <LinkGhost width="w-24" />;
   return (
     <LaneGhost link={link} title="Season ledger">
       <div className={LEDGER_SHOW_ROW}>

@@ -6,7 +6,7 @@ import { useRef } from 'react';
 
 import cn from '@/lib/cn';
 
-import { usePillGlide } from '../../library/_lib/usePillGlide';
+import { usePillGlide } from '../../_lib/usePillGlide';
 import { monthName, monthOf } from '../_lib/calendarDates';
 import { useCalendarUrl, writeCalendarUrl } from '../_lib/calendarUrl';
 import { MONTH_ROW } from './calendarStyles';

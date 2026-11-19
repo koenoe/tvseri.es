@@ -18,9 +18,10 @@ const GLIDE: KeyframeAnimationOptions = {
 const PILL = '[data-pill]';
 
 /**
- * The shelf nav's pill glides from the old shelf's row to the new one
- * (FLIP), after a click on a shelf. Measured within the nav (the row's
- * `offsetTop`), never on screen: a new shelf opens at the top of the page,
+ * A nav's pill (the Library's shelves, the calendar's months) glides
+ * from the old row to the new one (FLIP), after a click on a row. Measured
+ * within the nav (the row's `offsetTop`), never on screen: a new shelf
+ * opens at the top of the page,
  * and the sticky sidebar moves on screen in that same frame, which a
  * page-coordinate measurement takes for the pill's own move. No glide on
  * the first render, after Back or Forward (the browser puts the page back as

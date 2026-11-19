@@ -10,8 +10,8 @@ import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 import { libraryPath } from '@/lib/routing/profilePath';
 import { useShelfCounts } from '../../_lib/shelfCounts';
+import { usePillGlide } from '../../_lib/usePillGlide';
 import { SHELVES } from '../_lib/shelves';
-import { usePillGlide } from '../_lib/usePillGlide';
 import { NavRule, ROW, ShelvesHeading } from './shelfNavParts';
 import { SHELF_CHIP } from './toolbarStyles';
 

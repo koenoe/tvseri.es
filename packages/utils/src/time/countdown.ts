@@ -4,7 +4,7 @@ const WEEKS_FROM = 14;
 const MONTHS_FROM = 91;
 const MONTH_DAYS = 30.44;
 
-export type Countdown = Readonly<{
+type Countdown = Readonly<{
   /** 0 on the day itself */
   count: number;
   unit: 'today' | 'day' | 'week' | 'month';

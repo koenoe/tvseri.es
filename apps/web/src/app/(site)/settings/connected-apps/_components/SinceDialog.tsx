@@ -11,6 +11,11 @@ import {
   PICKER_QUICK,
   PICKER_QUICK_GROUP,
 } from '@/components/ui/calendar/pickerStyles';
+import {
+  AT_POINT,
+  atPointVars,
+  type Point,
+} from '@/components/ui/dialog/atPoint';
 import { Dialog } from '@/components/ui/dialog/Dialog';
 
 import { type SinceChoice, sinceChoices } from '../_lib/syncScope';
@@ -41,7 +46,8 @@ function Choice({
 
 /**
  * "Sync since": the marking picker's shape, its quick days and month grid,
- * for the first sync's day. Future days are off; a tap applies.
+ * for the first sync's day. Future days are off; a tap applies. On desktop
+ * it opens under its button (`spot`); phones keep the bottom sheet.
  */
 export default function SinceDialog({
   now,
@@ -50,6 +56,7 @@ export default function SinceDialog({
   open,
   resumeFrom,
   selected,
+  spot,
 }: Readonly<{
   now: number;
   onOpenChange: (open: boolean) => void;
@@ -57,44 +64,49 @@ export default function SinceDialog({
   open: boolean;
   resumeFrom: number | null;
   selected: number;
+  spot: Point;
 }>) {
   const { name } = useConnectedService();
   const pickDay = useCallback((day: Date) => onPick(day.getTime()), [onPick]);
   const choices = sinceChoices(now, resumeFrom);
   const selectedDay = new Date(selected);
   const description = `Your ${name} history from this day on.`;
+  const vars = atPointVars(spot);
   return (
-    <Dialog
-      description={description}
-      onOpenChange={onOpenChange}
-      open={open}
-      title="Sync since"
-    >
-      <div className={PICKER_BODY}>
-        <div className="flex min-w-0 flex-col gap-2.5">
-          <span className={DIALOG_LABEL}>From</span>
-          <div
-            aria-label="Quick days"
-            className={PICKER_QUICK_GROUP}
-            role="group"
-          >
-            {choices.map((choice) => (
-              <Choice
-                choice={choice}
-                key={choice.key}
-                onPick={onPick}
-                selected={selected}
-              />
-            ))}
+    <div className="contents" style={vars}>
+      <Dialog
+        className={AT_POINT}
+        description={description}
+        onOpenChange={onOpenChange}
+        open={open}
+        title="Sync since"
+      >
+        <div className={PICKER_BODY}>
+          <div className="flex min-w-0 flex-col gap-2.5">
+            <span className={DIALOG_LABEL}>From</span>
+            <div
+              aria-label="Quick days"
+              className={PICKER_QUICK_GROUP}
+              role="group"
+            >
+              {choices.map((choice) => (
+                <Choice
+                  choice={choice}
+                  key={choice.key}
+                  onPick={onPick}
+                  selected={selected}
+                />
+              ))}
+            </div>
           </div>
+          <DayCalendar
+            key={selected}
+            now={now}
+            onPick={pickDay}
+            selected={selectedDay}
+          />
         </div>
-        <DayCalendar
-          key={selected}
-          now={now}
-          onPick={pickDay}
-          selected={selectedDay}
-        />
-      </div>
-    </Dialog>
+      </Dialog>
+    </div>
   );
 }

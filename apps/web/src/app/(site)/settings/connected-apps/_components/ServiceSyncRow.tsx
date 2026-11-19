@@ -118,7 +118,7 @@ export default function ServiceSyncRow({
           total={total}
         />
       ) : null}
-      <OptionRow description={description} title="Sync">
+      <OptionRow control="beside" description={description} title="Sync">
         {syncNow ? (
           <SyncNow scope={asks ? chosenScope : null} syncing={syncing} />
         ) : null}

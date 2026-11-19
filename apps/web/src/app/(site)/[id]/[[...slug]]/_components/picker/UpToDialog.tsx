@@ -1,9 +1,10 @@
 'use client';
 
 import { format } from 'date-fns';
-import { type CSSProperties, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import Button from '@/components/ui/button/Button';
+import { AT_POINT, atPointVars } from '@/components/ui/dialog/atPoint';
 import {
   Dialog,
   DialogClose,
@@ -16,7 +17,7 @@ import useMarking from '@/lib/marking/useMarking';
 import useSeasonEpisodes from '@/lib/series/useSeasonEpisodes';
 import { closeDialogs, type UpToRequest } from '../../_lib/dialogs';
 import { seasonChips, tally } from '../history/chips';
-import { AT_ROW, OVER_SHEET, rowPlacement } from './placement';
+import { OVER_SHEET, rowPlacement } from './placement';
 import { UpToChips, UpToKinds, UpToTabs } from './UpToParts';
 import { type UpToKind, upToGo, upToHint } from './upTo';
 import useViewWhileOpen from './useViewWhileOpen';
@@ -171,7 +172,7 @@ export default function UpToDialog({
   }
   const { anchor, at } = choice.request;
   const placement =
-    at === 'sheet' ? OVER_SHEET : at === 'row' && anchor ? AT_ROW : undefined;
+    at === 'sheet' ? OVER_SHEET : at === 'row' && anchor ? AT_POINT : undefined;
   const open = request !== null;
   const dialog = (
     <Dialog
@@ -192,10 +193,7 @@ export default function UpToDialog({
     height: window.innerHeight,
     width: window.innerWidth,
   });
-  const vars = {
-    '--ut-left': `${spot.left}px`,
-    '--ut-top': `${spot.top}px`,
-  } as CSSProperties;
+  const vars = atPointVars(spot);
   return (
     <div className="contents" style={vars}>
       {dialog}

@@ -1,12 +1,16 @@
 'use client';
 
-import { lazy, Suspense, useCallback, useState } from 'react';
+import { format } from 'date-fns';
+import { lazy, type MouseEvent, Suspense, useCallback, useState } from 'react';
 
+import Button from '@/components/ui/button/Button';
 import { Segmented, SegmentedItem } from '@/components/ui/button/Segmented';
+import { clampToViewport, type Point } from '@/components/ui/dialog/atPoint';
 import { calendarGlyph } from '@/components/ui/icon/glyphs';
-import Icon from '@/components/ui/icon/Icon';
+import cn from '@/lib/cn';
 
 import { useLoadedNow } from '../../_components/useLoadedNow';
+import { MD_BUTTON } from '../../_lib/appButtons';
 import {
   defaultSince,
   formatSinceDay,
@@ -20,12 +24,39 @@ import OptionRow from './OptionRow';
 const loadSinceDialog = () => import('./SinceDialog');
 const SinceDialog = lazy(loadSinceDialog);
 
-/** The day field: the segmented control's well, a calendar and the day */
-const DAY_FIELD =
-  'inline-flex h-9 cursor-pointer items-center gap-2 rounded-10 bg-black/28 px-3 text-body-sm text-white tabular-nums transition-colors hover:bg-black/40 disabled:cursor-default';
+/**
+ * The switch and the day button, each as wide as its words: side by side on
+ * desktop; on phones the row's full width, the button at the right edge
+ */
+const CONTROLS =
+  'flex items-center gap-2 md:gap-3 max-md:w-full max-md:justify-between';
+/** Sync now's pill, with the day, at the switch's height */
+const DAY_BUTTON = cn(MD_BUTTON, 'h-9 tabular-nums');
 
-/** Until the browser knows its own day, a "today"-sized placeholder */
-const PLACEHOLDER_DAY = '19 August 2026';
+/** "Sync since"'s box (the marking picker's width), to place it by its button */
+const PICKER_BOX = { height: 446, width: 560 } as const;
+const GAP = 8;
+
+/**
+ * Under the button, right edges lined up; above it when the window has no
+ * room below; kept inside the window either way.
+ */
+const pickerSpot = (button: DOMRect): Point => {
+  const viewport = { height: window.innerHeight, width: window.innerWidth };
+  const below = button.bottom + GAP;
+  const fitsBelow = below + PICKER_BOX.height <= viewport.height - 16;
+  return clampToViewport(
+    {
+      left: button.right - PICKER_BOX.width,
+      top: fitsBelow ? below : button.top - GAP - PICKER_BOX.height,
+    },
+    PICKER_BOX,
+    viewport,
+  );
+};
+
+/** Until the browser knows its own day, a day-sized placeholder */
+const PLACEHOLDER_DAY = '19 Aug 2026';
 
 /**
  * The first sync's "How far back": Since a day (three months back, or where
@@ -46,7 +77,7 @@ export default function ServiceScopeRow({
 }>) {
   const now = useLoadedNow();
   const [open, setOpen] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+  const [spot, setSpot] = useState<Point | null>(null);
   const since =
     scope?.kind === 'since'
       ? scope.since
@@ -63,8 +94,8 @@ export default function ServiceScopeRow({
     () => setScope({ kind: 'everything' }),
     [setScope],
   );
-  const openPicker = useCallback(() => {
-    setLoaded(true);
+  const openPicker = useCallback((event: MouseEvent<HTMLButtonElement>) => {
+    setSpot(pickerSpot(event.currentTarget.getBoundingClientRect()));
     setOpen(true);
   }, []);
   const pickDay = useCallback(
@@ -82,7 +113,7 @@ export default function ServiceScopeRow({
   const line =
     shown === null ? (
       <span aria-hidden="true" className="invisible">
-        From {PLACEHOLDER_DAY} to today.
+        From 19 August 2026 to today.
       </span>
     ) : (
       sinceLine(shown, resumeFrom, total)
@@ -93,15 +124,15 @@ export default function ServiceScopeRow({
         {PLACEHOLDER_DAY}
       </span>
     ) : (
-      formatSinceDay(since)
+      format(since, 'd MMM yyyy')
     );
-  const fieldLabel =
+  const buttonLabel =
     since === null
       ? undefined
       : `Sync since ${formatSinceDay(since)}, change day`;
   return (
     <OptionRow description={line} title="How far back">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className={CONTROLS}>
         <Segmented className={SEGMENTED_CLASS} label="How far back">
           <SegmentedItem
             className={SEGMENT_CLASS}
@@ -119,22 +150,22 @@ export default function ServiceScopeRow({
           </SegmentedItem>
         </Segmented>
         {everything ? null : (
-          <button
+          <Button
             aria-haspopup="dialog"
-            aria-label={fieldLabel}
-            className={DAY_FIELD}
+            aria-label={buttonLabel}
+            className={DAY_BUTTON}
             disabled={since === null}
+            icon={calendarGlyph}
             onClick={openPicker}
             onFocus={loadSinceDialog}
             onPointerEnter={loadSinceDialog}
-            type="button"
+            variant="tonal"
           >
-            <Icon className="text-white/60" glyph={calendarGlyph} size={16} />
             {dayLabel}
-          </button>
+          </Button>
         )}
       </div>
-      {loaded && now !== null && since !== null ? (
+      {spot && now !== null && since !== null ? (
         <Suspense fallback={null}>
           <SinceDialog
             now={now}
@@ -143,6 +174,7 @@ export default function ServiceScopeRow({
             open={open}
             resumeFrom={resumeFrom}
             selected={since}
+            spot={spot}
           />
         </Suspense>
       ) : null}

@@ -7,10 +7,10 @@ import { NO_DATE_PANEL, NO_DATE_TILES } from './calendarStyles';
 import NoDateFold from './NoDateFold';
 import NoDateTile from './NoDateTile';
 
-export const NO_DATE_TITLE_ID = 'no-date-yet-title';
+const NO_DATE_TITLE_ID = 'no-date-yet-title';
 
 /** Between the groups: its name in overline type, the count, a hairline */
-export function GroupRule({
+function GroupRule({
   count,
   label,
 }: Readonly<{ count: number; label: string }>) {

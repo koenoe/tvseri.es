@@ -133,6 +133,25 @@ for (const viewport of SIZES) {
       expectParity(belowTheSidebar(measured, viewport), { maxShift: 0.02 });
     });
 
+    // The calendar: the month's panel is exact (six weeks always); the page
+    // keeps its frame (No date yet's length is the data's)
+    test('your calendar: the month is exact, the page keeps its frame', async ({
+      browser,
+    }) => {
+      const measured = await measureNoScriptParity(browser, {
+        names: ['calendar', 'calendar-month'],
+        path: '/u/alex/calendar',
+        viewer: 'alex',
+        viewport,
+      });
+      expectParity(measured, { maxShift: 0.02, names: ['calendar-month'] });
+      expectParity(measured, {
+        heightTolerance: Number.POSITIVE_INFINITY,
+        ignoreShift: true,
+        names: ['calendar'],
+      });
+    });
+
     if (viewport !== 'desktop') {
       return;
     }

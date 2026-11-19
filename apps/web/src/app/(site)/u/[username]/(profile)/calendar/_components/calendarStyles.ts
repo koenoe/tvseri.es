@@ -41,3 +41,7 @@ export const NO_DATE_TILE =
 /** The sidebar's month rows: 36px, 2px apart */
 export const MONTH_ROW =
   'relative flex h-9 items-center justify-between gap-2.5 rounded-10 px-2.5 text-body-sm font-medium';
+
+/** What the month holds: two lines kept on a phone, so a long count never moves the grid */
+export const MONTH_SUMMARY =
+  'text-meta leading-5 max-md:min-h-9 max-md:text-caption max-md:leading-[18px]';

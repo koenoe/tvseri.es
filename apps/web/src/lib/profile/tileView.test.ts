@@ -46,6 +46,22 @@ const progress = (patch: Partial<NonNullable<LibraryItem['progress']>>) => ({
   ...patch,
 });
 
+describe('toTileView heart', () => {
+  const favourite = item({ on: { ...item().on, favourite: true } });
+
+  it.each(['watching', 'watchlist', 'finished', 'hidden', 'all'] as const)(
+    '%s: the heart on a favourite, none on the rest',
+    (shelf) => {
+      expect(toTileView(favourite, shelf, NOW).heart).toBe(true);
+      expect(toTileView(item(), shelf, NOW).heart).toBe(false);
+    },
+  );
+
+  it('favourites: no heart, every tile is one', () => {
+    expect(toTileView(favourite, 'favourites', NOW).heart).toBe(false);
+  });
+});
+
 describe('toTileView on Watching', () => {
   it('draws the next code, what is left and the progress line', () => {
     const view = toTileView(item({ progress: progress({}) }), 'watching', NOW);
@@ -136,13 +152,12 @@ describe('toTileView on the other shelves', () => {
     ).toEqual([{ kind: 'seen', text: 'Seen, no date' }]);
   });
 
-  it('Favourites: the heart, and finished or the season being watched', () => {
+  it('Favourites: finished or the season being watched', () => {
     const finished = toTileView(
       item({ finishedAt: LAST_YEAR }),
       'favourites',
       NOW,
     );
-    expect(finished.heart).toBe(true);
     expect(finished.meta[0]?.text).toBe('Finished Jun 2025');
     const watching = toTileView(
       item({

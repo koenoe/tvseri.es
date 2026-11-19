@@ -16,7 +16,6 @@ const HOURS_GHOST = cn('h-3 w-[16%] rounded-6', FILL);
 const STATUS_GHOST = cn('h-3 w-[34%] rounded-6', FILL);
 const DATE_GHOST = cn('h-3 w-[58%] rounded-6', FILL);
 const PROGRESS_GHOST = cn('absolute inset-x-2 bottom-2 h-1 rounded-2', FILL);
-const HEART_GHOST = cn('absolute top-2 left-2 size-[26px] rounded-full', FILL);
 const TITLE_GHOST = cn('h-3 w-4/5 rounded-6', FILL);
 
 /** A 13px icon's ghost in a meta line */
@@ -58,8 +57,8 @@ function MetaGhost({ shelf }: Readonly<{ shelf: LibraryShelf }>) {
 
 /**
  * One ghost tile: the poster's box with the shelf's furniture (Watching's
- * 4px progress line, Favourites' heart), the 20px title row and the 20px
- * meta row, in the real tile's gaps.
+ * 4px progress line; a favourite's heart is per tile, so no ghost), the 20px
+ * title row and the 20px meta row, in the real tile's gaps.
  */
 function GhostTile({ shelf }: Readonly<{ shelf: LibraryShelf }>) {
   return (
@@ -70,7 +69,6 @@ function GhostTile({ shelf }: Readonly<{ shelf: LibraryShelf }>) {
     >
       <span className={POSTER}>
         {shelf === 'watching' ? <span className={PROGRESS_GHOST} /> : null}
-        {shelf === 'favourites' ? <span className={HEART_GHOST} /> : null}
       </span>
       <span className="flex flex-col gap-1">
         <span className="flex h-5 items-center">

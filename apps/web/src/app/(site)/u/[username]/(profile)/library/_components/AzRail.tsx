@@ -15,10 +15,13 @@ export default function AzRail({
   active,
   hrefOf,
   letters,
+  onJump,
 }: Readonly<{
   active: Letter | null;
   hrefOf: (letter: Letter) => string;
   letters: ReadonlyArray<Letter>;
+  /** A letter's click, before its navigation */
+  onJump: () => void;
 }>) {
   const shown = LIBRARY_LETTERS.filter(
     (letter) => letter !== '#' || letters.includes('#'),
@@ -53,6 +56,7 @@ export default function AzRail({
             className={letterClass}
             href={href}
             key={letter}
+            onClick={onJump}
             replace
             scroll={false}
           >

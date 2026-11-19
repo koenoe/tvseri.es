@@ -10,8 +10,6 @@ import {
   type ChangeEvent,
   type KeyboardEvent,
   useCallback,
-  useEffect,
-  useEffectEvent,
   useState,
 } from 'react';
 
@@ -26,16 +24,15 @@ import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 
 import { SHELVES } from '../_lib/shelves';
+import type { FindText } from '../_lib/useFindText';
 import SortMenu from './SortMenu';
 import { CHIP, FIELD, PILL, PILL_ON } from './toolbarStyles';
-
-/** Find waits this long after the last key (like search) */
-const FIND_DEBOUNCE_MS = 150;
 
 export type ToolbarProps = Readonly<{
   shelf: LibraryShelf;
   sort: LibrarySort;
-  q: string;
+  /** Find's text and its handlers (`useShelfNavigation`) */
+  find: FindText;
   /** Visitor: the filter chips and their counts; null for the owner */
   filters: Readonly<{ new: number; shared: number }> | null;
   filter: LibraryFilter | null;
@@ -43,57 +40,39 @@ export type ToolbarProps = Readonly<{
   canSelect: boolean;
   selecting: boolean;
   onSort: (sort: LibrarySort) => void;
-  onFind: (q: string) => void;
   onFilter: (filter: LibraryFilter | null) => void;
   onSelect: () => void;
 }>;
 
-function useDebounced(value: string, onChange: (value: string) => void) {
-  const fire = useEffectEvent(onChange);
-  useEffect(() => {
-    const timer = setTimeout(() => fire(value), FIND_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [value]);
-}
-
 /**
- * "Find in Watchlist": a title prefix, 150 ms after the last key;
- * Escape clears it
+ * "Find in Watchlist": a title prefix (`useFindText` asks for it); Escape
+ * clears it. The desktop row and the phone's row share one text.
  */
 function FindField({
   className,
   label,
-  onFind,
-  q,
+  onChange,
+  onClear,
+  text,
 }: Readonly<{
   className?: string;
   label: string;
-  onFind: (q: string) => void;
-  q: string;
+  onChange: (text: string) => void;
+  onClear: () => void;
+  text: string;
 }>) {
-  const [text, setText] = useState(q);
-  const [seen, setSeen] = useState(q);
-  if (seen !== q) {
-    setSeen(q);
-    setText(q);
-  }
-  useDebounced(text, (value) => {
-    if (value.trim() !== q) {
-      onFind(value.trim());
-    }
-  });
   const change = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => setText(event.target.value),
-    [],
+    (event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value),
+    [onChange],
   );
   const keyDown = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {
       if (event.key === 'Escape' && text) {
         event.stopPropagation();
-        setText('');
+        onClear();
       }
     },
-    [text],
+    [onClear, text],
   );
   const fieldClass = cn(FIELD, className);
   return (
@@ -171,15 +150,14 @@ export default function ShelfToolbar({
   filter,
   filters,
   onFilter,
-  onFind,
+  find,
   onSelect,
   onSort,
-  q,
   selecting,
   shelf,
   sort,
 }: ToolbarProps) {
-  const [finding, setFinding] = useState(q !== '');
+  const [finding, setFinding] = useState(find.text !== '');
   const findLabel = `Find in ${SHELVES[shelf].label}`;
   const toggleFinding = useCallback(() => setFinding((was) => !was), []);
   const findPillClass = cn(PILL, 'px-2.5 md:hidden', finding && PILL_ON);
@@ -187,14 +165,15 @@ export default function ShelfToolbar({
   const newOn = filter === 'new';
   const sharedOn = filter === 'shared';
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3" ref={find.stopOnUnmount}>
       <div className="flex flex-wrap items-center gap-2.5">
         <SortMenu onSort={onSort} shelf={shelf} sort={sort} />
         <FindField
           className="max-md:hidden"
           label={findLabel}
-          onFind={onFind}
-          q={q}
+          onChange={find.change}
+          onClear={find.clear}
+          text={find.text}
         />
         {filters ? (
           <>
@@ -242,8 +221,9 @@ export default function ShelfToolbar({
         <FindField
           className="w-full md:hidden"
           label={findLabel}
-          onFind={onFind}
-          q={q}
+          onChange={find.change}
+          onClear={find.clear}
+          text={find.text}
         />
       ) : null}
     </div>

@@ -84,10 +84,8 @@ export default function LibraryView({
     () => selection.getState().stop(),
     [selection],
   );
-  const { onFilter, onFind, onSort, pending, railHref } = useShelfNavigation(
-    query,
-    stopSelecting,
-  );
+  const { find, onFilter, onJump, onSort, pending, railHref } =
+    useShelfNavigation(query, stopSelecting);
 
   // A–Z: the rail, and the row that loads the shows above a jump
   const listRef = useRef<HTMLUListElement>(null);
@@ -115,11 +113,10 @@ export default function LibraryView({
             canSelect={canSelect}
             filter={query.with}
             filters={first.filters}
+            find={find}
             onFilter={onFilter}
-            onFind={onFind}
             onSelect={onSelect}
             onSort={onSort}
-            q={query.q}
             selecting={selecting}
             shelf={shelf}
             sort={query.sort}
@@ -135,6 +132,7 @@ export default function LibraryView({
               active={query.from}
               hrefOf={railHref}
               letters={first.letters}
+              onJump={onJump}
             />
           ) : null}
           {paged.canLoadBefore && above > 0 ? (

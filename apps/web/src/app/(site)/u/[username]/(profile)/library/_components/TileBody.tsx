@@ -4,7 +4,8 @@ import type { ReactNode } from 'react';
 
 import Icon from '@/components/ui/icon/Icon';
 import PosterArt from '@/components/ui/tile/PosterArt';
-import type { TileView } from '@/lib/profile/tileView';
+import { useLibrarySelect } from '@/lib/marking/hooks';
+import { shelfShowsHearts, type TileView } from '@/lib/profile/tileView';
 import { FACT_GLYPH } from '../_lib/factGlyphs';
 import { POSTER_VARS } from './gridStyles';
 import { HeartBadge, ProgressLine } from './TileOverlays';
@@ -58,6 +59,19 @@ export function TileText({ tile }: Readonly<{ tile: TileView }>) {
 const MENU_SHADE =
   'pointer-events-none absolute top-0 right-0 size-20 rounded-tr-[var(--tile-radius,12px)] bg-radial-[at_100%_0%] from-[rgb(15_20_20/0.7)] to-transparent to-70% opacity-0 transition-opacity duration-160 group-focus-within/lt:opacity-100 group-hover/lt:opacity-100 [@media(hover:none)]:opacity-100';
 
+/**
+ * The owner's heart, as the library ids have it once loaded (a Remote's F
+ * or a bulk Favourite moves it at once); the served one until then. Its own
+ * component, so a toggle re-renders the badge alone.
+ */
+function OwnerHeart({ id, served }: Readonly<{ id: number; served: boolean }>) {
+  const favourite = useLibrarySelect(
+    (ids) => ids.favorites.includes(id),
+    served,
+  );
+  return favourite ? <HeartBadge /> : null;
+}
+
 /** The poster with what sits on it */
 export function Poster({
   children,
@@ -72,7 +86,7 @@ export function Poster({
   tile: TileView;
 }>) {
   // a visitor's tiles carry the relation pill instead
-  const { owner } = useTileContext();
+  const { owner, shelf } = useTileContext();
   return (
     <span
       className="relative block transition-transform duration-160 ease-[cubic-bezier(.2,.8,.2,1)] group-hover/lt:-translate-y-0.5"
@@ -87,7 +101,9 @@ export function Poster({
       {tile.line ? (
         <ProgressLine aired={tile.line.aired} watched={tile.line.watched} />
       ) : null}
-      {tile.heart && owner ? <HeartBadge /> : null}
+      {owner && shelfShowsHearts(shelf) ? (
+        <OwnerHeart id={tile.id} served={tile.heart} />
+      ) : null}
       {owner ? <span aria-hidden="true" className={MENU_SHADE} /> : null}
       {children}
     </span>

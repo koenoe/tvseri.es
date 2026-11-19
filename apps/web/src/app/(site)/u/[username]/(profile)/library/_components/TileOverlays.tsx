@@ -47,10 +47,14 @@ export function ProgressLine({
   );
 }
 
-/** Favourites: the heart on the poster */
+/** The owner's favourite: the heart on the poster */
 export function HeartBadge() {
   return (
-    <span className="absolute top-2 left-2 z-2 flex size-[26px] items-center justify-center rounded-full bg-[rgb(15_20_20/0.6)] text-white">
+    <span
+      aria-label="Favourite"
+      className="absolute top-2 left-2 z-2 flex size-[26px] items-center justify-center rounded-full bg-[rgb(15_20_20/0.6)] text-white"
+      role="img"
+    >
       <Icon active glyph={heartGlyph} size={13} />
     </span>
   );

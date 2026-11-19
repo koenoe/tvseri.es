@@ -23,7 +23,7 @@ type Props = Readonly<{
 
 /**
  * One Library tile: the poster (10px corners, the 4px
- * progress line on Watching, the heart on Favourites), one title line and
+ * progress line on Watching, the heart on a favourite), one title line and
  * one meta line. Browsing it is a link with the owner's ⋯ (the Remote) or a
  * visitor's relation pill and +; in select mode it is a toggle
  * (`aria-pressed`) with the check circle, scaled to .96 when picked.

@@ -49,7 +49,7 @@ export type TileView = Readonly<{
   meta: ReadonlyArray<TileFact>;
   /** Watching: the 4px line on the poster, in percent of every regular episode */
   line: Readonly<{ aired: number; watched: number }> | null;
-  /** Favourites: the heart on the poster */
+  /** The owner's favourite, on every shelf but Favourites: the heart on the poster */
   heart: boolean;
   on: LibraryOn;
   /** At least one episode aired (the Remote's N) */
@@ -175,13 +175,16 @@ function metaOf(
   }
 }
 
+/** Favourites wears no heart: every tile on it is one */
+export const shelfShowsHearts = (shelf: LibraryShelf) => shelf !== 'favourites';
+
 /** A progress line's percent of every regular episode, to one decimal */
 export const progressPercent = (part: number, whole: number) =>
   Math.round((Math.min(part, whole) / whole) * 1000) / 10;
 
 /**
  * Every per-shelf rule of a tile: the meta line, the code badge and
- * progress line on Watching, the heart on Favourites, and the season the
+ * progress line on Watching, the heart on a favourite, and the season the
  * Remote's E opens. Pure: `now` decides "this year" (UTC, like the rest of
  * the profile).
  */
@@ -197,7 +200,7 @@ export function toTileView(
     addedAt: item.addedAt,
     code: watching ? nextCode : null,
     hasAired: item.facts?.hasAired ?? true,
-    heart: shelf === 'favourites',
+    heart: shelfShowsHearts(shelf) && item.on.favourite,
     historySeason:
       seasonOf(nextCode) ??
       progress?.lastSeason ??

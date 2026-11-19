@@ -189,6 +189,25 @@ describe('disconnectConnection', () => {
 describe('syncConnection', () => {
   const ADMIN = { ...VIEWER, role: 'admin' };
 
+  it('sends the first sync’s How far back, and refuses one that isn’t', async () => {
+    apiFetch.mockResolvedValue({ state: 'queued' });
+    expect(
+      await syncConnection('netflix', { since: 1_786_000_000_000 }),
+    ).toMatchObject({ ok: true });
+    expect(apiFetch).toHaveBeenCalledWith('/me/connections/:service/sync', {
+      accessToken: 'session-token',
+      body: { since: 1_786_000_000_000 },
+      method: 'POST',
+      params: { service: 'netflix' },
+    });
+    apiFetch.mockClear();
+    expect(await syncConnection('netflix', { since: 'soon' })).toEqual({
+      error: 'invalid',
+      ok: false,
+    });
+    expect(apiFetch).not.toHaveBeenCalled();
+  });
+
   it('queues a sync for an admin with the session token, then refreshes', async () => {
     getViewer.mockResolvedValue(ADMIN);
     apiFetch.mockResolvedValue({ state: 'queued' });

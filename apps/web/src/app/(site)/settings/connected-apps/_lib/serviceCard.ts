@@ -23,6 +23,7 @@ export type ServiceCardStatus = Readonly<
     | 'lastSyncedAt'
     | 'latest'
     | 'profileName'
+    | 'resumeFrom'
     | 'status'
     | 'sync'
     | 'total'
@@ -55,6 +56,7 @@ export const toCardStatus = (status: ConnectionStatus): ServiceCardStatus => ({
   lastSyncedAt: status.lastSyncedAt,
   latest: status.latest,
   profileName: status.profileName,
+  resumeFrom: status.resumeFrom,
   status: status.status,
   sync: status.sync,
   total: status.total,

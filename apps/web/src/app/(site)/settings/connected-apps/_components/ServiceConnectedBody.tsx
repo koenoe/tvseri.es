@@ -79,8 +79,10 @@ export default function ServiceConnectedBody({
         <ServiceSyncRow
           lastSyncedAt={lastSyncedAt}
           reconnecting={reconnecting}
+          resumeFrom={status.resumeFrom}
           sync={status.sync}
           syncNow={syncNow}
+          total={status.total}
         />
       </div>
       {review}

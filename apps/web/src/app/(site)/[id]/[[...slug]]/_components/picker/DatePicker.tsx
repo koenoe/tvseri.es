@@ -2,13 +2,14 @@
 
 import { useCallback, useState } from 'react';
 
+import DayCalendar from '@/components/ui/calendar/DayCalendar';
+import { PICKER_BODY } from '@/components/ui/calendar/pickerStyles';
 import { Dialog } from '@/components/ui/dialog/Dialog';
 import useMarking from '@/lib/marking/useMarking';
 import useSeasonEpisodes from '@/lib/series/useSeasonEpisodes';
 import { closeDialogs, type PickerRequest } from '../../_lib/dialogs';
 import { useShow } from '../../_lib/ShowProvider';
 import useShowQuery from '../../_lib/useShowQuery';
-import PickerCalendar from './PickerCalendar';
 import PickerOptions from './PickerOptions';
 import { type PickerAnswer, pickerModel } from './pickerModel';
 import { OVER_SHEET } from './placement';
@@ -81,9 +82,9 @@ export default function DatePicker({
       open={open}
       title={model.title}
     >
-      <div className="grid grid-cols-[216px_minmax(0,1fr)] items-start gap-5 max-sm:grid-cols-1 max-sm:gap-4.5">
+      <div className={PICKER_BODY}>
         <PickerOptions alt={model.alt} onPick={pick} quick={model.quick} />
-        <PickerCalendar
+        <DayCalendar
           key={calendarKey}
           now={shown.now}
           onPick={pickDay}

@@ -122,6 +122,76 @@ describe('ServiceSyncRow', () => {
     );
   });
 
+  it('asks how far back before the first sync, and sends the day it shows', async () => {
+    syncConnection.mockResolvedValue({ ok: true });
+    render(<ServiceSyncRow lastSyncedAt={null} sync={null} syncNow />);
+    const group = screen.getByRole('group', { name: 'How far back' });
+    expect(group.textContent).toBe('SinceEverything');
+    const field = screen.getByRole('button', { name: /^Sync since / });
+    const shown = field.textContent;
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Sync now' }));
+    });
+    const [, body] = syncConnection.mock.calls[0]!;
+    const since = new Date(body.since);
+    // The field's day is the one sent: its start, local time
+    expect(since.getHours()).toBe(0);
+    expect(shown).toContain(String(since.getFullYear()));
+  });
+
+  it('sends Everything as no day', async () => {
+    syncConnection.mockResolvedValue({ ok: true });
+    render(
+      <ServiceSyncRow lastSyncedAt={null} sync={null} syncNow total={2542} />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Everything' }));
+    expect(
+      screen.getByText('All 2,542 episodes in its history, in one go.'),
+    ).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /^Sync since / })).toBeNull();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Sync now' }));
+    });
+    expect(syncConnection).toHaveBeenCalledWith('netflix', { since: null });
+  });
+
+  it('asks only before the first sync: not once one has run or started', () => {
+    const { rerender } = render(
+      <ServiceSyncRow lastSyncedAt={1} sync={DONE} syncNow />,
+    );
+    expect(screen.queryByRole('group', { name: 'How far back' })).toBeNull();
+    rerender(
+      <ServiceSyncRow
+        lastSyncedAt={null}
+        sync={{ ...RUNNING, stalled: true }}
+        syncNow
+      />,
+    );
+    expect(screen.queryByRole('group', { name: 'How far back' })).toBeNull();
+  });
+
+  it('after linking again, carries on from where the last sync reached', () => {
+    const reached = new Date(2026, 10, 2, 21, 30).getTime();
+    render(
+      <ServiceSyncRow
+        lastSyncedAt={null}
+        resumeFrom={reached}
+        sync={null}
+        syncNow
+      />,
+    );
+    expect(
+      screen.getByRole('button', {
+        name: 'Sync since 2 November 2026, change day',
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(
+        'Carries on from your last sync. Pick an earlier day to read further back.',
+      ),
+    ).toBeTruthy();
+  });
+
   it('can’t be pressed while a sync runs', () => {
     render(<ServiceSyncRow lastSyncedAt={null} sync={RUNNING} syncNow />);
     const button = screen.getByRole('button', { name: 'Sync now' });

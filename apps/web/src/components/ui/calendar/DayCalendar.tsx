@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
-import { DIALOG_LABEL } from './PickerOptions';
+import { DIALOG_LABEL } from './pickerStyles';
 
 const NAV =
   'flex size-8 cursor-pointer items-center justify-center rounded-8 text-white/60 transition-colors hover:bg-white/8 hover:text-white aria-disabled:pointer-events-none aria-disabled:opacity-30';
@@ -68,12 +68,15 @@ const FORMATTERS = {
  * "Or pick a day": the month grid from react-day-picker, weeks
  * from Monday, other months' days faded (no next month's on phones),
  * future days disabled, today ringed, the current day white. A tap applies.
+ * The date pickers' shared grid: marking an episode, a sync's first day.
  */
-export default function PickerCalendar({
+export default function DayCalendar({
+  label = 'Or pick a day',
   now,
   onPick,
   selected,
 }: Readonly<{
+  label?: string;
   now: number;
   selected: Date | null;
   onPick: (day: Date) => void;
@@ -92,7 +95,7 @@ export default function PickerCalendar({
   const selectedDay = selected ?? undefined;
   return (
     <div className="flex min-w-0 flex-col gap-2.5">
-      <span className={DIALOG_LABEL}>Or pick a day</span>
+      <span className={DIALOG_LABEL}>{label}</span>
       <DayPicker
         classNames={CLASS_NAMES}
         components={COMPONENTS}

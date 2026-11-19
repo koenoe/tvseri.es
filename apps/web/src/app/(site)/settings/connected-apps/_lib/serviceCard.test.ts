@@ -109,6 +109,7 @@ describe('serviceCardPlan', () => {
       'lastSyncedAt',
       'latest',
       'profileName',
+      'resumeFrom',
       'status',
       'sync',
       'total',

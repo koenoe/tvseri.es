@@ -2,6 +2,7 @@
 
 import {
   ConnectionServiceSchema,
+  ConnectionSyncRequestSchema,
   UpdateWebhookSettingsSchema,
 } from '@tvseri.es/schemas';
 import { refresh } from 'next/cache';
@@ -121,11 +122,19 @@ export async function revealPlexUrl(): Promise<
 /**
  * Sync now. Who may is the API's call (`canSyncNow`), so its 403 is
  * `invalid` here. A sync already running (409) is what was asked for, so
- * the refreshed card shows it instead of an error.
+ * the refreshed card shows it instead of an error. `scope` is the first
+ * sync's How far back; without it the run reads as it would by itself.
  */
-export async function syncConnection(input: unknown): Promise<ActionResult> {
+export async function syncConnection(
+  input: unknown,
+  scope?: unknown,
+): Promise<ActionResult> {
   const service = v.safeParse(ConnectionServiceSchema, input);
-  if (!service.success) {
+  const body =
+    scope === undefined
+      ? null
+      : v.safeParse(ConnectionSyncRequestSchema, scope);
+  if (!service.success || (body && !body.success)) {
     return actionError('invalid');
   }
   const viewer = await getViewer();
@@ -135,6 +144,7 @@ export async function syncConnection(input: unknown): Promise<ActionResult> {
   try {
     await apiFetch('/me/connections/:service/sync', {
       accessToken: viewer.accessToken,
+      ...(body?.success && { body: body.output }),
       method: 'POST',
       params: { service: service.output },
     });

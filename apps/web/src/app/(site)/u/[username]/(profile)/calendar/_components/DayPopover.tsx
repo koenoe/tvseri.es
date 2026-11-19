@@ -18,6 +18,7 @@ import {
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
+import scrollBehavior from '@/lib/media/scrollBehavior';
 
 import type { CalendarDayModel } from '../_lib/calendarModel';
 import DayHeader from './DayHeader';
@@ -34,7 +35,7 @@ export type PopoverPlace = Readonly<{
 
 /** 26px corners: concentric with the 12px tickets 14px in */
 const PANEL =
-  'absolute z-6 flex w-[448px] flex-col gap-3 rounded-[26px] bg-ground-deep p-3.5 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1),0_30px_60px_-20px_rgb(0_0_0/0.9)] outline-none before:absolute before:left-[calc(var(--arrow)-7px)] before:size-3.5 before:rotate-45 before:bg-ground-deep';
+  'absolute z-6 flex w-[448px] flex-col gap-3 rounded-[26px] bg-ground-deep p-3.5 scroll-mt-24 scroll-mb-4 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1),0_30px_60px_-20px_rgb(0_0_0/0.9)] outline-none before:absolute before:left-[calc(var(--arrow)-7px)] before:size-3.5 before:rotate-45 before:bg-ground-deep';
 
 const ARROW_UP =
   'before:-top-[7px] before:shadow-[-1px_-1px_0_0_rgb(255_255_255/0.1)]';
@@ -92,8 +93,17 @@ export default function DayPopover({
     return () => document.removeEventListener('pointerdown', outside, true);
   }, []);
 
+  // focus without a jump, then bring a popover that opens past the screen's
+  // edge into view (clear of the header)
   const focusOnOpen = useCallback((node: HTMLDivElement | null) => {
-    node?.focus({ preventScroll: true });
+    if (!node) {
+      return;
+    }
+    node.focus({ preventScroll: true });
+    const frame = requestAnimationFrame(() =>
+      node.scrollIntoView({ behavior: scrollBehavior(), block: 'nearest' }),
+    );
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {

@@ -239,6 +239,8 @@ export const heavyWaitingFor = (): WaitingFor => ({
       ...identity(h(index + 14)),
       daysToGo: dated ? daysToGo : undefined,
       finishedAt: daysAgo(40 + index * 61),
+      lastAired: dated ? undefined : day(-200 - index * 30),
+      listedEpisodes: !dated && index % 6 === 2 ? 8 : undefined,
       nextDate: dated ? day(daysToGo) : undefined,
       nextEpisode: dated ? 1 : undefined,
       nextSeason: 2 + index * 3,

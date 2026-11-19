@@ -204,7 +204,23 @@ const waitingForOf = (name: Name) =>
         ? miraWaitingFor()
         : { items: [] };
 
-/** Calendar days the overview doesn't carry: alex has an episode today */
+/** An episode of The Gilded Age that aired two days ago (this month's, unless it's the 1st or 2nd) */
+const AIRED = {
+  ...identity('gildedAge'),
+  date: day(-2),
+  daysToGo: -2,
+  episode: 2,
+  kind: 'episode' as const,
+  onWatchlist: false,
+  provider: null,
+  release: 'weekly' as const,
+  season: 4,
+};
+
+/**
+ * Calendar days the overview doesn't carry: alex has an episode today, and
+ * both calendars a day that has passed
+ */
 const extraDaysOf = (name: Name) =>
   name === 'alex'
     ? [
@@ -219,8 +235,11 @@ const extraDaysOf = (name: Name) =>
           release: 'weekly' as const,
           season: 26,
         },
+        AIRED,
       ]
-    : [];
+    : name === 'marathonwatcher-2026'
+      ? [AIRED]
+      : [];
 
 const ledgerOf = (name: Name) =>
   name === 'alex' || name === 'rae'

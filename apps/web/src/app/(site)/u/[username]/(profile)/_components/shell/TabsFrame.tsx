@@ -21,12 +21,12 @@ const NAV = `relative flex h-14 items-center bg-black/22 max-md:h-[58px] max-md:
 
 /** The tabs' row: as wide as the tabs on a phone, so the bar scrolls past its end padding */
 const ROW =
-  'flex h-full items-center max-md:w-max max-md:gap-0.5 md:min-w-0 md:flex-1 md:gap-1 md:overflow-x-auto md:[scrollbar-width:none]';
+  'flex h-full items-center max-md:w-max max-md:min-w-full max-md:gap-0.5 md:min-w-0 md:flex-1 md:gap-1 md:overflow-x-auto md:[scrollbar-width:none]';
 
 /**
  * The bar behind the tabs. Desktop: 56px, 10px padding, 12px corners, the
  * pills in a row. Phone: 58px tall with or without the tabs (the skeleton
- * is the same box), 4px padding, 14px corners; the 64px tabs scroll
+ * is the same box), 4px padding, 14px corners; the tabs scroll
  * sideways when they don't fit, with no snapping and no arrows, and fade
  * on the side with more (`TabLinks` keeps the active one in view).
  */

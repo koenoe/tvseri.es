@@ -262,6 +262,8 @@ export const alexWaitingFor = (): WaitingFor => ({
     {
       ...identity('wednesday'),
       finishedAt: daysAgo(10),
+      lastAired: day(-420),
+      listedEpisodes: 8,
       nextSeason: 3,
       state: 'renewed',
     },

@@ -59,7 +59,18 @@ async function Calendar({ params }: Props) {
   if (profile.viewer !== 'owner') {
     redirect(profilePath(profile.user.username));
   }
-  const { noDateYet, ...data } = await loadCalendar(profile);
+  const { noDateYet, ...calendarData } = await loadCalendar(profile);
+  // the grid never shows an episode's title: leave them out of the props
+  const data = {
+    ...calendarData,
+    days: calendarData.days.map((day) => ({
+      ...day,
+      tickets: day.tickets.map((ticket) => ({
+        ...ticket,
+        episodes: ticket.episodes.map((episode) => ({ ...episode, title: '' })),
+      })),
+    })),
+  };
   const waiting = noDateYet.listed.length + noDateYet.renewed.length;
   const calendar = buildCalendar(data);
   const nothing = calendar.dated.length === 0 && waiting === 0;

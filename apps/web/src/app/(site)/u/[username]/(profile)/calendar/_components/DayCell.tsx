@@ -69,8 +69,10 @@ function DayCell({
   today,
 }: Props) {
   const outside = !inMonth;
+  // past days show what aired, dimmed; another month's days dimmer still
+  const dim = outside ? 'opacity-35' : past ? 'opacity-40' : undefined;
   const stack = day ? (
-    <span className={outside ? 'opacity-35' : undefined}>
+    <span className={dim}>
       <PosterStack day={day} />
     </span>
   ) : null;

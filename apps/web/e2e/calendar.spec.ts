@@ -22,9 +22,8 @@ test('Coming up leads to the calendar, where today opens its tickets', async ({
   await instant(page, async () => {
     await comingUp.getByRole('link', { name: 'Calendar' }).click();
     await page.waitForURL('**/u/alex/calendar');
-    await expect(
-      page.getByRole('navigation', { name: 'Profile' }),
-    ).toBeVisible();
+    // the calendar's own shell: its month and No date yet as ghosts
+    await expect(page.locator('[data-placeholder="calendar"]')).toBeVisible();
   });
   await expect(
     page.getByRole('link', { exact: true, name: 'Calendar' }),
@@ -60,8 +59,20 @@ test('someone else’s calendar goes to their profile', async ({ page }) => {
 test.describe('on a phone', () => {
   test.use({ viewport: { height: 844, width: 390 } });
 
-  test('a day opens as a bottom sheet of its tickets', async ({ page }) => {
-    await page.goto('/u/alex/calendar');
+  test('a day opens as a bottom sheet of its tickets', async ({
+    baseURL,
+    page,
+  }) => {
+    await instant(
+      page,
+      async () => {
+        await page.goto('/u/alex/calendar');
+        await expect(
+          page.locator('[data-placeholder="calendar-month"]'),
+        ).toBeVisible();
+      },
+      { baseURL },
+    );
     await page.getByRole('grid').locator('[aria-current="date"]').click();
     const sheet = page.getByRole('dialog');
     await expect(

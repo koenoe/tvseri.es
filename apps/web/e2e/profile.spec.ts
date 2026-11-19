@@ -262,9 +262,9 @@ test.describe('profile signed in', () => {
       const boxes = await tabs.evaluateAll((links) =>
         links.map((link) => link.getBoundingClientRect()),
       );
-      expect(new Set(boxes.map((box) => Math.round(box.width)))).toEqual(
-        new Set([64]),
-      );
+      const widths = new Set(boxes.map((box) => Math.round(box.width)));
+      expect(widths.size).toBe(1);
+      expect([...widths][0]).toBeGreaterThanOrEqual(63);
       const row = await nav.evaluate((element) => ({
         overflows: element.scrollWidth > element.clientWidth,
         scrolled: element.scrollLeft,

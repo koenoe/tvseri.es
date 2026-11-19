@@ -10,12 +10,13 @@ import type { Glyph, ToggleGlyph } from '@/components/ui/icon/types';
 import type { ProfileSegment } from '@/lib/routing/profilePath';
 
 /**
- * Desktop: pills in a row, the 16px icon beside the label. Phone: 64 × 50,
- * the icon above a 12/16 label, in a row that scrolls sideways once the
- * tabs no longer fit a 390 screen (`TabsFrame`).
+ * Desktop: pills in a row, the 16px icon beside the label. Phone: 50px tall,
+ * the icon above a 12/16 label, equal columns that share the bar when they
+ * fit; at least 63px each (six fit a 430 screen), so on a 390 screen the
+ * row scrolls sideways (`TabsFrame`).
  */
 export const TAB =
-  'flex shrink-0 items-center justify-center whitespace-nowrap font-medium transition-colors md:gap-2 md:rounded-8 md:px-4 md:py-1.5 md:text-body-sm max-md:h-[50px] max-md:w-16 max-md:flex-col max-md:gap-0.5 max-md:rounded-10 max-md:text-[12px] max-md:leading-4';
+  'flex shrink-0 items-center justify-center whitespace-nowrap font-medium transition-colors md:gap-2 md:rounded-8 md:px-4 md:py-1.5 md:text-body-sm max-md:h-[50px] max-md:min-w-[63px] max-md:flex-1 max-md:basis-0 max-md:flex-col max-md:gap-0.5 max-md:rounded-10 max-md:text-[12px] max-md:leading-4';
 
 export type ProfileTab = Readonly<{
   label: string;

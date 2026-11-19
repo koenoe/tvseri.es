@@ -77,6 +77,7 @@ export {
   firstEpisodeOf,
   isSeasonPremiere,
 } from './series/episodeNumbers';
+export { byExpectedReturn } from './series/expectedReturn';
 export {
   isDone,
   type ListState,

@@ -5,6 +5,7 @@ import type {
   WaitingForItem,
 } from '@tvseri.es/schemas';
 import {
+  byExpectedReturn,
   DAY_MS,
   firstSeasonAfter,
   isOver,
@@ -29,14 +30,25 @@ const nextSeasonOf = (facts: SeriesFacts) => {
  * What each finished show is waiting for, from TMDB's current state: a dated
  * next episode (countdown), or renewed without a date. Ended and cancelled
  * shows are left out. No history: "renewed" is just "returning, no date".
+ * Dated shows come first, soonest first; the renewed ones follow by when
+ * their own rhythm says they're back (no estimate is shown).
  */
 const buildWaitingFor = (
   finished: ReadonlyArray<ListItem>,
   facts: ReadonlyMap<number, SeriesFacts>,
+  favourites: ReadonlySet<number>,
   now: number,
 ): WaitingFor => {
   const today = startOfDayUtc(now);
-  const items: WaitingForItem[] = [];
+  const dated: WaitingForItem[] = [];
+  const renewed: Array<
+    Readonly<{
+      favourite: boolean;
+      finishedAt?: number;
+      item: WaitingForItem;
+      seasons: SeriesFacts['seasons'];
+    }>
+  > = [];
 
   for (const show of finished) {
     const showFacts = facts.get(show.id);
@@ -52,35 +64,41 @@ const buildWaitingFor = (
       title: show.title,
     };
 
-    items.push(
-      next?.airDate
-        ? {
-            ...base,
-            daysToGo: Math.max(
-              0,
-              Math.round((Date.parse(next.airDate) - today) / DAY_MS),
-            ),
-            nextDate: next.airDate,
-            nextEpisode: next.episodeNumber,
-            nextKind: episodeKindOf(next, showFacts.seasons),
-            nextSeason: next.seasonNumber,
-            state: 'dated',
-          }
-        : { ...base, nextSeason: nextSeasonOf(showFacts), state: 'renewed' },
-    );
+    if (next?.airDate) {
+      dated.push({
+        ...base,
+        daysToGo: Math.max(
+          0,
+          Math.round((Date.parse(next.airDate) - today) / DAY_MS),
+        ),
+        nextDate: next.airDate,
+        nextEpisode: next.episodeNumber,
+        nextKind: episodeKindOf(next, showFacts.seasons),
+        nextSeason: next.seasonNumber,
+        state: 'dated',
+      });
+    } else {
+      renewed.push({
+        favourite: favourites.has(show.id),
+        finishedAt: show.createdAt,
+        item: {
+          ...base,
+          nextSeason: nextSeasonOf(showFacts),
+          state: 'renewed',
+        },
+        seasons: showFacts.seasons,
+      });
+    }
   }
 
-  items.sort((a, b) =>
-    a.state !== b.state
-      ? a.state === 'dated'
-        ? -1
-        : 1
-      : a.state === 'dated'
-        ? (a.nextDate ?? '').localeCompare(b.nextDate ?? '')
-        : (b.finishedAt ?? 0) - (a.finishedAt ?? 0),
-  );
+  dated.sort((a, b) => (a.nextDate ?? '').localeCompare(b.nextDate ?? ''));
 
-  return { items };
+  return {
+    items: [
+      ...dated,
+      ...byExpectedReturn(renewed, now).map(({ item }) => item),
+    ],
+  };
 };
 
 // Finished shows looked at, most recently finished first (facts cost a TMDB
@@ -89,9 +107,12 @@ const MAX_FINISHED = 150;
 
 /** The viewer's finished shows that come back (Coming up's returns) */
 export const getWaitingFor = async (userId: string) => {
-  const [watched, resuming] = await Promise.all([
+  // Favourites break ties in No date yet: read beside the others, so no
+  // extra round trip (a curated list, short next to Finished)
+  const [watched, resuming, favourites] = await Promise.all([
     getAllListItems({ listId: 'WATCHED', sortDirection: 'desc', userId }),
     getAllListItems({ listId: 'RESUMING_SOON', userId }),
+    getAllListItems({ listId: 'FAVORITES', userId }),
   ]);
 
   const resumingIds = new Set(resuming.map((item) => item.id));
@@ -110,6 +131,7 @@ export const getWaitingFor = async (userId: string) => {
   return buildWaitingFor(
     finished.map((item) => byId.get(item.id) ?? item),
     facts,
+    new Set(favourites.map((item) => item.id)),
     Date.now(),
   );
 };

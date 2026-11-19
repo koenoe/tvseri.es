@@ -27,7 +27,7 @@ export type WaitingForItem = Readonly<{
 
 /** The full overview's finished shows that are coming back */
 export type WaitingFor = Readonly<{
-  /** Dated first (soonest), then renewed (latest finished first) */
+  /** Dated first (soonest), then renewed by when each is probably back (`byExpectedReturn`) */
   items: ReadonlyArray<WaitingForItem>;
 }>;
 

@@ -21,11 +21,6 @@ export const TRACK_LOOK = {
   line: 'min-w-20 flex-1 bg-white/12',
   /** A Library poster: across the art's foot */
   poster: 'bg-white/12',
-  /** Coming up's Later row, a dated return: the row's full width */
-  wait: 'bg-white/12',
-  /** A show under Coming up's No date yet: the ground fades out */
-  waitUndated:
-    'bg-[linear-gradient(90deg,rgb(255_255_255/0.12)_40%,rgb(255_255_255/0)_100%)]',
 } as const;
 
 /** The line's box (a placeholder draws it empty) */
@@ -75,7 +70,7 @@ function TrackAired({ at }: Readonly<{ at: number }>) {
 }
 
 /** What is watched, as a width */
-export function TrackFill({ at }: Readonly<{ at: number }>) {
+function TrackFill({ at }: Readonly<{ at: number }>) {
   const style = { width: `${at}%` };
   return (
     <i className="absolute inset-y-0 left-0 rounded-2 bg-white" style={style} />

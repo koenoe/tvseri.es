@@ -2,13 +2,7 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import ProgressTrack, {
-  SlidingProgressTrack,
-  TRACK_LOOK,
-  Track,
-  TrackFill,
-  TrackTick,
-} from './ProgressTrack';
+import ProgressTrack, { SlidingProgressTrack } from './ProgressTrack';
 
 const parts = (container: HTMLElement) =>
   [...(container.firstElementChild?.children ?? [])] as HTMLElement[];
@@ -55,18 +49,5 @@ describe('SlidingProgressTrack', () => {
       <SlidingProgressTrack aired={80} tick={80} watched={40} />,
     );
     expect(parts(container)[2]?.style.left).toBe('80%');
-  });
-});
-
-describe('Track parts', () => {
-  it("a wait's line: a labelled picture with today's tick", () => {
-    const { container, getByRole } = render(
-      <Track label="today 25% of the way" look={TRACK_LOOK.wait}>
-        <TrackFill at={25} />
-        <TrackTick at={25} />
-      </Track>,
-    );
-    expect(getByRole('img', { name: 'today 25% of the way' })).toBeTruthy();
-    expect(parts(container)[1]?.style.left).toBe('25%');
   });
 });

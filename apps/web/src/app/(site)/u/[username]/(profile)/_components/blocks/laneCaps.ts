@@ -3,8 +3,8 @@ import type { ExpandLayout } from '@/components/ui/fold/ExpandButton';
 /**
  * How many rows each lane lists before "Show all N" (`CappedRows`), so a
  * busy profile's two lanes stay comparable in length. Catching up draws one
- * show; the ledger lists three holes (`LEDGER_ROWS`). Coming up caps its
- * tickets and Later rows together.
+ * show; the ledger lists three holes (`LEDGER_ROWS`). Coming up lists its four
+ * nearest tickets.
  */
 export const LANE_CAPS = {
   almostDone: 2,
@@ -12,8 +12,6 @@ export const LANE_CAPS = {
   bothWatch: 4,
   catchingUp: 1,
   comingUp: 4,
-  /** Coming up's No date yet, when it opens itself (nothing is dated) */
-  noDateYet: 3,
   outNow: 2,
   paused: 3,
 } as const;

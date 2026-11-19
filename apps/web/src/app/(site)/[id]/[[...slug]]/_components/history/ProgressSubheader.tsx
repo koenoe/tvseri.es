@@ -14,23 +14,9 @@ import {
   NO_RUNTIMES,
   nextAirDateOf,
   progressLine,
+  unseeded,
 } from '../progress/progressLine';
 import ShowProgressTrack from '../progress/ShowProgressTrack';
-
-/** Before the store has the show: its announced episodes, nothing aired or watched */
-const unseeded = (
-  seasons: ReadonlyArray<
-    Readonly<{ seasonNumber: number; episodeCount: number }>
-  >,
-) => ({
-  seasons: seasons.map(({ episodeCount, seasonNumber }) => ({
-    airedEpisodeCount: 0,
-    episodeCount,
-    seasonNumber,
-  })),
-  skipped: [],
-  watched: {},
-});
 
 /** The phone's chevron at the end of the line's row */
 const CHEVRON = (

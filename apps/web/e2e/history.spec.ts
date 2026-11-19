@@ -36,7 +36,10 @@ test('?history keeps the page shell instant, then opens the sheet', async ({
     { baseURL },
   );
   await expect(sheet(page)).toBeVisible();
-  await expect(sheet(page).getByText('21 of 47 watched').first()).toBeVisible();
+  // The show row's counts: the progress line's words (alex skipped S02E05)
+  await expect(
+    sheet(page).getByText('21 watched · 1 skipped').first(),
+  ).toBeVisible();
 });
 
 /**

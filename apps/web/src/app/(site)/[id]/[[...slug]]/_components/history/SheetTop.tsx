@@ -1,13 +1,13 @@
 'use client';
 
-import { type MouseEvent, memo, useCallback } from 'react';
+import { type MouseEvent, memo, useCallback, useMemo } from 'react';
 
 import { SegmentedItem } from '@/components/ui/button/Segmented';
 import { helpGlyph, trendingGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 import { WHOLE_SHOW } from '@/lib/marking/copy';
-import { useSeriesProgress } from '@/lib/marking/hooks';
+import { useSeriesProgress, useSeriesView } from '@/lib/marking/hooks';
 import { useMarkingStoreApi } from '@/lib/marking/MarkingProvider';
 import { pressMark, scopeKey } from '@/lib/marking/pressGate';
 import { openEpisodes } from '@/lib/marking/progress';
@@ -15,6 +15,7 @@ import useMarking from '@/lib/marking/useMarking';
 
 import { openPicker } from '../../_lib/dialogs';
 import { useShow } from '../../_lib/ShowProvider';
+import { countsText, unseeded } from '../progress/progressLine';
 import DateButton from './DateButton';
 import Legend from './Legend';
 import type { SheetMode } from './paint';
@@ -53,17 +54,20 @@ function PaintHint() {
 }
 
 /**
- * "The Bear · 21 of 47 watched", the calendar (one date for every open aired
+ * "The Bear · 21 of 47 watched" (with skips "21 watched · 1 skipped", the
+ * progress line's counts: `countsText`), the calendar (one date for every open aired
  * episode, skipped ones left skipped) and Mark all watched / Unmark all
  * (desktop).
  */
 function ShowRow() {
   const show = useShow();
+  const view = useSeriesView(show.id);
   const progress = useSeriesProgress(show.id);
   const marking = useMarking();
-  const total = show.seasons
-    .filter((season) => season.seasonNumber > 0)
-    .reduce((sum, season) => sum + season.episodeCount, 0);
+  const counts = useMemo(
+    () => countsText(view ?? unseeded(show.seasons)),
+    [view, show.seasons],
+  );
   // Finished (skips included) reads as done, as the hero's eye has it
   const complete = progress?.isFinished ?? false;
   const toggle = useCallback(
@@ -88,7 +92,7 @@ function ShowRow() {
     <div className="flex items-center gap-4 rounded-14 bg-white/3.5 px-4 py-3.5 max-sm:hidden">
       <p className="min-w-0 flex-1 truncate text-body-sm text-white/60">
         <b className="font-semibold text-white">{show.title}</b>
-        {` · ${progress?.watched ?? 0} of ${total} watched`}
+        {` · ${counts}`}
       </p>
       <DateButton
         disabled={nothingOpen}

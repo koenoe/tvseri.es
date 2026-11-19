@@ -48,6 +48,21 @@ export type ProgressLine = Readonly<{
   airing: boolean;
 }>;
 
+/** Before the store has the show (the history sheet): its announced episodes, nothing aired or watched */
+export const unseeded = (
+  seasons: ReadonlyArray<
+    Readonly<{ seasonNumber: number; episodeCount: number }>
+  >,
+) => ({
+  seasons: seasons.map(({ episodeCount, seasonNumber }) => ({
+    airedEpisodeCount: 0,
+    episodeCount,
+    seasonNumber,
+  })),
+  skipped: [],
+  watched: {},
+});
+
 /** No runtimes known yet: no time left or in all */
 export const NO_RUNTIMES: SeriesRuntimes = {};
 
@@ -106,6 +121,34 @@ const airDayOf = (options: Options) =>
 const countOf = (runs: ReadonlyArray<Run>, state: Run['state']) =>
   runs.reduce((sum, run) => (run.state === state ? sum + run.count : sum), 0);
 
+/**
+ * The count facts: "6 of 10 watched" with no skips, "312 watched · 68
+ * skipped" (with their icons) with some.
+ */
+const countParts = (
+  watched: number,
+  skipped: number,
+  total: number,
+): ReadonlyArray<LinePart> =>
+  skipped > 0
+    ? [
+        linePart('watched', `${watched} watched`, true),
+        linePart('skipped', `${skipped} skipped`, true),
+      ]
+    : [linePart('count', `${watched} of ${total} watched`)];
+
+/**
+ * The line's counts as plain text ("21 of 47 watched", "21 watched · 1
+ * skipped"), for the history sheet's show row: the same numbers and words
+ * as the line, without the bar or the time left.
+ */
+export function countsText(series: SeriesMarks): string {
+  const { runs, total } = episodeMap(series, { nextAirs: false });
+  return countParts(countOf(runs, 'watched'), countOf(runs, 'skipped'), total)
+    .map((part) => part.text)
+    .join(' · ');
+}
+
 export function progressLine(
   series: SeriesMarks,
   options: Options,
@@ -124,12 +167,7 @@ export function progressLine(
   const percent = `${toPercentage(watched + skipped, total)}%`;
   const withSkips = skipped > 0;
 
-  const counts = withSkips
-    ? [
-        linePart('watched', `${watched} watched`, true),
-        linePart('skipped', `${skipped} skipped`, true),
-      ]
-    : [linePart('count', `${watched} of ${total} watched`)];
+  const counts = countParts(watched, skipped, total);
   const tail = isAiring
     ? [
         left.length > 0 ? linePart('toWatch', `${left.length} to watch`) : null,

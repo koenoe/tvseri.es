@@ -6,7 +6,13 @@ import {
   ONE_SEASON_RUNTIMES,
   oneSeason,
 } from './fixtures';
-import { type ProgressLine, progressLine, sizeLine } from './progressLine';
+import {
+  countsText,
+  type ProgressLine,
+  progressLine,
+  sizeLine,
+  unseeded,
+} from './progressLine';
 
 const record = { runtime: 30, watchedAt: 1 };
 
@@ -283,5 +289,36 @@ describe('a show TMDB numbers on across seasons', () => {
     expect(sizeText({ seasons }, { nextAirDate: null, runtimes })).toBe(
       '4 episodes · 2h 45m in all',
     );
+  });
+});
+
+describe("countsText (the history sheet's show row)", () => {
+  const seasons = [
+    { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 1 },
+    { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 2 },
+  ];
+
+  it('no skips: "N of M watched", as the line', () => {
+    expect(
+      countsText({
+        seasons,
+        skipped: [],
+        watched: { S01E01: record, S01E02: record },
+      }),
+    ).toBe('2 of 4 watched');
+  });
+
+  it('with skips: the line\'s "N watched · N skipped"', () => {
+    expect(
+      countsText({
+        seasons,
+        skipped: ['S01E02'],
+        watched: { S01E01: record },
+      }),
+    ).toBe('1 watched · 1 skipped');
+  });
+
+  it('before the store has the show: nothing of every announced episode', () => {
+    expect(countsText(unseeded(seasons))).toBe('0 of 4 watched');
   });
 });

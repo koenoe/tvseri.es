@@ -7,7 +7,6 @@ import { type ReactNode, useState } from 'react';
 import Button from '@/components/ui/button/Button';
 import { circleButtonStyles } from '@/components/ui/button/buttonStyles';
 import CircleButton from '@/components/ui/button/CircleButton';
-import { ROLL_GLYPH, ROLL_LABEL } from '@/components/ui/button/roll';
 import {
   arrowRightGlyph,
   calendarGlyph,
@@ -32,6 +31,7 @@ import {
   DECK_TOP,
   DECK_TOP_WITH_BADGE,
 } from './deckLayout';
+import { PICK_AGAIN_GLYPH, PICK_AGAIN_LABEL } from './pickAgain';
 import { dealRandom, type StartCard, sendToBack } from './startCards';
 
 /** The top card's link: over its slot, above every card (the top is z 5) */
@@ -85,7 +85,7 @@ function Face({
 /**
  * Pick one's card: the deck, the show on top and three buttons.
  * The top card's poster and title link to the show (the cards behind are
- * pictures only). ✕ Not now sends the top card to the back, Roll again
+ * pictures only). ✕ Not now sends the top card to the back, Pick again
  * deals a random one, → opens the show. On the Popular this week deck (`add`)
  * the middle button saves the show on top instead.
  */
@@ -144,13 +144,13 @@ export default function StartDeck({
           <Button
             className={DECK_PICK}
             disabled={alone}
-            icon={ROLL_GLYPH}
+            icon={PICK_AGAIN_GLYPH}
             iconSize={16}
             onClick={roll}
             size="lg"
             variant="primary"
           >
-            {ROLL_LABEL}
+            {PICK_AGAIN_LABEL}
           </Button>
         )}
         <Link aria-label={open} className={openClass} href={href} title={open}>

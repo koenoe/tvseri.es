@@ -1,5 +1,4 @@
 import { circleButtonStyles } from '@/components/ui/button/buttonStyles';
-import { ROLL_GLYPH, ROLL_LABEL } from '@/components/ui/button/roll';
 import {
   ButtonFace,
   FLAT,
@@ -29,6 +28,7 @@ import {
   DECK_TOP,
 } from './start/deckLayout';
 import { loadStartDeck, type StartSource } from './start/loadStart';
+import { PICK_AGAIN_GLYPH, PICK_AGAIN_LABEL } from './start/pickAgain';
 import StartDeck from './start/StartDeck';
 import { slotAt } from './start/startCards';
 import WatchlistLink from './start/WatchlistLink';
@@ -151,8 +151,8 @@ export function StartSomethingNewSkeleton() {
         </div>
         <div className={DECK_BUTTONS}>
           <span className={NOT_NOW} />
-          <ButtonFace className={DECK_PICK} icon={ROLL_GLYPH} size="lg">
-            {ROLL_LABEL}
+          <ButtonFace className={DECK_PICK} icon={PICK_AGAIN_GLYPH} size="lg">
+            {PICK_AGAIN_LABEL}
           </ButtonFace>
           <span className={NOT_NOW} />
         </div>

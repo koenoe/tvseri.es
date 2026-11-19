@@ -32,7 +32,7 @@ export function sendToBack(
 }
 
 /**
- * Roll again: a random card other than the top one comes to the front, the
+ * Pick again: a random card other than the top one comes to the front, the
  * rest keep their order. `random` is injected for tests (0 up to 1).
  */
 export function dealRandom(

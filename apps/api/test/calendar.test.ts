@@ -413,6 +413,53 @@ describe('calendar', () => {
     expect(noDateYet.renewed[0]).not.toHaveProperty('listedEpisodes');
   });
 
+  it('caps the TMDB calls a cold request makes, nearest shows first; later views fill in', async () => {
+    seedUser({ country: 'GB' });
+    // 14 airing shows, one a day from Nov 21: more than one request reads
+    const ids = Array.from({ length: 14 }, (_, index) => 101 + index);
+    const dateOf = (id: number) =>
+      new Date(Date.UTC(2026, 10, 21 + id - 101)).toISOString().slice(0, 10);
+    for (const id of ids) {
+      fakeShow({
+        extra: {
+          last_episode_to_air: null,
+          next_episode_to_air: episode(1, 1, dateOf(id)),
+        },
+        id,
+        seasons: [{ airDate: dateOf(id), aired: 0, episodes: 1 }],
+        status: 'Returning Series',
+      });
+      season(id, 1, [episode(1, 1, dateOf(id))]);
+    }
+    // Added oldest first, so the list order is not the date order
+    db.seed(
+      'Lists',
+      ids.map((id) => listItem('IN_PROGRESS', id, id)),
+    );
+    const tmdbCalls = (kind: RegExp) =>
+      requestedUrls().filter((url) => kind.test(url.pathname)).length;
+    const titles = (result: Calendar) =>
+      result.days.map((entry) => entry.tickets[0]?.episodes[0]?.title);
+
+    resetRequests();
+    const cold = await calendar();
+
+    expect(tmdbCalls(/\/season\//)).toBe(12);
+    expect(tmdbCalls(/\/watch\/providers$/)).toBe(12);
+    // Every show is on its day; the two furthest without their titles yet
+    expect(cold.days.map((entry) => entry.date)).toEqual(ids.map(dateOf));
+    expect(titles(cold)).toEqual([
+      ...Array.from({ length: 12 }, () => 'Episode 1'),
+      '',
+      '',
+    ]);
+
+    resetRequests();
+    const warm = await calendar();
+    expect(tmdbCalls(/\/season\//)).toBe(2);
+    expect(titles(warm)).toEqual(ids.map(() => 'Episode 1'));
+  });
+
   it('needs a signed-in viewer', async () => {
     const response = await request('/me/calendar');
     expect(response.status).toBe(401);

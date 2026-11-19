@@ -11,7 +11,10 @@ import { readFollowedLists } from '@/lib/overview';
 import { type SeasonEpisode, seasonEpisodes } from '@/lib/seasonEpisodes';
 import { getSeriesFacts } from '@/lib/seriesFacts';
 import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
+import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
+import { withTmdbCap } from '@/lib/upstream/requestCap';
 import { readWaitingFor } from '@/lib/waitingFor';
+import { createLimiter } from '@/utils/limit';
 import { orLeaveOut } from '@/utils/orLeaveOut';
 
 import { buildDays, type CalendarWindow, type ShowSeasons } from './build';
@@ -23,6 +26,20 @@ const MONTHS = 12;
  * season already listed with episodes may have dates within the year)
  */
 const MAX_SEASONS = 3;
+/**
+ * TMDB calls one request may make for season reads, and for provider reads
+ * (cached reads are free): a cold heavy profile fills in over a few views
+ * instead of spending the instance's budget at once. The nearest shows go
+ * first; the rest show their next episode from the facts, no service.
+ */
+const MAX_SEASON_CALLS = 12;
+const MAX_PROVIDER_CALLS = 12;
+
+/** Nearest first: the next episode's date; shows with only past days last */
+const byNearest = (a: SeriesFacts, b: SeriesFacts) =>
+  (a.nextEpisodeToAir?.airDate || '9999').localeCompare(
+    b.nextEpisodeToAir?.airDate || '9999',
+  );
 
 type Source = Readonly<{
   facts: SeriesFacts;
@@ -146,12 +163,21 @@ export const getCalendar = async (
     });
   }
 
-  const airing = [...sources.values()].flatMap((source) => {
-    const numbers = seasonsToRead(source.facts, window);
-    return numbers.length > 0 ? [{ numbers, source }] : [];
-  });
-  const read = await Promise.all(
-    airing.map(({ numbers, source }) => readShowSeasons(source.facts, numbers)),
+  const airing = [...sources.values()]
+    .map((source) => source.facts)
+    .sort(byNearest)
+    .flatMap((showFacts) => {
+      const numbers = seasonsToRead(showFacts, window);
+      return numbers.length > 0 ? [{ facts: showFacts, numbers }] : [];
+    });
+  // Started in order, so the nearest shows take the capped calls
+  const seasonLimit = createLimiter(TMDB_CONCURRENCY);
+  const read = await withTmdbCap(MAX_SEASON_CALLS, () =>
+    Promise.all(
+      airing.map(({ facts: showFacts, numbers }) =>
+        seasonLimit(() => readShowSeasons(showFacts, numbers)),
+      ),
+    ),
   );
   const days = buildDays(read, window);
 
@@ -160,32 +186,37 @@ export const getCalendar = async (
       days.flatMap((day) => day.tickets.map((ticket) => ticket.seriesId)),
     ),
   ];
-  const shows = await Promise.all(
-    onCalendar.map(async (id): Promise<CalendarShow> => {
-      const {
-        facts: showFacts,
-        finishedAt,
-        onWatchlist,
-      } = sources.get(id) as Source;
-      const provider = country
-        ? await orLeaveOut('Calendar: provider', () =>
-            fetchTvSeriesWatchProvider(id, country),
-          )
-        : null;
-      return {
-        ...(finishedAt && { finishedAt }),
-        onWatchlist,
-        posterImage: showFacts.posterPath
-          ? buildPosterImageUrl(showFacts.posterPath)
-          : '',
-        provider: provider
-          ? { logoImage: provider.logo, name: provider.name }
-          : null,
-        seriesId: id,
-        slug: showFacts.slug,
-        title: showFacts.title,
-      };
-    }),
+  const providerLimit = createLimiter(TMDB_CONCURRENCY);
+  const shows = await withTmdbCap(MAX_PROVIDER_CALLS, () =>
+    Promise.all(
+      onCalendar.map((id) =>
+        providerLimit(async (): Promise<CalendarShow> => {
+          const {
+            facts: showFacts,
+            finishedAt,
+            onWatchlist,
+          } = sources.get(id) as Source;
+          const provider = country
+            ? await orLeaveOut('Calendar: provider', () =>
+                fetchTvSeriesWatchProvider(id, country),
+              )
+            : null;
+          return {
+            ...(finishedAt && { finishedAt }),
+            onWatchlist,
+            posterImage: showFacts.posterPath
+              ? buildPosterImageUrl(showFacts.posterPath)
+              : '',
+            provider: provider
+              ? { logoImage: provider.logo, name: provider.name }
+              : null,
+            seriesId: id,
+            slug: showFacts.slug,
+            title: showFacts.title,
+          };
+        }),
+      ),
+    ),
   );
 
   return {

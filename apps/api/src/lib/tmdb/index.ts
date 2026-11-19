@@ -70,6 +70,7 @@ import { readPreferredImages } from '@/lib/preferredBackdrops';
 import { upstreamBaseUrl } from '@/lib/upstream/baseUrl';
 import { breakerFor } from '@/lib/upstream/breaker';
 import { budgetFor, TMDB_CONCURRENCY } from '@/lib/upstream/budget';
+import { takeCappedCall } from '@/lib/upstream/requestCap';
 import { toWatchProvider } from '@/lib/watchProviders';
 import calculateAge from '@/utils/calculateAge';
 import { dedupe } from '@/utils/dedupe';
@@ -152,6 +153,7 @@ async function tmdbFetch(path: string, options?: BetterFetchOption) {
   const cacheKey = `${path}${options?.query ? JSON.stringify(options.query) : ''}`;
 
   return dedupe(cacheKey, async () => {
+    takeCappedCall('tmdb');
     const { accessToken, apiKey } = credentials();
     const headers = {
       'content-type': 'application/json',

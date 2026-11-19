@@ -6,6 +6,12 @@ export const EpisodeSchema = v.object({
   airDate: v.string(),
   description: v.string(),
   episodeNumber: v.number(),
+  /**
+   * TMDB's episode type when it marks a break: `finale` (a season's or the
+   * show's last) or `mid-season` (the last before a mid-season break);
+   * absent for a standard episode
+   */
+  episodeType: v.optional(v.picklist(['finale', 'mid-season'])),
   hasAired: v.fallback(v.boolean(), false),
   id: v.number(),
   runtime: v.number(),

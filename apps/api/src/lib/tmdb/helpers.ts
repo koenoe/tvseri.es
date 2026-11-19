@@ -406,14 +406,30 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
   };
 }
 
+/**
+ * TMDB's `episode_type` (`standard`, `finale`, `mid_season`; not in its
+ * OpenAPI types): only the breaks we show, anything else is standard
+ */
+const episodeTypeOf = (episode: TmdbTvSeriesEpisode) => {
+  const type: unknown = (episode as Readonly<{ episode_type?: unknown }>)
+    .episode_type;
+  return type === 'finale'
+    ? ('finale' as const)
+    : type === 'mid_season' || type === 'mid-season'
+      ? ('mid-season' as const)
+      : undefined;
+};
+
 export function normalizeTvSeriesEpisode(episode: TmdbTvSeriesEpisode) {
   const airDate = episode.air_date
     ? new Date(episode.air_date).toISOString()
     : '';
+  const episodeType = episodeTypeOf(episode);
   return {
     airDate,
     description: episode.overview ?? '',
     episodeNumber: episode.episode_number,
+    ...(episodeType && { episodeType }),
     hasAired: hasAiredAt(airDate, Date.now()),
     id: episode.id,
     runtime: episode.runtime ?? 0,

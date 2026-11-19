@@ -5,14 +5,13 @@ import type {
   WaitingFor,
 } from '@tvseri.es/schemas';
 
-import { readThroughStale } from '@/lib/db/cache/readThroughStale';
 import { getAllListItems } from '@/lib/db/list';
 import { getSeriesPrefsMany } from '@/lib/db/prefs';
-import { refreshWaitMs } from '@/lib/deadline';
 import { readShowItems } from '@/lib/rollups';
+import { releaseOf, seasonEpisodes } from '@/lib/seasonEpisodes';
 import { getSeriesFacts } from '@/lib/seriesFacts';
 import { getSeriesRuntimes } from '@/lib/seriesRuntimes';
-import { fetchTvSeriesSeason, fetchTvSeriesWatchProvider } from '@/lib/tmdb';
+import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
 import { getWaitingFor } from '@/lib/waitingFor';
 import { logWarn } from '@/utils/logWarn';
 
@@ -36,43 +35,6 @@ const MAX_WATCHLIST = 100;
 const MAX_TITLES = 3;
 const MAX_TICKETS = 10;
 
-// A season's episode titles and air dates change rarely: kept 6 hours in the
-// Cache table and shared by every user, so a warm overview makes no TMDB
-// call for its first tiles' titles or its tickets' release style
-const SEASON_TTL = 6 * 60 * 60;
-const UNKNOWN_SEASON_TTL = 60 * 60;
-/** How long a stored season stands in when TMDB can't refresh it */
-const SEASON_KEEP = 7 * 24 * 60 * 60;
-
-type SeasonEpisode = Readonly<{
-  airDate: string;
-  episodeNumber: number;
-  title: string;
-}>;
-
-/**
- * A season's episodes for the tickets: fresh for SEASON_TTL, then served
- * while a refresh gets what is left of the request's refresh wait, at low
- * priority (kept a week)
- */
-const seasonEpisodes = (seriesId: number, season: number) =>
-  readThroughStale<ReadonlyArray<SeasonEpisode> | null>(
-    `overview-season:v2:${seriesId}:${season}`,
-    (value) => (value ? SEASON_TTL : UNKNOWN_SEASON_TTL),
-    SEASON_KEEP,
-    async () => {
-      const found = await fetchTvSeriesSeason(seriesId, season);
-      return found
-        ? found.episodes.map((episode) => ({
-            airDate: episode.airDate.slice(0, 10),
-            episodeNumber: episode.episodeNumber,
-            title: episode.title,
-          }))
-        : null;
-    },
-    { lowPriority: true, waitMs: refreshWaitMs },
-  );
-
 const attempt = async <T>(label: string, run: () => Promise<T>) => {
   try {
     return await run();
@@ -86,9 +48,11 @@ const attempt = async <T>(label: string, run: () => Promise<T>) => {
 const withEpisodeTitles = async (items: ReadonlyArray<UpNextItem>) => {
   const head = await Promise.all(
     items.slice(0, MAX_TITLES).map(async (item) => {
-      const episodes = await attempt('season', () =>
-        seasonEpisodes(item.seriesId, item.season),
-      );
+      const episodes = (
+        await attempt('season', () =>
+          seasonEpisodes(item.seriesId, [item.season]),
+        )
+      )?.get(item.season);
       const episode = episodes?.find(
         (candidate) => candidate.episodeNumber === item.episode,
       );
@@ -112,8 +76,10 @@ const withTicketDetails = async (
     tickets.slice(0, MAX_TICKETS).map(async (ticket) => {
       const [episodes, provider] = await Promise.all([
         ticket.kind === 'season-premiere'
-          ? attempt('ticket season', () =>
-              seasonEpisodes(ticket.seriesId, ticket.season),
+          ? attempt('ticket season', async () =>
+              (await seasonEpisodes(ticket.seriesId, [ticket.season])).get(
+                ticket.season,
+              ),
             )
           : undefined,
         country
@@ -122,18 +88,12 @@ const withTicketDetails = async (
             )
           : undefined,
       ]);
-      const dates = new Set(episodes?.map((episode) => episode.airDate));
       return {
         ...ticket,
         provider: provider
           ? { logoImage: provider.logo, name: provider.name }
           : null,
-        release:
-          episodes && episodes.length > 1
-            ? dates.size === 1
-              ? ('full-season' as const)
-              : ('weekly' as const)
-            : ticket.release,
+        release: (episodes && releaseOf(episodes)) ?? ticket.release,
       };
     }),
   );

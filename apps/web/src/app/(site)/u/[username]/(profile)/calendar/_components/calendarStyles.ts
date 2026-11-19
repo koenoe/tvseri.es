@@ -55,7 +55,7 @@ export const MONTH_NAME =
 
 /** Today: a pill beside ‹ › on desktop; a phone has ‹ › only */
 export const TODAY_BUTTON =
-  'mr-1 h-9 rounded-full px-3.5 text-meta font-medium max-md:hidden';
+  'mr-1 h-9 rounded-full px-3.5 text-meta leading-normal font-medium max-md:hidden';
 
 /** ‹ ›: 36px (34 on a phone) */
 export const ARROW_BUTTON = 'size-9 max-md:size-[34px]';

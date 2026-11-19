@@ -70,6 +70,7 @@ export {
   minutesFor,
   resolveSeasonMinutes,
 } from './runtime/minutesFor';
+export { hasAiredAt } from './series/aired';
 export { doneCount } from './series/done';
 export {
   episodeNumbersOf,
@@ -77,6 +78,14 @@ export {
   firstEpisodeOf,
   isSeasonPremiere,
 } from './series/episodeNumbers';
+export {
+  isDone,
+  type ListState,
+  listStateOf,
+  type ShowProgress,
+  seasonCounts,
+  showProgress,
+} from './series/progress';
 export {
   firstSeasonAfter,
   type SeasonsOutlook,
@@ -91,7 +100,6 @@ export {
   addDaysUtc,
   DAY_MS,
   daysBetweenUtc,
-  endOfDayUtc,
   startOfDayUtc,
   todayUtc,
 } from './time/utc';

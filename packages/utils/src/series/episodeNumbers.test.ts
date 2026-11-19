@@ -71,6 +71,66 @@ describe('firstEpisodeNumbers', () => {
     ).toEqual({ 1: 1, 2: 1 });
   });
 
+  it('numbers on a running show whose running season count lags its next episode', () => {
+    // S2 lists 21 (E33…E53) while E53 has aired and E54 is next
+    expect(
+      firstEpisodeNumbers(
+        [
+          { episodeCount: 32, seasonNumber: 1 },
+          { episodeCount: 21, seasonNumber: 2 },
+        ],
+        {
+          last: { episodeNumber: 53, seasonNumber: 2 },
+          next: { episodeNumber: 54, seasonNumber: 2 },
+        },
+      ),
+    ).toEqual({ 1: 1, 2: 33 });
+  });
+
+  it('allows the lag for a running season TMDB already lists a next, empty season after', () => {
+    expect(
+      firstEpisodeNumbers(
+        [
+          { episodeCount: 32, seasonNumber: 1 },
+          { episodeCount: 20, seasonNumber: 2 },
+          { episodeCount: 0, seasonNumber: 3 },
+        ],
+        { last: { episodeNumber: 53, seasonNumber: 2 }, next: null },
+      ),
+    ).toEqual({ 1: 1, 2: 33, 3: 53 });
+  });
+
+  it('never allows the lag inside an earlier season', () => {
+    // S1 ends at E32: an S1E34 is no lag of the running season
+    expect(
+      firstEpisodeNumbers(
+        [
+          { episodeCount: 32, seasonNumber: 1 },
+          { episodeCount: 21, seasonNumber: 2 },
+        ],
+        {
+          last: { episodeNumber: 34, seasonNumber: 1 },
+          next: { episodeNumber: 54, seasonNumber: 2 },
+        },
+      ),
+    ).toEqual({ 1: 1, 2: 1 });
+  });
+
+  it('keeps a normal show with a lagging count normal, next episode included', () => {
+    expect(
+      firstEpisodeNumbers(
+        [
+          { episodeCount: 8, seasonNumber: 1 },
+          { episodeCount: 8, seasonNumber: 2 },
+        ],
+        {
+          last: { episodeNumber: 9, seasonNumber: 2 },
+          next: { episodeNumber: 10, seasonNumber: 2 },
+        },
+      ),
+    ).toEqual({ 1: 1, 2: 1 });
+  });
+
   it('ignores specials and a missing last episode', () => {
     expect(
       firstEpisodeNumbers(normal, {

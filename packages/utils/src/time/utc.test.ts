@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  addDaysUtc,
-  daysBetweenUtc,
-  endOfDayUtc,
-  startOfDayUtc,
-  todayUtc,
-} from './utc';
+import { addDaysUtc, daysBetweenUtc, startOfDayUtc, todayUtc } from './utc';
 
 describe('todayUtc', () => {
   it('is the UTC day, not the local one', () => {
@@ -32,10 +26,10 @@ describe('daysBetweenUtc', () => {
   });
 });
 
-describe('the bounds of a day', () => {
-  it('starts at midnight UTC and ends a millisecond before the next', () => {
-    const start = startOfDayUtc(Date.parse('2026-11-11T15:00:00Z'));
-    expect(start).toBe(Date.parse('2026-11-11T00:00:00Z'));
-    expect(endOfDayUtc('2026-11-11')).toBe(start + 86_400_000 - 1);
+describe('the start of a day', () => {
+  it('is midnight UTC', () => {
+    expect(startOfDayUtc(Date.parse('2026-11-11T15:00:00Z'))).toBe(
+      Date.parse('2026-11-11T00:00:00Z'),
+    );
   });
 });

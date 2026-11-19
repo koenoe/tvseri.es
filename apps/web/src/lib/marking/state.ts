@@ -5,7 +5,7 @@ import {
   type MarkWhen,
 } from '@tvseri.es/schemas';
 
-import { regularWatchedCount, seriesProgress } from './progress';
+import { isStarted, seriesProgress } from './progress';
 
 import type {
   EpisodeCode,
@@ -123,7 +123,7 @@ export type PendingOp = Readonly<{ id: number; op: MarkingOp }>;
  * entry, this is the list as drawn.
  */
 const withParkedWatchlist = (series: SeriesBase): SeriesBase =>
-  series.status?.isWatchlisted && regularWatchedCount(series) > 0
+  series.status?.isWatchlisted && isStarted(series)
     ? { ...series, status: { ...series.status, isWatchlisted: false } }
     : series;
 
@@ -231,19 +231,27 @@ export function withMembership(
   };
 }
 
-/** The library ids after a write to a show: its lists and progress decide */
+/**
+ * The library ids after a write to a show: its lists and progress decide,
+ * by the API's rule (`listStateOf`). A started show with nothing aired can't
+ * be placed: the API leaves its lists as they are, and so does this.
+ */
 export function libraryAfter(
   ids: LibraryIds,
   seriesId: number,
   series: SeriesBase,
 ): LibraryIds {
   const progress = seriesProgress(series);
-  const started = progress.watched > 0;
+  const placed = !progress.started || progress.aired > 0;
   const lists: ReadonlyArray<readonly [LibraryList, boolean]> = [
     ['favorites', series.status?.isFavorited === true],
-    // The API's rule: skipped counts as done for Finished
-    ['inProgress', started && !progress.isFinished],
-    ['watched', progress.isFinished],
+    ...(placed
+      ? ([
+          // skipped counts as done for Finished
+          ['inProgress', progress.started && !progress.isFinished],
+          ['watched', progress.isFinished],
+        ] as const)
+      : []),
     ['watchlist', series.status?.isWatchlisted === true],
   ];
   return lists.reduce(

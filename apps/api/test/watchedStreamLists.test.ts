@@ -267,6 +267,52 @@ describe('watchlist entries come back when nothing is watched any more', () => {
   });
 });
 
+describe('a show TMDB lists nothing aired for yet (premiere day)', () => {
+  const unaired = () => {
+    nextShow += 1;
+    fakeShow({
+      id: nextShow,
+      seasons: [{ airDate: '2020-01-01', aired: 0, episodes: 3 }],
+      status: 'Returning Series',
+    });
+    return nextShow;
+  };
+
+  it('a mark takes it off the watchlist (parked), never back onto it', async () => {
+    seedUser();
+    const show = unaired();
+    seedWatchlist(show);
+
+    await withStream(() => mark(show, 1, day(1)));
+
+    expect(watchlistItem(show)).toBeUndefined();
+    expect(parkedItem(show)).toBeDefined();
+    expect(inProgressItem(show)).toBeUndefined();
+  });
+
+  it('the mark request parks it too, before the stream runs', async () => {
+    seedUser();
+    const show = unaired();
+    seedWatchlist(show);
+
+    await mark(show, 1, day(1));
+
+    expect(watchlistItem(show)).toBeUndefined();
+    expect(parkedItem(show)).toBeDefined();
+  });
+
+  it('a new watch leaves the show in its list', async () => {
+    seedUser();
+    const show = unaired();
+    await withStream(() => mark(show, 1, day(1)));
+    db.seed('Lists', [listItem(USER_ID, 'IN_PROGRESS', show, day(1))]);
+
+    await withStream(() => mark(show, 2, day(2)));
+
+    expect(inProgressItem(show)).toMatchObject({ createdAt: day(1) });
+  });
+});
+
 describe('a show leaving Finished leaves RESUMING_SOON too', () => {
   it('after an Undo import or an unmark, nothing is left in RESUMING_SOON', async () => {
     seedUser();

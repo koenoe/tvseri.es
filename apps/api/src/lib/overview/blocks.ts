@@ -101,14 +101,17 @@ export const buildUpNext = (states: ReadonlyArray<ShowState>): UpNextItem[] =>
         total > 0 &&
         next.episode === bounds.last &&
         (state.aired[next.season] ?? 0) === total;
+      // The latest aired regular episode (TMDB's latest can be a special)
+      const latest = state.progress.aired.at(-1);
 
       return {
         ...identity(state),
         code: codeOf(next),
         episode: next.episode,
+        ...(bounds.first === 1 ? {} : { firstEpisodeNumber: bounds.first }),
         isLatest:
-          state.latest?.season === next.season &&
-          state.latest.episode === next.episode,
+          latest?.seasonNumber === next.season &&
+          latest.episodeNumber === next.episode,
         lastWatchedAt: state.lastWatchedAt,
         lastWatchedCode: state.lastWatched ? codeOf(state.lastWatched) : null,
         nextSeasonTba: seasonFinale && !upcoming && !isOver(state.facts.status),

@@ -116,20 +116,22 @@ describe('CastSheetList', () => {
     expect(screen.queryByText('Created by')).toBeNull();
   });
 
+  // A big cast renders a thousand rows in jsdom: enough to need the grouped
+  // count, few enough to stay quick on a busy full run
   it('shows the cast’s first 20, then everyone with Show all', async () => {
     showId = 106;
-    const cast = Array.from({ length: 2622 }, (_, index) => ({
+    const cast = Array.from({ length: 1200 }, (_, index) => ({
       ...WHITE,
       id: 1000 + index,
       name: `Actor ${index}`,
     }));
     vi.stubGlobal('fetch', answer({ cast, crew: [] }));
-    render(<CastSheetList total={2622} />);
+    render(<CastSheetList total={1200} />);
 
     const section = await screen.findByRole('region', { name: 'Cast' });
     expect(within(section).getAllByRole('listitem')).toHaveLength(20);
     const showAll = within(section).getByRole('button', {
-      name: 'Show all 2,622',
+      name: 'Show all 1,200',
     });
     expect(showAll.getAttribute('aria-expanded')).toBe('false');
 
@@ -137,7 +139,7 @@ describe('CastSheetList', () => {
     expect(
       await within(section).findByRole('button', { expanded: true }),
     ).toBeTruthy();
-    expect(within(section).getAllByRole('listitem')).toHaveLength(2622);
+    expect(within(section).getAllByRole('listitem')).toHaveLength(1200);
   });
 
   it('says the list didn’t load, and Try again loads it', async () => {

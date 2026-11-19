@@ -135,6 +135,42 @@ describe('toBatchItems', () => {
     ]);
   });
 
+  it('restores a record TMDB no longer lists from the record itself', () => {
+    const items = toBatchItems({
+      episodes: [
+        {
+          episodeNumber: 12,
+          seasonNumber: 3,
+          when: { kind: 'restore', runtime: 42, watchedAt: 1_700_000_000_000 },
+        },
+        { episodeNumber: 13, seasonNumber: 3, when: { kind: 'now' } },
+      ],
+      hasAired: () => true,
+      knownProviders: [],
+      lookup: () => undefined,
+      now: NOW,
+      series,
+      userId: 'u1',
+      watchProvider: null,
+    });
+    expect(items).toEqual([
+      {
+        episode: {
+          airDate: '',
+          episodeNumber: 12,
+          runtime: 42,
+          seasonNumber: 3,
+          stillPath: null,
+          title: '',
+        },
+        tvSeries: series,
+        userId: 'u1',
+        watchedAt: 1_700_000_000_000,
+        watchProvider: null,
+      },
+    ]);
+  });
+
   it('a restore keeps its date, no-date flag, known service and import; a mark gets the viewer’s service', () => {
     const plex = { id: 0, logo: '', logoPath: '/plex.jpg', name: 'Plex' };
     const netflix = { id: 8, logo: '', logoPath: '/n.jpg', name: 'Netflix' };

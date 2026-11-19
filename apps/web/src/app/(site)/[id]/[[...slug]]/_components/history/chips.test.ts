@@ -117,11 +117,30 @@ describe('tally', () => {
     expect(tally(chips).state).toBe('w');
     expect(tally(seasonChips(view(), 2, null)).state).toBe('');
   });
+
+  it('is done once nothing aired is open, skips included, never by skips alone', () => {
+    const done = seasonChips(
+      view({ skipped: ['S02E02'], watched: { S02E01: at } }),
+      2,
+      null,
+    );
+    expect(tally(done)).toMatchObject({ state: 'w', watched: 1 });
+    const skippedOnly = seasonChips(
+      view({ skipped: ['S02E01', 'S02E02'] }),
+      2,
+      null,
+    );
+    expect(tally(skippedOnly).state).toBe('');
+  });
 });
 
 describe('helpers', () => {
   it('lists aired refs and labels chips', () => {
     expect(airedRefs(seasonChips(view(), 2, null))).toHaveLength(2);
+    // a season's date leaves its skipped episodes skipped
+    expect(
+      airedRefs(seasonChips(view({ skipped: ['S02E01'] }), 2, null)),
+    ).toEqual([{ episodeNumber: 2, seasonNumber: 2 }]);
     expect(chipLabel({ episodeNumber: 5, seasonNumber: 2 })).toBe('E05');
   });
 });

@@ -103,6 +103,22 @@ describe('progressLine', () => {
     expect(textOf(line)).toBe('100% · 12 of 12 watched');
   });
 
+  it('counts an unknown runtime as its season’s mean (Up next’s rule)', () => {
+    const line = progressLine(
+      { seasons, skipped: [], watched: { S01E01: record, S01E02: record } },
+      { nextAirDate: null, runtimes: { 1: [28, 32], 2: [60, 0] } },
+    );
+    expect(textOf(line)).toBe('50% · 2 of 4 watched · 2h left');
+  });
+
+  it('says no time while a season left has no runtime at all', () => {
+    const line = progressLine(
+      { seasons, skipped: [], watched: { S01E01: record } },
+      { nextAirDate: null, runtimes: { 1: [28, 32], 2: [0, 0] } },
+    );
+    expect(textOf(line)).toBe('25% · 1 of 4 watched');
+  });
+
   it('leaves the time out until the runtimes are known', () => {
     const line = progressLine(oneSeason({ aired: 10, total: 10 }, 'www'), {
       nextAirDate: null,
@@ -114,9 +130,9 @@ describe('progressLine', () => {
 
 describe('time left from 10 hours up: whole hours', () => {
   const left = (minutes: number) =>
-    progressLine(oneSeason({ aired: 2, total: 2 }, ''), {
+    progressLine(oneSeason({ aired: 1, total: 1 }, ''), {
       nextAirDate: null,
-      runtimes: { 1: [minutes, 0] },
+      runtimes: { 1: [minutes] },
     });
 
   it('rounds to the hour: "124h left", spoken "124 hours left"', () => {

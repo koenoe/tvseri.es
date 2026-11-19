@@ -1,6 +1,6 @@
 import { shortCode } from '@tvseri.es/schemas';
 
-import { formatDuration, plural } from '@tvseri.es/utils';
+import { formatDuration, isDone, plural } from '@tvseri.es/utils';
 
 import type { SeasonProgress } from '@/lib/marking/progress';
 
@@ -90,7 +90,8 @@ export function seasonFacts(
       skipped,
     };
   }
-  if (watched === total) {
+  // Done (the season eye's rule): every episode watched or skipped
+  if (isDone({ open: total - watched - skippedCount, watched })) {
     return {
       count: episodesLabel,
       date,
@@ -162,7 +163,7 @@ export function seasonFactsEstimate(
       skipped,
     };
   }
-  if (watched === total) {
+  if (isDone({ open: total - watched - progress.skipped, watched })) {
     return {
       count: episodesLabel,
       date,
@@ -170,12 +171,10 @@ export function seasonFactsEstimate(
       skipped,
     };
   }
-  // time left only while something is neither watched nor skipped
-  const left = total - watched - progress.skipped > 0;
   return {
     count: `${watched} of ${total} watched`,
     date,
-    last: left ? { kind: 'clock', text: `${RUNTIME_STAND_IN} left` } : null,
+    last: { kind: 'clock', text: `${RUNTIME_STAND_IN} left` },
     skipped,
   };
 }

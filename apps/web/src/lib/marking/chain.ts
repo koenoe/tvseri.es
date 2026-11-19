@@ -36,71 +36,87 @@ export type MarkingActions = Readonly<
 export type Result = ActionResult<unknown>;
 export type Send = () => Promise<Result>;
 
-export const watchedOf = (result: Result): ReadonlyArray<ProgressItem> =>
+/** One list of the data a marking call answers with (`watched`, `unmarked`…) */
+const listOf = <T>(result: Result, key: string): ReadonlyArray<T> =>
   result.ok &&
   typeof result.data === 'object' &&
   result.data !== null &&
-  'watched' in result.data
-    ? (result.data as { watched: ReadonlyArray<ProgressItem> }).watched
+  key in result.data
+    ? ((result.data as Record<string, unknown>)[key] as ReadonlyArray<T>)
     : [];
 
-const unmarkedOf = (result: Result): ReadonlyArray<EpisodeRef> =>
-  result.ok &&
-  typeof result.data === 'object' &&
-  result.data !== null &&
-  'unmarked' in result.data
-    ? (result.data as { unmarked: ReadonlyArray<EpisodeRef> }).unmarked
-    : [];
+export const watchedOf = (result: Result): ReadonlyArray<ProgressItem> =>
+  listOf(result, 'watched');
 
 /**
  * The skips the API refused: requested, but not in the skipped set it
  * answers with (an episode TMDB doesn't list is dropped).
  */
 export const refusedOf = (result: Result): ReadonlyArray<EpisodeCode> =>
-  result.ok &&
-  typeof result.data === 'object' &&
-  result.data !== null &&
-  'refused' in result.data
-    ? (result.data as { refused: ReadonlyArray<EpisodeCode> }).refused
-    : [];
+  listOf(result, 'refused');
+
+type SavedPart = NonNullable<Extract<Result, { ok: false }>['partial']>;
 
 /** The store ops for what a failed write did save. */
-export const savedOps = (
-  partial: NonNullable<Extract<Result, { ok: false }>['partial']>,
-): MarkingOp[] => [
+export const savedOps = (partial: SavedPart): MarkingOp[] => [
   ...(partial.watched?.length
     ? [{ kind: 'mark', records: recordsFrom(partial.watched) } as const]
     : []),
   ...(partial.unmarked?.length
     ? [{ codes: partial.unmarked.map(codeOf), kind: 'unmark' } as const]
     : []),
+  ...(partial.skipped?.length
+    ? [{ codes: partial.skipped as EpisodeCode[], kind: 'skip' } as const]
+    : []),
+  ...(partial.unskipped?.length
+    ? [{ codes: partial.unskipped as EpisodeCode[], kind: 'unskip' } as const]
+    : []),
 ];
 
+const latest = (a: number | undefined, b: number | undefined) =>
+  a === undefined ? b : b === undefined ? a : Math.max(a, b);
+
 /**
- * Runs calls in order and stops at the first failure; the watched records of
- * every call are passed on together (the corrections).
+ * Runs calls in order and stops at the first failure. What every call saved
+ * is passed on together (the corrections; on a failure, `partial`), with
+ * the latest server time of them all (`at`): a seed fetched before the
+ * write must not undo it.
  */
 export async function sequence(calls: ReadonlyArray<Send>): Promise<Result> {
   const watched: ProgressItem[] = [];
   const unmarked: EpisodeRef[] = [];
+  const skipped: string[] = [];
+  const unskipped: string[] = [];
   const refused: EpisodeCode[] = [];
+  let at: number | undefined;
   for (const call of calls) {
     const result = await call();
+    at = latest(at, result.at);
     if (!result.ok) {
       // What the earlier calls saved stays saved: pass it on.
+      const partial = result.partial ?? {};
       return {
         ...result,
+        ...(at === undefined ? {} : { at }),
         partial: {
-          unmarked: [...unmarked, ...(result.partial?.unmarked ?? [])],
-          watched: [...watched, ...(result.partial?.watched ?? [])],
+          skipped: [...skipped, ...(partial.skipped ?? [])],
+          unmarked: [...unmarked, ...(partial.unmarked ?? [])],
+          unskipped: [...unskipped, ...(partial.unskipped ?? [])],
+          watched: [...watched, ...(partial.watched ?? [])],
         },
       };
     }
     watched.push(...watchedOf(result));
-    unmarked.push(...unmarkedOf(result));
+    unmarked.push(...listOf<EpisodeRef>(result, 'unmarked'));
+    skipped.push(...listOf<string>(result, 'skipped'));
+    unskipped.push(...listOf<string>(result, 'unskipped'));
     refused.push(...refusedOf(result));
   }
-  return { data: { refused, unmarked, watched }, ok: true };
+  return {
+    data: { refused, unmarked, watched },
+    ok: true,
+    ...(at === undefined ? {} : { at }),
+  };
 }
 
 type MarkEpisodes = Parameters<MarkingActions['markEpisodes']>[0]['episodes'];
@@ -118,6 +134,7 @@ export const markCalls = (
 const restoreOf = (record: WatchRecord): RestoreWhen => ({
   kind: 'restore',
   watchedAt: record.watchedAt,
+  ...(record.runtime > 0 ? { runtime: record.runtime } : {}),
   ...(record.dateUnknown ? { dateUnknown: true } : {}),
   ...(record.source ? { source: record.source } : {}),
   ...(record.importId ? { importId: record.importId } : {}),
@@ -151,7 +168,13 @@ export function callsFor(
       }
     } else if (op.kind === 'unskip') {
       for (const part of chunk(op.codes, MAX_EPISODES_PER_MARK_ACTION)) {
-        calls.push(() => actions.updateSeriesPrefs(seriesId, { unskip: part }));
+        calls.push(() =>
+          actions
+            .updateSeriesPrefs(seriesId, { unskip: part })
+            .then((result) =>
+              result.ok ? { ...result, data: { unskipped: part } } : result,
+            ),
+        );
       }
     } else if (op.kind === 'skip') {
       for (const part of chunk(op.codes, MAX_EPISODES_PER_MARK_ACTION)) {
@@ -160,10 +183,13 @@ export function callsFor(
             if (!result.ok) {
               return result;
             }
-            const kept = new Set(result.data.skipped);
+            const kept = new Set<string>(result.data.skipped);
             return {
               ...result,
-              data: { refused: part.filter((code) => !kept.has(code)) },
+              data: {
+                refused: part.filter((code) => !kept.has(code)),
+                skipped: part.filter((code) => kept.has(code)),
+              },
             };
           }),
         );

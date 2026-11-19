@@ -21,22 +21,24 @@ The API applies the same rule for lists: `apps/api/src/lib/listSync/state.ts`.
 - Date choices (`when.ts`): Just now · Yesterday (same clock time) · Last weekend (Saturday 21:00) · a picked day (21:00 local, never in the future) · On release day (local noon of the air date, `server/batch.ts`) · I don't remember. Dates before 2000 are refused (`packages/schemas/src/watched.ts`).
 - "I don't remember" counts for progress, lists and all-time totals, but never appears in History or year stats: an undated watch can't belong to a year.
 - Marking a watched episode again overwrites it; that's how re-dating works. The eye never does this by accident because it unmarks a watched episode.
-- Season or whole-show eye: anything aired not watched → mark it all; all aired watched → unmark it all. The whole-show unmark removes every regular episode and keeps the specials, which count nowhere it is about (`unmarkTvSeriesWatched` in the API); its Undo puts back exactly what it removed.
+- **Skipped stays skipped**: only an explicit unskip (the picker's Not watched) or a mark of that episode itself (the eye, a chip, a painted run, the picker, a Plex scrobble, an import) changes a skip. Season, whole-show and date-all marks leave it.
+- Season or whole-show eye: anything aired open (neither watched nor skipped) → mark it Just now, skips left skipped (the API's scope mark leaves them too, `markSeasonWatched`); done (one watched and nothing aired open, `isDone` in `@tvseri.es/utils`: the show's Finished rule) → unmark every watched one, the skips stay. The season's "Watched" (the facts line, the season dropdown, the sheet's Mark/Unmark season) reads the same rule. A scope mark settles with the watched set the API answers with, not the tab's guess. The whole-show unmark removes every regular episode and keeps the specials, which count nowhere it is about (`unmarkTvSeriesWatched` in the API); its Undo puts back exactly what it removed.
 - "I'm up to…" (`markUpTo`): marks every open aired episode up to the target (earlier seasons too), then unmarks watched episodes after it in the target's season only. It is one run: the unmark is sent only after the mark saved, and Try again redoes both.
-- "Seen it" / "Finished it all" mark every aired, unwatched episode as "I don't remember"; existing dates are kept.
+- "Seen it" / "Finished it all" mark every open aired episode as "I don't remember"; existing dates are kept, skips stay.
+- The watch-history sheet's calendars date what's open: the whole series' one every open aired episode, a season's one its aired episodes (watched ones re-dated); skipped ones stay skipped.
 - A show with a regular episode watched can't be put on the watchlist: the API would take it off again at the next mark. Specials alone don't count.
 
 ## When things go wrong
 
-- Changes show at once (`store.ts`: a server `base` plus optimistic `pending` ops). If the API fails, they roll back with "Couldn't save that. It's back as it was." and Try again. A partial save keeps what saved and rolls back the rest (`savedOps` in `chain.ts`).
-- Undo restores exactly the episodes it touched: date, no-date flag, a known service (Plex) and the import it came from, so Undo import can still remove it (`restoreOps` in `state.ts`).
-- Writes for one show run strictly in order (`createChains` in `chain.ts`). A seed older than the store's `version` is ignored, so stale page data (an old RSC payload on Back) can never undo a newer mark.
+- Changes show at once (`store.ts`: a server `base` plus optimistic `pending` ops). If the API fails, they roll back with "Couldn't save that. It's back as it was." and Try again. A partial save keeps what saved (watched, unmarked, skipped and unskipped; a skip the API refused never) and rolls back the rest (`savedOps` in `chain.ts`).
+- Undo restores exactly the episodes it touched: date, no-date flag, a known service (Plex) and the import it came from, so Undo import can still remove it (`restoreOps` in `state.ts`). An episode TMDB no longer lists comes back from the record itself (its number and minutes, `server/batch.ts`).
+- Writes for one show run strictly in order (`createChains` in `chain.ts`). A seed older than the store's `version` is ignored, so stale page data (an old RSC payload on Back) can never undo a newer mark; every settled write, a multi-request one and one that saved part included, moves `version` to its server time (`sequence` in `chain.ts`).
 - The press gate (`pressGate.ts`): the second click of a multi-click never counts, and a control is inert while its own write is out. Marking moves things under the pointer (the Next up pill re-renders in place), so a double tap would otherwise press what slid in.
 - If a show's marks failed to load (`SeriesBase.unavailable`), every command on it is refused ("Your progress for this series didn't load…"), so a toggle can't delete marks the page couldn't see.
 
 ## Limits
 
-- Only episodes that exist and have aired are sent (`hasEpisodeAired`, or an air date that has passed, since the cached flag can lag on release day); others fail like a partial save. Undo restores skip this check: they re-create records the viewer already had.
+- Only episodes that exist and have aired are sent (`hasEpisodeAired` with the live date: the cached flag can lag on release day; an episode counts as aired from the start of its UTC air day); others fail like a partial save. Undo restores skip this check: they re-create records the viewer already had.
 - A whole-show mark takes up to 1,000 aired episodes (`MAX_EPISODES_PER_SERIES_MARK`, a 413 above it); larger shows are marked season by season.
 - One action takes up to 2,000 episodes (`MAX_EPISODES_PER_MARK_ACTION`); bigger sets are split automatically.
 

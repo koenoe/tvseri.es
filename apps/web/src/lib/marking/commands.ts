@@ -43,13 +43,14 @@ import {
   airedRegularEpisodes,
   codeOf,
   episodeState,
+  isStarted,
   isWatched,
   nextEpisode,
   openBefore,
+  openEpisodes,
+  openInSeason,
   parseCode,
   regularWatchedCount,
-  unwatchedInSeason,
-  unwatchedRegularEpisodes,
   upToPlan,
   watchedInSeason,
 } from './progress';
@@ -206,13 +207,17 @@ export function createMarkingCommands(deps: MarkingDeps) {
    * On failure the store keeps exactly what the server saved (a multi-request
    * write can fail part-way) and rolls back the rest, with an error toast that
    * says which and offers Try again. `restore`: Undo putting marks back, no
-   * new watching.
+   * new watching. `asSaved`: the answer is everything the write's scope
+   * holds now (a scope mark), so the store takes it instead of `ops`.
    */
   async function run(
     seriesId: number,
     ops: ReadonlyArray<MarkingOp>,
     send: Send,
-    { restore = false }: Readonly<{ restore?: boolean }> = {},
+    {
+      asSaved = false,
+      restore = false,
+    }: Readonly<{ asSaved?: boolean; restore?: boolean }> = {},
   ): Promise<boolean> {
     if (!signedIn()) {
       return false;
@@ -240,6 +245,7 @@ export function createMarkingCommands(deps: MarkingDeps) {
             id,
             index === ids.length - 1 ? corrections : [],
             result.at,
+            { replace: asSaved },
           );
       });
       updateLibrary(seriesId);
@@ -262,7 +268,7 @@ export function createMarkingCommands(deps: MarkingDeps) {
         action: {
           label: 'Try again',
           onClick: () => {
-            void run(seriesId, ops, send, { restore });
+            void run(seriesId, ops, send, { asSaved, restore });
           },
         },
         title: saved.length > 0 ? PARTIAL_MESSAGE : ERROR_MESSAGE,
@@ -577,18 +583,20 @@ export function createMarkingCommands(deps: MarkingDeps) {
         },
       ],
       () => actions.markScope({ seriesId, when: { kind: 'unknown' } }),
+      { asSaved: true },
     );
 
   /**
-   * Marks what is open in a season or the whole show Just now (skipped
-   * included). `'nothing'` when nothing is open.
+   * Marks what is open in a season or the whole show Just now; skipped
+   * episodes stay skipped (the API's scope mark leaves them too). `'nothing'`
+   * when nothing is open.
    */
   function markOpenScope(seriesId: number, seasonNumber?: number): Started {
     return command(seriesId, (prior) => {
       const open =
         seasonNumber === undefined
-          ? unwatchedRegularEpisodes(prior)
-          : unwatchedInSeason(prior, seasonNumber);
+          ? openEpisodes(prior)
+          : openInSeason(prior, seasonNumber);
       if (open.length === 0) {
         return null;
       }
@@ -601,12 +609,16 @@ export function createMarkingCommands(deps: MarkingDeps) {
               recordOf({ kind: 'now' }, deps.now()),
             ]),
           );
-          return run(seriesId, [{ kind: 'mark', records }], () =>
-            actions.markScope({
-              seasonNumber,
-              seriesId,
-              when: { kind: 'now' },
-            }),
+          return run(
+            seriesId,
+            [{ kind: 'mark', records }],
+            () =>
+              actions.markScope({
+                seasonNumber,
+                seriesId,
+                when: { kind: 'now' },
+              }),
+            { asSaved: true },
           );
         },
         toast: markedToast({
@@ -640,7 +652,7 @@ export function createMarkingCommands(deps: MarkingDeps) {
         return;
       }
       command(seriesId, (prior) => {
-        const refs = airedRegularEpisodes(prior);
+        const refs = openEpisodes(prior);
         return {
           // Two writes, two runs: a failed mark never takes the answer back.
           send: () =>
@@ -736,16 +748,16 @@ export function createMarkingCommands(deps: MarkingDeps) {
 
     /**
      * "Seen it" and "Already seen": I have seen this, stop suggesting it.
-     * Marks every aired episode that isn't watched yet with no date ("I
-     * don't remember", as "Finished it all"), so nothing enters this year's
-     * stats or the dated history; episodes already watched keep their dates
-     * (the API adds only what is open). A finished show is left as it is,
-     * never unmarked: the press says it is already seen. The toast names
-     * the show; its Undo removes exactly what this press added.
+     * Marks every open aired episode with no date ("I don't remember", as
+     * "Finished it all"), so nothing enters this year's stats or the dated
+     * history; episodes already watched keep their dates and skipped ones
+     * stay skipped (the API adds only what is open). A finished show is
+     * left as it is, never unmarked: the press says it is already seen. The
+     * toast names the show; its Undo removes exactly what this press added.
      */
     markSeen(seriesId: number, title: string) {
       command(seriesId, (prior) => {
-        const open = unwatchedRegularEpisodes(prior);
+        const open = openEpisodes(prior);
         if (open.length === 0) {
           // Nothing left to mark: say so, the button itself never changes
           deps.toast({ title: SEEN_MESSAGE });
@@ -966,7 +978,7 @@ export function createMarkingCommands(deps: MarkingDeps) {
       // The API parks the watchlist entry of a show with a regular episode
       // watched, so saving one would silently undo itself at the next mark
       const started =
-        (current ? regularWatchedCount(current) > 0 : false) ||
+        (current ? isStarted(current) : false) ||
         (library.status === 'ready' &&
           (library.ids.inProgress.includes(seriesId) ||
             library.ids.watched.includes(seriesId)));
@@ -1009,10 +1021,12 @@ export function createMarkingCommands(deps: MarkingDeps) {
 
     /**
      * A season (`seasonNumber`) or the whole show: marks everything open Just
-     * now (skipped included), or unmarks it all when complete. Complete means
-     * it has aired episodes and every one is watched: a scope the store knows
-     * no aired episodes for (an unknown season, a show before its premiere)
-     * is never unmarked from here.
+     * now, skipped episodes left skipped, or unmarks it all when done (no
+     * aired episode open, one watched at least: the show's Finished rule, so
+     * a scope finished through skips is unmarked, its skips never turned
+     * into watches). A scope the store knows no aired episodes for (an
+     * unknown season, a show before its premiere) is never unmarked from
+     * here.
      */
     toggleScope(seriesId: number, seasonNumber?: number): Promise<unknown> {
       const opened = markOpenScope(seriesId, seasonNumber);

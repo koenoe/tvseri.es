@@ -15,10 +15,6 @@ export const addDaysUtc = (date: string, days: number) =>
 /** Midnight UTC of the day a timestamp falls on (epoch ms) */
 export const startOfDayUtc = (ms: number) => Date.parse(todayUtc(ms));
 
-/** The last millisecond of a `YYYY-MM-DD` day in UTC (epoch ms) */
-export const endOfDayUtc = (date: string) =>
-  Date.parse(`${date}T23:59:59.999Z`);
-
 /** Whole days from one `YYYY-MM-DD` to another (negative = before) */
 export const daysBetweenUtc = (from: string, to: string) =>
   Math.round(

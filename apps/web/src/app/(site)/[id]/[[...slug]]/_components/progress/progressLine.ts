@@ -1,5 +1,10 @@
 import type { SeriesRuntimes } from '@tvseri.es/schemas';
-import { formatDuration, formatDurationWords, plural } from '@tvseri.es/utils';
+import {
+  formatDuration,
+  formatDurationWords,
+  minutesFor,
+  plural,
+} from '@tvseri.es/utils';
 
 import { formatAirWeekdayDate, spokenAirDate } from '@/lib/format/airDate';
 import { airedRegularEpisodes, toPercentage } from '@/lib/marking/progress';
@@ -60,18 +65,22 @@ type Options = Readonly<{
   nextAirDate: string | null;
 }>;
 
-/** The runtime of some episodes, in minutes (0 for an unknown one). */
+/**
+ * The runtime of some episodes, in minutes, by the one "time left" rule
+ * (`minutesFor`: an unknown one is its season's mean; the page has no series
+ * average). 0 when one is still unknown: the line then says no time.
+ */
 function minutesOf(
   episodes: ReadonlyArray<
     Readonly<{ seasonNumber: number; episodeNumber: number }>
   >,
   runtimes: SeriesRuntimes,
 ): number {
-  return episodes.reduce(
-    (sum, ref) =>
-      sum + (runtimes[ref.seasonNumber]?.[ref.episodeNumber - 1] ?? 0),
-    0,
-  );
+  const refs = episodes.map((ref) => ({
+    episode: ref.episodeNumber,
+    season: ref.seasonNumber,
+  }));
+  return minutesFor(refs, runtimes, null) ?? 0;
 }
 
 /** A fact of the line, with its small icon or plain */

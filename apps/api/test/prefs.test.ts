@@ -255,7 +255,7 @@ describe('per-show prefs', () => {
     );
   });
 
-  it('marking a skipped episode watched clears the skip', async () => {
+  it('marking a skipped episode watched clears the skip; a season mark leaves it', async () => {
     setup();
     await patch({ skip: ['S01E02', 'S01E03', 'S02E01'] });
     await markEpisode({ episode: 2, show: SHOW });
@@ -266,7 +266,7 @@ describe('per-show prefs', () => {
       body: { watchProvider: null },
       method: 'POST',
     });
-    expect(await prefs()).toMatchObject({ skipped: ['S02E01'] });
+    expect(await prefs()).toMatchObject({ skipped: ['S01E03', 'S02E01'] });
 
     await request(`/user/${USER_ID}/watched/batch`, {
       as: USER_ID,
@@ -292,7 +292,7 @@ describe('per-show prefs', () => {
       ],
       method: 'POST',
     });
-    expect(await prefs()).toMatchObject({ skipped: [] });
+    expect(await prefs()).toMatchObject({ skipped: ['S01E03'] });
   });
 
   it('a Plex scrobble of a skipped episode clears the skip', async () => {
@@ -361,7 +361,7 @@ describe('per-show prefs', () => {
     expect(items[0]).toMatchObject({ watchProviderName: 'Netflix' });
   });
 
-  it('marking the whole show clears every skip', async () => {
+  it('marking the whole show leaves every skip', async () => {
     setup();
     await patch({ skip: ['S01E02', 'S02E03'] });
     await request(`/user/${USER_ID}/watched/series/${SHOW}`, {
@@ -369,7 +369,7 @@ describe('per-show prefs', () => {
       body: { watchProvider: null },
       method: 'POST',
     });
-    expect(await prefs()).toMatchObject({ skipped: [] });
+    expect(await prefs()).toMatchObject({ skipped: ['S01E02', 'S02E03'] });
   });
 
   it('returns list status and prefs in one call', async () => {
@@ -499,6 +499,29 @@ describe('a mark brings a hidden show back', () => {
     ]);
     expect(response.status).toBe(201);
     expect(await prefs()).toMatchObject({ paused: 'hide' });
+  });
+
+  it('Undo puts back an episode TMDB no longer lists, from the record alone', async () => {
+    setup();
+    const row = batchRow(1, 99);
+    const response = await post('/watched/batch?restore=true', [
+      {
+        ...row,
+        episode: { ...row.episode, airDate: '', stillPath: null, title: '' },
+      },
+    ]);
+    expect(response.status).toBe(201);
+    const progress = await request(
+      `/user/${USER_ID}/watched/series/${SHOW}?view=progress`,
+      { as: USER_ID },
+    );
+    expect(await progress.json()).toEqual([
+      expect.objectContaining({
+        episodeNumber: 99,
+        runtime: 30,
+        seasonNumber: 1,
+      }),
+    ]);
   });
 
   it('a special, an unmark or a Keep answer change nothing', async () => {

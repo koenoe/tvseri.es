@@ -16,7 +16,7 @@ import {
 import {
   buildPosterImageUrl,
   doneCount,
-  endOfDayUtc,
+  hasAiredAt,
   isSeasonPremiere,
   type LibraryEntry,
   type LibraryLetter,
@@ -200,10 +200,10 @@ const toProgress = (
   );
   const next = facts.nextEpisodeToAir;
   return {
-    aired: airedEpisodesAt(facts, now).total,
+    aired: state.progress.aired.length,
     airing: Boolean(
       next?.airDate &&
-        endOfDayUtc(next.airDate) > now &&
+        !hasAiredAt(next.airDate, now) &&
         !isSeasonPremiere(next, facts.seasons),
     ),
     lastSeason: latest?.seasonNumber ?? null,
@@ -220,8 +220,8 @@ const toProgress = (
         })
       : null,
     total: facts.numberOfEpisodes,
-    toWatch: state.unwatched.length,
-    watched: new Set(regular.map((episode) => episodeCode(episode))).size,
+    toWatch: state.progress.open.length,
+    watched: state.progress.watched,
   };
 };
 

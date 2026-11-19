@@ -55,9 +55,12 @@ type Props = Readonly<{
 const PHONE_CIRCLE =
   'text-white/75 md:[&>svg]:size-[22px] max-md:size-10 max-md:[&_svg]:size-5 disabled:cursor-default disabled:hover:border-white/20';
 
-/** Every aired episode watched: the eye is pressed (and unmarks the show). */
-const isCompleteView = (view: SeriesBase | undefined) =>
-  view ? seriesProgress(view).isComplete : false;
+/**
+ * Finished (every aired episode watched or skipped, something watched): the
+ * eye is pressed, and unmarks the show.
+ */
+const isFinishedView = (view: SeriesBase | undefined) =>
+  view ? seriesProgress(view).isFinished : false;
 
 /** The eye keeps its filled drawing at rest too. */
 const watchEyeGlyph: Glyph = { outline: eyeGlyph.filled };
@@ -116,7 +119,7 @@ function ActionButtons({
 }: Props) {
   const marking = useMarking();
   // a boolean, so marking an episode re-renders the buttons only when it flips
-  const isComplete = useSeriesAnswer(seriesId, isCompleteView);
+  const isFinished = useSeriesAnswer(seriesId, isFinishedView);
   const favorites = useListToggle(seriesId, 'favorites');
   const watchlist = useListToggle(seriesId, 'watchlist');
   const extraSection = useAdminSection(seriesId, isAdmin);
@@ -137,7 +140,7 @@ function ActionButtons({
       : 'Not aired yet';
   const eyeLabel =
     eyeOff ??
-    (isComplete
+    (isFinished
       ? 'Unmark the whole series'
       : 'Mark the whole series (just now)');
   const listLabel = (name: string) =>
@@ -153,7 +156,7 @@ function ActionButtons({
         icon={watchEyeGlyph}
         label={eyeLabel}
         onClick={toggleShow}
-        pressed={isComplete}
+        pressed={isFinished}
         size={48}
       />
       <CircleButton

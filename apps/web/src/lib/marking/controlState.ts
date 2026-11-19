@@ -118,7 +118,7 @@ const stillComing = (view: SeriesBase) =>
 /** The state a seeded show's marks give (the store's view) */
 function stateOfView(view: SeriesBase, streamed: ControlState): ControlState {
   const progress = seriesProgress(view);
-  if (progress.watched === 0) {
+  if (!progress.started) {
     const listed = view.status?.isWatchlisted ?? streamed.onWatchlist;
     return listed
       ? { kind: 'watchlist', onWatchlist: true }

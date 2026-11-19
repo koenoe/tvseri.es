@@ -242,6 +242,17 @@ describe('liveControlState: the server’s state until the tab knows better', ()
     ).toBe(upToDate);
   });
 
+  it('a show started only past its aired episodes is watching, as the lists have it', () => {
+    // S02E07 hasn't aired: started (the API puts it In progress), nothing done
+    expect(liveControlState(NEW_TO_YOU, view(['S02E07']), null, ID)).toEqual({
+      kind: 'watching',
+      next: { episodeNumber: 1, seasonNumber: 1 },
+      onWatchlist: false,
+      seasonTotal: 8,
+      seasonWatched: 0,
+    });
+  });
+
   it('Undo of Seen it: the pair again', () => {
     expect(liveControlState(NEW_TO_YOU, view([]), null, ID)).toBe(NEW_TO_YOU);
   });

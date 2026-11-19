@@ -3,6 +3,7 @@ import { memo } from 'react';
 import { eyeGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
+import { SKIPPED_LOOK } from '../progress/skippedLook';
 import type { PanelRow, PanelSegment } from './panelRows';
 import styles from './seasonPanel.module.css';
 
@@ -11,6 +12,7 @@ const SEGMENT: Readonly<Record<PanelSegment['kind'], string>> = {
   na: 'shadow-[inset_0_0_0_1px_rgb(255_0_128/0.5)]',
   nd: 'bg-white/45',
   nx: 'bg-cyan/60',
+  sk: SKIPPED_LOOK,
   w: 'bg-white',
 };
 

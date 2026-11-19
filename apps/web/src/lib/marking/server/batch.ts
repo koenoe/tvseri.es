@@ -72,12 +72,38 @@ const toSeriesForWatched = (series: SeriesFields) => ({
 export type EpisodeLookup = (ref: EpisodeRef) => Episode | undefined;
 
 /**
- * Batch items for `POST /user/:id/watched/batch`. Episodes the lookup doesn't
- * know (not in TMDB's season) are left out: the API needs their metadata.
- * So is a mark of an episode that hasn't aired (`hasAired`), as the page
- * refuses it and the API's batch route doesn't check; a restore is exempt,
- * since it puts back a record the user had even when TMDB has since moved
- * the date. A restore keeps its own service, only when it is one of
+ * The episode a restore puts back when TMDB no longer lists it: the record's
+ * own number and minutes, no title, date or still (the API shows what it
+ * knows of the show).
+ */
+const fromRecord = (
+  ref: EpisodeRef,
+  when: RestoreWhen,
+): Pick<
+  Episode,
+  | 'airDate'
+  | 'episodeNumber'
+  | 'runtime'
+  | 'seasonNumber'
+  | 'stillPath'
+  | 'title'
+> => ({
+  airDate: '',
+  episodeNumber: ref.episodeNumber,
+  runtime: when.runtime ?? 0,
+  seasonNumber: ref.seasonNumber,
+  stillPath: '',
+  title: '',
+});
+
+/**
+ * Batch items for `POST /user/:id/watched/batch`. A mark of an episode the
+ * lookup doesn't know (not in TMDB's season) is left out: the API needs its
+ * metadata. So is a mark of an episode that hasn't aired (`hasAired`), as
+ * the page refuses it and the API's batch route doesn't check. A restore is
+ * exempt from both: it puts back a record the user had, even when TMDB has
+ * since moved the date or dropped the episode (then from the record itself,
+ * `fromRecord`). A restore keeps its own service, only when it is one of
  * `knownProviders` (a name alone can't be trusted to carry a logo), and its
  * import.
  */
@@ -97,13 +123,14 @@ export function toBatchItems(
 ): CreateWatchedItemBatch {
   const tvSeries = toSeriesForWatched(input.series);
   return input.episodes.flatMap((ref) => {
-    const episode = input.lookup(ref);
     const { when } = ref;
-    if (!episode || (when.kind !== 'restore' && !input.hasAired(episode))) {
+    const restore = when.kind === 'restore' ? when : null;
+    const known = input.lookup(ref);
+    const episode = known ?? (restore ? fromRecord(ref, restore) : undefined);
+    if (!episode || (!restore && known && !input.hasAired(known))) {
       return [];
     }
     const stamp = stampFor(when, episode.airDate, input.now);
-    const restore = when.kind === 'restore' ? when : null;
     return [
       {
         ...(stamp.dateUnknown ? { dateUnknown: true as const } : {}),

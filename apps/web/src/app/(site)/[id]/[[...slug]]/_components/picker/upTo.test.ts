@@ -24,11 +24,9 @@ const view = (overrides: Partial<SeriesBase> = {}): SeriesBase => ({
 const target = { episodeNumber: 5, seasonNumber: 3 };
 
 describe('upToPlan', () => {
-  it('marks the open ones up to the target (skipped too) and unmarks later ones of its season', () => {
+  it('marks the open ones up to the target (skipped stay skipped) and unmarks later ones of its season', () => {
     const plan = upToPlan(view(), target);
-    expect(plan.mark.map((ref) => ref.episodeNumber)).toEqual([
-      2, 3, 2, 3, 4, 5,
-    ]);
+    expect(plan.mark.map((ref) => ref.episodeNumber)).toEqual([2, 3, 3, 4, 5]);
     expect(plan.unmark).toEqual([
       { episodeNumber: 7, seasonNumber: 3 },
       { episodeNumber: 9, seasonNumber: 3 },
@@ -45,7 +43,7 @@ describe('upToHint', () => {
       target,
     );
     expect(upToHint(target, 'Children', plan)).toBe(
-      'Up to S03E05 Children · marks 4 (S03E02–S03E05) · unmarks 1 (S03E07)',
+      'Up to S03E05 Children · marks 3 (S03E03–S03E05) · unmarks 1 (S03E07)',
     );
   });
 

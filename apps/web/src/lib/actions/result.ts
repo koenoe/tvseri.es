@@ -13,8 +13,8 @@ export type ActionError =
 
 /**
  * What a failed multi-request write did save before it failed (the server
- * keeps it): the watched records written and the episodes unmarked, so the
- * client can settle exactly that.
+ * keeps it): the watched records written, the episodes unmarked, skipped
+ * and un-skipped, so the client can settle exactly that.
  */
 export type PartialWrite = Readonly<{
   watched?: ReadonlyArray<
@@ -30,6 +30,9 @@ export type PartialWrite = Readonly<{
   unmarked?: ReadonlyArray<
     Readonly<{ seasonNumber: number; episodeNumber: number }>
   >;
+  /** Episode codes skipped (the API kept them) and un-skipped */
+  skipped?: ReadonlyArray<string>;
+  unskipped?: ReadonlyArray<string>;
 }>;
 
 /**

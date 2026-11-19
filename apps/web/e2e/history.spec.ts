@@ -339,11 +339,12 @@ test('Up to here opens I’m up to… and marks up to the target', async ({
     name: 'Which episode did you watch last?',
   });
   await expect(upTo).toBeVisible();
+  // The viewer's skipped S02E05 stays skipped
   await expect(
-    upTo.getByText('Up to S03E07 Legacy · marks 4 (S02E05–S03E07)'),
+    upTo.getByText('Up to S03E07 Legacy · marks 3 (S03E05–S03E07)'),
   ).toBeVisible();
   await upTo
-    .getByRole('button', { name: 'Mark 4 episodes · just now' })
+    .getByRole('button', { name: 'Mark 3 episodes · just now' })
     .click();
   await expect(upTo).toBeHidden();
   await expect(chip(page, 3, 7)).toHaveAttribute('aria-pressed', 'true');

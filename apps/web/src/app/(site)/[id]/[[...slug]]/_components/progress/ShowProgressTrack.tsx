@@ -12,6 +12,7 @@ import cn from '@/lib/cn';
 
 import type { ProgressLine } from './progressLine';
 import { drawRuns, type RunState } from './progressMap';
+import { SKIPPED_LOOK } from './skippedLook';
 import useTrackWidth from './useTrackWidth';
 
 type Props = Readonly<{
@@ -36,8 +37,7 @@ const spanPct = (from: number, to: number) => pct(pct(to) - pct(from));
  */
 const RUN_LOOK: Readonly<Record<RunState, string | null>> = {
   open: 'bg-white/30',
-  skipped:
-    'bg-[repeating-linear-gradient(90deg,rgb(255_255_255/0.75)_0_3px,transparent_3px_5px)]',
+  skipped: SKIPPED_LOOK,
   unaired: null,
   watched: 'bg-white',
 };

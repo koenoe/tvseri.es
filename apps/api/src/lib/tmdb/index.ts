@@ -48,6 +48,7 @@ import {
   buildProfileImageUrl,
   buildTitleTreatmentImageUrl,
   chunk,
+  hasAiredAt,
   toQueryString,
   toSlug,
 } from '@tvseri.es/utils';
@@ -779,7 +780,7 @@ const toSeason = (response: TmdbTvSeriesSeason): Season => {
     airDate,
     description: response.overview ?? '',
     episodes,
-    hasAired: new Date(airDate) <= new Date(),
+    hasAired: hasAiredAt(airDate, Date.now()),
     id: response.id,
     numberOfAiredEpisodes,
     numberOfEpisodes,

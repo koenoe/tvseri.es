@@ -151,6 +151,17 @@ describe('libraryAfter: the lists the API will place the show in', () => {
     expect(libraryAfter(empty, 7, specials)).toBe(empty);
   });
 
+  it('started with nothing aired: the API can’t place it, so its lists stay', () => {
+    const premiere = seedToBase({
+      seasons: [{ airedEpisodeCount: 0, episodeCount: 8, seasonNumber: 1 }],
+      seriesId: 7,
+      watched: [{ episodeNumber: 1, seasonNumber: 1, watchedAt: 1 }],
+    });
+    const listed = { ...empty, inProgress: [7] };
+    expect(libraryAfter(listed, 7, premiere)).toBe(listed);
+    expect(libraryAfter(empty, 7, premiere)).toBe(empty);
+  });
+
   it('the same ids when the show stays where it is', () => {
     const ids = { ...empty, watched: [7], watchlist: [7] };
     expect(libraryAfter(ids, 7, seed)).toBe(ids);

@@ -1,6 +1,11 @@
 import type { SeriesRuntimes } from '@tvseri.es/schemas';
 import { type EpisodeRef, shortCode } from '@tvseri.es/schemas';
-import { episodeNumbersOf, firstEpisodeOf, plural } from '@tvseri.es/utils';
+import {
+  episodeNumbersOf,
+  firstEpisodeOf,
+  isDone,
+  plural,
+} from '@tvseri.es/utils';
 
 import { codeOf } from '@/lib/marking/progress';
 import type { SeriesBase } from '@/lib/marking/types';
@@ -24,7 +29,8 @@ const PANEL_MERGE_ABOVE = 12;
 export const TYPE_AHEAD_MS = 900;
 
 export type PanelSegment = Readonly<{
-  kind: 'w' | 'nd' | 'nx' | 'na' | '';
+  /** watched, no date, Next up, not aired, skipped, open */
+  kind: 'w' | 'nd' | 'nx' | 'na' | 'sk' | '';
   flex: number;
 }>;
 
@@ -91,9 +97,11 @@ function segmentsOf(
   }
   const weight = weightsOf(episodes);
   const lastAired = firstEpisodeOf(season) + season.airedEpisodeCount - 1;
+  const skipped = new Set<string>(view.skipped);
   const raw = episodeNumbersOf(season, count).map((episodeNumber) => {
     const ref = { episodeNumber, seasonNumber: season.seasonNumber };
-    const record = view.watched[codeOf(ref)];
+    const code = codeOf(ref);
+    const record = view.watched[code];
     const kind: PanelSegment['kind'] = record
       ? record.dateUnknown
         ? 'nd'
@@ -103,7 +111,9 @@ function segmentsOf(
         ? 'nx'
         : episodeNumber > lastAired
           ? 'na'
-          : '';
+          : skipped.has(code)
+            ? 'sk'
+            : '';
     return { flex: weight(episodeNumber), kind };
   });
   if (count <= PANEL_MERGE_ABOVE) {
@@ -129,12 +139,18 @@ function stateOf(
   const name = seasonName(season.seasonNumber);
   const count = Math.max(season.episodeCount, season.airedEpisodeCount);
   const aired = season.airedEpisodeCount;
-  const watched = episodeNumbersOf(season, count).filter(
-    (episodeNumber) =>
-      view.watched[
-        codeOf({ episodeNumber, seasonNumber: season.seasonNumber })
-      ],
-  ).length;
+  const skippedCodes = new Set<string>(view.skipped);
+  let watched = 0;
+  let skipped = 0;
+  for (const episodeNumber of episodeNumbersOf(season, count)) {
+    const code = codeOf({ episodeNumber, seasonNumber: season.seasonNumber });
+    if (view.watched[code]) {
+      watched += 1;
+    } else if (skippedCodes.has(code)) {
+      skipped += 1;
+    }
+  }
+  const skips = skipped > 0 ? `, ${skipped} skipped` : '';
   const year = airYear(season.airDate);
   if (aired === 0 && count > 0 && year) {
     return {
@@ -148,27 +164,30 @@ function stateOf(
     const number = next?.episodeNumber ?? firstEpisodeOf(season) + aired;
     const day = next ? airWeekday(next.airDate) : '';
     return {
-      aria: `${name}, airing, ${watched} of ${aired} aired watched, next episode ${number}${day ? ` on ${day}` : ''}`,
+      aria: `${name}, airing, ${watched} of ${aired} aired watched${skips}, next episode ${number}${day ? ` on ${day}` : ''}`,
       state: {
         text: `${shortCode(number)}${day ? ` ${day}` : ''}`,
         tone: 'pink',
       },
     };
   }
-  if (count > 0 && watched >= count) {
+  // Done as the facts line and the season eye have it: skips included
+  if (count > 0 && isDone({ open: count - watched - skipped, watched })) {
     return {
-      aria: `${name}, all ${count} watched`,
+      aria: skipped
+        ? `${name}, done: ${watched} watched${skips}`
+        : `${name}, all ${count} watched`,
       state: { text: 'Watched', tone: 'done' },
     };
   }
   if (watched > 0) {
     return {
-      aria: `${name}, ${watched} of ${count} watched`,
+      aria: `${name}, ${watched} of ${count} watched${skips}`,
       state: { text: `${watched} of ${count}`, tone: 'default' },
     };
   }
   return {
-    aria: `${name}, ${plural(count, 'episode')}, not started`,
+    aria: `${name}, ${plural(count, 'episode')}, not started${skips}`,
     state: { text: 'Not started', tone: 'default' },
   };
 }

@@ -116,10 +116,8 @@ export type TasteSplitGenre = Readonly<{
 /** `GET /user/:id/match`: the visitor's view of another profile */
 export type TasteMatchResponse = Readonly<{
   match: Readonly<{
-    /** `null` under 5 shared shows: "Not enough shared yet", an empty ring */
+    /** `null` under 5 shared shows: "Not enough shared yet", an unlit meter */
     level: TasteLevel | null;
-    /** Ring fill, 0 to 100 (0 without a level) */
-    arc: number;
     /** Shows in both libraries (watched, watching or favourited) */
     sharedCount: number;
     notEnough: boolean;
@@ -148,7 +146,6 @@ export type CirclePerson = Readonly<{
   id: string;
   username: string;
   level: TasteLevel | null;
-  arc: number;
 }>;
 
 /** A show from your circle you haven't seen ("From your circle") */
@@ -256,6 +253,11 @@ export type UpNextItem = Readonly<{
   /** "1 of 8 watched · 1 to watch" */
   seasonWatched: number;
   seasonTotal: number;
+  /**
+   * The season's first episode number; absent means 1. TMDB numbers some
+   * shows on across seasons (Naruto Shippuden S2 = E33…E53).
+   */
+  firstEpisodeNumber?: number;
   toWatch: number;
   /**
    * The season's aired episodes watched or skipped: the line's fill (done

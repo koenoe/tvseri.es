@@ -21,6 +21,7 @@ import {
   firstEpisodeNumbers,
   formatSeriesYears,
   generateTmdbImageUrl,
+  hasAiredAt,
   regionName,
   toSlug,
   UNKNOWN_COLOR,
@@ -230,7 +231,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
   const nextHasAired = (seasonNumber: number) =>
     !!nextEpisodeToAir?.air_date &&
     nextEpisodeToAir.season_number === seasonNumber &&
-    new Date(nextEpisodeToAir.air_date).getTime() <= Date.now();
+    hasAiredAt(nextEpisodeToAir.air_date, Date.now());
 
   type TmdbSeason = NonNullable<TmdbTvSeries['seasons']>[number];
   const toSeason = (
@@ -247,7 +248,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
       episodes: [],
       // Only where TMDB numbers on across seasons: absent means 1
       ...(firstEpisodeNumber !== 1 && { firstEpisodeNumber }),
-      hasAired: new Date(airDate) <= new Date(),
+      hasAired: hasAiredAt(airDate, Date.now()),
       id: season.id,
       numberOfAiredEpisodes: Math.min(airedCount, season.episode_count),
       numberOfEpisodes: season.episode_count,
@@ -279,14 +280,11 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
   );
   // The one aired rule for regular seasons (lib/seriesFacts/aired.ts): a
   // special as TMDB's last aired episode doesn't zero them. The next episode
-  // counts as aired from the start of its air date.
+  // counts as aired from the start of its air date (`hasAiredAt`).
   const airedPerSeason = airedBySeason({
     last,
     next,
-    nextHasAired: Boolean(
-      nextEpisodeToAir?.air_date &&
-        new Date(nextEpisodeToAir.air_date).getTime() <= Date.now(),
-    ),
+    nextHasAired: hasAiredAt(nextEpisodeToAir?.air_date, Date.now()),
     now: Date.now(),
     seasons: regularSeasons.map((season) => ({
       airDate: season.air_date ?? '',
@@ -316,8 +314,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
         specialsSeason,
         nextEpisodeToAir?.season_number === 0 && !nextHasAired(0)
           ? nextEpisodeToAir.episode_number - 1
-          : specialsSeason.air_date &&
-              new Date(specialsSeason.air_date).getTime() <= Date.now()
+          : hasAiredAt(specialsSeason.air_date, Date.now())
             ? specialsSeason.episode_count
             : 0,
       )
@@ -371,7 +368,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     firstAirDate,
     // @ts-expect-error genre_ids is not defined in the type
     genres: normalizeGenres(series.genres ?? series.genre_ids),
-    hasAired: new Date(firstAirDate) <= new Date(),
+    hasAired: hasAiredAt(firstAirDate, Date.now()),
     id: series.id,
     isAdult: series.adult,
     languages,
@@ -417,7 +414,7 @@ export function normalizeTvSeriesEpisode(episode: TmdbTvSeriesEpisode) {
     airDate,
     description: episode.overview ?? '',
     episodeNumber: episode.episode_number,
-    hasAired: new Date(airDate) <= new Date(),
+    hasAired: hasAiredAt(airDate, Date.now()),
     id: episode.id,
     runtime: episode.runtime ?? 0,
     seasonNumber: episode.season_number,

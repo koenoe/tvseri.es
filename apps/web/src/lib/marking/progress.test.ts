@@ -2,15 +2,17 @@ import { describe, expect, it } from 'vitest';
 
 import {
   episodeState,
+  hasEpisodeAired,
   hasHistory,
   nextEpisode,
   openBefore,
   openEpisodes,
+  openInSeason,
   seasonProgress,
   seriesProgress,
   toPercentage,
-  unwatchedInSeason,
-  unwatchedRegularEpisodes,
+  upToPlan,
+  watchedCountInSeason,
 } from './progress';
 import type { SeriesBase } from './types';
 
@@ -119,13 +121,15 @@ describe('progress', () => {
       isComplete: false,
       isFinished: false,
       left: 2,
+      started: true,
       toWatch: 3,
       watched: 2,
       watchedRuntime: 90,
     });
+    // S01E03 skipped, the rest watched: the season is done
     expect(seasonProgress(series, 1)).toEqual({
       aired: 3,
-      isComplete: false,
+      isDone: true,
       seasonNumber: 1,
       skipped: 1,
       total: 3,
@@ -133,10 +137,27 @@ describe('progress', () => {
     });
   });
 
-  it('a season is complete only when every aired episode is watched', () => {
+  it('a season is done once no aired episode is open, one watched at least', () => {
     const series = base({ watched: { S02E01: at(1), S02E02: at(1) } });
-    expect(seasonProgress(series, 2).isComplete).toBe(true);
+    expect(seasonProgress(series, 2).isDone).toBe(true);
     expect(seasonProgress(series, 2).total).toBe(4);
+    const skippedRest = base({
+      skipped: ['S01E02', 'S01E03'],
+      watched: { S01E01: at(1) },
+    });
+    expect(seasonProgress(skippedRest, 1).isDone).toBe(true);
+    expect(
+      seasonProgress(base({ skipped: ['S01E01', 'S01E02', 'S01E03'] }), 1)
+        .isDone,
+    ).toBe(false);
+  });
+
+  it('counts a skip that is also watched once, as watched (the header’s placeholder)', () => {
+    const series = base({ skipped: ['S01E01'], watched: { S01E01: at(1) } });
+    expect(seasonProgress(series, 1)).toMatchObject({
+      skipped: 0,
+      watched: 1,
+    });
   });
 
   it('finished (the lists): every aired episode watched or skipped, one watched at least', () => {
@@ -145,8 +166,7 @@ describe('progress', () => {
       skipped: ['S02E01', 'S02E02', 'S02E03'],
       watched: rest,
     });
-    // Complete stays "every aired episode watched": the eye still marks
-    // the skipped ones
+    // Complete stays "every aired episode watched"; the eye reads Finished
     expect(seriesProgress(skippedRest)).toMatchObject({
       isComplete: false,
       isFinished: true,
@@ -216,32 +236,26 @@ describe('episode helpers', () => {
     ]);
   });
 
-  it('a season mark includes skipped episodes', () => {
+  it('a season mark takes what is open: skipped episodes stay skipped', () => {
     const series = base({ skipped: ['S01E02'], watched: { S01E01: at(1) } });
-    expect(unwatchedInSeason(series, 1)).toEqual([
-      { episodeNumber: 2, seasonNumber: 1 },
+    expect(openInSeason(series, 1)).toEqual([
       { episodeNumber: 3, seasonNumber: 1 },
-    ]);
-  });
-
-  it('a whole-series mark takes aired regular episodes not watched, skipped included', () => {
-    const series = base({
-      skipped: ['S01E02'],
-      watched: {
-        S00E01: at(1),
-        S01E01: at(1),
-        S02E01: { ...at(1), dateUnknown: true },
-      },
-    });
-    expect(unwatchedRegularEpisodes(series)).toEqual([
-      { episodeNumber: 2, seasonNumber: 1 },
-      { episodeNumber: 3, seasonNumber: 1 },
-      { episodeNumber: 2, seasonNumber: 2 },
     ]);
   });
 });
 
 describe('specials and unknown seasons', () => {
+  it('counts the specials season on its own (its header)', () => {
+    expect(seasonProgress(base({ watched: { S00E01: at(1) } }), 0)).toEqual({
+      aired: 2,
+      isDone: false,
+      seasonNumber: 0,
+      skipped: 0,
+      total: 2,
+      watched: 1,
+    });
+  });
+
   it('specials alone are no history of the series', () => {
     expect(hasHistory(base({ watched: { S00E01: at(1) } }))).toBe(false);
     expect(hasHistory(base({ skipped: ['S00E02'] }))).toBe(false);
@@ -259,13 +273,13 @@ describe('specials and unknown seasons', () => {
     const series = base({ watched: { S07E01: at(1) } });
     expect(seasonProgress(series, 7)).toEqual({
       aired: 0,
-      isComplete: false,
+      isDone: false,
       seasonNumber: 7,
       skipped: 0,
       total: 0,
       watched: 0,
     });
-    expect(unwatchedInSeason(series, 7)).toEqual([]);
+    expect(openInSeason(series, 7)).toEqual([]);
   });
 });
 
@@ -323,11 +337,92 @@ describe('a show TMDB numbers on across seasons', () => {
     });
   });
 
+  it('never lets a watched row outside the aired episodes finish the show', () => {
+    // Every aired episode but S02E40 watched, plus a made-up S02E01 and a
+    // not yet aired S02E41: one open, so not finished
+    const watched = Object.fromEntries(
+      [33, 34, 35, 36, 37, 38, 39, 1, 41].map((episode) => [
+        `S02E${String(episode).padStart(2, '0')}`,
+        at(1),
+      ]),
+    );
+    const progress = seriesProgress(
+      numberedOn({ ...allOfSeason1, ...watched }),
+    );
+    expect(progress).toMatchObject({
+      isFinished: false,
+      left: 1,
+      started: true,
+      watched: 39,
+    });
+  });
+
+  it('counts a season’s watched episodes among its aired ones', () => {
+    const series = numberedOn({ S02E01: at(1), S02E33: at(1), S02E41: at(1) });
+    expect(watchedCountInSeason(series, 2)).toBe(1);
+  });
+
   it('asks about the open real episodes before one', () => {
     const before = openBefore(numberedOn({ S02E33: at(1) }), {
       episodeNumber: 36,
       seasonNumber: 2,
     });
     expect(before.map((ref) => ref.episodeNumber)).toEqual([34, 35]);
+  });
+});
+
+describe('started', () => {
+  it('is any regular episode watched, aired or not', () => {
+    expect(seriesProgress(base({ watched: { S02E04: at(1) } }))).toMatchObject({
+      started: true,
+      watched: 0,
+    });
+  });
+
+  it('is never specials or skips alone', () => {
+    expect(
+      seriesProgress(base({ skipped: ['S01E01'], watched: { S00E01: at(1) } }))
+        .started,
+    ).toBe(false);
+  });
+});
+
+describe('upToPlan', () => {
+  it('leaves skipped episodes skipped on the way up to the target', () => {
+    const series = base({
+      skipped: ['S01E02'],
+      watched: { S01E01: at(1) },
+    });
+    const plan = upToPlan(series, { episodeNumber: 1, seasonNumber: 2 });
+    expect(plan.mark).toEqual([
+      { episodeNumber: 3, seasonNumber: 1 },
+      { episodeNumber: 1, seasonNumber: 2 },
+    ]);
+  });
+});
+
+describe('hasEpisodeAired', () => {
+  const episode = {
+    airDate: '2026-11-19T00:00:00.000Z',
+    episodeNumber: 5,
+    hasAired: false,
+  };
+
+  it('is aired within the season’s aired count', () => {
+    expect(hasEpisodeAired(episode, 5)).toBe(true);
+  });
+
+  it('is aired by the API’s flag past the count (a full-season drop)', () => {
+    expect(hasEpisodeAired({ ...episode, hasAired: true }, 4)).toBe(true);
+  });
+
+  it('is aired from the start of its UTC air day when asked live', () => {
+    expect(hasEpisodeAired(episode, 4)).toBe(false);
+    expect(
+      hasEpisodeAired(episode, 4, Date.parse('2026-11-19T00:00:00Z')),
+    ).toBe(true);
+    expect(
+      hasEpisodeAired(episode, 4, Date.parse('2026-11-18T23:59:59Z')),
+    ).toBe(false);
   });
 });

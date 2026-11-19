@@ -68,6 +68,15 @@ describe('seasonFacts', () => {
     });
   });
 
+  it('done through skips (as the season eye has it): Watched, and says the skips', () => {
+    expect(facts(9, 10, ['S03E10'])).toEqual({
+      count: '10 episodes',
+      date: 'Jun 26, 2024',
+      last: { kind: 'eye', text: 'Watched' },
+      skipped: '1 skipped',
+    });
+  });
+
   it('airing: aired only, and the next day in pink', () => {
     expect(facts(0, 6)).toMatchObject({
       count: '0 of 6 watched',
@@ -201,12 +210,20 @@ describe('seasonFactsEstimate', () => {
     );
   });
 
-  it('carries the skipped fact, and no time left once nothing is left', () => {
+  it('carries the skipped fact; done through skips reads Watched, as the line does', () => {
     expect(seasonFactsEstimate(progress(9, 10, 1), '2023-06-22', true)).toEqual(
       {
-        count: '9 of 10 watched',
+        count: '10 episodes',
         date: 'Jun 22, 2023',
-        last: null,
+        last: { kind: 'eye', text: 'Watched' },
+        skipped: '1 skipped',
+      },
+    );
+    expect(seasonFactsEstimate(progress(4, 10, 1), '2023-06-22', true)).toEqual(
+      {
+        count: '4 of 10 watched',
+        date: 'Jun 22, 2023',
+        last: { kind: 'clock', text: '0h 00m left' },
         skipped: '1 skipped',
       },
     );

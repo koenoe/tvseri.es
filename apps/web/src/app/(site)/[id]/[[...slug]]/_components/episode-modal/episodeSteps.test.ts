@@ -47,6 +47,18 @@ describe('stepEpisode', () => {
     expect(stepEpisode(seasons, ref(3, 1), -1)).toEqual(ref(1, 4));
   });
 
+  it('reaches every episode the modal opens: more aired than announced', () => {
+    // TMDB's count lags its aired episodes: S1 has 10 announced, 12 out
+    const seasons = [
+      { airedEpisodeCount: 12, episodeCount: 10, seasonNumber: 1 },
+      { airedEpisodeCount: 2, episodeCount: 0, seasonNumber: 2 },
+    ];
+    expect(stepEpisode(seasons, ref(1, 10), 1)).toEqual(ref(1, 11));
+    expect(stepEpisode(seasons, ref(1, 12), 1)).toEqual(ref(2, 1));
+    expect(stepEpisode(seasons, ref(2, 1), -1)).toEqual(ref(1, 12));
+    expect(isKnownEpisode(seasons, ref(2, 2))).toBe(true);
+  });
+
   it('gives up on a season the show doesn’t have', () => {
     expect(stepEpisode(SEASONS, ref(9, 1), 1)).toBeNull();
   });

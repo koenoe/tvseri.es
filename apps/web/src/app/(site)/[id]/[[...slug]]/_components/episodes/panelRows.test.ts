@@ -117,6 +117,53 @@ describe('panelRows', () => {
   });
 });
 
+describe('panelRows with skipped episodes', () => {
+  const seasons = [s(1, 4, 4, '2020-01-01'), s(2, 4, 4, '2021-01-01')];
+  const skipping = view({
+    seasons: [],
+    skipped: ['S01E02', 'S02E03'],
+    watched: {
+      ...watchedCodes(1, 1),
+      S01E03: record(1),
+      S01E04: record(1),
+      S02E01: record(1),
+    },
+  });
+  const rows = panelRows({ nextEpisodeToAir: null, seasons }, skipping, {
+    episodeNumber: 2,
+    seasonNumber: 2,
+  });
+
+  it('draws a skipped episode as skipped, as the progress map does', () => {
+    expect(rows[0]!.segments.map((g) => g.kind)).toEqual(['w', 'sk', 'w', 'w']);
+    expect(rows[1]!.segments.map((g) => g.kind)).toEqual(['w', 'nx', 'sk', '']);
+  });
+
+  it('counts a season done through skips as Watched, as the facts line does, and names the skips', () => {
+    expect(rows[0]!.state).toEqual({ text: 'Watched', tone: 'done' });
+    expect(rows[0]!.aria).toBe('Season 1, done: 3 watched, 1 skipped');
+    expect(rows[1]!.state).toEqual({ text: '1 of 4', tone: 'default' });
+    expect(rows[1]!.aria).toBe('Season 2, 1 of 4 watched, 1 skipped');
+  });
+
+  it('names the skips of a season not started or still airing too', () => {
+    const [notStarted, airing] = panelRows(
+      {
+        nextEpisodeToAir: null,
+        seasons: [s(1, 4, 4, '2020-01-01'), s(2, 6, 3, '2026-10-01')],
+      },
+      view({ seasons: [], skipped: ['S01E01', 'S02E01'] }),
+      null,
+    );
+    expect(notStarted!.aria).toBe(
+      'Season 1, 4 episodes, not started, 1 skipped',
+    );
+    expect(airing!.aria).toBe(
+      'Season 2, airing, 0 of 3 aired watched, 1 skipped, next episode 4',
+    );
+  });
+});
+
 describe('panelRows signed out', () => {
   const rows = panelRows(
     show,

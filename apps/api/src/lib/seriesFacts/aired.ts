@@ -1,11 +1,12 @@
 import type { SeriesFacts } from '@tvseri.es/schemas';
 import {
-  endOfDayUtc,
-  episodeNumbersOf,
   firstEpisodeOf,
+  hasAiredAt,
   isOver,
   type SeasonsOutlook,
+  type ShowProgress,
   seasonsOutlook,
+  showProgress,
 } from '@tvseri.es/utils';
 
 type Episode = Readonly<{ seasonNumber: number; episodeNumber: number }>;
@@ -48,10 +49,7 @@ export const airedBySeason = (
 ): Record<number, number> => {
   const { last, next, now } = input;
   const started = input.seasons
-    .filter((season) => {
-      const airedAt = Date.parse(season.airDate);
-      return !Number.isNaN(airedAt) && airedAt <= now;
-    })
+    .filter((season) => hasAiredAt(season.airDate, now))
     .map((season) => season.seasonNumber);
   const latestStarted = started.length > 0 ? Math.max(...started) : 0;
   const over = isOver(input.status);
@@ -91,9 +89,9 @@ export const airedBySeason = (
 
 /**
  * How many regular episodes have aired at `now`, per season and in total
- * (`airedBySeason`), from the cached facts: the next episode counts once its
- * air date has ended (TMDB updates `last_episode_to_air` with a delay; the
- * facts are cached for a day).
+ * (`airedBySeason`), from the cached facts: the next episode counts from the
+ * start of its air day (`hasAiredAt`, the one air-day rule; TMDB updates
+ * `last_episode_to_air` with a delay and the facts are cached for a day).
  */
 export const airedEpisodesAt = (
   facts: Pick<
@@ -106,7 +104,7 @@ export const airedEpisodesAt = (
   const bySeason = airedBySeason({
     last: facts.lastEpisodeToAir,
     next,
-    nextHasAired: Boolean(next?.airDate && endOfDayUtc(next.airDate) <= now),
+    nextHasAired: hasAiredAt(next?.airDate, now),
     now,
     seasons: facts.seasons,
     status: facts.status,
@@ -116,21 +114,29 @@ export const airedEpisodesAt = (
 };
 
 /**
- * The aired regular episodes by their real numbers, in order: each season's
- * aired count (`airedBySeason`) from its first episode number, which isn't 1
- * where TMDB numbers on across seasons.
+ * The viewer's progress in a show at `now` (`showProgress`, the shared rule),
+ * from the facts' aired counts (`airedEpisodesAt`) and their watched and
+ * skipped episode codes.
  */
-export const airedEpisodeRefs = (
-  seasons: SeriesFacts['seasons'],
-  bySeason: Readonly<Record<number, number>>,
-): ReadonlyArray<Readonly<{ season: number; episode: number }>> =>
-  [...seasons]
-    .sort((a, b) => a.seasonNumber - b.seasonNumber)
-    .flatMap((season) =>
-      episodeNumbersOf(season, bySeason[season.seasonNumber] ?? 0).map(
-        (episode) => ({ episode, season: season.seasonNumber }),
-      ),
-    );
+export const progressAt = (
+  facts: Parameters<typeof airedEpisodesAt>[0],
+  marks: Readonly<{
+    watched: ReadonlyArray<string>;
+    skipped: ReadonlyArray<string>;
+  }>,
+  now: number,
+): ShowProgress => {
+  const { bySeason } = airedEpisodesAt(facts, now);
+  return showProgress({
+    seasons: facts.seasons.map((season) => ({
+      airedCount: bySeason[season.seasonNumber] ?? 0,
+      firstEpisodeNumber: season.firstEpisodeNumber,
+      seasonNumber: season.seasonNumber,
+    })),
+    skipped: marks.skipped,
+    watched: marks.watched,
+  });
+};
 
 /**
  * Aired seasons and a listed renewal (`seasonsOutlook`) at `now`. A season
@@ -148,7 +154,7 @@ export const seasonsOutlookAt = (
       seasonNumber: season.seasonNumber,
       started:
         (bySeason[season.seasonNumber] ?? 0) > 0 ||
-        Date.parse(season.airDate) <= now,
+        hasAiredAt(season.airDate, now),
     })),
   );
 };

@@ -88,6 +88,7 @@ export function liveUpNext(
     seasonTotal > 0 &&
     next.episodeNumber === firstEpisodeOf(season) + seasonTotal - 1 &&
     inSeason.length === seasonTotal;
+  const first = season ? firstEpisodeOf(season) : 1;
   const last = lastWatched(view);
   // Time by the overview's rule (each episode's own runtime), from the
   // season's minutes it sent; another season's aren't known here: nothing
@@ -97,8 +98,11 @@ export function liveUpNext(
   const left = inSeason
     .filter((ref) => !isMarked(codeOf(ref)))
     .map((ref) => ({ episode: ref.episodeNumber, season: ref.seasonNumber }));
+  // The season's first number is the next episode's season's (absent: 1)
+  const { firstEpisodeNumber: _, ...rest } = item;
   return {
-    ...item,
+    ...rest,
+    ...(first === 1 ? {} : { firstEpisodeNumber: first }),
     airDate: undefined,
     code: episodeCode(next),
     episode: next.episodeNumber,

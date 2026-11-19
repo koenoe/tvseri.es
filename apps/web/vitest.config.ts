@@ -23,6 +23,10 @@ export default defineConfig({
     include: ['src/**/*.test.{ts,tsx}', 'test/**/*.test.{ts,tsx}'],
     restoreMocks: true,
     setupFiles: ['./test/setup.ts'],
+    // jsdom renders run past 5 s on a machine shared by parallel checks.
+    // Time limits a test means are its own assertions; this only catches a
+    // hang (as in apps/api).
+    testTimeout: 30_000,
     unstubEnvs: true,
     unstubGlobals: true,
   },

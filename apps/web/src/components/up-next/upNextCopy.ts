@@ -38,13 +38,18 @@ function toPercent(part: number, total: number): number {
   return Math.min(100, Math.max(0, (part / total) * 100));
 }
 
-/** Where airing stops, 0 to 100; 100 (no tick) when everything of the season aired */
+/**
+ * Where airing stops, 0 to 100; 100 (no tick) when everything of the season
+ * aired. Counted from the season's first number (TMDB numbers some shows on
+ * across seasons).
+ */
 export function airedPercent(item: UpNextItem): number {
   const { nextToAir, season, seasonTotal } = item;
   if (!nextToAir || nextToAir.season !== season || seasonTotal <= 0) {
     return 100;
   }
-  return toPercent(nextToAir.episode - 1, seasonTotal);
+  const aired = nextToAir.episode - (item.firstEpisodeNumber ?? 1);
+  return toPercent(aired, seasonTotal);
 }
 
 /** Done in the season (watched or skipped); watched on an answer without it */

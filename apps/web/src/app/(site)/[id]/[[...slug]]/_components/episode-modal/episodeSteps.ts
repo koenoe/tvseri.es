@@ -4,21 +4,27 @@ import { firstEpisodeOf } from '@tvseri.es/utils';
 type StepSeason = Readonly<{
   seasonNumber: number;
   episodeCount: number;
+  /** Aired; can run past `episodeCount` while TMDB's count lags. */
+  airedEpisodeCount?: number;
   /** Absent means 1: TMDB numbers some shows on across seasons. */
   firstEpisodeNumber?: number;
 }>;
 
-/** The season's last episode number (announced ones included) */
-const lastOf = (season: StepSeason, count = season.episodeCount) =>
-  firstEpisodeOf(season) + count - 1;
+/** The season's episodes the modal knows: announced or aired, whichever is more */
+const countOf = (season: StepSeason) =>
+  Math.max(season.episodeCount, season.airedEpisodeCount ?? 0);
+
+/** The season's last episode number (announced and aired ones included) */
+const lastOf = (season: StepSeason) =>
+  firstEpisodeOf(season) + countOf(season) - 1;
 
 /**
  * The modal's ‹ ›: the episode before or after `ref` across seasons, or null
  * at the show's first and last episode. Regular
  * seasons step into each other in order; specials (season 0) step only
  * among themselves, so ‹ on S1E1 never lands in the specials. A season's
- * episodes run from its first number for `episodeCount` (announced ones
- * included).
+ * episodes run from its first number for its count (`countOf`: announced
+ * or aired, as `isKnownEpisode` accepts them).
  */
 export function stepEpisode(
   seasons: ReadonlyArray<StepSeason>,
@@ -29,7 +35,7 @@ export function stepEpisode(
   const run = seasons
     .filter(
       (season) =>
-        season.episodeCount > 0 && (season.seasonNumber === 0) === isSpecial,
+        countOf(season) > 0 && (season.seasonNumber === 0) === isSpecial,
     )
     .sort((a, b) => a.seasonNumber - b.seasonNumber);
   const at = run.findIndex(
@@ -80,17 +86,13 @@ export function positionLabel(
  * API's 404.
  */
 export function isKnownEpisode(
-  seasons: ReadonlyArray<StepSeason & Readonly<{ airedEpisodeCount?: number }>>,
+  seasons: ReadonlyArray<StepSeason>,
   ref: EpisodeRef,
 ): boolean {
   const season = seasons.find((item) => item.seasonNumber === ref.seasonNumber);
   return (
     season !== undefined &&
     ref.episodeNumber >= firstEpisodeOf(season) &&
-    ref.episodeNumber <=
-      lastOf(
-        season,
-        Math.max(season.episodeCount, season.airedEpisodeCount ?? 0),
-      )
+    ref.episodeNumber <= lastOf(season)
   );
 }

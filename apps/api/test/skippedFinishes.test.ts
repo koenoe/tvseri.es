@@ -12,7 +12,7 @@ import { episodes, listItem, seedWatched } from './library';
 import { markEpisode } from './markEpisode';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
-import { listItems, streamEvent, withStream } from './stream';
+import { listItems, recordWrites, streamEvent, withStream } from './stream';
 
 // TMDB series are cached per container: one id per show
 let nextShow = 9600;
@@ -72,11 +72,13 @@ describe('a skipped episode counts as done for Finished', () => {
       seedWatched(USER_ID, show, episodes(1, 1, 2), '2026-02-01T20:00:00Z'),
     );
 
-    // One consistent read of the prefs row per show sync
+    // Two consistent reads of the prefs row per show sync: before planning
+    // and after writing (a skip saved meanwhile)
     const prefsReads = db.calls
       .slice(from)
       .filter((call) => JSON.stringify(call.input).includes('PREF#SERIES#'));
     expect(prefsReads.map((call) => call.input)).toEqual([
+      expect.objectContaining({ ConsistentRead: true }),
       expect.objectContaining({ ConsistentRead: true }),
     ]);
     expect(finished(show)).toMatchObject({
@@ -252,6 +254,40 @@ describe('PATCH /me/series/:id/prefs places the show after a skip or unskip', ()
   });
 });
 
+describe('a skip landing while the stream places the show', () => {
+  it('the stream does not overwrite the skip’s newer placement', async () => {
+    seedUser();
+    const show = newShow(3);
+    await withStream(() => mark(show, 1, day(1)));
+    const records = await recordWrites(async () =>
+      seedWatched(USER_ID, show, [[1, 2]], new Date(day(2)).toISOString()),
+    );
+    // The stream reads the skips (none), then the user skips E3: that
+    // placement finishes the show before the stream writes its In progress
+    const send = db.send.bind(db);
+    let fired = false;
+    const spy = vi.spyOn(db, 'send').mockImplementation(async (command) => {
+      const result = await send(command);
+      if (
+        !fired &&
+        command.constructor.name === 'GetItemCommand' &&
+        JSON.stringify(command.input).includes('PREF#SERIES#')
+      ) {
+        fired = true;
+        await skip(show, ['S01E03']);
+      }
+      return result;
+    });
+
+    await streamHandler(streamEvent(records));
+    spy.mockRestore();
+
+    expect(fired).toBe(true);
+    expect(lists()).toEqual([`LIST#WATCHED#ITEM#${show}`]);
+    expect(finished(show)).toMatchObject({ createdAt: day(2) });
+  });
+});
+
 describe('an import and its Undo keep the lists right with skips', () => {
   const row = (show: number, episodeNumber: number, watchedAt: number) => ({
     episode: {
@@ -381,12 +417,18 @@ describe('the nightly job agrees with skips', () => {
 
     expect(finished(show)).toMatchObject({ createdAt: finishedAt });
     expect(inProgress(show)).toBeUndefined();
-    // Its skips come from one batch read a night, never a read per show
+    // Its skips come from one batch read a night, never a read per show,
+    // beside the one query of the prefs changed lately
     const prefsReads = db.calls
       .slice(from)
       .filter((call) => JSON.stringify(call.input).includes('PREF#SERIES#'))
       .map((call) => call.constructor.name);
-    expect(prefsReads).toEqual(['BatchGetItemCommand', 'BatchGetItemCommand']);
+    expect(prefsReads).toEqual([
+      'BatchGetItemCommand',
+      'QueryCommand',
+      'BatchGetItemCommand',
+      'QueryCommand',
+    ]);
   });
 
   it('moves it back to In progress when a new episode airs', async () => {
@@ -458,5 +500,157 @@ describe('the nightly job agrees with skips', () => {
     await runNightly();
 
     expect(lists()).toEqual([`LIST#WATCHED#ITEM#${show}`]);
+  });
+});
+
+describe('the nightly job places shows whose skips changed (the backstop for a failed placement)', () => {
+  /** A skip whose in-request placement failed: the prefs are written, the lists not */
+  const skipWithoutPlacement = async (
+    show: number,
+    body: Readonly<{ skip?: string[]; unskip?: string[] }>,
+  ) => {
+    const send = db.send.bind(db);
+    const spy = vi.spyOn(db, 'send').mockImplementation(async (command) => {
+      if (command.constructor.name === 'TransactWriteItemsCommand') {
+        throw new Error('throttled');
+      }
+      return send(command);
+    });
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    expect((await prefs(show, body)).status).toBe(200);
+    spy.mockRestore();
+    warn.mockRestore();
+  };
+
+  it('finishes a show whose skip placement failed, the next night', async () => {
+    vi.useFakeTimers({ now: TUESDAY - 3_600_000, toFake: ['Date'] });
+    seedUser();
+    const show = newShow(3);
+    seedWatched(USER_ID, show, episodes(1, 1, 2), '2026-01-01T20:00:00Z');
+    db.seed('Lists', [listItem(USER_ID, 'IN_PROGRESS', show, 7)]);
+    await skipWithoutPlacement(show, { skip: ['S01E03'] });
+    expect(lists()).toEqual([`LIST#IN_PROGRESS#ITEM#${show}`]);
+
+    vi.setSystemTime(TUESDAY);
+    await runNightly();
+
+    expect(lists()).toEqual([`LIST#WATCHED#ITEM#${show}`]);
+  });
+
+  it('moves a finished show back to In progress after an unskip whose placement failed', async () => {
+    vi.useFakeTimers({ now: TUESDAY - 3_600_000, toFake: ['Date'] });
+    seedUser();
+    const show = newShow(3);
+    seedWatched(USER_ID, show, episodes(1, 1, 2), '2026-01-01T20:00:00Z');
+    await skip(show, ['S01E03']);
+    db.seed('Lists', [listItem(USER_ID, 'WATCHED', show, 7)]);
+    await skipWithoutPlacement(show, { unskip: ['S01E03'] });
+
+    vi.setSystemTime(TUESDAY);
+    await runNightly();
+
+    expect(lists()).toEqual([`LIST#IN_PROGRESS#ITEM#${show}`]);
+  });
+
+  it('leaves agreeing shows and hand removals alone, and reads the prefs in one query', async () => {
+    vi.useFakeTimers({ now: TUESDAY - 3_600_000, toFake: ['Date'] });
+    seedUser();
+    // Placed already: its place in the list is kept
+    const agreeing = newShow(3);
+    seedWatched(USER_ID, agreeing, episodes(1, 1, 2), '2026-01-01T20:00:00Z');
+    db.seed('Lists', [listItem(USER_ID, 'WATCHED', agreeing, 7)]);
+    await skipWithoutPlacement(agreeing, { skip: ['S01E03'] });
+    // Removed from In progress by hand, then hidden: stays out
+    const removed = newShow(3);
+    seedWatched(USER_ID, removed, episodes(1, 1, 1), '2026-01-01T20:00:00Z');
+    expect((await prefs(removed, { paused: 'keep' })).status).toBe(200);
+    const before = listItems(USER_ID);
+
+    vi.setSystemTime(TUESDAY);
+    const from = db.calls.length;
+    await runNightly();
+
+    expect(listItems(USER_ID)).toEqual(before);
+    const prefsQueries = db.calls
+      .slice(from)
+      .filter(
+        (call) =>
+          call.constructor.name === 'QueryCommand' &&
+          JSON.stringify(call.input).includes('PREF#'),
+      );
+    expect(prefsQueries).toHaveLength(1);
+  });
+
+  it('a skip older than its window is not planned again', async () => {
+    vi.useFakeTimers({ now: TUESDAY - 5 * 86_400_000, toFake: ['Date'] });
+    seedUser();
+    const show = newShow(3);
+    seedWatched(USER_ID, show, episodes(1, 1, 2), '2026-01-01T20:00:00Z');
+    db.seed('Lists', [listItem(USER_ID, 'IN_PROGRESS', show, 7)]);
+    await skipWithoutPlacement(show, { skip: ['S01E03'] });
+
+    vi.setSystemTime(TUESDAY);
+    await runNightly();
+
+    expect(lists()).toEqual([`LIST#IN_PROGRESS#ITEM#${show}`]);
+  });
+});
+
+describe('a season or whole-show mark leaves skipped episodes skipped', () => {
+  const watchedCodes = () =>
+    db
+      .dump('Watched')
+      .map((row) => String(row.sk).split('#').slice(-2).join(''))
+      .sort();
+  const skippedOf = async (show: number) => {
+    const response = await request(`/me/series/${show}/prefs`, {
+      as: USER_ID,
+    });
+    return ((await response.json()) as { skipped: string[] }).skipped;
+  };
+  // As the web sends it: the scope's watched set back, in the track view
+  const markScope = (show: number, season?: number) =>
+    request(
+      season === undefined
+        ? `/user/${USER_ID}/watched/series/${show}?view=track`
+        : `/user/${USER_ID}/watched/series/${show}/season/${season}?view=track`,
+      { as: USER_ID, body: { watchProvider: null }, method: 'POST' },
+    );
+  const codesOf = async (response: Response) =>
+    (
+      (await response.json()) as Array<{
+        seasonNumber: number;
+        episodeNumber: number;
+      }>
+    )
+      .map((item) => `S${item.seasonNumber}E${item.episodeNumber}`)
+      .sort();
+
+  it('a season mark writes the open episodes only and keeps the skip', async () => {
+    seedUser();
+    const show = newShow(4);
+    await skip(show, ['S01E02']);
+    const response = await markScope(show, 1);
+    expect(response.status).toBe(201);
+    expect(watchedCodes()).toEqual(['S001E001', 'S001E003', 'S001E004']);
+    expect(await skippedOf(show)).toEqual(['S01E02']);
+    // the answer is the season's watched set: the skip isn't in it
+    expect(await codesOf(response)).toEqual(['S1E1', 'S1E3', 'S1E4']);
+  });
+
+  it('a whole-show mark too, and the show is Finished by its skips', async () => {
+    seedUser();
+    const show = newShow(3);
+    await skip(show, ['S01E03']);
+    await markEpisode({ episode: 1, show, watchedAt: day(1) });
+    await withStream(async () => {
+      const response = await markScope(show);
+      expect(response.status).toBe(201);
+      // every watched episode of the show, the one there before included
+      expect(await codesOf(response)).toEqual(['S1E1', 'S1E2']);
+    });
+    expect(watchedCodes()).toEqual(['S001E001', 'S001E002']);
+    expect(await skippedOf(show)).toEqual(['S01E03']);
+    expect(finished(show)).toBeDefined();
   });
 });

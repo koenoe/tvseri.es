@@ -3,6 +3,7 @@ import type { SQSEvent } from 'aws-lambda';
 import { describe, expect, it, vi } from 'vitest';
 
 import { handler } from '@/lambdas/validateWatchedStatusQueue';
+import { getSeriesFacts } from '@/lib/seriesFacts';
 import { queueWatchedStatusValidation } from '@/lib/watchedStatus';
 import { db } from './db';
 import { fakeShow } from './fixtures/tmdb';
@@ -138,6 +139,92 @@ describe('nightly validation: finished shows', () => {
     expect(finished(show)).toBeUndefined();
     expect(item(`LIST#RESUMING_SOON#ITEM#${show}`)).toBeUndefined();
     expect(item(`LIST#WATCHLIST#ITEM#${show}`)).toEqual(original);
+  });
+});
+
+describe('nightly validation: which finished shows it checks', () => {
+  it('checks a show finished while it had ended once TMDB says it is running again', async () => {
+    vi.useFakeTimers({ now: TUESDAY, toFake: ['Date'] });
+    seedUser();
+    // Finished while Ended; since renewed, a new episode aired
+    const show = newShow([{ airDate: '2026-10-01', aired: 5, episodes: 8 }]);
+    await getSeriesFacts([show]);
+    seedWatched(USER_ID, show, episodes(1, 1, 4), LAST_WATCH);
+    seedListItem('WATCHED', show, Date.parse(LAST_WATCH), 'Ended');
+
+    await run();
+
+    expect(finished(show)).toBeUndefined();
+    expect(inProgress(show)).toMatchObject({ createdAt: TUESDAY });
+  });
+
+  it('a special watched after the newest episode aired does not hide that episode', async () => {
+    vi.useFakeTimers({ now: TUESDAY, toFake: ['Date'] });
+    seedUser();
+    // E5 aired 29 Oct; E1-4 watched before, a special on 8 Nov
+    const show = newShow([{ airDate: '2026-10-01', aired: 5, episodes: 8 }], {
+      specials: 1,
+    });
+    seedWatched(USER_ID, show, episodes(1, 1, 4), LAST_WATCH);
+    const special = '2026-11-08T20:00:00Z';
+    seedWatched(USER_ID, show, [[0, 1]], special);
+    seedListItem('WATCHED', show, Date.parse(special));
+
+    await run();
+
+    expect(finished(show)).toBeUndefined();
+    expect(inProgress(show)).toMatchObject({ createdAt: TUESDAY });
+  });
+
+  it('an undated watch made after the newest episode aired does not hide it either', async () => {
+    vi.useFakeTimers({ now: TUESDAY, toFake: ['Date'] });
+    seedUser();
+    const show = newShow([{ airDate: '2026-10-01', aired: 5, episodes: 8 }]);
+    seedWatched(USER_ID, show, episodes(1, 1, 3), LAST_WATCH);
+    // "I don't remember", marked on 8 Nov: watchedAt is when it was marked
+    const marked = Date.parse('2026-11-08T20:00:00Z');
+    db.seed('Watched', [
+      {
+        dateUnknown: true,
+        episodeNumber: 4,
+        gsi1pk: `USER#${USER_ID}#SERIES#${show}`,
+        gsi1sk: 'S001#E004',
+        pk: `USER#${USER_ID}`,
+        seasonNumber: 1,
+        seriesId: show,
+        sk: `SERIES#${show}#S001#E004`,
+        userId: USER_ID,
+        watchedAt: marked,
+      },
+    ]);
+    seedListItem('WATCHED', show, marked);
+
+    await run();
+
+    expect(inProgress(show)).toMatchObject({ createdAt: TUESDAY });
+  });
+
+  it('still skips counting a show nothing aired for since its last regular watch', async () => {
+    vi.useFakeTimers({ now: TUESDAY, toFake: ['Date'] });
+    seedUser();
+    const show = newShow([{ airDate: '2026-10-01', aired: 5, episodes: 8 }]);
+    seedWatched(USER_ID, show, episodes(1, 1, 5), '2026-11-08T20:00:00Z');
+    seedListItem('WATCHED', show, 12345);
+    const from = db.calls.length;
+
+    await run();
+
+    expect(finished(show)).toMatchObject({ createdAt: 12345 });
+    // No per-show read of its watched items: the count was skipped
+    const perShow = db.calls
+      .slice(from)
+      .filter((call) =>
+        String(
+          (call.input as { KeyConditionExpression?: string })
+            .KeyConditionExpression,
+        ).includes('BETWEEN'),
+      );
+    expect(perShow).toEqual([]);
   });
 });
 
@@ -430,10 +517,12 @@ describe('a mark between the nightly read and its write (the stream wins)', () =
     return vi.spyOn(db, 'send').mockImplementation(async (command) => {
       const result = await send(command);
       const input = (command as { input?: Record<string, unknown> }).input;
+      // The per-show read a plan makes (not the job's read of every item)
       if (
         !fired &&
         input?.TableName === 'Watched' &&
-        input.ConsistentRead === true
+        input.ConsistentRead === true &&
+        String(input.KeyConditionExpression).includes('BETWEEN')
       ) {
         fired = true;
         await mark();

@@ -61,6 +61,10 @@ export const RestoreWhenSchema = v.object({
   dateUnknown: v.optional(DateUnknownSchema),
   importId: v.optional(ImportIdSchema),
   kind: v.literal('restore'),
+  /** The record's minutes: an episode TMDB no longer lists is put back with them */
+  runtime: v.optional(
+    v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(1440)),
+  ),
   source: v.optional(v.pipe(v.string(), v.maxLength(100))),
   watchedAt: WatchedAtSchema,
 });

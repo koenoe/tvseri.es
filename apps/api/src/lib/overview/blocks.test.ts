@@ -126,6 +126,33 @@ describe('Up next', () => {
     expect(buildUpNext([hole])[0]?.code).toBe('S01E04');
   });
 
+  it('counts only the season’s aired episodes as watched', () => {
+    // A made-up S02E00 and a not yet aired S02E09 don't add to "5 of 8"
+    const [item] = buildUpNext([
+      state({
+        watched: watched([
+          ...range(1, 1, 8),
+          ...range(2, 1, 5),
+          [2, 0],
+          [2, 9],
+        ]),
+      }),
+    ]);
+    expect(item).toMatchObject({ code: 'S02E06', seasonWatched: 5 });
+  });
+
+  it('counts the next episode from the start of its air day', () => {
+    // S2 E8 airs today: open from midnight UTC, so it is Next up after E7
+    const today = state({
+      facts: facts({
+        lastEpisodeToAir: ep(2, 7, day(-7)),
+        nextEpisodeToAir: ep(2, 8, day(0)),
+      }),
+      watched: watched([...range(1, 1, 8), ...range(2, 1, 7)]),
+    });
+    expect(buildUpNext([today])[0]?.code).toBe('S02E08');
+  });
+
   it('is the first aired episode with no mark, even before the last watched one', () => {
     // S1 complete, S2 E1–E5 watched, then S2 E2 unmarked: Next up is S2 E2.
     const unmarked = state({
@@ -146,6 +173,42 @@ describe('Up next', () => {
       nextSeasonTba: true,
       seasonFinale: true,
     });
+  });
+
+  it('flags the latest regular episode when TMDB’s latest is a special', () => {
+    // A special aired yesterday; S2 E8 is the latest regular episode
+    const special = state({
+      facts: facts({ lastEpisodeToAir: ep(0, 3, day(-1)), status: 'Ended' }),
+      watched: watched([...range(1, 1, 8), ...range(2, 1, 7)]),
+    });
+    expect(buildUpNext([special])[0]).toMatchObject({
+      code: 'S02E08',
+      isLatest: true,
+    });
+  });
+
+  it('carries the season’s first number where TMDB numbers on across seasons', () => {
+    // S2 is E9…E16
+    const numberedOn = state({
+      facts: facts({
+        lastEpisodeToAir: ep(2, 16, day(-1)),
+        seasons: [
+          { airDate: '2020-01-01', episodeCount: 8, seasonNumber: 1 },
+          {
+            airDate: '2021-01-01',
+            episodeCount: 8,
+            firstEpisodeNumber: 9,
+            seasonNumber: 2,
+          },
+        ],
+      }),
+      watched: watched([...range(1, 1, 8), ...range(2, 9, 13)]),
+    });
+    expect(buildUpNext([numberedOn])[0]).toMatchObject({
+      code: 'S02E14',
+      firstEpisodeNumber: 9,
+    });
+    expect(buildUpNext([state()])[0]).not.toHaveProperty('firstEpisodeNumber');
   });
 
   it('shows when the next episode airs', () => {

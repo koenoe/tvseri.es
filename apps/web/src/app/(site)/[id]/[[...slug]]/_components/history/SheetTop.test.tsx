@@ -165,7 +165,7 @@ describe('the whole series’ calendar', () => {
     closeDialogs();
   });
 
-  it('dates every aired regular episode not watched yet, skipped included', () => {
+  it('dates every open aired regular episode; skipped ones stay skipped', () => {
     mountSeeded([{ episodeNumber: 1, seasonNumber: 1 }], ['S02E01']);
     fireEvent.click(
       screen.getByRole('button', { name: 'When did you watch Test?' }),
@@ -174,7 +174,6 @@ describe('the whole series’ calendar', () => {
       kind: 'set',
       refs: [
         { episodeNumber: 2, seasonNumber: 1 },
-        { episodeNumber: 1, seasonNumber: 2 },
         { episodeNumber: 2, seasonNumber: 2 },
       ],
       seriesId: show.id,
@@ -182,11 +181,14 @@ describe('the whole series’ calendar', () => {
     });
   });
 
-  it('is disabled once every aired episode is watched', () => {
+  it('is disabled once every aired episode is watched or skipped', () => {
     mountSeeded(
-      [1, 2].flatMap((seasonNumber) =>
-        [1, 2].map((episodeNumber) => ({ episodeNumber, seasonNumber })),
-      ),
+      [1, 2]
+        .flatMap((seasonNumber) =>
+          [1, 2].map((episodeNumber) => ({ episodeNumber, seasonNumber })),
+        )
+        .filter((ref) => ref.seasonNumber === 1 || ref.episodeNumber === 1),
+      ['S02E02'],
     );
     const button = screen.getByRole('button', {
       name: 'When did you watch Test?',

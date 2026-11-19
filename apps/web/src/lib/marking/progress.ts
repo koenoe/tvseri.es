@@ -3,7 +3,15 @@ import {
   episodeCode,
   parseEpisodeCode,
 } from '@tvseri.es/schemas';
-import { doneCount, episodeNumbersOf, firstEpisodeOf } from '@tvseri.es/utils';
+import {
+  episodeNumbersOf,
+  firstEpisodeOf,
+  hasAiredAt,
+  isDone,
+  type ShowProgress,
+  seasonCounts,
+  showProgress,
+} from '@tvseri.es/utils';
 
 import type {
   EpisodeCode,
@@ -15,18 +23,40 @@ import type {
 } from './types';
 
 /**
- * The watch-progress rules, pure. Specials (season 0) never count for
- * progress, Next up or completion; a season's aired episodes are its first
- * `airedEpisodeCount`, numbered from its `firstEpisodeNumber` (1 unless TMDB
- * numbers the show on across seasons). Skipped is not watched (progress,
- * complete, the eye), but it is done: never "left", and a show with every aired episode watched or skipped is Finished (the API's
- * list rule, `isFinished`).
+ * The watch-progress rules, pure: the store's view read through the shared
+ * definition (`showProgress`, the API's too). Specials (season 0) never
+ * count for progress, Next up or completion; a season's aired episodes are
+ * its first `airedEpisodeCount`, numbered from its `firstEpisodeNumber` (1
+ * unless TMDB numbers the show on across seasons). Skipped is not watched
+ * (progress, complete), but it is done: never "left", and a started show
+ * with no aired episode open is Finished (the API's list rule).
  */
 
-const isRegular = (season: SeasonInfo) => season.seasonNumber > 0;
+const NO_MARKS: ReadonlyArray<string> = [];
 
-const bySeason = (a: SeasonInfo, b: SeasonInfo) =>
-  a.seasonNumber - b.seasonNumber;
+/** The views are immutable snapshots: each is read once */
+const progressCache = new WeakMap<object, ShowProgress>();
+
+const toProgressSeason = (season: SeasonInfo) => ({
+  airedCount: season.airedEpisodeCount,
+  firstEpisodeNumber: season.firstEpisodeNumber,
+  seasonNumber: season.seasonNumber,
+});
+
+/** The view's progress by the shared rule (`showProgress`) */
+function progressOf(series: SeriesMarks): ShowProgress {
+  const cached = progressCache.get(series);
+  if (cached) {
+    return cached;
+  }
+  const progress = showProgress({
+    seasons: series.seasons.map(toProgressSeason),
+    skipped: series.skipped,
+    watched: Object.keys(series.watched),
+  });
+  progressCache.set(series, progress);
+  return progress;
+}
 
 export function episodeState(
   series: SeriesBase,
@@ -47,7 +77,7 @@ export const isWatchedState = (state: EpisodeState) =>
 export const isWatched = (series: SeriesBase, ref: EpisodeRef): boolean =>
   isWatchedState(episodeState(series, ref));
 
-/** Every aired episode of a season, in order. */
+/** Every aired episode of a season, in order (specials too). */
 function airedEpisodes(season: SeasonInfo): ReadonlyArray<EpisodeRef> {
   return episodeNumbersOf(season, season.airedEpisodeCount).map(
     (episodeNumber) => ({ episodeNumber, seasonNumber: season.seasonNumber }),
@@ -58,10 +88,11 @@ function airedEpisodes(season: SeasonInfo): ReadonlyArray<EpisodeRef> {
 export function airedRegularEpisodes(
   series: Pick<SeriesBase, 'seasons'>,
 ): ReadonlyArray<EpisodeRef> {
-  return [...series.seasons]
-    .filter(isRegular)
-    .sort(bySeason)
-    .flatMap(airedEpisodes);
+  return showProgress({
+    seasons: series.seasons.map(toProgressSeason),
+    skipped: NO_MARKS,
+    watched: NO_MARKS,
+  }).aired;
 }
 
 const codeOf = (ref: EpisodeRef): EpisodeCode => episodeCode(ref);
@@ -72,8 +103,8 @@ const codeOf = (ref: EpisodeRef): EpisodeCode => episodeCode(ref);
  * the whole product (the API's overview uses it too). `null` when every
  * aired episode is marked.
  */
-export function nextEpisode(series: SeriesBase): EpisodeRef | null {
-  return openEpisodes(series)[0] ?? null;
+export function nextEpisode(series: SeriesMarks): EpisodeRef | null {
+  return progressOf(series).nextUp;
 }
 
 /**
@@ -94,8 +125,7 @@ export function markedIn(
  * page counts these.
  */
 export function openEpisodes(series: SeriesMarks): ReadonlyArray<EpisodeRef> {
-  const isMarked = markedIn(series);
-  return airedRegularEpisodes(series).filter((ref) => !isMarked(codeOf(ref)));
+  return progressOf(series).open;
 }
 
 export type SeasonProgress = Readonly<{
@@ -105,8 +135,8 @@ export type SeasonProgress = Readonly<{
   aired: number;
   total: number;
   skipped: number;
-  /** Every aired episode watched (skipped ones don't count). */
-  isComplete: boolean;
+  /** One watched and no aired episode open, skips included (`isDone`) */
+  isDone: boolean;
 }>;
 
 export function seasonProgress(
@@ -116,18 +146,30 @@ export function seasonProgress(
   const season = series.seasons.find(
     (item) => item.seasonNumber === seasonNumber,
   );
-  const aired = season ? airedEpisodes(season) : [];
-  const skipped = new Set(series.skipped);
-  const watched = aired.filter((ref) => series.watched[codeOf(ref)]).length;
+  // Any season by the shared rule, specials included (their own header)
+  const counts = season
+    ? seasonCounts(toProgressSeason(season), {
+        skipped: series.skipped,
+        watched: Object.keys(series.watched),
+      })
+    : NO_COUNTS;
   return {
-    aired: aired.length,
-    isComplete: aired.length > 0 && watched === aired.length,
+    aired: counts.aired,
+    isDone: isDone(counts),
     seasonNumber,
-    skipped: aired.filter((ref) => skipped.has(codeOf(ref))).length,
-    total: Math.max(season?.episodeCount ?? 0, aired.length),
-    watched,
+    skipped: counts.skipped,
+    total: Math.max(season?.episodeCount ?? 0, counts.aired),
+    watched: counts.watched,
   };
 }
+
+const NO_COUNTS = { aired: 0, open: 0, skipped: 0, watched: 0 } as const;
+
+/** A regular season's counts (none for a season the show doesn't list) */
+const countsOf = (series: SeriesMarks, seasonNumber: number) =>
+  progressOf(series).seasons.find(
+    (season) => season.seasonNumber === seasonNumber,
+  ) ?? NO_COUNTS;
 
 /**
  * A watched (or done) share as a whole percent, the one rule for every place that
@@ -152,42 +194,46 @@ export type SeriesProgress = Readonly<{
   toWatch: number;
   /** Aired, neither watched nor skipped (`openEpisodes`): "24 to watch". */
   left: number;
-  /** Aired and watched or skipped (`doneCount`): what every fill draws. */
+  /** Aired and watched or skipped: what every fill draws. */
   done: number;
-  /** Every aired episode watched: the eye unmarks all. */
+  /** Every aired episode watched (skipped ones don't count). */
   isComplete: boolean;
   /**
-   * Finished, as the lists have it: something watched and every aired
-   * episode watched or skipped.
+   * Finished, as the lists have it: started and no aired episode open
+   * (neither watched nor skipped). The show's eye shows it as done.
    */
   isFinished: boolean;
+  /** Any regular episode watched, aired or not: the lists' "started". */
+  started: boolean;
   /** Minutes watched (sum of the records' runtimes). */
   watchedRuntime: number;
 }>;
 
 export function seriesProgress(series: SeriesBase): SeriesProgress {
-  const aired = airedRegularEpisodes(series);
-  const watched = aired.filter((ref) => series.watched[codeOf(ref)]).length;
+  const progress = progressOf(series);
   const watchedRuntime = Object.values(series.watched).reduce(
     (sum, record) => sum + record.runtime,
     0,
   );
-  const left = openEpisodes(series).length;
   return {
-    aired: aired.length,
-    done: doneCount(aired.length, left),
-    isComplete: aired.length > 0 && watched === aired.length,
-    isFinished: watched > 0 && left === 0,
-    left,
-    toWatch: aired.length - watched,
-    watched,
+    aired: progress.aired.length,
+    done: progress.done,
+    isComplete: progress.isComplete,
+    isFinished: progress.isFinished,
+    left: progress.open.length,
+    started: progress.started,
+    toWatch: progress.aired.length - progress.watched,
+    watched: progress.watched,
     watchedRuntime,
   };
 }
 
+/** Any regular episode watched, aired or not (the lists' "started") */
+export const isStarted = (series: SeriesMarks) => progressOf(series).started;
+
 const isRegularCode = (code: string) => !code.startsWith('S00');
 
-/** Regular episodes watched, aired or not (the API's count for the lists) */
+/** Regular episodes watched, aired or not (the profile's counters) */
 export const regularWatchedCount = (series: Pick<SeriesBase, 'watched'>) =>
   Object.keys(series.watched).filter(isRegularCode).length;
 
@@ -249,35 +295,34 @@ export function lastAiredIn(
 }
 
 /**
- * Has this episode aired? By its own air date (the API's `hasAired`), or by
- * the season's aired count (`lastAiredIn`): a full-season drop dates every
- * episode the same day while the count says one.
+ * Has this episode aired? By the season's aired count (`lastAiredIn`), or by
+ * its own air date: a full-season drop dates every episode the same day
+ * while the count says one. The date by the one air-day rule (`hasAiredAt`,
+ * from the start of the UTC day): live with `now`, else as the API's flag
+ * had it when it read the season (rendering stays pure).
  */
 export const hasEpisodeAired = (
   episode: Readonly<Pick<Episode, 'airDate' | 'episodeNumber' | 'hasAired'>>,
   lastAired: number,
+  now?: number,
 ): boolean =>
   episode.episodeNumber <= lastAired ||
-  (episode.hasAired && episode.airDate !== '');
+  (now === undefined
+    ? episode.hasAired && episode.airDate !== ''
+    : hasAiredAt(episode.airDate, now));
 
-/** Aired episodes of a season that aren't watched yet (skipped included). */
-export function unwatchedInSeason(
+/**
+ * A season's aired episodes with no mark (neither watched nor skipped), in
+ * order: what its eye and its date mark. Specials too (their own section).
+ */
+export function openInSeason(
   series: SeriesBase,
   seasonNumber: number,
 ): ReadonlyArray<EpisodeRef> {
+  const isMarked = markedIn(series);
   return airedInSeason(series, seasonNumber).filter(
-    (ref) => !series.watched[codeOf(ref)],
+    (ref) => !isMarked(codeOf(ref)),
   );
-}
-
-/**
- * Aired regular episodes of the show that aren't watched yet (skipped
- * included): what the whole-series mark and its date mark.
- */
-export function unwatchedRegularEpisodes(
-  series: SeriesBase,
-): ReadonlyArray<EpisodeRef> {
-  return airedRegularEpisodes(series).filter((ref) => !isWatched(series, ref));
 }
 
 /** Watched episodes of a season (any record, aired or not). */
@@ -292,22 +337,15 @@ export function watchedInSeason(
 }
 
 /**
- * How many of a season's own episodes are watched (aired or not): a record
- * below its first number (a made-up code on a show TMDB numbers on across
- * seasons, S02E01 where S2 starts at E33) doesn't count.
+ * How many of a season's aired episodes are watched (the API's Up next
+ * count): a record outside them (a made-up code below the first number on a
+ * show TMDB numbers on across seasons, an episode yet to air) doesn't count.
  */
 export function watchedCountInSeason(
-  series: Pick<SeriesBase, 'seasons' | 'watched'>,
+  series: SeriesMarks,
   seasonNumber: number,
 ): number {
-  const season = series.seasons.find(
-    (item) => item.seasonNumber === seasonNumber,
-  );
-  const first = firstEpisodeOf(season ?? {});
-  return Object.keys(series.watched).filter((code) => {
-    const ref = parseCode(code);
-    return ref?.seasonNumber === seasonNumber && ref.episodeNumber >= first;
-  }).length;
+  return countsOf(series, seasonNumber).watched;
 }
 
 export const parseCode = (code: string): EpisodeRef | null =>
@@ -315,9 +353,10 @@ export const parseCode = (code: string): EpisodeRef | null =>
 
 /**
  * "I'm up to…": every open aired episode up to the target is marked (earlier
- * seasons included, skipped ones too); the watched ones after it in the
- * target's season are unmarked. The dialog's hint and `markUpTo` both use it,
- * so what the hint promises is what gets sent.
+ * seasons included; skipped ones stay skipped, as "Mark the N before too?"
+ * leaves them); the watched ones after it in the target's season are
+ * unmarked. The dialog's hint and `markUpTo` both use it, so what the hint
+ * promises is what gets sent.
  */
 export type UpToPlan = Readonly<{
   mark: ReadonlyArray<EpisodeRef>;
@@ -327,8 +366,9 @@ export type UpToPlan = Readonly<{
 export function upToPlan(view: SeriesBase, target: EpisodeRef): UpToPlan {
   const all = airedRegularEpisodes(view);
   const index = all.findIndex((ref) => codeOf(ref) === codeOf(target));
+  const isMarked = markedIn(view);
   return {
-    mark: all.slice(0, index + 1).filter((ref) => !isWatched(view, ref)),
+    mark: all.slice(0, index + 1).filter((ref) => !isMarked(codeOf(ref))),
     unmark: watchedInSeason(view, target.seasonNumber).filter(
       (ref) => ref.episodeNumber > target.episodeNumber,
     ),

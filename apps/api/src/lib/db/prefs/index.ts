@@ -16,7 +16,8 @@ import { Resource } from 'sst';
 
 import { batchGet } from '../batch';
 import client from '../client';
-import { PREF_SERIES_PREFIX, prefSk, userPk } from '../list/keys';
+import { PREF_SERIES_PREFIX, parsePrefSk, prefSk, userPk } from '../list/keys';
+import { queryAll } from '../query';
 
 /**
  * Per-user, per-show prefs live in the Lists table next to the list items:
@@ -307,10 +308,14 @@ export const restoreSkipped = async (
     await client.send(
       new UpdateItemCommand({
         ConditionExpression: 'attribute_exists(pk)',
-        ExpressionAttributeValues: marshall({ ':codes': new Set(codes) }),
+        ExpressionAttributeValues: marshall({
+          ':codes': new Set(codes),
+          ':now': Date.now(),
+        }),
         Key: marshall(prefsKey(userId, seriesId)),
         TableName: Resource.Lists.name,
-        UpdateExpression: 'ADD skipped :codes',
+        // Stamped like the prefs route: the nightly job re-checks the show
+        UpdateExpression: 'SET updatedAt = :now ADD skipped :codes',
       }),
     );
   } catch (error) {
@@ -343,4 +348,35 @@ export const getSeriesPrefsMany = async (
       ] as const;
     }),
   );
+};
+
+/**
+ * The user's shows whose prefs changed since `since` (`updatedAt`, stamped
+ * by every change made through the prefs route), with their prefs: one
+ * consistent Query of the user's prefs rows, which are small and few. For
+ * the nightly job's re-check of shows whose skips may not have been placed.
+ */
+export const getSeriesPrefsChangedSince = async (
+  userId: string,
+  since: number,
+): Promise<ReadonlyMap<number, SeriesPrefs>> => {
+  const items = await queryAll<StoredPrefs & Readonly<{ sk: string }>>({
+    ConsistentRead: true,
+    ExpressionAttributeValues: marshall({
+      ':pk': userPk(userId),
+      ':prefix': PREF_SERIES_PREFIX,
+      ':since': since,
+    }),
+    FilterExpression: 'updatedAt >= :since',
+    KeyConditionExpression: 'pk = :pk AND begins_with(sk, :prefix)',
+    TableName: Resource.Lists.name,
+  });
+  const changed = new Map<number, SeriesPrefs>();
+  for (const item of items) {
+    const seriesId = parsePrefSk(item.sk);
+    if (seriesId !== null) {
+      changed.set(seriesId, toSeriesPrefs(item));
+    }
+  }
+  return changed;
 };

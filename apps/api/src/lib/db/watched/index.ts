@@ -5,19 +5,21 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { MAX_EPISODES_PER_SERIES_MARK } from '@tvseri.es/constants';
-import type {
-  EpisodeForWatched,
-  PaginationOptions,
-  Season,
-  TvSeries,
-  TvSeriesForWatched,
-  WatchedItem,
-  WatchProvider,
+import {
+  type EpisodeForWatched,
+  episodeCode,
+  type PaginationOptions,
+  type Season,
+  type TvSeries,
+  type TvSeriesForWatched,
+  type WatchedItem,
+  type WatchProvider,
 } from '@tvseri.es/schemas';
 import {
   buildLogoImageUrl,
   buildPosterImageUrl,
   buildStillImageUrl,
+  hasAiredAt,
 } from '@tvseri.es/utils';
 import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
@@ -299,8 +301,7 @@ const fetchAiredSeason = async (
 
   if (
     !season?.numberOfAiredEpisodes ||
-    !season.airDate ||
-    new Date(season.airDate) >= new Date()
+    !hasAiredAt(season.airDate, Date.now())
   ) {
     throw new HTTPException(400, {
       message: `Invalid season for ${tvSeriesId}`,
@@ -310,12 +311,18 @@ const fetchAiredSeason = async (
   return season;
 };
 
+/** Episode codes (`S01E02`) the viewer skipped: a scope mark leaves them */
+type Skipped = ReadonlySet<string>;
+
+const NOTHING_SKIPPED: Skipped = new Set();
+
 // Builds the watched items (and their put requests) for a season's aired
-// episodes that aren't watched yet
+// episodes that are neither watched nor skipped
 const buildSeasonWrites = ({
   existingWatched,
   season,
   seasonNumber,
+  skipped,
   tvSeries,
   userId,
   watchProvider,
@@ -324,6 +331,7 @@ const buildSeasonWrites = ({
   existingWatched: ReadonlyArray<Pick<WatchedItem, 'episodeNumber'>>;
   season: Season;
   seasonNumber: number;
+  skipped: Skipped;
   tvSeries: TvSeries;
   userId: string;
   watchProvider?: WatchProvider | null;
@@ -333,11 +341,14 @@ const buildSeasonWrites = ({
     existingWatched.map((item) => item.episodeNumber),
   );
 
+  const now = Date.now();
   const episodes = season.episodes.filter(
     (episode) =>
-      episode.airDate &&
-      new Date(episode.airDate) <= new Date() &&
-      !existingEpisodeNumbers.has(episode.episodeNumber),
+      hasAiredAt(episode.airDate, now) &&
+      !existingEpisodeNumbers.has(episode.episodeNumber) &&
+      !skipped.has(
+        episodeCode({ episodeNumber: episode.episodeNumber, seasonNumber }),
+      ),
   );
 
   const watchedItems = episodes.map((episode) =>
@@ -366,17 +377,20 @@ const buildSeasonWrites = ({
 };
 
 /**
- * Marks a season's aired, not yet watched episodes as watched. 400 when the
- * season hasn't started airing yet.
+ * Marks a season's aired episodes that are neither watched nor `skipped` as
+ * watched: a skip stays a skip until that episode itself is marked. 400 when
+ * the season hasn't started airing yet.
  */
 export const markSeasonWatched = async ({
   seasonNumber,
+  skipped = NOTHING_SKIPPED,
   tvSeries,
   userId,
   watchProvider,
   when = { watchedAt: Date.now() },
 }: Readonly<{
   seasonNumber: number;
+  skipped?: Skipped;
   tvSeries: TvSeries;
   userId: string;
   watchProvider?: WatchProvider | null;
@@ -391,6 +405,7 @@ export const markSeasonWatched = async ({
     existingWatched,
     season,
     seasonNumber,
+    skipped,
     tvSeries,
     userId,
     watchProvider,
@@ -441,15 +456,19 @@ export const unmarkSeasonWatched = async (
 };
 
 /**
- * Marks every aired episode of every aired season as watched. 413 above
- * MAX_EPISODES_PER_SERIES_MARK aired episodes, before anything is written.
+ * Marks every aired episode of every aired season as watched, skipped ones
+ * left skipped. 413 above MAX_EPISODES_PER_SERIES_MARK aired episodes,
+ * before anything is written.
  */
 export const markTvSeriesWatched = async ({
+  skipped = NOTHING_SKIPPED,
   userId,
   tvSeries,
   watchProvider,
   when = { watchedAt: Date.now() },
 }: Readonly<{
+  /** Skipped episode codes: left skipped, as the season mark leaves them */
+  skipped?: Skipped;
   userId: string;
   tvSeries: TvSeries;
   watchProvider?: WatchProvider | null;
@@ -468,11 +487,9 @@ export const markTvSeriesWatched = async ({
     });
   }
 
+  const now = Date.now();
   const seasons = tvSeries.seasons.filter(
-    (season) =>
-      season.seasonNumber > 0 &&
-      season.airDate &&
-      new Date(season.airDate) <= new Date(),
+    (season) => season.seasonNumber > 0 && hasAiredAt(season.airDate, now),
   );
 
   // Fetch and validate every season before writing anything, so an invalid
@@ -501,6 +518,7 @@ export const markTvSeriesWatched = async ({
         existingWatched: existingForSeason,
         season,
         seasonNumber,
+        skipped,
         tvSeries,
         userId,
         watchProvider,
@@ -631,6 +649,8 @@ export const getWatchedCountForTvSeries = async (input: SeriesInput) => {
 export type SeriesWatchSummary = Readonly<{
   /** Watched regular episodes (season 1 and up), as the count above */
   regularCount: number;
+  /** Their codes (`S01E02`), every row with or without a date */
+  regularCodes: ReadonlyArray<string>;
   /**
    * The latest `watchedAt` of any watched episode of the show, specials and
    * "I don't remember" ones included (theirs is when they were marked); null
@@ -730,7 +750,7 @@ const toCalendarInput = (row: SummaryRow): CalendarInput | undefined =>
 export const getSeriesWatchSummary = async (
   input: SeriesInput,
 ): Promise<SeriesWatchSummary> => {
-  let regularCount = 0;
+  const regularCodes: string[] = [];
   let lastWatchedAt: number | null = null;
   const items: CalendarInput[] = [];
 
@@ -743,7 +763,7 @@ export const getSeriesWatchSummary = async (
     KeyConditionExpression: 'pk = :pk AND #sk BETWEEN :from AND :to',
   })) {
     if (row.seasonNumber > 0) {
-      regularCount += 1;
+      regularCodes.push(episodeCode(row));
     }
     const item = toCalendarInput(row);
     if (item) {
@@ -754,7 +774,12 @@ export const getSeriesWatchSummary = async (
     }
   }
 
-  return { items, lastWatchedAt, regularCount };
+  return {
+    items,
+    lastWatchedAt,
+    regularCodes,
+    regularCount: regularCodes.length,
+  };
 };
 
 /**

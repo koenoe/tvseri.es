@@ -58,6 +58,9 @@ export type MarkingActions = Readonly<{
   /**
    * The server accepted change `id`: it moves into the base, followed by
    * `corrections` (the server's own records, e.g. real dates and runtimes).
+   * `replace`: the corrections are everything the server saved (a scope
+   * mark answers with the scope's watched set), so the change itself, the
+   * client's guess, is dropped instead.
    */
   settle: (
     seriesId: number,
@@ -65,6 +68,7 @@ export type MarkingActions = Readonly<{
     corrections?: ReadonlyArray<MarkingOp>,
     /** Server time of the write (the action's `at`). */
     at?: number,
+    options?: Readonly<{ replace?: boolean }>,
   ) => void;
   /**
    * Server truth learned outside a settle (what a failed multi-request write
@@ -310,12 +314,14 @@ function createStoreOf() {
             : library,
       });
     },
-    settle: (seriesId, id, corrections = [], at = 0) => {
+    settle: (seriesId, id, corrections = [], at = 0, options = {}) => {
       const current = get().series[seriesId];
       if (!current) {
         return;
       }
-      const settled = current.pending.find((item) => item.id === id);
+      const settled = options.replace
+        ? undefined
+        : current.pending.find((item) => item.id === id);
       const base = settled
         ? [settled.op, ...corrections].reduce(applyOp, current.base)
         : corrections.reduce(applyOp, current.base);

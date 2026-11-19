@@ -173,6 +173,38 @@ describe('liveUpNext', () => {
     });
   });
 
+  it('carries the season’s first number when it moves into another season', () => {
+    const seasons = [
+      { airedEpisodeCount: 3, episodeCount: 3, seasonNumber: 1 },
+      {
+        airedEpisodeCount: 3,
+        episodeCount: 3,
+        firstEpisodeNumber: 4,
+        seasonNumber: 2,
+      },
+    ];
+    const onS1 = { ...item, code: 'S01E03', episode: 3, season: 1 };
+    const moved = liveUpNext(
+      onS1,
+      view({ seasons, watched: { S01E03: { runtime: 0, watchedAt: NOW } } }),
+    );
+    expect(moved).toMatchObject({ code: 'S02E04', firstEpisodeNumber: 4 });
+    const back = liveUpNext(
+      { ...item, code: 'S02E06', episode: 6, firstEpisodeNumber: 4 },
+      view({
+        seasons: [
+          ...seasons,
+          { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 3 },
+        ],
+        watched: {
+          S02E06: { runtime: 0, watchedAt: NOW },
+        },
+      }),
+    );
+    expect(back?.code).toBe('S03E01');
+    expect(back?.firstEpisodeNumber).toBeUndefined();
+  });
+
   it('leaves Up next when nothing aired is left', () => {
     const caughtUp = view({
       skipped: ['S02E04'],

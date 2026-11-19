@@ -57,6 +57,18 @@ describe('progress', () => {
     expect(airedPercent(base)).toBe(25);
   });
 
+  it('places the airing stop by the season’s own numbers on a numbered-on show', () => {
+    // Naruto Shippuden S2 is E33…E53: E37 next to air means 4 of 21 out
+    expect(
+      airedPercent({
+        ...base,
+        firstEpisodeNumber: 33,
+        nextToAir: { airDate: '2026-11-20', episode: 37, season: 2 },
+        seasonTotal: 21,
+      }),
+    ).toBeCloseTo((4 / 21) * 100);
+  });
+
   it('fills what is done: watched or skipped, once the item says', () => {
     expect(watchedPercent({ ...base, seasonDone: 4 })).toBe(50);
   });

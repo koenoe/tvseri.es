@@ -5,7 +5,7 @@ import { getAllListItems } from '@/lib/db/list';
 import { getSeriesPrefsMany } from '@/lib/db/prefs';
 import { readShowItems } from '@/lib/rollups';
 import { getSeriesFacts } from '@/lib/seriesFacts';
-import { airedEpisodeRefs, airedEpisodesAt } from '@/lib/seriesFacts/aired';
+import { progressAt } from '@/lib/seriesFacts/aired';
 import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { mapSettled } from '@/utils/limit';
 
@@ -16,53 +16,44 @@ const MAX_SHOWS = 30;
 type Hole = Readonly<{ season: number; episode: number }>;
 
 /**
- * Aired regular episodes the viewer has not watched, not skipped, that sit
- * before the last watched episode. `aired` by their real numbers
- * (`airedEpisodeRefs`).
+ * The viewer's holes in one show: its open episodes (aired, neither watched
+ * nor skipped: `progressAt`, the shared rule) that sit before the last
+ * regular episode watched.
  */
-const findHoles = (
+export const getShowHoles = (
   watched: ReadonlyArray<
     Readonly<{ seasonNumber: number; episodeNumber: number }>
   >,
+  facts: Parameters<typeof progressAt>[0],
   skipped: ReadonlySet<string>,
-  aired: ReadonlyArray<Hole>,
+  now: number,
 ): Hole[] => {
   const regular = watched.filter((item) => item.seasonNumber > 0);
   if (regular.length === 0) {
     return [];
   }
-  const seen = new Set(regular.map((item) => episodeCode(item)));
   const lastSeason = Math.max(...regular.map((item) => item.seasonNumber));
   const lastEpisode = Math.max(
     ...regular
       .filter((item) => item.seasonNumber === lastSeason)
       .map((item) => item.episodeNumber),
   );
-
-  return aired.filter((hole) => {
-    const before =
-      hole.season < lastSeason ||
-      (hole.season === lastSeason && hole.episode < lastEpisode);
-    const code = episodeCode({
-      episodeNumber: hole.episode,
-      seasonNumber: hole.season,
-    });
-    return before && !seen.has(code) && !skipped.has(code);
-  });
-};
-
-/** The viewer's holes in one show, from its watched episodes, skips and facts */
-export const getShowHoles = (
-  watched: Parameters<typeof findHoles>[0],
-  facts: Parameters<typeof airedEpisodesAt>[0],
-  skipped: ReadonlySet<string>,
-  now: number,
-) =>
-  findHoles(
-    watched,
-    skipped,
-    airedEpisodeRefs(facts.seasons, airedEpisodesAt(facts, now).bySeason),
+  const { open } = progressAt(
+    facts,
+    {
+      skipped: [...skipped],
+      watched: regular.map((item) => episodeCode(item)),
+    },
+    now,
   );
+  return open
+    .filter(
+      (ref) =>
+        ref.seasonNumber < lastSeason ||
+        (ref.seasonNumber === lastSeason && ref.episodeNumber < lastEpisode),
+    )
+    .map((ref) => ({ episode: ref.episodeNumber, season: ref.seasonNumber }));
+};
 
 /**
  * The Season ledger: holes in the viewer's in-progress shows. A finished

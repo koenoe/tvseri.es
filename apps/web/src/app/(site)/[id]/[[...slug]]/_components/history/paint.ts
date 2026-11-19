@@ -46,13 +46,22 @@ function runChips(
   return chips.slice(start, end + 1).filter((chip) => chip.state !== 'na');
 }
 
+/**
+ * Up to here leaves skipped episodes skipped, as "Mark the N before too?"
+ * and the Up to dialog (`upToPlan`) do: they are neither marked nor sent.
+ */
+const keptByUpTo = (mode: SheetMode, chip: SheetChip) =>
+  mode !== 'upto' || chip.state !== 'sk';
+
 /** What the release would change (the label's count and the commit). */
 function runTodo(
   chips: ReadonlyArray<SheetChip>,
   mode: SheetMode,
   run: Run,
 ): ReadonlyArray<SheetChip> {
-  const inRun = runChips(chips, mode, run);
+  const inRun = runChips(chips, mode, run).filter((chip) =>
+    keptByUpTo(mode, chip),
+  );
   const unmark = run.direction === 'unmark';
   if (mode === 'date') {
     return unmark ? inRun.filter((chip) => isWatchedChip(chip.state)) : inRun;
@@ -135,7 +144,9 @@ export function runCommit(
   if (inRun.length === 0) {
     return { kind: 'none' };
   }
-  const span = inRun.map((chip) => chip.ref);
+  const span = inRun
+    .filter((chip) => keptByUpTo(mode, chip))
+    .map((chip) => chip.ref);
   const todo = runTodo(chips, mode, run).map((chip) => chip.ref);
   if (mode === 'date') {
     return {

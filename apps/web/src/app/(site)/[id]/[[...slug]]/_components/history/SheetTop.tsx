@@ -10,7 +10,7 @@ import { WHOLE_SHOW } from '@/lib/marking/copy';
 import { useSeriesProgress } from '@/lib/marking/hooks';
 import { useMarkingStoreApi } from '@/lib/marking/MarkingProvider';
 import { pressMark, scopeKey } from '@/lib/marking/pressGate';
-import { unwatchedRegularEpisodes } from '@/lib/marking/progress';
+import { openEpisodes } from '@/lib/marking/progress';
 import useMarking from '@/lib/marking/useMarking';
 
 import { openPicker } from '../../_lib/dialogs';
@@ -53,8 +53,9 @@ function PaintHint() {
 }
 
 /**
- * "The Bear · 21 of 47 watched", the calendar (one date for every aired
- * episode not watched yet) and Mark all watched / Unmark all (desktop).
+ * "The Bear · 21 of 47 watched", the calendar (one date for every open aired
+ * episode, skipped ones left skipped) and Mark all watched / Unmark all
+ * (desktop).
  */
 function ShowRow() {
   const show = useShow();
@@ -63,7 +64,8 @@ function ShowRow() {
   const total = show.seasons
     .filter((season) => season.seasonNumber > 0)
     .reduce((sum, season) => sum + season.episodeCount, 0);
-  const complete = progress?.isComplete ?? false;
+  // Finished (skips included) reads as done, as the hero's eye has it
+  const complete = progress?.isFinished ?? false;
   const toggle = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
       pressMark(scopeKey(show.id), event, () => marking.toggleScope(show.id));
@@ -73,14 +75,15 @@ function ShowRow() {
   const markingStore = useMarkingStoreApi();
   const dateAll = useCallback(() => {
     const view = markingStore.getState().series[show.id]?.view;
-    const refs = view ? unwatchedRegularEpisodes(view) : [];
+    // Skipped episodes stay skipped: only the open ones get the date
+    const refs = view ? openEpisodes(view) : [];
     if (refs.length > 0) {
       openPicker({ kind: 'set', refs, seriesId: show.id, what: WHOLE_SHOW });
     }
   }, [markingStore, show.id]);
   const label = complete ? 'Unmark the whole series' : 'Mark the whole series';
   const calendarLabel = `When did you watch ${show.title}?`;
-  const nothingOpen = (progress?.toWatch ?? 0) === 0;
+  const nothingOpen = (progress?.left ?? 0) === 0;
   return (
     <div className="flex items-center gap-4 rounded-14 bg-white/3.5 px-4 py-3.5 max-sm:hidden">
       <p className="min-w-0 flex-1 truncate text-body-sm text-white/60">

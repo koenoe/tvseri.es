@@ -4,7 +4,7 @@ exports[`every mark toast: Undo, and Use release dates only for a bulk mark > Fi
 {
   "action": "Undo",
   "secondary": "Use release dates",
-  "title": "Marked the whole series · I don’t remember when · incl. 1 skipped",
+  "title": "Marked the whole series · I don’t remember when",
 }
 `;
 
@@ -12,7 +12,7 @@ exports[`every mark toast: Undo, and Use release dates only for a bulk mark > I�
 {
   "action": "Undo",
   "secondary": "Use release dates",
-  "title": "Marked up to S03E04 · Just now · incl. 1 skipped · unmarked S03E08",
+  "title": "Marked up to S03E04 · Just now · unmarked S03E08",
 }
 `;
 

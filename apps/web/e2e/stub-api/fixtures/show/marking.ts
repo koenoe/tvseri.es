@@ -145,7 +145,19 @@ const markEpisodes = (
   );
 };
 
-/** A season: its aired episodes that aren't watched yet. */
+/** The episodes a scope mark writes: skipped ones stay skipped, as the API's */
+const notSkipped = (
+  state: UserState,
+  seriesId: number,
+  episodes: ReadonlyArray<StubEpisode>,
+): ReadonlyArray<StubEpisode> => {
+  const skipped = new Set(seriesPrefs(state, seriesId).skipped);
+  return episodes.filter(
+    (episode) => !skipped.has(episodeCode(episode.season, episode.number)),
+  );
+};
+
+/** A season: its aired episodes that are neither watched nor skipped. */
 export const markSeason = (
   state: UserState,
   userId: string,
@@ -156,7 +168,8 @@ export const markSeason = (
   const aired = episodesOf(show, season).filter(
     (episode) => episode.airDate <= TODAY,
   );
-  markEpisodes(state, userId, show, aired, body, { overwrite: false });
+  const open = notSkipped(state, show.id, aired);
+  markEpisodes(state, userId, show, open, body, { overwrite: false });
   return watchedList(state, show.id, season);
 };
 
@@ -171,7 +184,8 @@ export const markShow = (
   if (aired.length > MAX_EPISODES_PER_SERIES_MARK) {
     return null;
   }
-  markEpisodes(state, userId, show, aired, body, { overwrite: false });
+  const open = notSkipped(state, show.id, aired);
+  markEpisodes(state, userId, show, open, body, { overwrite: false });
   return watchedList(state, show.id);
 };
 

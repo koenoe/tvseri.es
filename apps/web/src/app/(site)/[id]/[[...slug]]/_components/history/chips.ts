@@ -1,5 +1,5 @@
 import { shortCode } from '@tvseri.es/schemas';
-import { episodeNumbersOf, firstEpisodeOf } from '@tvseri.es/utils';
+import { episodeNumbersOf, firstEpisodeOf, isDone } from '@tvseri.es/utils';
 
 import { episodeState, parseCode } from '@/lib/marking/progress';
 import type { EpisodeRef, SeriesBase } from '@/lib/marking/types';
@@ -13,7 +13,7 @@ export type ChipState = '' | 'w' | 'nd' | 'nx' | 'sk' | 'na';
 
 export type SheetChip = Readonly<{ ref: EpisodeRef; state: ChipState }>;
 
-/** A season's or the show's state: complete, partly watched or not started. */
+/** A season's or the show's state: done (`isDone`), partly watched or not started. */
 export type SetState = 'w' | 'part' | '';
 
 export const isWatchedChip = (state: ChipState) =>
@@ -87,6 +87,7 @@ export type Tally = Readonly<{
   watched: number;
   /** Aired episodes (skipped included: they count as not watched). */
   aired: number;
+  /** `w` once done: one watched and nothing aired open, skips included. */
   state: SetState;
   /** Watched share of the aired episodes, 0–100. */
   percentage: number;
@@ -96,8 +97,13 @@ export type Tally = Readonly<{
 export function tally(chips: ReadonlyArray<SheetChip>): Tally {
   const aired = chips.filter((chip) => chip.state !== 'na');
   const watched = aired.filter((chip) => isWatchedChip(chip.state)).length;
-  const state: SetState =
-    aired.length > 0 && watched === aired.length ? 'w' : watched ? 'part' : '';
+  const skipped = aired.filter((chip) => chip.state === 'sk').length;
+  const open = aired.length - watched - skipped;
+  const state: SetState = isDone({ open, watched })
+    ? 'w'
+    : watched
+      ? 'part'
+      : '';
   return {
     aired: aired.length,
     percentage: aired.length ? Math.round((watched / aired.length) * 100) : 0,
@@ -106,9 +112,14 @@ export function tally(chips: ReadonlyArray<SheetChip>): Tally {
   };
 }
 
-/** The aired episodes among `chips` (what a season's date applies to). */
+/**
+ * The aired episodes among `chips` that aren't skipped: what a season's date
+ * applies to (watched ones are re-dated; skipped ones stay skipped).
+ */
 export const airedRefs = (chips: ReadonlyArray<SheetChip>) =>
-  chips.filter((chip) => chip.state !== 'na').map((chip) => chip.ref);
+  chips
+    .filter((chip) => chip.state !== 'na' && chip.state !== 'sk')
+    .map((chip) => chip.ref);
 
 /** "E05": the chip's label. */
 export const chipLabel = (ref: EpisodeRef) => shortCode(ref.episodeNumber);

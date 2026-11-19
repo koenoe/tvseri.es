@@ -208,12 +208,13 @@ export async function markEpisodes(
       const now = Date.now();
       const items = toBatchItems({
         episodes,
-        // The live date too: the cached flags lag on release day
+        // The live date (the cached flags lag on release day)
         hasAired: (episode) =>
           hasEpisodeAired(
             episode,
             lastAiredIn(seasonInfo, episode.seasonNumber),
-          ) || Date.parse(episode.airDate) <= now,
+            now,
+          ),
         knownProviders: [PLEX_WATCH_PROVIDER, ...userProviders, ...providers],
         lookup,
         now,
@@ -273,9 +274,10 @@ const scopeWhen = (when: Exclude<MarkWhen, { kind: 'release' }>) =>
       : {};
 
 /**
- * Marks every aired episode of a season (`seasonNumber`), or of the show, that
- * isn't watched yet; skipped ones included. A show over the API's cap
- * (`MAX_EPISODES_PER_SERIES_MARK`, a 413) is marked season by season.
+ * Marks every aired episode of a season (`seasonNumber`), or of the show,
+ * that is neither watched nor skipped (the API leaves skips skipped). A show
+ * over the API's cap (`MAX_EPISODES_PER_SERIES_MARK`, a 413) is marked
+ * season by season.
  */
 export async function markScope(
   input: v.InferInput<typeof MarkScopeInputSchema>,

@@ -33,7 +33,7 @@ import {
   isInList,
   removeFromList,
 } from '@/lib/db/list';
-import { afterWatching, clearSkipped } from '@/lib/db/prefs';
+import { afterWatching, clearSkipped, getSeriesPrefs } from '@/lib/db/prefs';
 import { findUser } from '@/lib/db/user';
 import {
   getAllWatchedForTvSeries,
@@ -289,6 +289,15 @@ app.get(
   },
 );
 
+/**
+ * The skips a scope mark leaves alone: read consistently, so a skip saved
+ * just before the press is seen
+ */
+const skippedFor = async (userId: string, seriesId: number) =>
+  new Set<string>(
+    (await getSeriesPrefs(userId, seriesId, { consistent: true })).skipped,
+  );
+
 // The mark-watched POSTs look the series up after validating the body, in
 // parallel with the reads that don't need it
 app.post(
@@ -302,9 +311,10 @@ app.post(
     const body = c.req.valid('json');
     const user = c.get('user');
     const { 'series-id': tvSeriesId } = c.req.valid('param');
-    const [tvSeries, watchProvider] = await Promise.all([
+    const [tvSeries, watchProvider, skipped] = await Promise.all([
       fetchAiredSeries(tvSeriesId),
       parseWatchProviderFromBody(body, tvSeriesId),
+      skippedFor(user.id, tvSeriesId),
     ]);
 
     if (!tvSeries) {
@@ -312,6 +322,7 @@ app.post(
     }
 
     const watchedItems = await markTvSeriesWatched({
+      skipped,
       tvSeries,
       userId: user.id,
       watchProvider,
@@ -337,9 +348,10 @@ app.post(
     const { 'series-id': tvSeriesId, season: seasonNumber } =
       c.req.valid('param');
 
-    const [tvSeries, watchProvider] = await Promise.all([
+    const [tvSeries, watchProvider, skipped] = await Promise.all([
       fetchAiredSeries(tvSeriesId),
       parseWatchProviderFromBody(body, tvSeriesId),
+      skippedFor(user.id, tvSeriesId),
     ]);
 
     if (!tvSeries) {
@@ -348,6 +360,7 @@ app.post(
 
     const watchedItems = await markSeasonWatched({
       seasonNumber,
+      skipped,
       tvSeries,
       userId: user.id,
       watchProvider,

@@ -116,6 +116,28 @@ describe('runCommit', () => {
     expect(commit.kind === 'paint' && commit.refs).toHaveLength(4);
   });
 
+  it('leaves skipped episodes skipped in Up to here', () => {
+    const commit = runCommit(season, 'upto', {
+      direction: 'mark',
+      from: 4,
+      to: 4,
+    });
+    expect(commit).toEqual({
+      direction: 'mark',
+      kind: 'paint',
+      refs: [1, 2, 3, 4].map((episodeNumber) => ({
+        episodeNumber,
+        seasonNumber: 3,
+      })),
+    });
+    expect(
+      runPreview(season, 'upto', { direction: 'mark', from: 4, to: 4 }, thirty),
+    ).toEqual({
+      detail: '2 episodes · 1h · up to here',
+      title: 'Mark E01–E05',
+    });
+  });
+
   it('opens one picker; a watched start re-dates the watched ones', () => {
     expect(
       runCommit(season, 'date', { direction: 'unmark', from: 0, to: 3 }),

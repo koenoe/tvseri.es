@@ -58,6 +58,15 @@ describe('airedEpisodesAt', () => {
     });
   });
 
+  it('counts the next episode from the start of its air day (UTC)', () => {
+    expect(
+      airedEpisodesAt(facts(), Date.parse('2025-01-15T00:00:00Z')),
+    ).toEqual({ bySeason: { 1: 8, 2: 3 }, total: 11 });
+    expect(
+      airedEpisodesAt(facts(), Date.parse('2025-01-14T23:59:59Z')),
+    ).toEqual({ bySeason: { 1: 8, 2: 2 }, total: 10 });
+  });
+
   it('counts a fully aired show', () => {
     expect(
       airedEpisodesAt(

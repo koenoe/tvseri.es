@@ -4,9 +4,9 @@ import {
   type SeriesPrefs,
   type SeriesRuntimes,
 } from '@tvseri.es/schemas';
-import { endOfDayUtc } from '@tvseri.es/utils';
+import { hasAiredAt, type ShowProgress } from '@tvseri.es/utils';
 
-import { airedEpisodeRefs, airedEpisodesAt } from '@/lib/seriesFacts/aired';
+import { airedEpisodesAt, progressAt } from '@/lib/seriesFacts/aired';
 
 export type WatchedEpisode = Readonly<{
   seasonNumber: number;
@@ -36,9 +36,11 @@ export type ShowState = Readonly<{
   runtimes: SeriesRuntimes;
   /** Aired regular episodes per season */
   aired: Readonly<Record<number, number>>;
+  /** The show's progress by the shared rule (`showProgress`) */
+  progress: ShowProgress;
   /** Aired, not watched, not skipped; in order */
   unwatched: ReadonlyArray<EpisodeRef>;
-  /** Watched regular episodes per season */
+  /** Aired regular episodes watched, per season */
   watchedPerSeason: ReadonlyMap<number, number>;
   /** The next episode to watch: the first aired episode with no mark (watched or skipped) */
   nextUp: EpisodeRef | null;
@@ -58,13 +60,19 @@ export const analyzeShow = (input: ShowInput, now: number): ShowState => {
   const { facts, prefs } = input;
   const aired = airedEpisodesAt(facts, now).bySeason;
   const regular = input.watched.filter((item) => item.seasonNumber > 0);
-  const watchedCodes = new Set(regular.map((item) => episodeCode(item)));
-  const skipped = new Set(prefs.skipped);
-
-  const unwatched = airedEpisodeRefs(facts.seasons, aired).filter((ref) => {
-    const code = codeOf(ref);
-    return !watchedCodes.has(code) && !skipped.has(code);
-  });
+  const progress = progressAt(
+    facts,
+    {
+      skipped: prefs.skipped,
+      watched: regular.map((item) => episodeCode(item)),
+    },
+    now,
+  );
+  // What you haven't seen comes first; watched and skipped are both marks.
+  const unwatched = progress.open.map((ref) => ({
+    episode: ref.episodeNumber,
+    season: ref.seasonNumber,
+  }));
 
   const lastWatched =
     regular
@@ -74,21 +82,15 @@ export const analyzeShow = (input: ShowInput, now: number): ShowState => {
       }))
       .sort(compare)
       .at(-1) ?? null;
-  // What you haven't seen comes first; watched and skipped are both marks.
   const nextUp = unwatched[0] ?? null;
 
-  const watchedPerSeason = new Map<number, number>();
-  for (const item of regular) {
-    watchedPerSeason.set(
-      item.seasonNumber,
-      (watchedPerSeason.get(item.seasonNumber) ?? 0) + 1,
-    );
-  }
+  const watchedPerSeason = new Map(
+    progress.seasons.map((season) => [season.seasonNumber, season.watched]),
+  );
 
   const next = facts.nextEpisodeToAir;
   const last = facts.lastEpisodeToAir;
-  const latestSource =
-    next?.airDate && endOfDayUtc(next.airDate) <= now ? next : last;
+  const latestSource = next && hasAiredAt(next.airDate, now) ? next : last;
   const dated = input.watched.filter((item) => !item.dateUnknown);
 
   return {
@@ -108,6 +110,7 @@ export const analyzeShow = (input: ShowInput, now: number): ShowState => {
     nextUp,
     paused: prefs.paused,
     pausedAt: prefs.pausedAt,
+    progress,
     runtimes: input.runtimes ?? {},
     unwatched,
     watchedPerSeason,

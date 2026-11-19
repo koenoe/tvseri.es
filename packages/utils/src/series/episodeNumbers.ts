@@ -49,12 +49,19 @@ export const firstEpisodeNumbers = (
     counted[season.seasonNumber] = first;
     first += season.episodeCount;
   }
+  // The running season (no later one has episodes yet) may lag its newest
+  // episodes as above; an earlier season's range is closed by the next one
+  const running = [...regular]
+    .reverse()
+    .find((season) => season.episodeCount > 0);
   const fits = named.every((episode) => {
     const start = counted[episode.seasonNumber];
+    const slack =
+      running && episode.seasonNumber >= running.seasonNumber ? COUNT_LAG : 0;
     return (
       start !== undefined &&
       episode.episodeNumber >= start &&
-      episode.episodeNumber < start + countOf(episode.seasonNumber)
+      episode.episodeNumber < start + countOf(episode.seasonNumber) + slack
     );
   });
   return fits ? counted : perSeason;

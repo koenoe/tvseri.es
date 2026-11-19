@@ -1,9 +1,4 @@
-import type {
-  ListItem,
-  SeriesFacts,
-  SeriesPrefs,
-  TvSeries,
-} from '@tvseri.es/schemas';
+import type { SeriesFacts, SeriesPrefs, TvSeries } from '@tvseri.es/schemas';
 
 import {
   addToList,
@@ -16,7 +11,11 @@ import {
   removeFromList,
   restoreParkedWatchlistItem,
 } from '@/lib/db/list';
-import { getSeriesPrefs, getSeriesPrefsMany } from '@/lib/db/prefs';
+import {
+  getSeriesPrefs,
+  getSeriesPrefsChangedSince,
+  getSeriesPrefsMany,
+} from '@/lib/db/prefs';
 import {
   getSeriesWatchSummary,
   getWatchedBySeries,
@@ -37,7 +36,7 @@ import { logWarn } from '@/utils/logWarn';
 import { within } from '@/utils/within';
 import type { ChangeBudget } from './budget';
 import { cachedTvSeries } from './cachedTvSeries';
-import { countDoneSkips, decideListState, type ListState } from './state';
+import { decideListState, type ListState } from './state';
 import { listWrites, type PlacementSeries, type Plan } from './writes';
 
 export { createChangeBudget } from './budget';
@@ -154,40 +153,60 @@ const planSeriesLists = async ({
     return null;
   }
 
-  // Read last and consistently: the stream writes unconditionally, so the
-  // closer this read is to its write, the less a skip made meanwhile is missed
+  // Read last and consistently: the closer this read is to the write, the
+  // less a skip made meanwhile is missed (a request's write is conditional on
+  // the lists, which that skip's placement changes)
   const skipped =
     knownSkips ??
     (await getSeriesPrefs(userId, seriesId, { consistent: true })).skipped;
-  const skippedCount = countDoneSkips({
+  // Without its seasons the aired episodes are unknown: no placement
+  if (!tvSeries.seasons) {
+    console.error(
+      `[ERROR] No seasons for TV series "${seriesId}" | User: ${userId}`,
+    );
+    return null;
+  }
+  const state = decideListState({
     seasons: tvSeries.seasons,
     skipped,
-    watched: watched.items,
+    watched: watched.regularCodes,
   });
 
   console.log(
-    `[SYNC] ${tvSeries.title} | User: ${userId} | Count: ${watched.regularCount}+${skippedCount} skipped/${tvSeries.numberOfAiredEpisodes}`,
+    `[SYNC] ${tvSeries.title} | User: ${userId} | ${watched.regularCount} watched, ${skipped.length} skipped, ${tvSeries.numberOfAiredEpisodes} aired | ${state}`,
   );
 
   return {
     lastWatchedAt: watched.lastWatchedAt,
     regularCount: watched.regularCount,
-    state: decideListState({
-      airedCount: tvSeries.numberOfAiredEpisodes,
-      skippedCount,
-      watchedCount: watched.regularCount,
-    }),
+    state,
     tvSeries,
   };
 };
 
 /**
- * The stream's executor of `listWrites`: independent writes (its read of
- * the show's watched items is consistent and newest, so no condition).
+ * A plan that can't place the show: regular episodes watched, but TMDB lists
+ * nothing aired (its premiere day, inside the air-date margin, or a TMDB
+ * glitch). Taking the show out of its lists and back onto the watchlist
+ * would undo the user's watching: every writer leaves its lists as they are
+ * and only parks its watchlist entry (it is being watched); a later sync
+ * places it.
  */
-const applyPlan = async (userId: string, plan: Plan, placedAt?: number) => {
+const cannotPlace = (plan: Plan) =>
+  plan.state === 'none' && plan.regularCount > 0;
+
+/**
+ * The stream's executor of `listWrites`: independent writes (its read of
+ * the show's watched items is consistent and newest, so no condition; a
+ * skip saved meanwhile is caught by `placeFromStream`).
+ */
+const applyPlan = async (userId: string, plan: Plan) => {
   const id = plan.tvSeries.id;
-  const { put, ...writes } = listWrites(plan, placedAt);
+  if (cannotPlace(plan)) {
+    await parkWatchlistItem({ id, userId });
+    return;
+  }
+  const { put, ...writes } = listWrites(plan);
   await Promise.all([
     ...(put
       ? [
@@ -224,14 +243,18 @@ type PlaceInput = Readonly<{
   read?: ReadPlacement;
 }>;
 
-/** The lists half of `resyncShow`, alone for a skip (no watched item changed) */
+/**
+ * The lists half of `resyncShow` in a request, alone for a skip (no watched
+ * item changed): written only if the lists are still as `read`
+ */
 const placeShow = async ({
   placement,
   read,
   seriesId,
   summary,
   userId,
-}: PlaceInput & Readonly<{ summary?: SeriesWatchSummary }>): Promise<
+}: PlaceInput &
+  Readonly<{ read: ReadPlacement; summary?: SeriesWatchSummary }>): Promise<
   ListState | null | undefined
 > => {
   const tvSeries = placement ? await placement() : undefined;
@@ -242,12 +265,47 @@ const placeShow = async ({
   if (!plan) {
     return null;
   }
-  if (read) {
-    await applyPlanIfUnchanged(userId, plan, read);
-  } else {
-    await applyPlan(userId, plan);
-  }
+  await applyPlanIfUnchanged(userId, plan, read);
   return plan.state;
+};
+
+/**
+ * The lists half of `resyncShow` for the stream, which writes
+ * unconditionally. A skip saved between its read of the skips and its
+ * writes would be overwritten by a plan without it (and the skip's own
+ * placement may have lost to the stream's writes): it reads the skips again
+ * after writing and, when they changed, places the show once more from
+ * them. One more prefs read per sync.
+ */
+const placeFromStream = async (
+  userId: string,
+  seriesId: number,
+  summary: SeriesWatchSummary,
+): Promise<ListState | null> => {
+  const readSkips = async () =>
+    (await getSeriesPrefs(userId, seriesId, { consistent: true })).skipped;
+  const skipped = await readSkips();
+  const plan = await planSeriesLists({ seriesId, skipped, summary, userId });
+  if (!plan) {
+    return null;
+  }
+  await applyPlan(userId, plan);
+  const skippedNow = await readSkips();
+  if (skippedNow.join() === skipped.join()) {
+    return plan.state;
+  }
+  const again = await planSeriesLists({
+    seriesId,
+    skipped: skippedNow,
+    summary,
+    tvSeries: plan.tvSeries,
+    userId,
+  });
+  if (!again) {
+    return plan.state;
+  }
+  await applyPlan(userId, again);
+  return again.state;
 };
 
 /**
@@ -257,7 +315,8 @@ const placeShow = async ({
  * batching or redelivery. One rule for both callers:
  *
  * - the stream: `placement` left out (TMDB, else stored facts) and no
- *   `read`: unconditional writes, its read being the newest;
+ *   `read`: unconditional writes, its read being the newest
+ *   (`placeFromStream`, which re-checks the skips after writing);
  * - the mark request: the show from stored data (`placement`; undefined
  *   leaves the lists to the stream) and the lists as `read` before the
  *   items: written only if still so (a concurrent mark's sync is newer).
@@ -280,7 +339,9 @@ export const resyncShow = async (
   const summary = await getSeriesWatchSummary({ tvSeriesId: seriesId, userId });
   const [rollup, lists] = await Promise.allSettled([
     writeRollup(userId, seriesId, summary.items, asOf),
-    placeShow({ ...input, summary }),
+    input.read
+      ? placeShow({ ...input, read: input.read, summary })
+      : placeFromStream(userId, seriesId, summary),
   ]);
   if (rollup.status === 'rejected') {
     throw rollup.reason;
@@ -299,6 +360,8 @@ export const resyncShow = async (
  * (the stream re-puts an item with a new `createdAt` on every sync). When
  * they changed, nothing is written (the stream's sync of that mark is the
  * truth) and it answers false. The watchlist follows only a made change.
+ * A plan that can't place the show (`cannotPlace`) only parks its watchlist
+ * entry and answers false.
  */
 const applyPlanIfUnchanged = async (
   userId: string,
@@ -307,6 +370,10 @@ const applyPlanIfUnchanged = async (
   placedAt?: number,
 ): Promise<boolean> => {
   const id = plan.tvSeries.id;
+  if (cannotPlace(plan)) {
+    await parkWatchlistItem({ id, userId });
+    return false;
+  }
   const writes = listWrites(plan, placedAt);
   const moved = await moveListItems({
     alsoRemove: writes.alsoRemove,
@@ -367,7 +434,9 @@ const syncInRequest = async (
     sync,
   }: Readonly<{
     known?: PlacementSeries;
-    sync: (input: PlaceInput) => Promise<ListState | null | undefined>;
+    sync: (
+      input: PlaceInput & Readonly<{ read: ReadPlacement }>,
+    ) => Promise<ListState | null | undefined>;
   }>,
 ) => {
   const started = Date.now();
@@ -433,16 +502,15 @@ const syncInRequest = async (
 const AIR_DATE_MARGIN_MS = 2 * 24 * 60 * 60 * 1000;
 
 /**
- * A WATCHED list item's createdAt is the latest watchedAt of the show. If the
- * last aired episode is older than that, nothing new aired since and the
- * series is still fully watched, so the count can be skipped. A show
- * finished through skips of later episodes is planned again each night
- * (its skips count there) and stays.
+ * If the last aired episode is older than the user's latest dated watch of a
+ * regular episode, nothing new aired since and the series is still fully
+ * watched, so the count can be skipped. Not the Finished item's `createdAt`:
+ * a special or an "I don't remember" mark (dated when it was marked) can be
+ * newer than an episode the user hasn't seen. A show finished through skips
+ * of later episodes is planned again each night (its skips count there) and
+ * stays.
  */
-const hasNothingAiredSince = (
-  tvSeries: TvSeries,
-  watchedAt: ListItem['createdAt'],
-) => {
+const hasNothingAiredSince = (tvSeries: TvSeries, watchedAt: number | null) => {
   const airDate = tvSeries.lastEpisodeToAir?.airDate;
   if (!airDate || !watchedAt) {
     return false;
@@ -499,22 +567,54 @@ const createResumingSoon = (userId: string) => {
   };
 };
 
+/** The latest dated watch of a regular episode, null when there is none */
+const lastRegularWatchedAt = (
+  watched: ReturnType<WatchedBySeries['get']>,
+): number | null => {
+  let latest: number | null = null;
+  for (const item of watched?.items ?? []) {
+    if (item.seasonNumber > 0 && !item.dateUnknown) {
+      latest = Math.max(latest ?? 0, item.watchedAt);
+    }
+  }
+  return latest;
+};
+
+/**
+ * The Finished shows still running: their list item says Returning Series,
+ * or their stored facts say so now (a show finished while Ended or In
+ * Production and renewed since). The facts are a read of the Cache table,
+ * no TMDB call; a show without stored facts is judged by its item.
+ */
+const runningFinishedShows = async (userId: string) => {
+  const finished = await getAllListItems({ listId: 'WATCHED', userId });
+  const isRunning = (status: string | undefined) =>
+    status === 'Returning Series';
+  const others = finished.filter((item) => !isRunning(item.status));
+  const facts =
+    others.length > 0
+      ? await peekSeriesFacts(others.map((item) => item.id))
+      : new Map<number, SeriesFacts>();
+  return finished.filter(
+    (item) => isRunning(item.status) || isRunning(facts.get(item.id)?.status),
+  );
+};
+
 /**
  * Finished Returning Series: still finished (maybe resuming soon), or a new
  * episode aired (back to In progress, surfaced now). Unless it's the weekly
- * full check, a show with nothing aired since its last watch is skipped.
- * TMDB listing nothing aired leaves the show as it is. Returns the
- * shows it moved.
+ * full check, a show with nothing aired since its last dated regular watch
+ * is skipped. TMDB listing nothing aired leaves the show as it is. Returns
+ * the shows it moved.
  */
 const checkFinishedShows = async (
   userId: string,
   isFullCheck: boolean,
   budget: ChangeBudget,
+  watchedBySeries: WatchedBySeries,
 ): Promise<ReadonlySet<number>> => {
   const moved = new Set<number>();
-  const finished = (
-    await getAllListItems({ listId: 'WATCHED', userId })
-  ).filter((item) => item.status === 'Returning Series');
+  const finished = await runningFinishedShows(userId);
   if (finished.length === 0) {
     return moved;
   }
@@ -545,7 +645,13 @@ const checkFinishedShows = async (
 
         // The Finished item as read: every write below is conditional on it
         const finishedRead: ReadEntry = { createdAt: item.createdAt };
-        if (!isFullCheck && hasNothingAiredSince(tvSeries, item.createdAt)) {
+        if (
+          !isFullCheck &&
+          hasNothingAiredSince(
+            tvSeries,
+            lastRegularWatchedAt(watchedBySeries.get(item.id)),
+          )
+        ) {
           await syncResumingSoon(tvSeries, finishedRead);
           return;
         }
@@ -598,6 +704,17 @@ const checkFinishedShows = async (
 const DROPPED_BATCH_WINDOW_MS = 48 * 60 * 60 * 1000;
 
 /**
+ * Prefs changed this recently are planned again: a night and a missed one
+ * (the job runs nightly; planning a show twice writes nothing the second
+ * time)
+ */
+const PREFS_CHANGED_WINDOW_MS = 48 * 60 * 60 * 1000;
+
+type WatchedBySeries = Awaited<
+  ReturnType<typeof getWatchedBySeries>
+>['bySeries'];
+
+/**
  * Heals what the stream missed (a batch dropped after its retries, an event
  * lost while the subscriber was down): compares the user's watched shows with
  * their In progress and Finished lists, without TMDB, and re-syncs only the
@@ -620,13 +737,16 @@ const reconcileUserLists = async (
   userId: string,
   budget: ChangeBudget,
   justMoved: ReadonlySet<number>,
+  watchedBySeries: WatchedBySeries,
 ) => {
   // The lists before the plans' watched reads, so a write conditional on
-  // them can't apply a plan made from older data than they show
-  const asOf = Date.now();
-  const [{ bySeries: watchedBySeries, totals }, placements] = await Promise.all(
-    [getWatchedBySeries(userId), getListPlacements(userId)],
-  );
+  // them can't apply a plan made from older data than they show. The
+  // job's read of every watched item may be older than them: it only picks
+  // the shows to plan, each plan reads its show's items again
+  const [placements, prefsChanged] = await Promise.all([
+    getListPlacements(userId),
+    getSeriesPrefsChangedSince(userId, Date.now() - PREFS_CHANGED_WINDOW_MS),
+  ]);
   const inProgress = [...placements.IN_PROGRESS.keys()];
   const listed = new Set([...inProgress, ...placements.WATCHED.keys()]);
   const both = new Set(inProgress.filter((id) => placements.WATCHED.has(id)));
@@ -642,6 +762,14 @@ const reconcileUserLists = async (
     }
   }
   const listedDisagreeing = [...disagree];
+  // Listed, with prefs changed lately: a skip or unskip whose own placement
+  // failed. An unlisted one is left alone: placing it would undo a removal
+  // from In progress by hand
+  for (const seriesId of prefsChanged.keys()) {
+    if (listed.has(seriesId)) {
+      disagree.add(seriesId);
+    }
+  }
   // Watched, in neither list: only a recent mark (a dropped batch). Older,
   // it was healed already or removed from In progress by hand, which leaves
   // exactly this state; a show on the watchlist is left alone too
@@ -676,10 +804,18 @@ const reconcileUserLists = async (
           // Plan first: only a real change claims a slot of the cap
           const plan = await planSeriesLists({
             seriesId,
-            skipped: prefs?.get(seriesId)?.skipped ?? [],
+            skipped:
+              (prefs?.get(seriesId) ?? prefsChanged.get(seriesId))?.skipped ??
+              [],
             userId,
           });
-          if (!plan || !changesLists(plan, listed.has(seriesId))) {
+          if (
+            !plan ||
+            !changesLists(plan, {
+              finished: placements.WATCHED.has(seriesId),
+              inProgress: placements.IN_PROGRESS.has(seriesId),
+            })
+          ) {
             return;
           }
           if (!budget.take(userId)) {
@@ -700,23 +836,34 @@ const reconcileUserLists = async (
         }),
       ),
   );
-  return { asOf, bySeries: watchedBySeries, totals };
 };
 
 /**
- * Whether applying a reconcile plan changes the lists. `none` for a show in
- * no list changes nothing; `none` with regular episodes watched means TMDB
- * lists nothing aired: it can't be placed, and taking it out of its lists
- * (and back onto the watchlist) would undo the user's watching.
+ * Whether applying a reconcile plan changes the lists as read: a show
+ * already where its plan puts it is not written again (its place in the
+ * list is kept), and a plan that can't place it (`cannotPlace`) changes
+ * nothing.
  */
-const changesLists = (plan: Plan, isListed: boolean) =>
-  plan.state !== 'none' || (isListed && plan.regularCount === 0);
+const changesLists = (
+  plan: Plan,
+  {
+    finished,
+    inProgress,
+  }: Readonly<{ finished: boolean; inProgress: boolean }>,
+) => {
+  if (plan.state === 'none') {
+    return (finished || inProgress) && !cannotPlace(plan);
+  }
+  return plan.state === 'watched'
+    ? !finished || inProgress
+    : !inProgress || finished;
+};
 
 /**
- * The nightly job for one user: the finished-show check, then the reconcile
- * (which reads the lists as the check left them), then the counter heal and
- * the per-show summaries from the reconcile's read of every watched item (no
- * extra read). Every list change counts against `budget`; what it refuses is
+ * The nightly job for one user: one read of every watched item, the
+ * finished-show check, then the reconcile (which reads the lists as the
+ * check left them), then the counter heal and the per-show summaries from
+ * that same read (no extra read). Every list change counts against `budget`; what it refuses is
  * left for a later night.
  */
 export const validateUserLists = async (
@@ -729,13 +876,16 @@ export const validateUserLists = async (
   // The counters as they are before the watched read: the heal replaces
   // only values no mark changed since
   const counters = await readWatchedCounters(input.userId);
+  const asOf = Date.now();
+  const { bySeries, totals } = await getWatchedBySeries(input.userId);
   const moved = await checkFinishedShows(
     input.userId,
     input.isFullCheck,
     input.budget,
+    bySeries,
   );
-  const read = await reconcileUserLists(input.userId, input.budget, moved);
-  await healWatchedCounters(input.userId, counters, read.totals);
+  await reconcileUserLists(input.userId, input.budget, moved, bySeries);
+  await healWatchedCounters(input.userId, counters, totals);
   // The per-show summaries: built the first night, repaired after
-  await buildRollups(input.userId, read.bySeries, read.asOf);
+  await buildRollups(input.userId, bySeries, asOf);
 };

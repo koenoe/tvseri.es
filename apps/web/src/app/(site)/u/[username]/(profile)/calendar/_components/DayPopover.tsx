@@ -47,6 +47,10 @@ const STEP =
  * another month) and leaves in 120ms. Esc and ✕ close it and return focus
  * to the day; a press anywhere outside closes it too. ‹ › go to the
  * dated day before and after, across months.
+ *
+ * Not on the Popover API (the Remote's): the top layer would paint it over
+ * the floating header while the page scrolls under it (it stays open on
+ * scroll), where it now slides beneath the header like the grid.
  */
 export default function DayPopover({
   afterSlide,

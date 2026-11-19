@@ -76,6 +76,7 @@ describe('liveUpNext', () => {
       lastWatchedAt: NOW,
       lastWatchedCode: 'S02E02',
       runtime: 45,
+      seasonDone: 2,
       seasonWatched: 2,
       // E03 + E04: their own runtimes, never 50 × 2
       timeLeftMinutes: 100,

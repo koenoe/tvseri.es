@@ -47,15 +47,27 @@ export function airedPercent(item: UpNextItem): number {
   return toPercent(nextToAir.episode - 1, seasonTotal);
 }
 
+/** Done in the season (watched or skipped); watched on an answer without it */
+const seasonDoneOf = (item: UpNextItem) =>
+  item.seasonDone ?? item.seasonWatched;
+
+/** The fill: done (watched or skipped) of the season; watched on an older answer */
 export function watchedPercent(item: UpNextItem): number {
-  return toPercent(item.seasonWatched, item.seasonTotal);
+  return toPercent(seasonDoneOf(item), item.seasonTotal);
 }
 
-/** "1 of 8 watched" (the bold half) and "1 to watch" */
-export const progressLabel = (item: UpNextItem) => ({
-  toWatch: `${item.toWatch} to watch`,
-  watched: `${item.seasonWatched} of ${item.seasonTotal} watched`,
-});
+/**
+ * "1 of 8 watched" (the bold half) and "1 to watch"; with skips in the
+ * season it counts done, as the fill does: "3 of 8 done".
+ */
+export function progressLabel(item: UpNextItem) {
+  const done = seasonDoneOf(item);
+  const watched =
+    done > item.seasonWatched
+      ? `${done} of ${item.seasonTotal} done`
+      : `${item.seasonWatched} of ${item.seasonTotal} watched`;
+  return { toWatch: `${item.toWatch} to watch`, watched };
+}
 
 /** The card link's name: "Dexter, S02E02 Fallen" */
 export const itemLabel = (item: UpNextItem) =>

@@ -1,4 +1,4 @@
-import type { TvSeries } from '@tvseri.es/schemas';
+import type { SeriesRuntimes, TvSeries } from '@tvseri.es/schemas';
 import { isOver, plural } from '@tvseri.es/utils';
 
 import { seriesSeasons } from '@/lib/format/status';
@@ -39,9 +39,7 @@ export function episodesFact(
 }
 
 /** "20–70 min" or "28 min" over every episode with a runtime; '' without. */
-export function runtimeRange(
-  runtimes: Readonly<Record<number, ReadonlyArray<number>>>,
-): string {
+export function runtimeRange(runtimes: SeriesRuntimes): string {
   const values = Object.values(runtimes)
     .flat()
     .filter((value) => value > 0);

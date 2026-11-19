@@ -1,10 +1,10 @@
 'use client';
 
+import type { SeriesRuntimes } from '@tvseri.es/schemas';
 import { memo, useMemo } from 'react';
 
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
-import { SlidingProgressTrack } from '@/components/ui/progress/ProgressTrack';
 import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
 import cn from '@/lib/cn';
 import { useSeriesView } from '@/lib/marking/hooks';
@@ -13,13 +13,17 @@ import promptSignIn from '@/lib/marking/promptSignIn';
 import { openHistory } from '../../_lib/urlState';
 import { PROGRESS_LINE_SPACE as LINE_SPACE } from '../frames';
 import { preloadHistorySheet } from '../history/HistorySheetIsland';
+import { LineFacts, LinePercent, SizeFacts } from './ProgressCaption';
+import ProgressLineLayout from './ProgressLineLayout';
 import ProgressUnavailable from './ProgressUnavailable';
-import { type ProgressLine, progressLine, sizeLine } from './progressLine';
+import { progressLine, sizeLine } from './progressLine';
+import ShowProgressTrack from './ShowProgressTrack';
 
 type Props = Readonly<{
   seriesId: number;
-  runtimes: Readonly<Record<number, ReadonlyArray<number>>>;
-  nextAirDay: string | null;
+  runtimes: SeriesRuntimes;
+  /** `YYYY-MM-DD` of the next episode to air, while it airs */
+  nextAirDate: string | null;
   /** Signed out: the empty bar and the series' size; a click asks to sign in. */
   signedIn: boolean;
 }>;
@@ -31,25 +35,17 @@ const open = () => openHistory();
 /** The line's own box (`PROGRESS_LINE_SPACE`), the text centred in it. */
 const BUTTON = cn(
   LINE_SPACE,
-  'group flex cursor-pointer items-center gap-3 rounded-10 px-2.5 text-left text-white hover:bg-white/6',
+  'group flex cursor-pointer items-center rounded-10 px-2.5 text-left text-white hover:bg-white/6',
 );
 
-/** A fraction as a percentage to one decimal */
-const pct = (fraction: number) => Number((fraction * 100).toFixed(1));
-
-function Track({ line }: Readonly<{ line: ProgressLine }>) {
-  const aired = pct(line.aired);
-  const tick = line.airing ? aired : undefined;
-  const watched = pct(line.watched);
-  return (
-    <SlidingProgressTrack
-      aired={aired}
-      slide="ease-out"
-      tick={tick}
-      watched={watched}
-    />
-  );
-}
+const CHEVRON = (
+  <Icon
+    // contrast-exempt: the chevron icon
+    className="shrink-0 text-white/55 max-md:size-[13px]"
+    glyph={chevronRightGlyph}
+    size={16}
+  />
+);
 
 /**
  * The hero's progress line, live from the marking
@@ -59,20 +55,21 @@ function Track({ line }: Readonly<{ line: ProgressLine }>) {
  * ("47 episodes · 26h 51m in all"), and a click shows the sign-in toast, as
  * every marking control does for a visitor.
  */
-function ProgressBar({ nextAirDay, runtimes, seriesId, signedIn }: Props) {
+function ProgressBar({ nextAirDate, runtimes, seriesId, signedIn }: Props) {
   const view = useSeriesView(seriesId);
   const line = useMemo(() => {
     if (!view || view.unavailable) {
       return null;
     }
-    const options = { nextAirDay, runtimes };
+    const options = { nextAirDate, runtimes };
     return signedIn
       ? progressLine(view, options)
       : progressLine({ ...view, ...NOTHING_WATCHED }, options);
-  }, [view, nextAirDay, runtimes, signedIn]);
+  }, [view, nextAirDate, runtimes, signedIn]);
   const size = useMemo(
-    () => (!signedIn && view ? sizeLine(view, { nextAirDay, runtimes }) : null),
-    [view, nextAirDay, runtimes, signedIn],
+    () =>
+      !signedIn && view ? sizeLine(view, { nextAirDate, runtimes }) : null,
+    [view, nextAirDate, runtimes, signedIn],
   );
   if (view?.unavailable) {
     return <ProgressUnavailable seriesId={seriesId} />;
@@ -80,12 +77,15 @@ function ProgressBar({ nextAirDay, runtimes, seriesId, signedIn }: Props) {
   if (!line) {
     return <ProgressSkeleton />;
   }
-  const tail = line.tail ? ` · ${line.tail}` : '';
   const label =
     size === null
-      ? `${line.percent} watched, ${line.count} watched${tail}: open watch history`
-      : `Watch history: ${size}`;
+      ? `${line.label}: open watch history`
+      : `Watch history: ${size.join(' · ')}`;
   const onClick = size === null ? open : promptSignIn;
+  const track = <ShowProgressTrack line={line} slide="ease-out" />;
+  const percent = size === null ? <LinePercent line={line} /> : null;
+  const facts =
+    size === null ? <LineFacts line={line} /> : <SizeFacts facts={size} />;
   // Signed in, intent fetches the sheet's code (a visitor gets the toast)
   const preload = size === null ? preloadHistorySheet : undefined;
   return (
@@ -98,24 +98,11 @@ function ProgressBar({ nextAirDay, runtimes, seriesId, signedIn }: Props) {
       onPointerEnter={preload}
       type="button"
     >
-      <span className="flex min-w-0 flex-1 items-center gap-2.5 md:gap-4">
-        <Track line={line} />
-        <span className="whitespace-nowrap text-caption font-medium text-white/60 tabular-nums">
-          {size ?? (
-            <>
-              <b className="font-medium text-white/80">{line.percent}</b> ·{' '}
-              {line.count}
-              <span className="max-md:hidden"> watched</span>
-              {tail}
-            </>
-          )}
-        </span>
-      </span>
-      <Icon
-        // contrast-exempt: the chevron icon
-        className="shrink-0 text-white/55 max-md:size-[13px]"
-        glyph={chevronRightGlyph}
-        size={16}
+      <ProgressLineLayout
+        end={CHEVRON}
+        facts={facts}
+        percent={percent}
+        track={track}
       />
     </button>
   );
@@ -125,14 +112,27 @@ ProgressBar.displayName = 'ProgressBar';
 
 export default memo(ProgressBar);
 
-const SKELETON_CLASS = cn(
-  LINE_SPACE,
-  'flex animate-ghost items-center gap-3 px-2.5',
+const SKELETON_CLASS = cn(LINE_SPACE, 'flex animate-ghost items-center px-2.5');
+const TRACK_GHOST = (
+  <span className={`h-1 min-w-20 flex-1 rounded-2 ${GHOST_FILL}`} />
 );
-const TRACK_GHOST = `h-1 flex-1 rounded-2 ${GHOST_FILL}`;
-const CAPTION_GHOST = `h-3 w-40 rounded-4 ${GHOST_FILL}`;
+/** Ghosts of the %'s and the facts' text, each in its 20px line */
+const PERCENT_GHOST = (
+  <span className="flex h-5 items-center">
+    <span className={`h-3 w-8 rounded-4 ${GHOST_FILL}`} />
+  </span>
+);
+const FACTS_GHOST = (
+  <span className="flex h-5 items-center">
+    <span className={`h-3 w-32 rounded-4 ${GHOST_FILL}`} />
+  </span>
+);
 
-/** The line's exact space while the viewer's marks load: the same box for everyone. */
+/**
+ * The line's exact space while the viewer's marks load, in the line's own
+ * layout (one row; on a phone the bar and % over the facts): the same box
+ * for everyone.
+ */
 export function ProgressSkeleton() {
   return (
     <div
@@ -140,8 +140,11 @@ export function ProgressSkeleton() {
       className={SKELETON_CLASS}
       data-placeholder="progress"
     >
-      <span className={TRACK_GHOST} />
-      <span className={CAPTION_GHOST} />
+      <ProgressLineLayout
+        facts={FACTS_GHOST}
+        percent={PERCENT_GHOST}
+        track={TRACK_GHOST}
+      />
     </div>
   );
 }

@@ -89,10 +89,23 @@ describe('Up next', () => {
       code: 'S02E06',
       isLatest: false,
       lastWatchedCode: 'S02E05',
+      seasonDone: 5,
       seasonTotal: 8,
       seasonWatched: 5,
       timeLeftMinutes: 150,
       toWatch: 3,
+    });
+  });
+
+  it('counts a skipped episode of the season as done, not watched', () => {
+    const [item] = buildUpNext([
+      state({ prefs: { paused: null, pausedAt: null, skipped: ['S02E06'] } }),
+    ]);
+    expect(item).toMatchObject({
+      code: 'S02E07',
+      seasonDone: 6,
+      seasonWatched: 5,
+      toWatch: 2,
     });
   });
 

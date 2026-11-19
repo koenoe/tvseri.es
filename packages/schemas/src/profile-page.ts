@@ -258,6 +258,13 @@ export type UpNextItem = Readonly<{
   seasonTotal: number;
   toWatch: number;
   /**
+   * The season's aired episodes watched or skipped: the line's fill (done
+   * counts skips). Optional: the web (Vercel) and the API (Lambda) go live
+   * apart in one deploy, so the new web can read an answer without it;
+   * nothing caches it longer (`/me/overview` is private, no-store).
+   */
+  seasonDone?: number;
+  /**
    * The next episode's minutes, and what the season has left ("4 left · 3h
    * 50m"): each episode's own runtime summed, by the show page's rule
    * (`minutesFor` in `@tvseri.es/utils`); null when unknown

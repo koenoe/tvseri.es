@@ -12,7 +12,11 @@ export {
   UNKNOWN_COLOR,
 } from './color';
 export { createLimiter } from './createLimiter';
-export { formatDuration, formatRuntime } from './duration/formatDuration';
+export {
+  formatDuration,
+  formatDurationWords,
+  formatRuntime,
+} from './duration/formatDuration';
 export { default as generateTmdbImageUrl } from './generateTmdbImageUrl';
 export { default as generateUsername } from './generateUsername';
 export { mergeHistogramBins } from './histogram';
@@ -66,6 +70,7 @@ export {
   minutesFor,
   resolveSeasonMinutes,
 } from './runtime/minutesFor';
+export { doneCount } from './series/done';
 export {
   episodeNumbersOf,
   firstEpisodeNumbers,

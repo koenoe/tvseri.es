@@ -1,8 +1,18 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatAirDay, progressLine, sizeLine } from './progressLine';
+import {
+  NARUTO,
+  NARUTO_RUNTIMES,
+  ONE_SEASON_RUNTIMES,
+  oneSeason,
+} from './fixtures';
+import { type ProgressLine, progressLine, sizeLine } from './progressLine';
 
 const record = { runtime: 30, watchedAt: 1 };
+
+/** The line as read: the same words on a phone and on desktop */
+const textOf = (line: ProgressLine) =>
+  [line.percent, ...line.parts.map((part) => part.text)].join(' · ');
 
 describe('progressLine', () => {
   const seasons = [
@@ -11,6 +21,7 @@ describe('progressLine', () => {
     { airedEpisodeCount: 1, episodeCount: 1, seasonNumber: 0 },
   ];
   const runtimes = { 1: [28, 32], 2: [60, 45] };
+  const ended = { nextAirDate: null, runtimes };
 
   it('ended: percent of the show, count and the time left of the unwatched', () => {
     const line = progressLine(
@@ -19,130 +30,209 @@ describe('progressLine', () => {
         skipped: [],
         watched: { S01E01: record, S01E02: record, S02E01: record },
       },
-      { nextAirDay: null, runtimes },
+      ended,
     );
-    expect(line).toEqual({
-      aired: 1,
+    expect(textOf(line)).toBe('75% · 3 of 4 watched · 45m left');
+    expect(line.label).toBe('75% watched: 3 of 4, 1 to go, 45 minutes left');
+    expect(line).toMatchObject({
+      aired: 100,
       airing: false,
-      count: '3 of 4',
-      percent: '75%',
-      tail: '45m left',
-      watched: 0.75,
+      plain: true,
+      watched: 75,
     });
   });
 
   it('a watched special moves neither the count nor the time left', () => {
     const line = progressLine(
-      {
-        seasons,
-        skipped: [],
-        watched: { S00E01: record },
-      },
-      { nextAirDay: null, runtimes: { ...runtimes, 0: [50] } },
+      { seasons, skipped: [], watched: { S00E01: record } },
+      { nextAirDate: null, runtimes: { ...runtimes, 0: [50] } },
     );
-    expect(line).toMatchObject({
-      count: '0 of 4',
-      percent: '0%',
-      tail: '2h 45m left',
-      watched: 0,
-    });
+    expect(textOf(line)).toBe('0% · 0 of 4 watched · 2h 45m left');
   });
 
-  it('signed out or untracked: 0% and the whole runtime left', () => {
-    const line = progressLine(
-      {
-        seasons,
-        skipped: [],
-        watched: {},
-      },
-      { nextAirDay: null, runtimes },
-    );
-    expect(line.percent).toBe('0%');
-    expect(line.tail).toBe('2h 45m left');
-  });
-
-  it('airing: a soft run to the aired fraction, "N to watch · next …"', () => {
+  it('airing: a soft run to the aired share, "N to watch · next …"', () => {
     const airing = [
       { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 1 },
       { airedEpisodeCount: 1, episodeCount: 4, seasonNumber: 2 },
     ];
     const line = progressLine(
-      {
-        seasons: airing,
-        skipped: [],
-        watched: { S01E01: record },
-      },
-      { nextAirDay: 'Fri Nov 13', runtimes },
+      { seasons: airing, skipped: [], watched: { S01E01: record } },
+      { nextAirDate: '2026-11-13', runtimes },
     );
-    expect(line.airing).toBe(true);
-    expect(line.aired).toBe(0.5);
-    expect(line.watched).toBe(1 / 6);
-    expect(line.count).toBe('1 of 6');
-    expect(line.tail).toBe('2 to watch · next Fri Nov 13');
+    expect(line).toMatchObject({ aired: 50, airing: true });
+    expect(line.watched).toBeCloseTo(100 / 6);
+    expect(textOf(line)).toBe(
+      '16% · 1 of 6 watched · 2 to watch · next Fri Nov 13',
+    );
+    expect(line.label).toBe(
+      '16% watched: 1 of 6, 2 to watch, next episode Friday November 13',
+    );
   });
 
-  it('complete: no tail', () => {
+  it('never says "0 to watch" while airing: only the next air date', () => {
+    const line = progressLine(oneSeason({ aired: 8, total: 10 }, 'wwwwwwww'), {
+      nextAirDate: '2026-11-13',
+      runtimes: ONE_SEASON_RUNTIMES,
+    });
+    expect(textOf(line)).toBe('80% · 8 of 10 watched · next Fri Nov 13');
+  });
+
+  it('an announced episode without a date is not airing: no tick, a full bar', () => {
+    const line = progressLine(oneSeason({ aired: 8, total: 10 }, 'wwwww'), {
+      nextAirDate: null,
+      runtimes: ONE_SEASON_RUNTIMES,
+    });
+    expect(line).toMatchObject({ aired: 100, airing: false });
+    expect(textOf(line)).toBe('50% · 5 of 10 watched · 1h 30m left');
+  });
+
+  it('complete: no time left', () => {
     const line = progressLine(
-      {
-        seasons,
-        skipped: [],
-        watched: {
-          S01E01: record,
-          S01E02: record,
-          S02E01: record,
-          S02E02: record,
-        },
-      },
-      { nextAirDay: null, runtimes },
+      oneSeason({ aired: 10, total: 10 }, 'wwwwwwwwww'),
+      { nextAirDate: null, runtimes: ONE_SEASON_RUNTIMES },
     );
-    expect(line.percent).toBe('100%');
-    expect(line.tail).toBe('');
+    expect(textOf(line)).toBe('100% · 10 of 10 watched');
+    expect(line.label).toBe('100% watched: 10 of 10');
+  });
+
+  it('counts against the larger of the announced and the aired episodes', () => {
+    const line = progressLine(
+      oneSeason({ aired: 12, total: 10 }, 'wwwwwwwwwwww'),
+      { nextAirDate: null, runtimes: {} },
+    );
+    expect(textOf(line)).toBe('100% · 12 of 12 watched');
+  });
+
+  it('leaves the time out until the runtimes are known', () => {
+    const line = progressLine(oneSeason({ aired: 10, total: 10 }, 'www'), {
+      nextAirDate: null,
+      runtimes: {},
+    });
+    expect(textOf(line)).toBe('30% · 3 of 10 watched');
   });
 });
 
-describe('progressLine with skips', () => {
-  const seasons = [{ airedEpisodeCount: 4, episodeCount: 4, seasonNumber: 1 }];
-  const runtimes = { 1: [30, 40, 50, 60] };
+describe('time left from 10 hours up: whole hours', () => {
+  const left = (minutes: number) =>
+    progressLine(oneSeason({ aired: 2, total: 2 }, ''), {
+      nextAirDate: null,
+      runtimes: { 1: [minutes, 0] },
+    });
 
-  it('a skipped episode is not left: neither its time nor its count', () => {
-    const line = progressLine(
-      {
-        seasons,
-        skipped: ['S01E03'],
-        watched: { S01E01: record, S01E02: record },
-      },
-      { nextAirDay: null, runtimes },
-    );
-    expect(line).toMatchObject({ count: '2 of 4', tail: '1h left' });
+  it('rounds to the hour: "124h left", spoken "124 hours left"', () => {
+    const line = left(123 * 60 + 46);
+    expect(line.parts.at(-1)?.text).toBe('124h left');
+    expect(line.label).toMatch(/124 hours left$/);
   });
 
-  it('airing: "N to watch" leaves skipped episodes out', () => {
-    const line = progressLine(
-      {
-        seasons: [{ airedEpisodeCount: 3, episodeCount: 6, seasonNumber: 1 }],
-        skipped: ['S01E02'],
-        watched: { S01E01: record },
-      },
-      { nextAirDay: 'Fri Nov 13', runtimes },
-    );
-    expect(line.tail).toBe('1 to watch · next Fri Nov 13');
+  it('under 10 hours keeps the minutes: "8h 46m left"', () => {
+    expect(left(8 * 60 + 46).parts.at(-1)?.text).toBe('8h 46m left');
+    expect(left(9 * 60 + 59).parts.at(-1)?.text).toBe('9h 59m left');
+    expect(left(10 * 60).parts.at(-1)?.text).toBe('10h left');
   });
 });
 
-describe('formatting', () => {
-  it('formats the air day', () => {
-    expect(formatAirDay('2026-11-13T00:00:00.000Z')).toBe('Fri Nov 13');
-    expect(formatAirDay('')).toBeNull();
+describe("10 episodes watched in order (today's line, today's bar)", () => {
+  const line = progressLine(oneSeason({ aired: 10, total: 10 }, 'wwwwww'), {
+    nextAirDate: null,
+    runtimes: { 1: Array.from({ length: 10 }, () => 30) },
   });
 
-  it('writes September as "Sep" (en-GB alone would print "Sept")', () => {
-    expect(formatAirDay('2026-09-04')).toBe('Fri Sep 4');
+  it('reads as it always has', () => {
+    expect(textOf(line)).toBe('60% · 6 of 10 watched · 2h left');
+    expect(line.parts.every((part) => !part.icon)).toBe(true);
+    expect(line.label).toBe('60% watched: 6 of 10, 4 to go, 2 hours left');
+  });
+
+  it('draws the single fill', () => {
+    expect(line).toMatchObject({ plain: true, watched: 60 });
   });
 });
+
+describe('one missed episode', () => {
+  const line = progressLine(oneSeason({ aired: 10, total: 10 }, 'www-www'), {
+    nextAirDate: null,
+    runtimes: { 1: Array.from({ length: 10 }, () => 30) },
+  });
+
+  it("a map with the gap in it; the words are today's, no Next up", () => {
+    expect(line.plain).toBe(false);
+    expect(textOf(line)).toBe('60% · 6 of 10 watched · 2h left');
+    expect(line.label).toBe('60% watched: 6 of 10, 4 to go, 2 hours left');
+  });
+});
+
+describe('Naruto Shippuden: 312 watched, 68 skipped', () => {
+  const line = progressLine(NARUTO, {
+    nextAirDate: null,
+    runtimes: NARUTO_RUNTIMES,
+  });
+
+  it('skipped counts toward done; time left counts the open episodes only', () => {
+    expect(textOf(line)).toBe('76% · 312 watched · 68 skipped · 46h left');
+    expect(line.label).toBe(
+      '76% done: 312 watched, 68 skipped, 120 to go, 46 hours left',
+    );
+  });
+
+  it('every fact carries its small icon', () => {
+    expect(line.parts.map((part) => part.icon)).toEqual([true, true, true]);
+  });
+
+  it('a map of twelve runs', () => {
+    expect(line.plain).toBe(false);
+    expect(line.runs).toHaveLength(12);
+  });
+});
+
+describe('airing with skips: 24 episodes, 18 aired', () => {
+  const line = progressLine(
+    oneSeason({ aired: 18, total: 24 }, 'wwwwwwwwwwwwss'),
+    { nextAirDate: '2026-11-20', runtimes: ONE_SEASON_RUNTIMES },
+  );
+
+  it('desktop keeps everything but the time left', () => {
+    expect(textOf(line)).toBe(
+      '58% · 12 watched · 2 skipped · 4 to watch · next Fri Nov 20',
+    );
+    expect(line.label).toBe(
+      '58% done: 12 watched, 2 skipped, 4 to watch, next episode Friday November 20',
+    );
+  });
+
+  it('keeps every fact: no phone form drops one', () => {
+    expect(line.parts.map((part) => part.kind)).toEqual([
+      'watched',
+      'skipped',
+      'toWatch',
+      'next',
+    ]);
+  });
+
+  it('a tick where airing stops', () => {
+    expect(line).toMatchObject({ aired: 75, airing: true });
+  });
+});
+
+describe('a gap before the fill while airing', () => {
+  it('says only the next air date, never which episode is Next up', () => {
+    const line = progressLine(oneSeason({ aired: 6, total: 10 }, 'w-sw'), {
+      nextAirDate: '2026-11-20',
+      runtimes: ONE_SEASON_RUNTIMES,
+    });
+    expect(line).not.toHaveProperty('dot');
+    expect(line.label).toBe(
+      '30% done: 2 watched, 1 skipped, 3 to watch, next episode Friday November 20',
+    );
+  });
+});
+
+const sizeText = (...args: Parameters<typeof sizeLine>) =>
+  sizeLine(...args).join(' · ');
 
 describe('sizeLine (signed out)', () => {
   const runtimes = { 1: [28, 32], 2: [60, 45] };
-  const options = { nextAirDay: null, runtimes };
+  const options = { nextAirDate: null, runtimes };
 
   it('the aired regular episodes and their runtime, no specials', () => {
     const seasons = [
@@ -150,14 +240,14 @@ describe('sizeLine (signed out)', () => {
       { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 2 },
       { airedEpisodeCount: 1, episodeCount: 1, seasonNumber: 0 },
     ];
-    expect(sizeLine({ seasons }, options)).toBe('4 episodes · 2h 45m in all');
+    expect(sizeText({ seasons }, options)).toBe('4 episodes · 2h 45m in all');
   });
 
   it('only the count when no runtime is known; one episode', () => {
     const seasons = [
       { airedEpisodeCount: 1, episodeCount: 3, seasonNumber: 1 },
     ];
-    expect(sizeLine({ seasons }, { nextAirDay: null, runtimes: {} })).toBe(
+    expect(sizeText({ seasons }, { nextAirDate: null, runtimes: {} })).toBe(
       '1 episode',
     );
   });
@@ -166,17 +256,17 @@ describe('sizeLine (signed out)', () => {
     const seasons = [
       { airedEpisodeCount: 0, episodeCount: 8, seasonNumber: 1 },
     ];
-    expect(sizeLine({ seasons }, { nextAirDay: 'Fri Nov 13', runtimes })).toBe(
+    expect(sizeText({ seasons }, { nextAirDate: '2026-11-13', runtimes })).toBe(
       '8 episodes · next Fri Nov 13',
     );
-    expect(sizeLine({ seasons }, options)).toBe('8 episodes');
+    expect(sizeText({ seasons }, options)).toBe('8 episodes');
   });
 
   it('never a percentage or a zero count', () => {
     const seasons = [
       { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 1 },
     ];
-    expect(sizeLine({ seasons }, options)).not.toMatch(/%|^0 /);
+    expect(sizeText({ seasons }, options)).not.toMatch(/%|^0 /);
   });
 });
 
@@ -196,13 +286,13 @@ describe('a show TMDB numbers on across seasons', () => {
   it('counts the real episodes and times what is left by them', () => {
     const line = progressLine(
       { seasons, skipped: [], watched: { S01E01: record, S02E03: record } },
-      { nextAirDay: null, runtimes },
+      { nextAirDate: null, runtimes },
     );
-    expect(line).toMatchObject({ count: '2 of 4', tail: '1h 17m left' });
+    expect(textOf(line)).toBe('50% · 2 of 4 watched · 1h 17m left');
   });
 
   it('signed out, sizes the show by its real episodes', () => {
-    expect(sizeLine({ seasons }, { nextAirDay: null, runtimes })).toBe(
+    expect(sizeText({ seasons }, { nextAirDate: null, runtimes })).toBe(
       '4 episodes · 2h 45m in all',
     );
   });

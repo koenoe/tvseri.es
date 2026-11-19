@@ -15,6 +15,7 @@ import {
 } from '@tvseri.es/schemas';
 import {
   buildPosterImageUrl,
+  doneCount,
   endOfDayUtc,
   isSeasonPremiere,
   type LibraryEntry,
@@ -277,7 +278,9 @@ const undatedOf = (
   );
 
 const fractionOf = (progress: LibraryProgress) =>
-  progress.aired > 0 ? (progress.aired - progress.toWatch) / progress.aired : 1;
+  progress.aired > 0
+    ? doneCount(progress.aired, progress.toWatch) / progress.aired
+    : 1;
 
 /** The shelves whose tiles draw progress */
 const PROGRESS_SHELVES: ReadonlyArray<LibraryShelf> = [

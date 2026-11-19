@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 
 import cn from '@/lib/cn';
 
@@ -40,6 +40,7 @@ export function Track({
   className,
   label,
   look,
+  ref,
 }: Readonly<{
   children: ReactNode;
   /** The place's own additions (a minimum width) */
@@ -47,14 +48,16 @@ export function Track({
   label?: string;
   /** A `TRACK_LOOK` */
   look: string;
+  /** The ground's element (a place that measures it) */
+  ref?: Ref<HTMLSpanElement>;
 }>) {
   const classes = cn(TRACK, look, className);
   return label === undefined ? (
-    <span aria-hidden="true" className={classes}>
+    <span aria-hidden="true" className={classes} ref={ref}>
       {children}
     </span>
   ) : (
-    <span aria-label={label} className={classes} role="img">
+    <span aria-label={label} className={classes} ref={ref} role="img">
       {children}
     </span>
   );

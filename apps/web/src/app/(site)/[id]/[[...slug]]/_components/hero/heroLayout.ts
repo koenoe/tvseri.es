@@ -21,9 +21,9 @@ export const HERO_SPACER =
  * The phone hero's rhythm: 16px from the title to the facts and from the
  * facts' 28px row to the progress line's text, then 20px from that text to
  * whatever follows (prompt, synopsis or actions), each of those carrying its
- * own 20px below it. The progress line's box is 44px tall on phones (a tap
- * target), so its own 12px above and below the text count towards those
- * gaps (`PROGRESS_LINE_SPACE`: it reaches 12px up into the facts' 16px
+ * own 20px below it. The progress line's box keeps 12px above its bar and
+ * below its line on phones (44px for one row, a tap target), so those
+ * count towards the gaps (`PROGRESS_LINE_SPACE`: it reaches 12px up into the facts' 16px
  * margin). Desktop has 24px under the title (a treatment's artwork often
  * reaches its box's foot), then 12px to the line's box and 16px under it,
  * which puts the line 36px from the facts' text and 36px from what follows.

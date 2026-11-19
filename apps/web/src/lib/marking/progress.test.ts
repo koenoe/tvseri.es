@@ -83,7 +83,6 @@ describe('only specials watched', () => {
     expect(nextEpisode(series)).toEqual({ episodeNumber: 1, seasonNumber: 1 });
     expect(seriesProgress(series)).toMatchObject({
       isComplete: false,
-      percentage: 0,
       toWatch: 5,
       watched: 0,
     });
@@ -104,7 +103,7 @@ describe('only specials watched', () => {
 });
 
 describe('progress', () => {
-  it('counts aired regular episodes; skipped is not watched', () => {
+  it('counts aired regular episodes; skipped is not watched, but done', () => {
     const series = base({
       skipped: ['S01E03'],
       watched: {
@@ -115,10 +114,11 @@ describe('progress', () => {
     });
     expect(seriesProgress(series)).toEqual({
       aired: 5,
+      // done = watched + skipped: 3 of 5
+      done: 3,
       isComplete: false,
       isFinished: false,
       left: 2,
-      percentage: 40,
       toWatch: 3,
       watched: 2,
       watchedRuntime: 90,

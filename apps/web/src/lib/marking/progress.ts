@@ -3,7 +3,7 @@ import {
   episodeCode,
   parseEpisodeCode,
 } from '@tvseri.es/schemas';
-import { episodeNumbersOf, firstEpisodeOf } from '@tvseri.es/utils';
+import { doneCount, episodeNumbersOf, firstEpisodeOf } from '@tvseri.es/utils';
 
 import type {
   EpisodeCode,
@@ -11,6 +11,7 @@ import type {
   EpisodeState,
   SeasonInfo,
   SeriesBase,
+  SeriesMarks,
 } from './types';
 
 /**
@@ -92,9 +93,7 @@ export function markedIn(
  * watched nor skipped), in order. Every "left" and "to watch" on the show
  * page counts these.
  */
-export function openEpisodes(
-  series: Pick<SeriesBase, 'seasons' | 'skipped' | 'watched'>,
-): ReadonlyArray<EpisodeRef> {
+export function openEpisodes(series: SeriesMarks): ReadonlyArray<EpisodeRef> {
   const isMarked = markedIn(series);
   return airedRegularEpisodes(series).filter((ref) => !isMarked(codeOf(ref)));
 }
@@ -131,7 +130,7 @@ export function seasonProgress(
 }
 
 /**
- * A watched share as a whole percent, the one rule for every place that
+ * A watched (or done) share as a whole percent, the one rule for every place that
  * prints it: rounded down, but 1 once anything is watched; 0 only when
  * nothing is and 100 only when everything is.
  */
@@ -153,7 +152,8 @@ export type SeriesProgress = Readonly<{
   toWatch: number;
   /** Aired, neither watched nor skipped (`openEpisodes`): "24 to watch". */
   left: number;
-  percentage: number;
+  /** Aired and watched or skipped (`doneCount`): what every fill draws. */
+  done: number;
   /** Every aired episode watched: the eye unmarks all. */
   isComplete: boolean;
   /**
@@ -175,10 +175,10 @@ export function seriesProgress(series: SeriesBase): SeriesProgress {
   const left = openEpisodes(series).length;
   return {
     aired: aired.length,
+    done: doneCount(aired.length, left),
     isComplete: aired.length > 0 && watched === aired.length,
     isFinished: watched > 0 && left === 0,
     left,
-    percentage: toPercentage(watched, aired.length),
     toWatch: aired.length - watched,
     watched,
     watchedRuntime,

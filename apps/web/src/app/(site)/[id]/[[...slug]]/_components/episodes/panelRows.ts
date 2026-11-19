@@ -1,3 +1,4 @@
+import type { SeriesRuntimes } from '@tvseri.es/schemas';
 import { type EpisodeRef, shortCode } from '@tvseri.es/schemas';
 import { episodeNumbersOf, firstEpisodeOf, plural } from '@tvseri.es/utils';
 
@@ -52,9 +53,7 @@ export type EpisodesBySeason = ReadonlyMap<
 >;
 
 /** `GET /api/series/:id/runtimes` (index = episode number − 1) as rows read it. */
-export function runtimesBySeason(
-  runtimes: Readonly<Record<number, ReadonlyArray<number>>>,
-): EpisodesBySeason {
+export function runtimesBySeason(runtimes: SeriesRuntimes): EpisodesBySeason {
   return new Map(
     Object.entries(runtimes).map(([season, minutes]) => [
       Number(season),

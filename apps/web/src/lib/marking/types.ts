@@ -58,6 +58,9 @@ export type SeriesBase = Readonly<{
   unavailable?: true;
 }>;
 
+/** A show's seasons and the viewer's marks: what progress is counted from */
+export type SeriesMarks = Pick<SeriesBase, 'seasons' | 'skipped' | 'watched'>;
+
 /** An optimistic change, applied on top of the base until the server answers. */
 export type MarkingOp = Readonly<
   | { kind: 'mark'; records: Readonly<Record<EpisodeCode, WatchRecord>> }

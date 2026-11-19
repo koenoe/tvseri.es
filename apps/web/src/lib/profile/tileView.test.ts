@@ -55,6 +55,15 @@ describe('toTileView on Watching', () => {
     expect(view.historySeason).toBe(2);
   });
 
+  it('fills done, skipped included: 5 watched and 3 skipped of 10', () => {
+    const view = toTileView(
+      item({ progress: progress({ toWatch: 2 }) }),
+      'watching',
+      NOW,
+    );
+    expect(view.line).toEqual({ aired: 100, watched: 80 });
+  });
+
   it('says a new episode is airing', () => {
     const view = toTileView(
       item({

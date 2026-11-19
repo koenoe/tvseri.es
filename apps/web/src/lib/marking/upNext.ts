@@ -1,5 +1,10 @@
 import { episodeCode, type UpNextItem } from '@tvseri.es/schemas';
-import { episodeMinutes, firstEpisodeOf, minutesFor } from '@tvseri.es/utils';
+import {
+  doneCount,
+  episodeMinutes,
+  firstEpisodeOf,
+  minutesFor,
+} from '@tvseri.es/utils';
 
 import {
   airedInSeason,
@@ -111,6 +116,7 @@ export function liveUpNext(
         )
       : null,
     season: next.seasonNumber,
+    seasonDone: doneCount(inSeason.length, left.length),
     seasonFinale,
     seasonRuntimes: sameSeason ? item.seasonRuntimes : undefined,
     seasonTotal,

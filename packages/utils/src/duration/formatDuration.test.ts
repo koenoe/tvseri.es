@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatDuration, formatRuntime } from './formatDuration';
+import {
+  formatDuration,
+  formatDurationWords,
+  formatRuntime,
+} from './formatDuration';
 
 describe('formatDuration', () => {
   it('writes minutes, hours, and both', () => {
@@ -36,5 +40,15 @@ describe('formatRuntime', () => {
     expect(formatRuntime(240)).toBe('4h');
     expect(formatRuntime(null)).toBeNull();
     expect(formatRuntime(0)).toBeNull();
+  });
+});
+
+describe('formatDurationWords', () => {
+  it('spells a span out for a screen reader', () => {
+    expect(formatDurationWords(2760)).toBe('46 hours');
+    expect(formatDurationWords(60)).toBe('1 hour');
+    expect(formatDurationWords(125)).toBe('2 hours 5 minutes');
+    expect(formatDurationWords(1)).toBe('1 minute');
+    expect(formatDurationWords(-3)).toBe('0 minutes');
   });
 });

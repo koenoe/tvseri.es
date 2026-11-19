@@ -1,4 +1,9 @@
-import { type DayParts, dayMonthYear, weekdayDayMonth } from './date';
+import {
+  type DayParts,
+  dayMonthYear,
+  longWeekdayMonthDay,
+  weekdayDayMonth,
+} from './date';
 
 /** `YYYY-MM-DD` (or an ISO string) → its calendar day, or null (also for a day that doesn't exist, like 2024-02-30) */
 export function airDay(airDate: string): DayParts | null {
@@ -17,6 +22,10 @@ export function airDay(airDate: string): DayParts | null {
     : null;
 }
 
+/** A calendar day's weekday, 0 = Sunday */
+const weekdayOf = (parts: DayParts) =>
+  new Date(Date.UTC(parts.year, parts.month, parts.day)).getUTCDay();
+
 /**
  * "Fri Nov 13": an air date's weekday and day, or, when `now` is given and
  * the year is not the current one, the date with its year instead of the
@@ -29,10 +38,14 @@ export function formatAirWeekdayDate(airDate: string, now?: number): string {
   if (!parts) {
     return '';
   }
-  const weekday = new Date(
-    Date.UTC(parts.year, parts.month, parts.day),
-  ).getUTCDay();
+  const weekday = weekdayOf(parts);
   return now === undefined || parts.year === new Date(now).getUTCFullYear()
     ? weekdayDayMonth(parts, weekday)
     : dayMonthYear(parts);
+}
+
+/** "Friday November 20": an air date spelled out for a label; '' for no date */
+export function spokenAirDate(airDate: string): string {
+  const parts = airDay(airDate);
+  return parts ? longWeekdayMonthDay(parts, weekdayOf(parts)) : '';
 }

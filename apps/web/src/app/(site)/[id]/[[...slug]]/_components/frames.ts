@@ -43,8 +43,9 @@ export const INFORMATION_GRID =
 
 /**
  * The line's box, for every viewer (signed out it states the series' size):
- * 44px on phones (a tap target), 40px on desktop. The hero's spacing around
- * it is `HERO_TITLE_SPACE` in `hero/heroLayout.ts`.
+ * 12px around its content on phones (44px tall for one row, a tap target;
+ * taller where the bar sits over the line), 10px on desktop (40px). The
+ * hero's spacing around it is `HERO_TITLE_SPACE` in `hero/heroLayout.ts`.
  */
 export const PROGRESS_LINE_SPACE =
-  '-ml-2.5 mb-2 h-11 w-[calc(100%+20px)] max-md:-mt-3 md:mb-4 md:h-10 md:w-[730px] md:max-w-[calc(100%+20px)]';
+  '-ml-2.5 mb-2 w-[calc(100%+20px)] py-3 max-md:-mt-3 md:mb-4 md:w-[730px] md:max-w-[calc(100%+20px)] md:py-2.5';

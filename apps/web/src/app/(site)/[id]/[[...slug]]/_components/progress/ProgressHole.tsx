@@ -6,9 +6,7 @@ import SeedSeries from '@/lib/marking/SeedSeries';
 import { loadRuntimes } from '@/lib/series/loaders';
 import { getViewerSeed } from '../../_data/viewerSeed';
 import ProgressBar from './ProgressBar';
-import { formatAirDay } from './progressLine';
-
-const NO_RUNTIMES: Readonly<Record<number, ReadonlyArray<number>>> = {};
+import { NO_RUNTIMES, nextAirDateOf } from './progressLine';
 
 /**
  * The viewer's progress line: seeds the marking store with their marks
@@ -25,15 +23,13 @@ export default async function ProgressHole({
     getViewerSeed(series),
     loadRuntimes(series.id),
   ]);
-  const nextAirDay = series.nextEpisodeToAir?.airDate
-    ? formatAirDay(series.nextEpisodeToAir.airDate)
-    : null;
+  const nextAirDate = nextAirDateOf(series);
   const knownRuntimes = isUnavailable(runtimes) ? NO_RUNTIMES : runtimes;
   return (
     <>
       <SeedSeries seed={seed} />
       <ProgressBar
-        nextAirDay={nextAirDay}
+        nextAirDate={nextAirDate}
         runtimes={knownRuntimes}
         seriesId={series.id}
         signedIn={signedIn}

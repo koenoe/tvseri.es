@@ -1,3 +1,5 @@
+import { plural } from '../text/count';
+
 /**
  * A time span in hours and minutes, the one way every page writes it (time
  * left, runtimes, totals): 58 → "58m", 120 → "2h", 190 → "3h 10m"; minutes
@@ -12,6 +14,21 @@ export function formatDuration(minutes: number): string {
     return `${rest}m`;
   }
   return rest === 0 ? `${hours}h` : `${hours}h ${rest}m`;
+}
+
+/**
+ * The same span spelled out for a screen reader's label: 46h → "46
+ * hours", 125 → "2 hours 5 minutes".
+ */
+export function formatDurationWords(minutes: number): string {
+  const total = Math.max(0, Math.round(minutes));
+  const hours = Math.floor(total / 60);
+  const rest = total % 60;
+  const words = [
+    hours > 0 ? plural(hours, 'hour') : '',
+    rest > 0 || hours === 0 ? plural(rest, 'minute') : '',
+  ];
+  return words.filter(Boolean).join(' ');
 }
 
 /** A runtime ("58m", "1h 55m", "4h"); null when there is none */

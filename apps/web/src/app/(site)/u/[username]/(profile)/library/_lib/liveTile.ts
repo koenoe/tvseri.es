@@ -26,12 +26,13 @@ export function liveWatchingTile(tile: TileView, view: SeriesBase): TileView {
     .filter((season) => season.seasonNumber > 0)
     .reduce((sum, season) => sum + season.episodeCount, 0);
   const airing = tile.meta[0]?.text.endsWith('airing') ?? false;
+  // What is left: aired, neither watched nor skipped (the server's toWatch)
   const text =
-    progress.toWatch === 0
+    progress.left === 0
       ? 'Up to date'
       : airing
-        ? `${progress.toWatch} new · airing`
-        : `${progress.toWatch} to go`;
+        ? `${progress.left} new · airing`
+        : `${progress.left} to go`;
   return {
     ...tile,
     code: next ? episodeCode(next) : null,
@@ -39,7 +40,8 @@ export function liveWatchingTile(tile: TileView, view: SeriesBase): TileView {
       total > 0
         ? {
             aired: progressPercent(progress.aired, total),
-            watched: progressPercent(progress.watched, total),
+            // Done: watched or skipped
+            watched: progressPercent(progress.done, total),
           }
         : tile.line,
     meta: [{ kind: 'plain', text }],

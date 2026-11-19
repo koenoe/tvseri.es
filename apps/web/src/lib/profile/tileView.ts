@@ -5,7 +5,12 @@ import {
   parseEpisodeCode,
   seasonCode,
 } from '@tvseri.es/schemas';
-import { formatRuntime, initialOf, type LibraryLetter } from '@tvseri.es/utils';
+import {
+  doneCount,
+  formatRuntime,
+  initialOf,
+  type LibraryLetter,
+} from '@tvseri.es/utils';
 
 import { formatMonthYear } from '@/lib/format/date';
 import { finishedLabel } from '@/lib/format/finished';
@@ -204,7 +209,11 @@ export function toTileView(
       watching && progress && progress.total > 0
         ? {
             aired: progressPercent(progress.aired, progress.total),
-            watched: progressPercent(progress.watched, progress.total),
+            // Done: watched or skipped (`toWatch` leaves both out)
+            watched: progressPercent(
+              doneCount(progress.aired, progress.toWatch),
+              progress.total,
+            ),
           }
         : null,
     meta: metaOf(item, shelf, now),

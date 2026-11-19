@@ -27,7 +27,10 @@ const TILE: TileView = {
   undated: false,
 };
 
-const view = (watched: ReadonlyArray<string>): SeriesBase => ({
+const view = (
+  watched: ReadonlyArray<string>,
+  skipped: SeriesBase['skipped'] = [],
+): SeriesBase => ({
   prefs: null,
   seasons: [
     { airedEpisodeCount: 0, episodeCount: 2, seasonNumber: 0 },
@@ -35,7 +38,7 @@ const view = (watched: ReadonlyArray<string>): SeriesBase => ({
     { airedEpisodeCount: 0, episodeCount: 6, seasonNumber: 2 },
   ],
   seriesId: 7,
-  skipped: [],
+  skipped,
   status: null,
   watched: Object.fromEntries(
     watched.map((code) => [code, { runtime: 30, watchedAt: 1 }]),
@@ -49,6 +52,13 @@ describe('liveWatchingTile', () => {
     expect(tile.meta).toEqual([{ kind: 'plain', text: '2 to go' }]);
     // 10 regular episodes, 4 aired, 2 watched (specials never count)
     expect(tile.line).toEqual({ aired: 40, watched: 20 });
+  });
+
+  it('a skipped episode is done: in the fill, not in what is left', () => {
+    const tile = liveWatchingTile(TILE, view(['S01E01', 'S01E02'], ['S01E03']));
+    expect(tile.code).toBe('S01E04');
+    expect(tile.meta).toEqual([{ kind: 'plain', text: '1 to go' }]);
+    expect(tile.line).toEqual({ aired: 40, watched: 30 });
   });
 
   it('is up to date with everything aired watched', () => {

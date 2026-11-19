@@ -57,6 +57,10 @@ describe('progress', () => {
     expect(airedPercent(base)).toBe(25);
   });
 
+  it('fills what is done: watched or skipped, once the item says', () => {
+    expect(watchedPercent({ ...base, seasonDone: 4 })).toBe(50);
+  });
+
   it('has no airing stop once the season is out', () => {
     expect(airedPercent({ ...base, nextToAir: null })).toBe(100);
     expect(
@@ -71,6 +75,16 @@ describe('progress', () => {
     expect(progressLabel(base)).toEqual({
       toWatch: '1 to watch',
       watched: '1 of 8 watched',
+    });
+    expect(progressLabel({ ...base, seasonDone: 1 }).watched).toBe(
+      '1 of 8 watched',
+    );
+  });
+
+  it('with skips in the season, counts done as the fill does', () => {
+    expect(progressLabel({ ...base, seasonDone: 3 })).toEqual({
+      toWatch: '1 to watch',
+      watched: '3 of 8 done',
     });
   });
 });

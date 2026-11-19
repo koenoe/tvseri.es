@@ -15,6 +15,7 @@ import {
   buildPosterImageUrl,
   DAY_MS,
   daysBetweenUtc,
+  doneCount,
   episodeMinutes,
   isOver,
   isSeasonPremiere,
@@ -129,6 +130,8 @@ export const buildUpNext = (states: ReadonlyArray<ShowState>): UpNextItem[] =>
           bounds.first,
         ),
         ...progress,
+        // Done: the season's aired episodes, watched or skipped
+        seasonDone: doneCount(state.aired[next.season] ?? 0, toWatch),
         timeLeftMinutes: minutesOf(state, seasonUnwatched(state, next.season)),
         toWatch,
       };

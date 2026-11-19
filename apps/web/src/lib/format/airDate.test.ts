@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { airDay, formatAirWeekdayDate } from './airDate';
+import { airDay, formatAirWeekdayDate, spokenAirDate } from './airDate';
 
 const NOW = Date.UTC(2026, 10, 12);
 
@@ -19,5 +19,12 @@ describe('formatAirWeekdayDate (the one air-date wording)', () => {
     expect(formatAirWeekdayDate('', NOW)).toBe('');
     expect(formatAirWeekdayDate('2024-02-30', NOW)).toBe('');
     expect(airDay('2024-02-29')).toEqual({ day: 29, month: 1, year: 2024 });
+  });
+});
+
+describe("spokenAirDate (a screen reader's label)", () => {
+  it('spells the weekday and month out', () => {
+    expect(spokenAirDate('2026-11-20')).toBe('Friday November 20');
+    expect(spokenAirDate('nope')).toBe('');
   });
 });

@@ -1,7 +1,7 @@
 import type { ComingUpItem } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
-import { countdown, monthsBetween, ticketText } from './tickets';
+import { countdown, monthsBetween, nothingAhead, ticketText } from './tickets';
 
 const item = (over: Partial<ComingUpItem>): ComingUpItem => ({
   date: '2026-11-11',
@@ -83,5 +83,38 @@ describe('ticketText', () => {
 
   it('measures the wait in months', () => {
     expect(monthsBetween(Date.UTC(2026, 3, 16), '2027-01-07')).toBe(9);
+  });
+});
+
+describe('nothingAhead', () => {
+  const waiting = {
+    items: [
+      {
+        nextSeason: 2,
+        posterImage: '',
+        seriesId: 9,
+        slug: 'y',
+        state: 'renewed' as const,
+        title: 'Y',
+      },
+    ],
+  };
+  const none = { items: [] };
+
+  it('is nothing ahead only with no ticket, no later date and no show waiting', () => {
+    expect(nothingAhead({ comingUp: [], datedLater: false }, none)).toBe(true);
+  });
+
+  it('is something ahead when only a date past the 30 days is on the calendar', () => {
+    expect(nothingAhead({ comingUp: [], datedLater: true }, none)).toBe(false);
+  });
+
+  it('is something ahead with a ticket or a show waiting for a date', () => {
+    expect(
+      nothingAhead({ comingUp: [item({})], datedLater: false }, none),
+    ).toBe(false);
+    expect(nothingAhead({ comingUp: [], datedLater: false }, waiting)).toBe(
+      false,
+    );
   });
 });

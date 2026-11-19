@@ -1,4 +1,9 @@
-import { type ComingUpItem, episodeCode } from '@tvseri.es/schemas';
+import {
+  type ComingUpItem,
+  episodeCode,
+  type Overview,
+  type WaitingFor,
+} from '@tvseri.es/schemas';
 import { plural } from '@tvseri.es/utils';
 import { countdownOf, stubUnit } from '@/lib/format/countdown';
 
@@ -87,3 +92,12 @@ export function monthsBetween(from: number, to: string): number {
   const end = Date.parse(to);
   return Math.max(0, Math.round((end - from) / (30.44 * 86_400_000)));
 }
+
+/**
+ * Nothing ahead at all: no ticket in the 30 days, no date after them and
+ * no show waiting for one, so the calendar would be empty too
+ */
+export const nothingAhead = (
+  { comingUp, datedLater }: Pick<Overview, 'comingUp' | 'datedLater'>,
+  waiting: WaitingFor,
+) => comingUp.length === 0 && !datedLater && waiting.items.length === 0;

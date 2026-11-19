@@ -21,13 +21,13 @@ import Ticket, {
   WATCHLIST_LABEL,
   WATCHLIST_TAG,
 } from './coming-up/Ticket';
-import { monthsBetween, ticketText } from './coming-up/tickets';
+import { monthsBetween, nothingAhead, ticketText } from './coming-up/tickets';
 
 /**
  * Coming up: the four nearest tickets of the next 30 days (premieres pink,
  * finales cyan, how it airs and where), and "Calendar ›" to the rest: later
  * dates and the renewed shows with no date live on the calendar. Nothing
- * at all: one calm line and no link (the calendar would be empty too).
+ * ahead at all: one calm line and no link (the calendar would be empty too).
  * Owner only.
  */
 export default async function ComingUp({
@@ -46,7 +46,7 @@ export default async function ComingUp({
     const episodeId = `${item.seriesId}-${item.season}-${item.episode}`;
     return <Ticket item={item} key={episodeId} now={now} text={text} />;
   });
-  const nothing = tickets.length === 0 && waiting.items.length === 0;
+  const nothing = nothingAhead(overview, waiting);
   const href = profilePath(profile.user.username, 'calendar');
   const link = nothing ? undefined : <HeadLink href={href}>Calendar</HeadLink>;
   return (

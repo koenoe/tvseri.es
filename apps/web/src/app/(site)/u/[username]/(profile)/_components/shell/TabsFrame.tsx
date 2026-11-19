@@ -1,19 +1,14 @@
 'use client';
 
-import { useSelectedLayoutSegment } from 'next/navigation';
 import {
   type ReactNode,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
 
 import { getRowPosition, type RowPosition } from '@/components/ui/row/paging';
-import scrollBehavior from '@/lib/media/scrollBehavior';
-
-import { activeTabScroll } from './tabs';
 
 /**
  * The phone row fades on the side that has more tabs: the right at the
@@ -32,16 +27,13 @@ const ROW =
  * The bar behind the tabs. Desktop: 56px, 10px padding, 12px corners, the
  * pills in a row. Phone: 58px tall with or without the tabs (the skeleton
  * is the same box), 4px padding, 14px corners; the 64px tabs scroll
- * sideways when they don't fit, with no snapping and no arrows. The active
- * tab is scrolled into view: in place on the first paint, smoothly when
- * another tab opens.
+ * sideways when they don't fit, with no snapping and no arrows, and fade
+ * on the side with more (`TabLinks` keeps the active one in view).
  */
 export default function TabsFrame({
   children,
 }: Readonly<{ children?: ReactNode }>) {
   const ref = useRef<HTMLElement>(null);
-  const placed = useRef(false);
-  const segment = useSelectedLayoutSegment();
   const [edge, setEdge] = useState<RowPosition>('fits');
 
   const measure = useCallback(() => {
@@ -49,28 +41,6 @@ export default function TabsFrame({
       setEdge(getRowPosition(ref.current));
     }
   }, []);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: runs when the active tab changes, reading the row it drew
-  useLayoutEffect(() => {
-    const nav = ref.current;
-    const tab = nav?.querySelector<HTMLElement>('[aria-current="page"]');
-    if (nav && tab) {
-      const left = activeTabScroll({
-        clientWidth: nav.clientWidth,
-        first: !tab.previousElementSibling,
-        left: tab.offsetLeft,
-        scrollWidth: nav.scrollWidth,
-        width: tab.offsetWidth,
-      });
-      if (placed.current) {
-        nav.scrollTo({ behavior: scrollBehavior(), left });
-      } else {
-        nav.scrollLeft = left;
-      }
-      placed.current = true;
-    }
-    measure();
-  }, [segment, measure]);
 
   // the row's width follows the screen's
   useEffect(() => {
@@ -80,6 +50,7 @@ export default function TabsFrame({
     }
     const observer = new ResizeObserver(measure);
     observer.observe(nav);
+    measure();
     return () => observer.disconnect();
   }, [measure]);
 

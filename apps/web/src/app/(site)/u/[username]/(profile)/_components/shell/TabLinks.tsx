@@ -2,12 +2,45 @@
 
 import Link from 'next/link';
 import { useSelectedLayoutSegment } from 'next/navigation';
+import { useLayoutEffect, useRef } from 'react';
 
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
+import scrollBehavior from '@/lib/media/scrollBehavior';
 import profilePath from '@/lib/routing/profilePath';
 
-import { PROFILE_TABS, TAB } from './tabs';
+import { activeTabScroll, PROFILE_TABS, TAB } from './tabs';
+
+/**
+ * The phone's row keeps the active tab in view (`activeTabScroll`): in
+ * place on the first paint, smoothly when another tab opens
+ */
+function useActiveInView(segment: string) {
+  const marker = useRef<HTMLSpanElement>(null);
+  const placed = useRef(false);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runs when the active tab changes, reading the row it drew
+  useLayoutEffect(() => {
+    const nav = marker.current?.closest('nav');
+    const tab = nav?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!nav || !tab) {
+      return;
+    }
+    const left = activeTabScroll({
+      clientWidth: nav.clientWidth,
+      first: !tab.previousElementSibling,
+      left: tab.offsetLeft,
+      scrollWidth: nav.scrollWidth,
+      width: tab.offsetWidth,
+    });
+    if (placed.current) {
+      nav.scrollTo({ behavior: scrollBehavior(), left });
+    } else {
+      nav.scrollLeft = left;
+    }
+    placed.current = true;
+  }, [segment]);
+  return marker;
+}
 
 /**
  * The tab pills; the active one follows the URL (a soft navigation keeps
@@ -28,6 +61,7 @@ export default function TabLinks({
   // The overview is the layout's own page (null, or `__PAGE__` in some versions)
   const segment = !selected || selected.startsWith('__') ? '' : selected;
   const tabs = PROFILE_TABS.filter((tab) => segments.includes(tab.segment));
+  const marker = useActiveInView(segment);
   return (
     <>
       {tabs.map((tab) => {
@@ -54,6 +88,8 @@ export default function TabLinks({
           </Link>
         );
       })}
+      {/* finds the row the tabs scroll in */}
+      <span hidden ref={marker} />
     </>
   );
 }

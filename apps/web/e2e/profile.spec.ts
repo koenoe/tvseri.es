@@ -162,11 +162,14 @@ test.describe('profile signed in', () => {
     ).toBeVisible();
   });
 
-  test('five tabs, each a page of its own', async ({ page }) => {
+  test('six tabs on your own profile, each a page of its own', async ({
+    page,
+  }) => {
     await page.goto('/u/alex');
     const tabs = page.getByRole('navigation', { name: 'Profile' });
     await expect(tabs.getByRole('link')).toHaveText([
       'Overview',
+      'Calendar',
       'Library',
       'History',
       'Circle',
@@ -248,31 +251,33 @@ test.describe('profile signed in', () => {
       await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
     });
 
-    const tabBoxes = async (page: Page) => {
-      await page.goto('/u/alex');
+    test('the tabs keep one size and the row scrolls the active one into view', async ({
+      page,
+    }) => {
+      await page.goto('/u/alex/history');
       const nav = page.getByRole('navigation', { name: 'Profile' });
       const tabs = nav.getByRole('link');
-      await expect(tabs).toHaveCount(5);
+      await expect(tabs).toHaveCount(6);
       await fontsSettled(page);
       const boxes = await tabs.evaluateAll((links) =>
         links.map((link) => link.getBoundingClientRect()),
       );
-      return { boxes, nav: await nav.boundingBox() };
-    };
-
-    test('the five tabs fit without scrolling, in equal columns', async ({
-      page,
-    }) => {
-      const { boxes, nav } = await tabBoxes(page);
-      const widths = boxes.map((box) => Math.round(box.width));
-      expect(new Set(widths).size).toBe(1);
-      const heights = boxes.map((box) => Math.round(box.height));
-      expect(new Set(heights).size).toBe(1);
-      // the bar holds its tabs
-      expect(nav?.height ?? 0).toBeGreaterThanOrEqual(heights[0] ?? 0);
-      const last = boxes.at(-1);
-      expect((last?.right ?? 0) <= (nav?.x ?? 0) + (nav?.width ?? 0)).toBe(
-        true,
+      expect(new Set(boxes.map((box) => Math.round(box.width)))).toEqual(
+        new Set([64]),
+      );
+      const row = await nav.evaluate((element) => ({
+        overflows: element.scrollWidth > element.clientWidth,
+        scrolled: element.scrollLeft,
+      }));
+      expect(row.overflows).toBe(true);
+      expect(row.scrolled).toBeGreaterThan(0);
+      const active = await nav
+        .getByRole('link', { name: 'History' })
+        .boundingBox();
+      const frame = await nav.boundingBox();
+      expect(active?.x ?? 0).toBeGreaterThanOrEqual(frame?.x ?? 0);
+      expect((active?.x ?? 0) + (active?.width ?? 0)).toBeLessThanOrEqual(
+        (frame?.x ?? 0) + (frame?.width ?? 0),
       );
     });
 
@@ -453,12 +458,14 @@ test.describe('profile with real-data shapes', () => {
 
 // No dead ends: no Circle without a follow either way, no Stats
 // without a dated episode
-test('day 0 has three tabs: Overview, Library, History', async ({ page }) => {
+test('day 0 has four tabs: Overview, Calendar, Library, History', async ({
+  page,
+}) => {
   await signInAs(page.context(), 'nina');
   await page.goto('/u/nina');
   await expect(
     page.getByRole('navigation', { name: 'Profile' }).getByRole('link'),
-  ).toHaveText(['Overview', 'Library', 'History']);
+  ).toHaveText(['Overview', 'Calendar', 'Library', 'History']);
 });
 
 /**
@@ -477,7 +484,7 @@ test('day 0: a broken Get started answer hides the block, never a crash', async 
   await page.goto('/u/nina');
   await expect(
     page.getByRole('navigation', { name: 'Profile' }).getByRole('link'),
-  ).toHaveText(['Overview', 'Library', 'History']);
+  ).toHaveText(['Overview', 'Calendar', 'Library', 'History']);
   await page.waitForLoadState('networkidle');
   await expect(page.locator('[data-placeholder]:visible')).toHaveCount(0);
   await expect(page.locator('[data-slot="get-started"]')).toHaveCount(0);

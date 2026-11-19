@@ -9,6 +9,7 @@ import {
   MONTH_HEAD,
   MONTH_NAV,
   MONTH_PANEL,
+  MONTH_SUMMARY,
   MONTH_TITLE,
   NO_DATE_PANEL,
   NO_DATE_TILE,
@@ -45,10 +46,7 @@ function MonthGhost() {
                 className="text-[30px] leading-9 max-md:text-[20px] max-md:leading-7"
                 width="w-52"
               />
-              <TextLine
-                className="text-meta leading-5 max-md:text-caption max-md:leading-[18px]"
-                width="w-64"
-              />
+              <TextLine className={MONTH_SUMMARY} width="w-64" />
             </div>
           </div>
           <div className={MONTH_NAV}>

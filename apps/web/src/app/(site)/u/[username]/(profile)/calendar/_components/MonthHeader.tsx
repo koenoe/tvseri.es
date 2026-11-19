@@ -11,7 +11,14 @@ import {
 import Icon from '@/components/ui/icon/Icon';
 
 import { monthName } from '../_lib/calendarDates';
-import { MONTH_HEAD, MONTH_NAV, MONTH_TITLE } from './calendarStyles';
+import {
+  MONTH_HEAD,
+  MONTH_NAV,
+  MONTH_SUMMARY,
+  MONTH_TITLE,
+} from './calendarStyles';
+
+const SUMMARY = `${MONTH_SUMMARY} text-white/60 tabular-nums`;
 
 /** The press, the hover and the 40px (44 on a phone) reach of every button here */
 const BUTTON =
@@ -84,9 +91,7 @@ export default function MonthHeader({
                 {month.slice(0, 4)}
               </span>
             </h2>
-            <p className="text-meta leading-5 text-white/60 tabular-nums max-md:text-caption max-md:leading-[18px]">
-              {summary}
-            </p>
+            <p className={SUMMARY}>{summary}</p>
           </m.div>
         </AnimatePresence>
       </div>

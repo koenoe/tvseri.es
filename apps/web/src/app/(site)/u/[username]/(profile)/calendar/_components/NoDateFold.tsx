@@ -36,7 +36,7 @@ const FOLD_EXIT = {
 } as const;
 
 /**
- * Renewed, nothing listed yet: the first five tiles (two on a phone), then
+ * A group of No date yet: the first five tiles (two on a phone), then
  * ten more per press of "Show 10 more", each ten opening as one fold; once
  * all show, "Show fewer" folds them away. The press moves focus to the
  * first tile it opened. The tiles are rendered on the server.

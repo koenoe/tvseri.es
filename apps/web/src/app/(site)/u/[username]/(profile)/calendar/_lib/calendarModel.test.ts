@@ -1,10 +1,13 @@
-import type { CalendarShow } from '@tvseri.es/schemas';
+import type { CalendarShow, WaitingForItem } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
 import {
   buildCalendar,
   type CalendarData,
+  calendarCounts,
+  datedMonths,
   dayLabel,
+  monthSummary,
   pickDay,
   todayName,
 } from './calendarModel';
@@ -21,8 +24,6 @@ const show = (seriesId: number, title: string): CalendarShow => ({
 const episode = (number: number) => ({
   code: `S01E0${number}`,
   episode: number,
-  kind: 'episode' as const,
-  title: '',
 });
 
 /** As the API answers: Thu Nov 19, 2026; premieres lead a day, then finales */
@@ -171,5 +172,55 @@ describe('the calendar in words', () => {
 
   it('names Today by its date', () => {
     expect(todayName(calendar)).toBe('Today, Thursday November 19');
+  });
+});
+
+const renewed = (seriesId: number): WaitingForItem => ({
+  nextSeason: 2,
+  posterImage: '',
+  seriesId,
+  slug: `show-${seriesId}`,
+  state: 'renewed',
+  title: `Show ${seriesId}`,
+});
+
+describe('the calendar in numbers', () => {
+  const noDateYet = {
+    listed: [renewed(10)],
+    renewed: [renewed(11), renewed(12)],
+  };
+  const none = { listed: [], renewed: [] };
+
+  it('counts the shows still to come this month and every show with no date yet', () => {
+    expect(calendarCounts(DATA, noDateYet)).toEqual({
+      noDate: 3,
+      nothing: false,
+      showsThisMonth: 1,
+    });
+  });
+
+  it('leaves this month’s days that have gone out of its counts', () => {
+    const december = { ...DATA, today: '2026-12-05' };
+    expect(calendarCounts(december, none).showsThisMonth).toBe(1);
+    expect(monthSummary(december, '2026-12')).toBe(
+      '6 episodes still to come this month · 1 show · 1 premiere',
+    );
+    expect(monthSummary(DATA, '2026-12')).toBe(
+      '10 episodes this month · 4 shows · 3 premieres',
+    );
+  });
+
+  it('is nothing at all only with no dates and nothing waiting', () => {
+    const empty = { ...DATA, days: [], shows: [] };
+    expect(calendarCounts(empty, none).nothing).toBe(true);
+    expect(calendarCounts(empty, noDateYet).nothing).toBe(false);
+    expect(calendarCounts(DATA, none).nothing).toBe(false);
+  });
+
+  it('lists the months with something still to come, and their shows', () => {
+    expect(datedMonths(DATA)).toEqual([
+      { month: '2026-11', shows: 1 },
+      { month: '2026-12', shows: 4 },
+    ]);
   });
 });

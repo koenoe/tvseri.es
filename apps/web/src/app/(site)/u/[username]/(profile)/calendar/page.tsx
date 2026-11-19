@@ -19,8 +19,7 @@ import CalendarView from './_components/CalendarView';
 import { CALENDAR_PAGE } from './_components/calendarStyles';
 import NoDateYet from './_components/NoDateYet';
 import { loadCalendar } from './_data/calendar';
-import { monthOf } from './_lib/calendarDates';
-import { buildCalendar, showsIn } from './_lib/calendarModel';
+import { calendarCounts } from './_lib/calendarModel';
 
 type Props = Readonly<{ params: ProfileParams }>;
 
@@ -59,24 +58,9 @@ async function Calendar({ params }: Props) {
   if (profile.viewer !== 'owner') {
     redirect(profilePath(profile.user.username));
   }
-  const { noDateYet, ...calendarData } = await loadCalendar(profile);
-  // the grid never shows an episode's title: leave them out of the props
-  const data = {
-    ...calendarData,
-    days: calendarData.days.map((day) => ({
-      ...day,
-      tickets: day.tickets.map((ticket) => ({
-        ...ticket,
-        episodes: ticket.episodes.map((episode) => ({ ...episode, title: '' })),
-      })),
-    })),
-  };
-  const waiting = noDateYet.listed.length + noDateYet.renewed.length;
-  const calendar = buildCalendar(data);
-  const nothing = calendar.dated.length === 0 && waiting === 0;
-  const count = nothing
-    ? 'Nothing yet'
-    : countLine(showsIn(calendar, monthOf(calendar.today)), waiting);
+  const { grid, noDateYet } = await loadCalendar(profile);
+  const { noDate, nothing, showsThisMonth } = calendarCounts(grid, noDateYet);
+  const count = nothing ? 'Nothing yet' : countLine(showsThisMonth, noDate);
   return (
     <div className={CALENDAR_PAGE} data-slot="calendar">
       <SubpageHeader className="max-md:hidden" count={count} title="Calendar" />
@@ -84,8 +68,10 @@ async function Calendar({ params }: Props) {
         <CalendarEmpty username={profile.user.username} />
       ) : (
         <>
-          <CalendarView data={data} noDateYet={waiting} now={Date.now()} />
-          {waiting > 0 ? <NoDateYet noDateYet={noDateYet} /> : null}
+          <CalendarView data={grid} noDateYet={noDate} now={Date.now()} />
+          {noDate > 0 ? (
+            <NoDateYet count={noDate} noDateYet={noDateYet} />
+          ) : null}
         </>
       )}
     </div>

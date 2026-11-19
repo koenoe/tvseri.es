@@ -3,7 +3,7 @@ import { formatGrouped } from '@tvseri.es/utils';
 
 import Badge from '@/components/ui/button/Badge';
 
-import { NO_DATE_PANEL, NO_DATE_TILES } from './calendarStyles';
+import { NO_DATE_PANEL } from './calendarStyles';
 import NoDateFold from './NoDateFold';
 import NoDateTile from './NoDateTile';
 
@@ -34,20 +34,24 @@ function GroupRule({
   );
 }
 
+const tilesOf = (items: Calendar['noDateYet']['listed']) =>
+  items.map((item) => <NoDateTile item={item} key={item.seriesId} />);
+
 /**
  * The renewed shows with no date, under the calendar and never on a day:
  * grouped by what TMDB lists (the next season with its episodes, or only
- * the renewal), each likeliest back first (the API's order). The anchor of
- * the empty month's link and the sidebar's last row.
+ * the renewal), each likeliest back first (the API's order) and folded
+ * alike. The anchor of the empty month's link and the sidebar's last row.
  */
 export default function NoDateYet({
+  count,
   noDateYet,
-}: Readonly<{ noDateYet: Calendar['noDateYet'] }>) {
+}: Readonly<{
+  /** Every show in both groups */
+  count: number;
+  noDateYet: Calendar['noDateYet'];
+}>) {
   const { listed, renewed } = noDateYet;
-  const total = listed.length + renewed.length;
-  const renewedTiles = renewed.map((item) => (
-    <NoDateTile item={item} key={item.seriesId} />
-  ));
   return (
     <section
       aria-labelledby={NO_DATE_TITLE_ID}
@@ -58,7 +62,7 @@ export default function NoDateYet({
         <h2 className="text-title-3" id={NO_DATE_TITLE_ID}>
           No date yet
         </h2>
-        <Badge variant="count">{formatGrouped(total)}</Badge>
+        <Badge variant="count">{formatGrouped(count)}</Badge>
         <span className="ml-auto text-caption text-white/60 max-md:ml-0 max-md:w-full">
           Renewed, no date announced · likeliest back first
         </span>
@@ -67,11 +71,7 @@ export default function NoDateYet({
         {listed.length > 0 ? (
           <>
             <GroupRule count={listed.length} label="Next season listed" />
-            <div className={NO_DATE_TILES}>
-              {listed.map((item) => (
-                <NoDateTile item={item} key={item.seriesId} />
-              ))}
-            </div>
+            <NoDateFold tiles={tilesOf(listed)} />
           </>
         ) : null}
         {renewed.length > 0 ? (
@@ -80,7 +80,7 @@ export default function NoDateYet({
               count={renewed.length}
               label="Renewed, nothing listed yet"
             />
-            <NoDateFold tiles={renewedTiles} />
+            <NoDateFold tiles={tilesOf(renewed)} />
           </>
         ) : null}
       </div>

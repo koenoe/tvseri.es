@@ -10,7 +10,7 @@ import { getProfile, type ProfileParams } from '../../_data/profile';
 import { MONTH_ROW } from '../../calendar/_components/calendarStyles';
 import MonthsNav from '../../calendar/_components/MonthsNav';
 import { loadCalendar } from '../../calendar/_data/calendar';
-import { buildCalendar, datedMonths } from '../../calendar/_lib/calendarModel';
+import { calendarCounts, datedMonths } from '../../calendar/_lib/calendarModel';
 
 type Props = Readonly<{ params: ProfileParams }>;
 
@@ -60,14 +60,13 @@ async function Months({ params }: Props) {
   if (profile.viewer !== 'owner') {
     return null;
   }
-  const { noDateYet, ...data } = await loadCalendar(profile);
-  const calendar = buildCalendar(data);
-  const months = datedMonths(calendar);
-  const waiting = noDateYet.listed.length + noDateYet.renewed.length;
-  if (months.length === 0 && waiting === 0) {
+  const { grid, noDateYet } = await loadCalendar(profile);
+  const months = datedMonths(grid);
+  const { noDate } = calendarCounts(grid, noDateYet);
+  // nothing to list: also when this month's days have all gone, which the
+  // page still draws
+  if (months.length === 0 && noDate === 0) {
     return null;
   }
-  return (
-    <MonthsNav months={months} noDateYet={waiting} today={calendar.today} />
-  );
+  return <MonthsNav months={months} noDateYet={noDate} today={grid.today} />;
 }

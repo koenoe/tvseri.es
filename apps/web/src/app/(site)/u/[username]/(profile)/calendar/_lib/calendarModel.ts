@@ -1,5 +1,7 @@
 import type {
   Calendar,
+  CalendarDay,
+  CalendarEpisode,
   CalendarShow,
   CalendarTicket,
 } from '@tvseri.es/schemas';
@@ -8,12 +10,24 @@ import { spokenAirDate } from '@/lib/format/airDate';
 
 import { monthName, monthOf } from './calendarDates';
 
-/** What the page hands the grid: everything but No date yet */
-export type CalendarData = Omit<Calendar, 'noDateYet'>;
+/** A ticket as the grid reads it: an episode's number and code, never its title */
+export type GridTicket = Omit<CalendarTicket, 'episodes'> &
+  Readonly<{
+    episodes: ReadonlyArray<Pick<CalendarEpisode, 'code' | 'episode'>>;
+  }>;
+
+/** What the page hands the grid: everything but No date yet, its tickets narrowed */
+export type CalendarData = Omit<Calendar, 'days' | 'noDateYet'> &
+  Readonly<{
+    days: ReadonlyArray<
+      Omit<CalendarDay, 'tickets'> &
+        Readonly<{ tickets: ReadonlyArray<GridTicket> }>
+    >;
+  }>;
 
 export type DayTicket = Readonly<{
   show: CalendarShow;
-  ticket: CalendarTicket;
+  ticket: GridTicket;
 }>;
 
 /** One day with episodes, as its cell and its popover draw it */
@@ -148,12 +162,12 @@ type Counts = Readonly<{
   shows: number;
 }>;
 
-function countTickets(tickets: ReadonlyArray<DayTicket>): Counts {
+function countTickets(tickets: ReadonlyArray<GridTicket>): Counts {
   const shows = new Set<number>();
   let episodes = 0;
   let premieres = 0;
   let finales = 0;
-  for (const { ticket } of tickets) {
+  for (const ticket of tickets) {
     shows.add(ticket.seriesId);
     episodes += ticket.episodes.length;
     premieres += ticket.kind === 'season-premiere' ? 1 : 0;
@@ -164,7 +178,7 @@ function countTickets(tickets: ReadonlyArray<DayTicket>): Counts {
 
 /** "4 shows · 3 premieres", "1 show · 6 episodes · 1 premiere" */
 export function daySummary(day: CalendarDayModel): string {
-  const counts = countTickets(day.tickets);
+  const counts = countTickets(day.tickets.map(({ ticket }) => ticket));
   return [
     plural(counts.shows, 'show'),
     counts.episodes > counts.shows ? plural(counts.episodes, 'episode') : '',
@@ -175,28 +189,49 @@ export function daySummary(day: CalendarDayModel): string {
     .join(' · ');
 }
 
-/** A month's tickets; this month's only from today on (what is still to come) */
-function monthTickets(calendar: CalendarModel, month: string) {
-  const from = month === monthOf(calendar.today) ? calendar.today : '';
-  return calendar.dated
-    .filter((iso) => monthOf(iso) === month && iso >= from)
-    .flatMap((iso) => calendar.days.get(iso)?.tickets ?? []);
+/**
+ * A month's tickets; this month's only from today on (what is still to
+ * come). The counts read the API's days, so the server can count without
+ * building the grid.
+ */
+function monthTickets(data: CalendarData, month: string) {
+  const from = month === monthOf(data.today) ? data.today : '';
+  return data.days
+    .filter(({ date }) => monthOf(date) === month && date >= from)
+    .flatMap(({ tickets }) => tickets);
 }
 
 /** How many shows air in a month (this month: from today on) */
-export const showsIn = (calendar: CalendarModel, month: string) =>
-  countTickets(monthTickets(calendar, month)).shows;
+const showsIn = (data: CalendarData, month: string) =>
+  countTickets(monthTickets(data, month)).shows;
+
+/**
+ * The page's head and whether there is a page at all: the shows still to
+ * come this month, the shows with no date yet, and nothing at all (no
+ * date and nothing waiting)
+ */
+export function calendarCounts(
+  data: CalendarData,
+  noDateYet: Calendar['noDateYet'],
+): Readonly<{ noDate: number; nothing: boolean; showsThisMonth: number }> {
+  const noDate = noDateYet.listed.length + noDateYet.renewed.length;
+  return {
+    noDate,
+    nothing: data.days.length === 0 && noDate === 0,
+    showsThisMonth: showsIn(data, monthOf(data.today)),
+  };
+}
 
 /**
  * Under the month's name: "33 episodes this month · 8 shows · 5 premieres";
  * this month counts what is still to come
  */
-export function monthSummary(calendar: CalendarModel, month: string): string {
-  const counts = countTickets(monthTickets(calendar, month));
+export function monthSummary(data: CalendarData, month: string): string {
+  const counts = countTickets(monthTickets(data, month));
   if (counts.episodes === 0) {
     return 'Nothing dated this month';
   }
-  const current = month === monthOf(calendar.today);
+  const current = month === monthOf(data.today);
   return [
     `${plural(counts.episodes, 'episode')} ${current ? 'still to come ' : ''}this month`,
     plural(counts.shows, 'show'),
@@ -208,11 +243,11 @@ export function monthSummary(calendar: CalendarModel, month: string): string {
 
 /** The sidebar's months: only those with something still to come, and their shows */
 export function datedMonths(
-  calendar: CalendarModel,
+  data: CalendarData,
 ): ReadonlyArray<Readonly<{ month: string; shows: number }>> {
-  const months = [...new Set(calendar.dated.map(monthOf))];
+  const months = [...new Set(data.days.map(({ date }) => monthOf(date)))];
   return months
-    .map((month) => ({ month, shows: showsIn(calendar, month) }))
+    .map((month) => ({ month, shows: showsIn(data, month) }))
     .filter(({ shows }) => shows > 0);
 }
 
@@ -225,7 +260,7 @@ export const todayName = (calendar: CalendarModel) =>
   `Today, ${spokenAirDate(calendar.today)}`;
 
 /**
- * A day's name for its button: "Friday 4 December, 4 shows · 3 premieres:
+ * A day's name for its button: "Friday December 4, 4 shows · 3 premieres:
  * Silo, Slow Horses, The Studio, The Gilded Age"; ", nothing airs" for an
  * empty day still to come; a day of another month says it opens there
  */

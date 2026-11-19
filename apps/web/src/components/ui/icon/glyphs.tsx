@@ -63,6 +63,16 @@ export const calendarGlyph: Glyph = {
   ),
 };
 
+/** The calendar with its days marked: the profile's Calendar tab */
+export const calendarDaysGlyph: Glyph = {
+  outline: (
+    <>
+      <rect height="18" rx="3" width="18" x="3" y="4" />
+      <path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
+    </>
+  ),
+};
+
 export const checkGlyph: Glyph = { outline: <path d="M20 6 9 17l-5-5" /> };
 
 export const chevronDownGlyph: Glyph = { outline: <path d="m6 9 6 6 6-6" /> };

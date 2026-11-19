@@ -1,22 +1,97 @@
-import type { ReactNode } from 'react';
+'use client';
+
+import { useSelectedLayoutSegment } from 'next/navigation';
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
+
+import { getRowPosition, type RowPosition } from '@/components/ui/row/paging';
+import scrollBehavior from '@/lib/media/scrollBehavior';
+
+import { activeTabScroll } from './tabs';
+
+/**
+ * The phone row fades on the side that has more tabs: the right at the
+ * start, both in the middle, the left at the end, none when they all fit
+ */
+const FADE =
+  'max-md:data-[edge=start]:[mask-image:linear-gradient(90deg,#000_82%,transparent)] max-md:data-[edge=middle]:[mask-image:linear-gradient(90deg,transparent,#000_14%,#000_86%,transparent)] max-md:data-[edge=end]:[mask-image:linear-gradient(90deg,transparent,#000_18%)]';
+
+const NAV = `relative flex h-14 items-center bg-black/22 max-md:h-[58px] max-md:overflow-x-auto max-md:rounded-14 max-md:p-1 max-md:[scrollbar-width:none] md:rounded-12 md:p-2.5 [&::-webkit-scrollbar]:hidden ${FADE}`;
+
+/** The tabs' row: as wide as the tabs on a phone, so the bar scrolls past its end padding */
+const ROW =
+  'flex h-full items-center max-md:w-max max-md:gap-0.5 md:min-w-0 md:flex-1 md:gap-1 md:overflow-x-auto md:[scrollbar-width:none]';
 
 /**
  * The bar behind the tabs. Desktop: 56px, 10px padding, 12px corners, the
- * pills in a row. Phone: 4px padding, 14px corners, 2px between five equal
- * columns, 58px tall with or without the tabs (the skeleton is the same
- * box), never scrolling.
+ * pills in a row. Phone: 58px tall with or without the tabs (the skeleton
+ * is the same box), 4px padding, 14px corners; the 64px tabs scroll
+ * sideways when they don't fit, with no snapping and no arrows. The active
+ * tab is scrolled into view: in place on the first paint, smoothly when
+ * another tab opens.
  */
 export default function TabsFrame({
   children,
 }: Readonly<{ children?: ReactNode }>) {
+  const ref = useRef<HTMLElement>(null);
+  const placed = useRef(false);
+  const segment = useSelectedLayoutSegment();
+  const [edge, setEdge] = useState<RowPosition>('fits');
+
+  const measure = useCallback(() => {
+    if (ref.current) {
+      setEdge(getRowPosition(ref.current));
+    }
+  }, []);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runs when the active tab changes, reading the row it drew
+  useLayoutEffect(() => {
+    const nav = ref.current;
+    const tab = nav?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (nav && tab) {
+      const left = activeTabScroll({
+        clientWidth: nav.clientWidth,
+        first: !tab.previousElementSibling,
+        left: tab.offsetLeft,
+        scrollWidth: nav.scrollWidth,
+        width: tab.offsetWidth,
+      });
+      if (placed.current) {
+        nav.scrollTo({ behavior: scrollBehavior(), left });
+      } else {
+        nav.scrollLeft = left;
+      }
+      placed.current = true;
+    }
+    measure();
+  }, [segment, measure]);
+
+  // the row's width follows the screen's
+  useEffect(() => {
+    const nav = ref.current;
+    if (!nav) {
+      return;
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(nav);
+    return () => observer.disconnect();
+  }, [measure]);
+
   return (
     <nav
       aria-label="Profile"
-      className="flex h-14 items-center bg-black/22 max-md:h-[58px] max-md:rounded-14 max-md:p-1 md:rounded-12 md:p-2.5"
+      className={NAV}
+      data-edge={edge}
+      onScroll={measure}
+      ref={ref}
     >
-      <div className="flex h-full min-w-0 flex-1 items-center max-md:gap-0.5 md:gap-1 md:overflow-x-auto md:[scrollbar-width:none]">
-        {children}
-      </div>
+      <div className={ROW}>{children}</div>
     </nav>
   );
 }

@@ -10,7 +10,8 @@ import {
  * `'us'` is "Nov 8", "Nov 8, 2026", "Fri Nov 13"; `'uk'` is "8 Nov",
  * "8 Nov 2026", "Fri 13 Nov". Month-year ("Jun 2024") is the same in both.
  * Every formatter below, and the patterns and helpers other modules need,
- * derive from it; no caller writes an order of its own.
+ * derive from it. One exception: the calendar writes its days in the UK
+ * order (its `calendarDates.ts`), through `airDate.ts`'s `order` argument.
  */
 export const DATE_ORDER: DateOrder = 'us';
 

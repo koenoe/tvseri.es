@@ -1,7 +1,9 @@
 'use client';
 
-import { type ReactNode, useId, useState } from 'react';
+import { type ReactNode, useId, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import ExpandButton from '@/components/ui/fold/ExpandButton';
+import ExpandChevron from '@/components/ui/icon/ExpandChevron';
 import { useHiddenShows } from '@/lib/marking/hooks';
 
 import { SHOW_ALL } from './laneCaps';
@@ -18,6 +20,56 @@ export function useCap(total: number, cap: number) {
   const limit = open || !capped ? total : cap;
   const toggle = () => setOpen((value) => !value);
   return { capped, id, limit, open, toggle } as const;
+}
+
+/**
+ * A long list that opens in steps: its first `first` rows, then `step` more
+ * per press of the foot ("Show 10 more"), until every row shows. The press
+ * moves focus to the first row it revealed, as the foot may leave with it.
+ * Folding the list away (unmounting it) starts over.
+ */
+export function useSteps(total: number, first: number, step: number) {
+  const [limit, setLimit] = useState(first);
+  const id = useId();
+  const listRef = useRef<HTMLDivElement>(null);
+  const shown = Math.min(limit, total);
+  const next = Math.min(step, total - shown);
+  const more = () => {
+    flushSync(() => setLimit(shown + step));
+    const row = listRef.current?.children[shown];
+    const target = row?.matches('a[href], button')
+      ? row
+      : row?.querySelector('a[href], button');
+    if (target instanceof HTMLElement) {
+      target.focus();
+    }
+  };
+  return { id, listRef, more, next, shown } as const;
+}
+
+/** A stepped list's foot: "Show 10 more", the look of "Show all N" */
+export function ShowMore({
+  controls,
+  count,
+  more,
+}: Readonly<{
+  /** the list's id */
+  controls: string;
+  /** how many the press reveals */
+  count: number;
+  more: () => void;
+}>) {
+  return (
+    <button
+      aria-controls={controls}
+      className={SHOW_ALL.button}
+      onClick={more}
+      type="button"
+    >
+      Show {count} more
+      <ExpandChevron open={false} size={SHOW_ALL.chevron} />
+    </button>
+  );
 }
 
 /** A capped lane's foot: "Show all 22" / "Show fewer" */

@@ -2,12 +2,9 @@ import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
 import cn from '@/lib/cn';
-import { libraryPath } from '@/lib/routing/profilePath';
 
 import { loadOverview, loadWaitingFor } from '../../_data/overview';
 import type { Profile } from '../../_data/profile';
-import { isDayZero } from '../../_lib/dayZero';
-import HeadLink from '../blocks/HeadLink';
 import Lane from '../blocks/Lane';
 import LaneGhost, { GhostRows, ShowAllGhost } from '../blocks/LaneGhost';
 import { LANE_CAPS } from '../blocks/laneCaps';
@@ -50,22 +47,10 @@ export default async function ComingUp({
   const noDate = waiting.items
     .filter((item) => item.state === 'renewed')
     .map((item) => <WaitRow item={item} key={item.seriesId} now={now} />);
-  // No dead ends: day one has no "All finished"
-  const finishedHref = libraryPath(profile.user.username, 'finished');
-  const finished = isDayZero(overview) ? null : (
-    <HeadLink className="px-0.5" href={finishedHref}>
-      All finished
-    </HeadLink>
-  );
   const empty = tickets.length + later.length + noDate.length === 0;
   return (
     <Lane dot="pink" hollow={empty} id="v3-cu" title="Coming up">
-      <ComingUpList
-        finished={finished}
-        later={later}
-        noDate={noDate}
-        tickets={tickets}
-      />
+      <ComingUpList later={later} noDate={noDate} tickets={tickets} />
     </Lane>
   );
 }

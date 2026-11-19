@@ -34,13 +34,10 @@ function LaterDivider() {
  * rendered on the server and passed in.
  */
 export default function ComingUpList({
-  finished,
   later,
   noDate,
   tickets,
 }: Readonly<{
-  /** "All finished ›" beside the opened No date yet (null on day zero) */
-  finished: ReactNode;
   /** Dated returns more than 30 days out, soonest first */
   later: ReadonlyArray<ReactNode>;
   /** Renewed, no date announced */
@@ -61,7 +58,7 @@ export default function ComingUpList({
     ) : null;
   const lastRow =
     noDate.length > 0 || dated === 0 ? (
-      <NoDateYet alone={dated === 0} link={finished} rows={noDate} />
+      <NoDateYet alone={dated === 0} rows={noDate} />
     ) : null;
   if (dated === 0) {
     return lastRow;

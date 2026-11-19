@@ -76,8 +76,9 @@ function DayCell({
   ) : null;
   const numberClass = cn(
     NUMBER,
+    // contrast-exempt: another month's days frame the grid, as on a printed calendar; each named in full
     outside && 'text-white/30',
-    past && inMonth && 'text-white/45',
+    past && inMonth && 'text-white/60',
   );
   const number = <span className={numberClass}>{dayNumber(iso)}</span>;
   if (outside && !reachable) {

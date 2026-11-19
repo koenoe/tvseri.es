@@ -28,6 +28,7 @@ export const ROUTE_TEMPLATES = [
   '/sign-in/error',
   '/theme/[slug]',
   '/u/[username]',
+  '/u/[username]/calendar',
   '/u/[username]/circle',
   '/u/[username]/history',
   '/u/[username]/library',

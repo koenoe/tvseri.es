@@ -6,10 +6,9 @@ import type {
 } from '@tvseri.es/schemas';
 import {
   byExpectedReturn,
-  DAY_MS,
+  daysBetweenUtc,
   firstSeasonAfter,
   isOver,
-  startOfDayUtc,
   todayUtc,
 } from '@tvseri.es/utils';
 import { getAllListItems } from '@/lib/db/list';
@@ -50,8 +49,7 @@ const buildWaitingFor = (
   favourites: ReadonlySet<number>,
   now: number,
 ): WaitingFor => {
-  const today = startOfDayUtc(now);
-  const todayDate = todayUtc(now);
+  const today = todayUtc(now);
   const dated: WaitingForItem[] = [];
   const renewed: Array<
     Readonly<{
@@ -79,10 +77,7 @@ const buildWaitingFor = (
     if (next?.airDate) {
       dated.push({
         ...base,
-        daysToGo: Math.max(
-          0,
-          Math.round((Date.parse(next.airDate) - today) / DAY_MS),
-        ),
+        daysToGo: Math.max(0, daysBetweenUtc(today, next.airDate)),
         nextDate: next.airDate,
         nextEpisode: next.episodeNumber,
         nextKind: episodeKindOf(next, showFacts.seasons),
@@ -90,14 +85,14 @@ const buildWaitingFor = (
         state: 'dated',
       });
     } else {
-      const nextSeason = nextSeasonOf(showFacts, todayDate);
+      const nextSeason = nextSeasonOf(showFacts, today);
       // The facts list only seasons with episodes: a listed one has them,
       // and no date that has passed
       const listed = showFacts.seasons.find(
         (season) => season.seasonNumber === nextSeason,
       );
       const listedEpisodes =
-        listed && (!listed.airDate || listed.airDate > todayDate)
+        listed && (!listed.airDate || listed.airDate > today)
           ? listed.episodeCount
           : undefined;
       const lastAired = showFacts.lastEpisodeToAir?.airDate;
@@ -136,6 +131,7 @@ const MAX_FINISHED = 150;
  */
 export const readWaitingFor = async (
   userId: string,
+  now: number,
 ): Promise<
   Readonly<{ facts: ReadonlyMap<number, SeriesFacts>; waitingFor: WaitingFor }>
 > => {
@@ -166,11 +162,7 @@ export const readWaitingFor = async (
       finished.map((item) => byId.get(item.id) ?? item),
       facts,
       new Set(favourites.map((item) => item.id)),
-      Date.now(),
+      now,
     ),
   };
 };
-
-/** The viewer's finished shows that come back (Coming up's returns) */
-export const getWaitingFor = async (userId: string) =>
-  (await readWaitingFor(userId)).waitingFor;

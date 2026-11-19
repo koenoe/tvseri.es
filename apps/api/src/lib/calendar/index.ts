@@ -7,10 +7,14 @@ import type {
 import { buildPosterImageUrl, todayUtc } from '@tvseri.es/utils';
 
 import { getSeriesPrefsMany } from '@/lib/db/prefs';
-import { readFollowedLists } from '@/lib/overview';
+import {
+  followedShows,
+  readInProgress,
+  readWatchlist,
+  watchProviderOf,
+} from '@/lib/followed';
 import { type SeasonEpisode, seasonEpisodes } from '@/lib/seasonEpisodes';
 import { getSeriesFacts } from '@/lib/seriesFacts';
-import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
 import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { withTmdbCap } from '@/lib/upstream/requestCap';
 import { readWaitingFor } from '@/lib/waitingFor';
@@ -134,9 +138,10 @@ export const getCalendar = async (
   now: number,
 ): Promise<Calendar> => {
   const window = windowAt(now);
-  const [{ saved, tracked }, finished] = await Promise.all([
-    readFollowedLists(userId),
-    readWaitingFor(userId),
+  const [tracked, saved, finished] = await Promise.all([
+    readInProgress(userId),
+    readWatchlist(userId),
+    readWaitingFor(userId, now),
   ]);
   const trackedIds = tracked.map((item) => item.id);
   const [facts, prefs] = await Promise.all([
@@ -144,23 +149,25 @@ export const getCalendar = async (
     getSeriesPrefsMany(userId, trackedIds),
   ]);
 
-  // Coming up's order: in progress, then the watchlist, then finished shows
+  // Coming up's shows, in its order; a show without facts is left out
+  const factsOf = (id: number) => facts.get(id) ?? finished.facts.get(id);
+  const hasFacts = (id: number) => factsOf(id) !== undefined;
   const sources = new Map<number, Source>();
-  const add = (id: number, source: Omit<Source, 'facts'>) => {
-    const showFacts = facts.get(id) ?? finished.facts.get(id);
-    if (showFacts && !sources.has(id)) {
-      sources.set(id, { ...source, facts: showFacts });
+  for (const show of followedShows({
+    finished: finished.waitingFor.items,
+    inProgress: trackedIds.filter(hasFacts),
+    prefs,
+    watchlist: saved.map((item) => item.id).filter(hasFacts),
+  })) {
+    const showFacts = factsOf(show.seriesId);
+    const finishedAt = show.from === 'finished' && show.item.finishedAt;
+    if (showFacts) {
+      sources.set(show.seriesId, {
+        facts: showFacts,
+        onWatchlist: show.from === 'watchlist',
+        ...(finishedAt && { finishedAt }),
+      });
     }
-  };
-  for (const id of trackedIds) {
-    if (prefs.get(id)?.paused !== 'hide') add(id, { onWatchlist: false });
-  }
-  for (const item of saved) add(item.id, { onWatchlist: true });
-  for (const item of finished.waitingFor.items) {
-    add(item.seriesId, {
-      onWatchlist: false,
-      ...(item.finishedAt && { finishedAt: item.finishedAt }),
-    });
   }
 
   const airing = [...sources.values()]
@@ -181,40 +188,36 @@ export const getCalendar = async (
   );
   const days = buildDays(read, window);
 
+  // Each show once, by its first date; every ticket's show is a source
   const onCalendar = [
     ...new Set(
       days.flatMap((day) => day.tickets.map((ticket) => ticket.seriesId)),
     ),
-  ];
+  ].flatMap((id) => {
+    const source = sources.get(id);
+    return source ? [source] : [];
+  });
   const providerLimit = createLimiter(TMDB_CONCURRENCY);
   const shows = await withTmdbCap(MAX_PROVIDER_CALLS, () =>
     Promise.all(
-      onCalendar.map((id) =>
-        providerLimit(async (): Promise<CalendarShow> => {
-          const {
-            facts: showFacts,
-            finishedAt,
-            onWatchlist,
-          } = sources.get(id) as Source;
-          const provider = country
-            ? await orLeaveOut('Calendar: provider', () =>
-                fetchTvSeriesWatchProvider(id, country),
-              )
-            : null;
-          return {
+      onCalendar.map(({ facts: showFacts, finishedAt, onWatchlist }) =>
+        providerLimit(
+          async (): Promise<CalendarShow> => ({
             ...(finishedAt && { finishedAt }),
             onWatchlist,
             posterImage: showFacts.posterPath
               ? buildPosterImageUrl(showFacts.posterPath)
               : '',
-            provider: provider
-              ? { logoImage: provider.logo, name: provider.name }
-              : null,
-            seriesId: id,
+            provider: await watchProviderOf(
+              showFacts.id,
+              country,
+              'Calendar: provider',
+            ),
+            seriesId: showFacts.id,
             slug: showFacts.slug,
             title: showFacts.title,
-          };
-        }),
+          }),
+        ),
       ),
     ),
   );

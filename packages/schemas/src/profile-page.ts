@@ -417,6 +417,11 @@ export type Overview = Readonly<{
   catchingUp: ReadonlyArray<CatchingUpItem>;
   /** Soonest first; the first also answers "Next: The Rings of Power, Wed 11 Nov" for an empty Out now */
   comingUp: ReadonlyArray<ComingUpItem>;
+  /**
+   * A show Coming up follows has a date past its 30 days: the calendar has
+   * more than Coming up shows. Not in `?view=up-next`.
+   */
+  datedLater?: boolean;
   /** Most recently watched first */
   paused: ReadonlyArray<PausedItem>;
   /** The finished shows coming back more than 30 days out or undated (computed once per profile view). Not in `?view=up-next`. */

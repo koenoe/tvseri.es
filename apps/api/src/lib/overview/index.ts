@@ -5,14 +5,19 @@ import type {
   WaitingFor,
 } from '@tvseri.es/schemas';
 
-import { getAllListItems } from '@/lib/db/list';
 import { getSeriesPrefsMany } from '@/lib/db/prefs';
+import {
+  type FollowedShow,
+  followedShows,
+  readInProgress,
+  readWatchlist,
+  watchProviderOf,
+} from '@/lib/followed';
 import { readShowItems } from '@/lib/rollups';
 import { releaseOf, seasonEpisodes } from '@/lib/seasonEpisodes';
 import { getSeriesFacts } from '@/lib/seriesFacts';
 import { getSeriesRuntimes } from '@/lib/seriesRuntimes';
-import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
-import { getWaitingFor } from '@/lib/waitingFor';
+import { readWaitingFor } from '@/lib/waitingFor';
 import { orLeaveOut } from '@/utils/orLeaveOut';
 
 import { analyzeShow } from './analyze';
@@ -23,37 +28,15 @@ import {
   buildOutNow,
   buildPaused,
   buildUpNext,
+  datedLater,
   returnsSoon,
   waitingForLater,
 } from './blocks';
 
-// In-progress shows read (their per-show summaries), most recently added first
-const MAX_IN_PROGRESS = 60;
-const MAX_WATCHLIST = 100;
 // Enrichment per request: titles of the first Up next tiles, and release +
 // provider of the first tickets (seasons cached, providers per request)
 const MAX_TITLES = 3;
 const MAX_TICKETS = 10;
-
-/**
- * The in-progress shows and the watchlist that the profile reads (the
- * overview and the calendar), most recently added first, each capped
- */
-export const readFollowedLists = async (
-  userId: string,
-  { withWatchlist = true }: Readonly<{ withWatchlist?: boolean }> = {},
-) => {
-  const [inProgress, watchlist] = await Promise.all([
-    getAllListItems({ listId: 'IN_PROGRESS', sortDirection: 'desc', userId }),
-    withWatchlist
-      ? getAllListItems({ listId: 'WATCHLIST', sortDirection: 'desc', userId })
-      : [],
-  ]);
-  return {
-    saved: watchlist.slice(0, MAX_WATCHLIST),
-    tracked: inProgress.slice(0, MAX_IN_PROGRESS),
-  };
-};
 
 /** Episode titles and air dates for the first few Up next tiles */
 const withEpisodeTitles = async (items: ReadonlyArray<UpNextItem>) => {
@@ -93,17 +76,11 @@ const withTicketDetails = async (
               ),
             )
           : undefined,
-        country
-          ? orLeaveOut('Overview: ticket provider', () =>
-              fetchTvSeriesWatchProvider(ticket.seriesId, country),
-            )
-          : undefined,
+        watchProviderOf(ticket.seriesId, country, 'Overview: ticket provider'),
       ]);
       return {
         ...ticket,
-        provider: provider
-          ? { logoImage: provider.logo, name: provider.name }
-          : null,
+        provider,
         release: (episodes && releaseOf(episodes)) ?? ticket.release,
       };
     }),
@@ -112,25 +89,31 @@ const withTicketDetails = async (
 };
 
 /** Finished shows that return within 30 days are tickets too */
-const finishedTickets = (waiting: WaitingFor): ComingUpItem[] =>
-  waiting.items.filter(returnsSoon).map((item) => ({
-    date: item.nextDate,
-    daysToGo: item.daysToGo,
-    episode: item.nextEpisode ?? 1,
-    ...(item.finishedAt && { finishedAt: item.finishedAt }),
-    // getWaitingFor already worked out premiere, finale or episode from TMDB's
-    // season size; a finale guessed from the number alone came out "episode"
-    kind:
-      item.nextKind ?? (item.nextEpisode === 1 ? 'season-premiere' : 'episode'),
-    onWatchlist: false,
-    posterImage: item.posterImage,
-    provider: null,
-    release: null,
-    season: item.nextSeason,
-    seriesId: item.seriesId,
-    slug: item.slug,
-    title: item.title,
-  }));
+const finishedTickets = (
+  followed: ReadonlyArray<FollowedShow>,
+): ComingUpItem[] =>
+  followed
+    .flatMap((show) => (show.from === 'finished' ? [show.item] : []))
+    .filter(returnsSoon)
+    .map((item) => ({
+      date: item.nextDate,
+      daysToGo: item.daysToGo,
+      episode: item.nextEpisode ?? 1,
+      ...(item.finishedAt && { finishedAt: item.finishedAt }),
+      // readWaitingFor already worked out premiere, finale or episode from TMDB's
+      // season size; a finale guessed from the number alone came out "episode"
+      kind:
+        item.nextKind ??
+        (item.nextEpisode === 1 ? 'season-premiere' : 'episode'),
+      onWatchlist: false,
+      posterImage: item.posterImage,
+      provider: null,
+      release: null,
+      season: item.nextSeason,
+      seriesId: item.seriesId,
+      slug: item.slug,
+      title: item.title,
+    }));
 
 type OverviewOptions = Readonly<{
   /**
@@ -155,10 +138,12 @@ export const getOverview = async (
   now: number,
   { upNextOnly = false }: OverviewOptions = {},
 ): Promise<Overview> => {
-  const [{ saved, tracked }, waiting] = await Promise.all([
-    readFollowedLists(userId, { withWatchlist: !upNextOnly }),
-    upNextOnly ? NOTHING_WAITING : getWaitingFor(userId),
+  const [tracked, saved, finished] = await Promise.all([
+    readInProgress(userId),
+    upNextOnly ? [] : readWatchlist(userId),
+    upNextOnly ? null : readWaitingFor(userId, now),
   ]);
+  const waiting = finished?.waitingFor ?? NOTHING_WAITING;
 
   // Each show's items: their summaries in one read (a show without one is
   // read itself); a failed read fails the request rather than showing the
@@ -226,15 +211,36 @@ export const getOverview = async (
       : [];
   });
 
+  const trackedById = new Map(states.map((state) => [state.facts.id, state]));
+  const savedById = new Map(
+    savedStates.map(({ state }) => [state.facts.id, state]),
+  );
+  const followed = followedShows({
+    finished: waiting.items,
+    inProgress: [...trackedById.keys()],
+    prefs,
+    watchlist: [...savedById.keys()],
+  });
   const own = buildComingUp(
-    [...states.map((state) => ({ onWatchlist: false, state })), ...savedStates],
+    followed.flatMap((show) => {
+      const state =
+        show.from === 'in-progress'
+          ? trackedById.get(show.seriesId)
+          : show.from === 'watchlist'
+            ? savedById.get(show.seriesId)
+            : undefined;
+      return state ? [{ onWatchlist: show.from === 'watchlist', state }] : [];
+    }),
     now,
   );
-  const known = new Set(own.map((ticket) => ticket.seriesId));
-  const comingUp = [
-    ...own,
-    ...finishedTickets(waiting).filter((ticket) => !known.has(ticket.seriesId)),
-  ].sort((a, b) => a.date.localeCompare(b.date));
+  const comingUp = [...own, ...finishedTickets(followed)].sort((a, b) =>
+    a.date.localeCompare(b.date),
+  );
+  const nextDates = followed.map((show) =>
+    show.from === 'finished'
+      ? show.item.nextDate
+      : facts.get(show.seriesId)?.nextEpisodeToAir?.airDate,
+  );
 
   const [upNext, tickets] = await Promise.all([
     withEpisodeTitles(buildUpNext(states)),
@@ -245,11 +251,12 @@ export const getOverview = async (
     almostDone: buildAlmostDone(states),
     catchingUp: buildCatchingUp(states, now),
     comingUp: tickets,
+    datedLater: datedLater(nextDates, now),
     outNow: buildOutNow(states, now),
     paused: buildPaused(states, now),
     upNext,
     // Computed here anyway (Coming up's finished shows), so the profile
     // page needs no second request for it
-    ...(!upNextOnly && { waitingFor: waitingForLater(waiting) }),
+    waitingFor: waitingForLater(waiting),
   };
 };

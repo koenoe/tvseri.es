@@ -1,7 +1,6 @@
 import { vValidator } from '@hono/valibot-validator';
 import { SCROBBLE_PROVIDERS } from '@tvseri.es/constants';
 import {
-  CalendarQuerySchema,
   CountryCodeSchema,
   DeleteAccountSchema,
   SeriesStatesQuerySchema,
@@ -71,8 +70,15 @@ app.get(
   },
 );
 
-const OverviewQuerySchema = v.object({
+// `?region=`: the web's region (the saved country, else where the viewer
+// is), for the tickets' services when no country is saved; the API only
+// sees the web server's location
+const CalendarQuerySchema = v.object({
   region: v.optional(CountryCodeSchema),
+});
+
+const OverviewQuerySchema = v.object({
+  ...CalendarQuerySchema.entries,
   view: v.optional(v.picklist(['up-next'])),
 });
 

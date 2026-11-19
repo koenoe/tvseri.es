@@ -39,6 +39,23 @@ export const returnsSoon = (
   item.daysToGo !== undefined &&
   item.daysToGo <= WINDOW_DAYS;
 
+/**
+ * Whether a followed show's next date (`YYYY-MM-DD`) is past the window:
+ * Coming up has no ticket for it, the calendar has the day. Not capped at
+ * the calendar's twelve months: a date that far out is rare, and the
+ * calendar then says nothing is dated yet.
+ */
+export const datedLater = (
+  dates: ReadonlyArray<string | undefined>,
+  now: number,
+) =>
+  dates.some(
+    (date) =>
+      date !== undefined &&
+      date !== '' &&
+      daysBetweenUtc(todayUtc(now), date) > WINDOW_DAYS,
+  );
+
 /** The waiting shows without the returns that became tickets, so no show is in both */
 export const waitingForLater = (waiting: WaitingFor): WaitingFor => ({
   ...waiting,

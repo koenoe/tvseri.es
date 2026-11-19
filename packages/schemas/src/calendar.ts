@@ -1,15 +1,4 @@
-import * as v from 'valibot';
-
 import type { ComingUpItem, WaitingForItem } from './profile-page';
-import { CountryCodeSchema } from './user';
-
-/**
- * `GET /me/calendar` query. `region`: the web's region (the saved country,
- * else where the viewer is), for the services when no country is saved
- */
-export const CalendarQuerySchema = v.object({
-  region: v.optional(CountryCodeSchema),
-});
 
 /**
  * What an episode is to its season. The mid-season marks and the series

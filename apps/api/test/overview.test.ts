@@ -292,6 +292,59 @@ describe('profile overview', () => {
     }
   });
 
+  it('says when a show it follows has a date past its 30 days, which only the calendar shows', async () => {
+    seedUser();
+    // 7: on the watchlist, back in 45 days
+    fakeShow({
+      extra: { next_episode_to_air: episode(2, 1, '2026-12-27') },
+      id: 7,
+      seasons: [
+        { airDate: '2025-04-01', episodes: 8 },
+        { airDate: '2026-12-27', aired: 0, episodes: 8 },
+      ],
+      status: 'Returning Series',
+    });
+    db.seed('Lists', [listItem('WATCHLIST', 7, 100)]);
+
+    const overview = (await (
+      await request('/me/overview', { as: USER_ID })
+    ).json()) as { comingUp: unknown[]; datedLater: boolean };
+
+    expect(overview.comingUp).toEqual([]);
+    expect(overview.datedLater).toBe(true);
+  });
+
+  it('leaves a hidden show’s later date out of it', async () => {
+    seedUser();
+    // 8: in progress but hidden, back in 40 days
+    fakeShow({
+      extra: { next_episode_to_air: episode(2, 1, '2026-12-22') },
+      id: 8,
+      seasons: [
+        { airDate: '2025-04-01', episodes: 8 },
+        { airDate: '2026-12-22', aired: 0, episodes: 8 },
+      ],
+      status: 'Returning Series',
+    });
+    db.seed('Lists', [
+      listItem('IN_PROGRESS', 8, 100),
+      {
+        paused: 'hide',
+        pausedAt: 1,
+        pk: `USER#${USER_ID}`,
+        seriesId: 8,
+        sk: 'PREF#SERIES#8',
+      },
+    ]);
+    watched(8, range(1, 1, 8));
+
+    const overview = (await (
+      await request('/me/overview', { as: USER_ID })
+    ).json()) as { datedLater: boolean };
+
+    expect(overview.datedLater).toBe(false);
+  });
+
   it('is empty for a viewer with nothing in progress', async () => {
     seedUser();
 
@@ -301,6 +354,7 @@ describe('profile overview', () => {
       almostDone: { closest: null, items: [] },
       catchingUp: [],
       comingUp: [],
+      datedLater: false,
       outNow: [],
       paused: [],
       upNext: [],

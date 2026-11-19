@@ -1,5 +1,3 @@
-'use client';
-
 import type { ComingUpItem } from '@tvseri.es/schemas';
 import { type ComponentType, Fragment, type ReactNode } from 'react';
 

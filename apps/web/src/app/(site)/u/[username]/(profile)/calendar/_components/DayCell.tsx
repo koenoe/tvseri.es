@@ -31,6 +31,8 @@ type Props = Readonly<{
   today: boolean;
   /** The grid's one Tab stop */
   tabbable: boolean;
+  /** The Tab stop's ref, which focuses it when asked */
+  focusRef?: (cell: HTMLElement | null) => void;
   /** Its popover or sheet is open */
   open: boolean;
   /** Play today's pulse (the first paint only) */
@@ -50,6 +52,7 @@ type Props = Readonly<{
 function DayCell({
   day,
   flash,
+  focusRef,
   inMonth,
   iso,
   label,
@@ -85,11 +88,14 @@ function DayCell({
       />
     </>
   );
+  // an empty cell for assistive tech, so its row keeps seven columns
   if (outside && !reachable) {
     const ghostClass = cn(DAY_CELL, 'md:bg-white/[0.015]');
     return (
-      <div aria-hidden="true" className={ghostClass} role="gridcell">
-        {faces}
+      <div role="gridcell">
+        <div aria-hidden="true" className={ghostClass}>
+          {faces}
+        </div>
       </div>
     );
   }
@@ -112,6 +118,7 @@ function DayCell({
         className={className}
         data-day={iso}
         data-month={month}
+        ref={focusRef}
         tabIndex={tabbable ? 0 : -1}
         type="button"
       >

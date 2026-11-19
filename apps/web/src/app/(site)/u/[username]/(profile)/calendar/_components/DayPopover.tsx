@@ -22,19 +22,11 @@ import scrollBehavior from '@/lib/media/scrollBehavior';
 import type { CalendarDayModel } from '../_lib/calendarModel';
 import DayHeader from './DayHeader';
 import DayTickets from './DayTickets';
-
-/** Where the popover sits in the calendar's stage, and its arrow on the cell's centre */
-export type PopoverPlace = Readonly<{
-  arrow: number;
-  below: boolean;
-  /** From the stage's top (below the cell) or its bottom (above it) */
-  edge: number;
-  left: number;
-}>;
+import { POPOVER_WIDTH, type PopoverPlace } from './placePopover';
 
 /** 26px corners: concentric with the 12px tickets 14px in */
 const PANEL =
-  'absolute z-6 flex w-[448px] flex-col gap-3 rounded-[26px] bg-ground-deep p-3.5 scroll-mt-24 scroll-mb-4 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1),0_30px_60px_-20px_rgb(0_0_0/0.9)] outline-none before:absolute before:left-[calc(var(--arrow)-7px)] before:size-3.5 before:rotate-45 before:bg-ground-deep';
+  'absolute z-6 flex flex-col gap-3 rounded-[26px] bg-ground-deep p-3.5 scroll-mt-24 scroll-mb-4 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1),0_30px_60px_-20px_rgb(0_0_0/0.9)] outline-none before:absolute before:left-[calc(var(--arrow)-7px)] before:size-3.5 before:rotate-45 before:bg-ground-deep';
 
 const ARROW_UP =
   'before:-top-[7px] before:shadow-[-1px_-1px_0_0_rgb(255_255_255/0.1)]';
@@ -120,6 +112,7 @@ export default function DayPopover({
     '--arrow': `${place.arrow}px`,
     left: place.left,
     transformOrigin: `${place.arrow}px ${place.below ? '0' : '100%'}`,
+    width: POPOVER_WIDTH,
     ...(place.below ? { top: place.edge } : { bottom: place.edge }),
   };
   const initial = { opacity: 0, scale: 0.96, y: place.below ? -6 : 6 };

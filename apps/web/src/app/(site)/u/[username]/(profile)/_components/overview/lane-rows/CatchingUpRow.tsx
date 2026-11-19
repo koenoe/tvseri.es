@@ -127,7 +127,7 @@ export default function CatchingUpRow({
   );
 }
 
-/** "S06 out now · Premiered Sun 15 Nov", or the date and the countdown */
+/** "S06 out now · Premiered Sun Nov 15", or the date and the countdown */
 function RunwayLine({ runway }: Readonly<{ runway: RunwayView }>) {
   return (
     <MetaRow className="gap-2.5 [&_svg]:size-3" fit="drop">

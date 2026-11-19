@@ -79,6 +79,7 @@ const dayOf = (target: EventTarget) =>
  */
 export default function MonthGrid({
   calendar,
+  claimFocus,
   describedBy,
   direction,
   flash,
@@ -91,6 +92,8 @@ export default function MonthGrid({
   pulse,
 }: Readonly<{
   calendar: CalendarModel;
+  /** The Tab stop's ref: focus lands there once its cell is drawn */
+  claimFocus: (cell: HTMLElement | null) => void;
   /** The month's summary */
   describedBy: string;
   direction: number;
@@ -158,6 +161,7 @@ export default function MonthGrid({
                     day !== undefined &&
                     coversMonth(calendar, monthOf(iso));
                   const today = iso === calendar.today;
+                  const tabbable = iso === focusDay;
                   const label = dayLabel(
                     calendar,
                     iso,
@@ -167,6 +171,7 @@ export default function MonthGrid({
                     <DayCell
                       day={day}
                       flash={today ? flash : 0}
+                      focusRef={tabbable ? claimFocus : undefined}
                       inMonth={inMonth}
                       iso={iso}
                       key={iso}
@@ -176,7 +181,7 @@ export default function MonthGrid({
                       past={iso < calendar.today}
                       pulse={pulse}
                       reachable={reachable}
-                      tabbable={iso === focusDay}
+                      tabbable={tabbable}
                       today={today}
                     />
                   );

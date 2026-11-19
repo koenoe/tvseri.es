@@ -21,3 +21,8 @@ export const dedupe = async <T>(
   inFlight.set(key, promise);
   return promise;
 };
+
+/** Forgets every call in flight (tests: a call one test left hanging must not answer the next) */
+export const resetDedupe = () => {
+  inFlight.clear();
+};

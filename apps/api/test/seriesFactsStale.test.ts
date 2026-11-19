@@ -5,6 +5,7 @@ import { claim } from '@/lib/db/cache/singleFlight';
 import { runWithDeadline } from '@/lib/deadline';
 import { getSeriesFacts, getSeriesFactsReport } from '@/lib/seriesFacts';
 import { db } from './db';
+import { timeToSettle } from './fakeClock';
 import {
   onTmdb,
   requestedUrls,
@@ -193,21 +194,25 @@ describe('one refresh of a stale show across Lambdas (single-flight)', () => {
 
 describe('a personal read never waits on refreshing facts it has', () => {
   it('answers with the stored facts within a short budget while TMDB is slow, and stores the refresh when it ends', async () => {
-    vi.useFakeTimers({ now: T0, toFake: ['Date'] });
+    vi.useFakeTimers({
+      now: T0,
+      toFake: ['setTimeout', 'clearTimeout', 'Date'],
+    });
     show(1);
     await getSeriesFacts([1]);
     show(1, 'Renamed 1');
     vi.setSystemTime(T0 + 2 * DAY);
     setUpstreamConditions({ latencyMs: 1500 });
 
-    const started = performance.now();
-    const facts = await getSeriesFacts([1]);
+    // Past TMDB's 1.5 s, so the refresh ends inside the test
+    const { ms, value: facts } = await timeToSettle(
+      () => getSeriesFacts([1]),
+      3_000,
+    );
 
-    expect(performance.now() - started).toBeLessThan(800);
+    expect(ms).toBeLessThan(800);
     expect(facts.get(1)?.title).toBe('Show 1');
-    await vi.waitFor(() => expect(factsRow(1)?.value).toContain('Renamed 1'), {
-      timeout: 3000,
-    });
+    expect(factsRow(1)?.value).toContain('Renamed 1');
   });
 
   it('still waits for facts it doesn’t have', async () => {

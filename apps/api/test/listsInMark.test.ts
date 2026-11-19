@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { MARK_SYNC_MS } from '@/lib/listSync';
 import { getSeriesFacts } from '@/lib/seriesFacts';
 import { db } from './db';
+import { timeToSettle } from './fakeClock';
 import {
   onTmdb,
   requestedUrls,
@@ -172,17 +173,21 @@ describe('In progress, Finished and the watchlist are updated inside the mark', 
     resetRequests();
     setUpstreamConditions({ outage: 'hang' });
 
-    const started = performance.now();
-    const response = await request(`/user/${USER_ID}/watched/batch`, {
-      as: USER_ID,
-      body: [batchRow(stored), batchRow(cold)],
-      method: 'POST',
-    });
-    const took = performance.now() - started;
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+    // Long enough for the hanging TMDB calls to time out and end in this test
+    const { ms, value: response } = await timeToSettle(
+      () =>
+        request(`/user/${USER_ID}/watched/batch`, {
+          as: USER_ID,
+          body: [batchRow(stored), batchRow(cold)],
+          method: 'POST',
+        }),
+      20_000,
+    );
 
     expect(response.status).toBe(201);
     // Inside the 2.5 s bound, though TMDB never answers
-    expect(took).toBeLessThan(MARK_SYNC_MS + 500);
+    expect(ms).toBeLessThanOrEqual(MARK_SYNC_MS);
     // The show with stored facts is placed without TMDB; the cold one is
     // left to the stream
     expect(lists()).toEqual([`LIST#IN_PROGRESS#ITEM#${stored}`]);

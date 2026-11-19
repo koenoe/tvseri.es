@@ -469,9 +469,8 @@ describe('GET /user/:id/library/:shelf', () => {
 });
 
 // 314 shows through the in-memory DynamoDB double: the checks count reads
-// and items, never time; on a loaded machine the work alone can pass
-// Vitest's 5 s default, so the limit is the job's, not the assertion's
-describe('the heavy library', { timeout: 30_000 }, () => {
+// and items, never time
+describe('the heavy library', () => {
   const SHOWS = 314;
 
   const heavy = () => {

@@ -5,6 +5,7 @@ import { afterEach, beforeEach, vi } from 'vitest';
 
 import { resetBreakers } from '@/lib/upstream/breaker';
 import { overrideBudget, resetBudgets } from '@/lib/upstream/budget';
+import { resetDedupe } from '@/utils/dedupe';
 
 import { db, sqsMessages } from './db';
 import { fakeFetch, resetHttp } from './fakeHttp';
@@ -56,6 +57,7 @@ beforeEach(() => {
   // load rig check the cap)
   resetBreakers();
   resetBudgets();
+  resetDedupe();
   overrideBudget({ perSecond: Number.POSITIVE_INFINITY });
   db.reset();
   resetHttp();

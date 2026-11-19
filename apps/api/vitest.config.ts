@@ -39,5 +39,10 @@ export default defineConfig({
     env: { SST_RESOURCES_JSON: JSON.stringify(resources) },
     include: ['src/**/*.test.ts', 'test/**/*.test.ts'],
     setupFiles: ['./test/setup.ts'],
+    // A test's first import loads the app's module graph (AWS SDK, Hono,
+    // Valibot) and some walk all of src: about a second alone, past 5 s on a
+    // machine shared by parallel checks. Time limits a test means are its own
+    // assertions; this only catches a hang.
+    testTimeout: 30_000,
   },
 });

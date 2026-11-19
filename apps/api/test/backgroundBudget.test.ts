@@ -36,8 +36,7 @@ describe('the TMDB budget per kind of Lambda', () => {
     await fanOut(12);
 
     expect(peakRequestsInFlight()).toBe(4);
-    // Loading three handlers' module graphs takes seconds on a busy machine
-  }, 30_000);
+  });
 
   it('gives the API Lambda 8', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
@@ -46,5 +45,5 @@ describe('the TMDB budget per kind of Lambda', () => {
     await fanOut(12);
 
     expect(peakRequestsInFlight()).toBe(8);
-  }, 30_000);
+  });
 });

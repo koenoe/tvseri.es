@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { timeToSettle } from './fakeClock';
 import { setUpstreamConditions } from './fakeHttp';
 import { fakeShow } from './fixtures/tmdb';
 import { request } from './request';
@@ -53,21 +54,28 @@ describe('season and show marks while TMDB is down', () => {
 
   it('answers within about 2 s while TMDB hangs and the stored copy is old', async () => {
     setup();
-    vi.useFakeTimers({ toFake: ['Date'] });
-    vi.setSystemTime(new Date('2026-11-14T10:00:00Z'));
-    expect(
-      (await call('/season/1', 'POST', { watchProvider: null })).status,
-    ).toBe(201);
+    vi.useFakeTimers({
+      now: new Date('2026-11-14T10:00:00Z'),
+      toFake: ['setTimeout', 'clearTimeout', 'Date'],
+    });
+    const { value: marked } = await timeToSettle(
+      () => call('/season/1', 'POST', { watchProvider: null }),
+      1_000,
+    );
+    expect(marked.status).toBe(201);
     // Two hours on: the stored show and season are past their hour
     vi.setSystemTime(new Date('2026-11-14T12:00:00Z'));
     setUpstreamConditions({ outage: 'hang' });
 
-    const started = performance.now();
-    const response = await call('/season/1', 'DELETE');
+    // Long enough for the hanging refresh to time out and end in this test
+    const { ms, value: response } = await timeToSettle(
+      () => call('/season/1', 'DELETE'),
+      20_000,
+    );
 
     expect(response.status).toBeLessThan(300);
-    expect(performance.now() - started).toBeLessThan(2_500);
-  }, 10_000);
+    expect(ms).toBeLessThan(2_500);
+  });
 
   it('a show nobody marked before still needs TMDB', async () => {
     setup();

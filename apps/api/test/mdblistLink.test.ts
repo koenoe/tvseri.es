@@ -68,6 +68,5 @@ describe('Lambdas without the MdblistApiKey link', () => {
         lambdaContext(),
       ),
     ).resolves.toBeDefined();
-    // Loading three handlers' module graphs takes seconds on a busy machine
-  }, 30_000);
+  });
 });

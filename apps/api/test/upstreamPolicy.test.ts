@@ -9,7 +9,7 @@ import { setCacheItem } from '@/lib/db/cache';
 import { runWithDeadline } from '@/lib/deadline';
 import { createInstrumentedFetch } from '@/lib/metrics';
 import { UpstreamUnavailableError } from '@/lib/upstream/errors';
-
+import { timeToSettle } from './fakeClock';
 import {
   onGet,
   onTmdb,
@@ -88,19 +88,14 @@ describe('a stalled TMDB call', () => {
 
   it('answers a read before the web gives up (10 s) even when both attempts stall', async () => {
     onTmdb('/tv/1396', show, { stallFirst: 2 });
-    const started = Date.now();
-
-    const pending = Promise.resolve(request('/series/1396'));
-    let settledAt = 0;
-    void pending.then(() => {
-      settledAt = Date.now();
-    });
-    await vi.advanceTimersByTimeAsync(10_000);
-    const response = await pending;
+    const { ms, value: response } = await timeToSettle(
+      () => request('/series/1396'),
+      10_000,
+    );
 
     expect(response.status).toBe(500);
     // 5 s + 0.25 s + the 2.75 s left of the 8 s deadline
-    expect(settledAt - started).toBeLessThanOrEqual(READ_RETRY_DEADLINE);
+    expect(ms).toBeLessThanOrEqual(READ_RETRY_DEADLINE);
     expect(tmdbCalls('/tv/1396')).toBe(2);
   });
 });

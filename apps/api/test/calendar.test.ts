@@ -2,7 +2,7 @@ import type { Calendar } from '@tvseri.es/schemas';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { db } from './db';
-import { onTmdb } from './fakeHttp';
+import { onTmdb, requestedUrls, resetRequests } from './fakeHttp';
 import { fakeShow } from './fixtures/tmdb';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
@@ -153,8 +153,9 @@ describe('calendar', () => {
       ),
     );
 
-    // 42: finished, its next season premieres in March
-    fakeShow({
+    // 42: finished, its next season premieres in March and the one after
+    // is listed for September: both come from one batched call
+    const show42 = fakeShow({
       extra: {
         last_episode_to_air: episode(2, 8, '2025-06-01'),
         next_episode_to_air: episode(3, 1, '2027-03-04'),
@@ -164,10 +165,19 @@ describe('calendar', () => {
         { airDate: '2024-04-01', episodes: 8 },
         { airDate: '2025-04-13', episodes: 8 },
         { airDate: '2027-03-04', aired: 0, episodes: 2 },
+        { airDate: '2027-09-02', aired: 0, episodes: 2 },
       ],
       status: 'Returning Series',
     });
-    season(42, 3, [episode(3, 1, '2027-03-04'), episode(3, 2, '2027-03-11')]);
+    onTmdb('/tv/42', {
+      ...show42,
+      'season/3': {
+        episodes: [episode(3, 1, '2027-03-04'), episode(3, 2, '2027-03-11')],
+      },
+      'season/4': {
+        episodes: [episode(4, 1, '2027-09-02'), episode(4, 2, '2027-09-09')],
+      },
+    });
 
     // 50: watching but hidden
     fakeShow({
@@ -192,7 +202,27 @@ describe('calendar', () => {
       },
     ]);
 
+    resetRequests();
     const result = await calendar();
+    // Cold: facts per show, one season read per airing show (42's two
+    // seasons in one call), one provider read per show on the calendar
+    const tmdbPaths = requestedUrls()
+      .filter((url) => url.host === 'api.themoviedb.org')
+      .map((url) => url.pathname.replace('/3', ''))
+      .sort();
+    expect(tmdbPaths).toEqual(
+      [
+        ...['/tv/10', '/tv/20', '/tv/30', '/tv/42', '/tv/42', '/tv/50'],
+        ...['/tv/10/season/2', '/tv/20/season/1', '/tv/30/season/2'],
+        ...[10, 20, 30, 42].map((id) => `/tv/${id}/watch/providers`),
+      ].sort(),
+    );
+    // Warm: no TMDB call at all
+    resetRequests();
+    expect(await calendar()).toEqual(result);
+    expect(
+      requestedUrls().filter((url) => url.host === 'api.themoviedb.org'),
+    ).toEqual([]);
 
     expect(result).toMatchObject({
       from: '2026-11-01',
@@ -272,6 +302,12 @@ describe('calendar', () => {
     ]);
     expect(day(result, '2027-03-04')?.tickets[0]).toMatchObject({
       kind: 'season-premiere',
+      season: 3,
+      seriesId: 42,
+    });
+    expect(day(result, '2027-09-02')?.tickets[0]).toMatchObject({
+      kind: 'season-premiere',
+      season: 4,
       seriesId: 42,
     });
     // Before this month: not on it
@@ -333,6 +369,16 @@ describe('calendar', () => {
     renewedShow(44, ['2025-01-01', '2025-11-01'], 10);
     // Renewed with nothing listed
     renewedShow(41, ['2024-03-01', '2025-03-01'], 0);
+    // TMDB's last aired is a special: its aired season 1 is not "listed"
+    fakeShow({
+      extra: {
+        last_episode_to_air: episode(0, 1, '2025-12-24'),
+        next_episode_to_air: null,
+      },
+      id: 45,
+      seasons: [{ airDate: '2025-10-01', episodes: 8 }],
+      status: 'Returning Series',
+    });
     // Ended: never waits
     fakeShow({
       id: 43,
@@ -343,6 +389,7 @@ describe('calendar', () => {
       listItem('WATCHED', 40, 400),
       listItem('WATCHED', 44, 300),
       listItem('WATCHED', 41, 200),
+      listItem('WATCHED', 45, 150),
       listItem('WATCHED', 43, 100),
     ]);
 
@@ -361,6 +408,7 @@ describe('calendar', () => {
     ]);
     expect(noDateYet.renewed).toEqual([
       expect.objectContaining({ lastAired: '2025-09-14', seriesId: 41 }),
+      expect.objectContaining({ seriesId: 45 }),
     ]);
     expect(noDateYet.renewed[0]).not.toHaveProperty('listedEpisodes');
   });

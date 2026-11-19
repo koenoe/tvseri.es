@@ -10,14 +10,25 @@ import {
   firstSeasonAfter,
   isOver,
   startOfDayUtc,
+  todayUtc,
 } from '@tvseri.es/utils';
 import { getAllListItems } from '@/lib/db/list';
 import { episodeKindOf } from '@/lib/episodeKind';
 import { getSeriesFacts } from '@/lib/seriesFacts';
 
-/** The season that is coming: an announced unaired one, else the one after the last aired */
-const nextSeasonOf = (facts: SeriesFacts) => {
-  const lastSeason = facts.lastEpisodeToAir?.seasonNumber ?? 0;
+/**
+ * The season that is coming: an announced unaired one, else the one after
+ * the last aired. The last aired is the later of TMDB's last episode's
+ * season and the last season that has started: a special as TMDB's last
+ * episode leaves the facts without one.
+ */
+const nextSeasonOf = (facts: SeriesFacts, today: string) => {
+  const lastSeason = Math.max(
+    facts.lastEpisodeToAir?.seasonNumber ?? 0,
+    ...facts.seasons
+      .filter((season) => season.airDate && season.airDate <= today)
+      .map((season) => season.seasonNumber),
+  );
   return (
     firstSeasonAfter(
       facts.seasons.map((season) => season.seasonNumber),
@@ -40,6 +51,7 @@ const buildWaitingFor = (
   now: number,
 ): WaitingFor => {
   const today = startOfDayUtc(now);
+  const todayDate = todayUtc(now);
   const dated: WaitingForItem[] = [];
   const renewed: Array<
     Readonly<{
@@ -78,11 +90,16 @@ const buildWaitingFor = (
         state: 'dated',
       });
     } else {
-      const nextSeason = nextSeasonOf(showFacts);
-      // The facts list only seasons with episodes: a listed one has them
-      const listedEpisodes = showFacts.seasons.find(
+      const nextSeason = nextSeasonOf(showFacts, todayDate);
+      // The facts list only seasons with episodes: a listed one has them,
+      // and no date that has passed
+      const listed = showFacts.seasons.find(
         (season) => season.seasonNumber === nextSeason,
-      )?.episodeCount;
+      );
+      const listedEpisodes =
+        listed && (!listed.airDate || listed.airDate > todayDate)
+          ? listed.episodeCount
+          : undefined;
       const lastAired = showFacts.lastEpisodeToAir?.airDate;
       renewed.push({
         favourite: favourites.has(show.id),

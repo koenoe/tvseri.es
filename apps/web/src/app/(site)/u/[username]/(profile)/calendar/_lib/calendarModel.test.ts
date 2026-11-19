@@ -1,7 +1,13 @@
 import type { CalendarShow } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
-import { buildCalendar, type CalendarData, pickDay } from './calendarModel';
+import {
+  buildCalendar,
+  type CalendarData,
+  dayLabel,
+  pickDay,
+  todayName,
+} from './calendarModel';
 
 const show = (seriesId: number, title: string): CalendarShow => ({
   onWatchlist: false,
@@ -120,6 +126,16 @@ describe('the calendar grid', () => {
     expect(double?.episodes).toBe(2);
   });
 
+  it('gives each show of a day one mark, in the API order: its premiere, finale or a plain episode', () => {
+    expect(calendar.days.get('2026-12-04')?.marks).toEqual([
+      'premiere',
+      'premiere',
+      null,
+    ]);
+    expect(calendar.days.get('2026-12-15')?.marks).toEqual(['premiere']);
+    expect(calendar.days.get('2026-11-25')?.marks).toEqual([null]);
+  });
+
   it('opens a day of the next month there, once the grid has slid over', () => {
     expect(pickDay(calendar, '2026-11', '2026-12-04')).toEqual({
       day: '2026-12-04',
@@ -135,5 +151,25 @@ describe('the calendar grid', () => {
 
   it('leaves a day with nothing on it closed', () => {
     expect(pickDay(calendar, '2026-11', '2026-11-21')).toBeNull();
+  });
+});
+
+describe('the calendar in words', () => {
+  const calendar = buildCalendar(DATA);
+
+  it('names a day in the UK order, with what airs', () => {
+    expect(dayLabel(calendar, '2026-11-20', null)).toBe(
+      'Friday 20 November, 1 show: The Gilded Age',
+    );
+    expect(dayLabel(calendar, '2026-11-21', null)).toBe(
+      'Saturday 21 November, nothing airs',
+    );
+    expect(dayLabel(calendar, '2026-12-15', '2026-12')).toBe(
+      'Tuesday 15 December, 1 show · 6 episodes · 1 premiere: Shōgun (opens December)',
+    );
+  });
+
+  it('names Today by its date', () => {
+    expect(todayName(calendar)).toBe('Today, Thursday 19 November');
   });
 });

@@ -17,9 +17,9 @@ import {
 } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
-import { formatAirWeekdayDate } from '@/lib/format/airDate';
 import scrollBehavior from '@/lib/media/scrollBehavior';
 
+import { shortDay } from '../_lib/calendarDates';
 import type { CalendarDayModel } from '../_lib/calendarModel';
 import DayHeader from './DayHeader';
 import DayTickets from './DayTickets';
@@ -163,14 +163,14 @@ export default function DayPopover({
         {previous ? (
           <button className={STEP} onClick={goPrevious} type="button">
             <Icon glyph={chevronLeftGlyph} size={16} />
-            {formatAirWeekdayDate(previous, now)}
+            {shortDay(previous, now)}
           </button>
         ) : (
           <span />
         )}
         {next ? (
           <button className={STEP} onClick={goNext} type="button">
-            {formatAirWeekdayDate(next, now)}
+            {shortDay(next, now)}
             <Icon glyph={chevronRightGlyph} size={16} />
           </button>
         ) : null}

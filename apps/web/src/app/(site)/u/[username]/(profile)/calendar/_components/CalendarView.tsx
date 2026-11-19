@@ -24,6 +24,7 @@ import {
   monthSummary,
   nearDated,
   pickDay,
+  todayName,
 } from '../_lib/calendarModel';
 import { useCalendarUrl, writeCalendarUrl } from '../_lib/calendarUrl';
 import { MONTH_PANEL } from './calendarStyles';
@@ -65,12 +66,18 @@ export default function CalendarView({
   const openIso = url.day && calendar.days.has(url.day) ? url.day : null;
   const phone = useMediaQuery(PHONE);
   const headingId = useId();
+  // one per month: the leaving month's summary keeps its own while it slides out
+  const summaryBase = useId();
+  const summaryId = `${summaryBase}${month}`;
   const stage = useRef<HTMLDivElement>(null);
 
   // which way the grid slides; today's pulse only until the first move
   const [seen, setSeen] = useState({ direction: 1, month, moved: false });
+  // Today's presses on this month; a new month starts again (no replay)
+  const [flash, setFlash] = useState(0);
   if (seen.month !== month) {
     setSeen({ direction: month > seen.month ? 1 : -1, month, moved: true });
+    setFlash(0);
   }
 
   const [focus, setFocus] = useState<string | null>(null);
@@ -114,8 +121,15 @@ export default function CalendarView({
     }
   };
   const onMonth = (step: -1 | 1) => go(addMonths(month, step), null);
+  // another month: back with the arrows' slide, focus stays on Today and
+  // today becomes the grid's Tab stop; this month: focus today, flash it
   const onToday = () => {
-    focusOn(today);
+    if (month === todayMonth) {
+      focusOn(today);
+      setFlash((count) => count + 1);
+    } else {
+      setFocus(today);
+    }
     go(todayMonth, null);
   };
   const close = (refocus: boolean) => {
@@ -166,6 +180,7 @@ export default function CalendarView({
   const canPrevious = coversMonth(calendar, addMonths(month, -1));
   const canNext = coversMonth(calendar, addMonths(month, 1));
   const emptyAhead = !datedFrom(calendar, month);
+  const todayLabel = todayName(calendar);
 
   return (
     <>
@@ -180,13 +195,17 @@ export default function CalendarView({
             onMonth={onMonth}
             onToday={onToday}
             summary={summary}
+            summaryId={summaryId}
+            todayLabel={todayLabel}
           />
           {emptyAhead ? (
             <EmptyMonth month={month} noDateYet={noDateYet} />
           ) : null}
           <MonthGrid
             calendar={calendar}
+            describedBy={summaryId}
             direction={seen.direction}
+            flash={flash}
             focusDay={focusDay}
             labelledBy={headingId}
             month={month}

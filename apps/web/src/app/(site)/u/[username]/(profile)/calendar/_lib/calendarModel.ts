@@ -5,9 +5,7 @@ import type {
 } from '@tvseri.es/schemas';
 import { plural } from '@tvseri.es/utils';
 
-import { spokenAirDate } from '@/lib/format/airDate';
-
-import { monthName, monthOf } from './calendarDates';
+import { monthName, monthOf, spokenDay } from './calendarDates';
 
 /** What the page hands the grid: everything but No date yet */
 export type CalendarData = Omit<Calendar, 'noDateYet'>;
@@ -33,8 +31,13 @@ export type CalendarDayModel = Readonly<{
   /** Every episode that day, across its shows: the cell's ×N */
   episodes: number;
   /** The lead's premiere dot or finale ring */
-  mark: 'premiere' | 'finale' | null;
+  mark: DayMark;
+  /** One per show, in the API's order: the phone's dots */
+  marks: ReadonlyArray<DayMark>;
 }>;
+
+/** A premiere's dot, a finale's ring, or null: a plain episode */
+export type DayMark = 'premiere' | 'finale' | null;
 
 export type CalendarModel = Readonly<{
   today: string;
@@ -46,12 +49,11 @@ export type CalendarModel = Readonly<{
   dated: ReadonlyArray<string>;
 }>;
 
-const MARK: Readonly<Record<CalendarTicket['kind'], CalendarDayModel['mark']>> =
-  {
-    episode: null,
-    'season-finale': 'finale',
-    'season-premiere': 'premiere',
-  };
+const MARK: Readonly<Record<CalendarTicket['kind'], DayMark>> = {
+  episode: null,
+  'season-finale': 'finale',
+  'season-premiere': 'premiere',
+};
 
 export function buildCalendar(data: CalendarData): CalendarModel {
   const shows = new Map(data.shows.map((show) => [show.seriesId, show]));
@@ -69,14 +71,17 @@ export function buildCalendar(data: CalendarData): CalendarModel {
       (sum, { ticket }) => sum + ticket.episodes.length,
       0,
     );
-    const others = [
-      ...new Map(
-        tickets
-          .filter(({ show }) => show.seriesId !== first.show.seriesId)
-          .map(({ show }) => [show.seriesId, show]),
-      ).values(),
-    ];
-    const behind = others.slice(0, 2).map((show) => show.posterImage || null);
+    // each show once, as its first ticket (premieres and finales lead)
+    const perShow = new Map<number, DayTicket>();
+    for (const entry of tickets) {
+      if (!perShow.has(entry.show.seriesId)) {
+        perShow.set(entry.show.seriesId, entry);
+      }
+    }
+    const shown = [...perShow.values()];
+    const behind = shown
+      .slice(1, 3)
+      .map(({ show }) => show.posterImage || null);
     days.set(day.date, {
       behind,
       date: day.date,
@@ -84,6 +89,7 @@ export function buildCalendar(data: CalendarData): CalendarModel {
       episodes,
       lead: first.show,
       mark: MARK[first.ticket.kind],
+      marks: shown.map(({ ticket }) => MARK[ticket.kind]),
       tickets,
     });
   }
@@ -213,8 +219,12 @@ export function datedMonths(
 export const datedFrom = (calendar: CalendarModel, month: string) =>
   calendar.dated.some((iso) => monthOf(iso) >= month);
 
+/** Today's button: "Today, Thursday 19 November" */
+export const todayName = (calendar: CalendarModel) =>
+  `Today, ${spokenDay(calendar.today)}`;
+
 /**
- * A day's name for its button: "Friday December 4, 4 shows · 3 premieres:
+ * A day's name for its button: "Friday 4 December, 4 shows · 3 premieres:
  * Silo, Slow Horses, The Studio, The Gilded Age"; ", nothing airs" for an
  * empty day still to come; a day of another month says it opens there
  */
@@ -231,5 +241,5 @@ export function dayLabel(
       ? ''
       : ', nothing airs';
   const opens = opensMonth ? ` (opens ${monthName(opensMonth)})` : '';
-  return `${spokenAirDate(iso)}${what}${opens}`;
+  return `${spokenDay(iso)}${what}${opens}`;
 }

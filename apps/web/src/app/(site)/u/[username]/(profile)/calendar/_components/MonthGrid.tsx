@@ -18,7 +18,7 @@ import {
   coversMonth,
   dayLabel,
 } from '../_lib/calendarModel';
-import { WEEK, WEEKS } from './calendarStyles';
+import { WEEK_ROW, WEEKS } from './calendarStyles';
 import DayCell from './DayCell';
 import WeekdayRow from './WeekdayRow';
 
@@ -79,7 +79,9 @@ const dayOf = (target: EventTarget) =>
  */
 export default function MonthGrid({
   calendar,
+  describedBy,
   direction,
+  flash,
   focusDay,
   labelledBy,
   month,
@@ -89,7 +91,11 @@ export default function MonthGrid({
   pulse,
 }: Readonly<{
   calendar: CalendarModel;
+  /** The month's summary */
+  describedBy: string;
   direction: number;
+  /** Today's presses on this month: today's cell flashes on each */
+  flash: number;
   /** The month's Tab stop */
   focusDay: string;
   labelledBy: string;
@@ -123,6 +129,7 @@ export default function MonthGrid({
   );
   return (
     <div
+      aria-describedby={describedBy}
       aria-labelledby={labelledBy}
       className={WEEKS}
       onClick={onClick}
@@ -142,7 +149,7 @@ export default function MonthGrid({
             variants={SLIDE}
           >
             {weeks.map((week) => (
-              <div className={WEEK} key={week[0]} role="row">
+              <div className={WEEK_ROW} key={week[0]} role="row">
                 {week.map((iso) => {
                   const inMonth = monthOf(iso) === month;
                   const day = calendar.days.get(iso);
@@ -150,6 +157,7 @@ export default function MonthGrid({
                     !inMonth &&
                     day !== undefined &&
                     coversMonth(calendar, monthOf(iso));
+                  const today = iso === calendar.today;
                   const label = dayLabel(
                     calendar,
                     iso,
@@ -158,6 +166,7 @@ export default function MonthGrid({
                   return (
                     <DayCell
                       day={day}
+                      flash={today ? flash : 0}
                       inMonth={inMonth}
                       iso={iso}
                       key={iso}
@@ -168,7 +177,7 @@ export default function MonthGrid({
                       pulse={pulse}
                       reachable={reachable}
                       tabbable={iso === focusDay}
-                      today={iso === calendar.today}
+                      today={today}
                     />
                   );
                 })}

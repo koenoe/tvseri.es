@@ -1,11 +1,11 @@
 import { closeGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
-import { spokenAirDate } from '@/lib/format/airDate';
 
+import { spokenDay } from '../_lib/calendarDates';
 import { type CalendarDayModel, daySummary } from '../_lib/calendarModel';
 
 /**
- * The popover's and the sheet's head: the day ("Friday December 4"), what
+ * The popover's and the sheet's head: the day ("Friday 4 December"), what
  * it holds ("4 shows · 3 premieres") and the close button (a 40px reach)
  */
 export default function DayHeader({
@@ -24,7 +24,7 @@ export default function DayHeader({
           className="text-[16px] leading-6 font-semibold text-balance"
           id={titleId}
         >
-          {spokenAirDate(day.date)}
+          {spokenDay(day.date)}
         </h3>
         <p className="text-caption text-white/60 tabular-nums">
           {daySummary(day)}

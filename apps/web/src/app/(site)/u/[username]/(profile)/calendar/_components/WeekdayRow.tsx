@@ -16,7 +16,7 @@ export default function WeekdayRow() {
     <div className={WEEK} role="row">
       {WEEKDAYS.map((name) => (
         <div
-          className="px-2.5 pb-0.5 text-overline leading-4 text-white/60 uppercase max-md:px-0 max-md:text-center max-md:text-[10px]"
+          className="px-2.5 pb-0.5 text-overline leading-4 text-white/60 uppercase max-md:px-0 max-md:pb-0 max-md:text-center max-md:text-[11px] max-md:leading-6"
           key={name}
           role="columnheader"
         >

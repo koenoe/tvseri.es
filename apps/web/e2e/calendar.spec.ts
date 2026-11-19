@@ -44,6 +44,19 @@ test('Coming up leads to the calendar, where today opens its tickets', async ({
   await expect(day).toBeHidden();
   await expect(today).toBeFocused();
   await expect(page).not.toHaveURL(/day=/);
+
+  // Today, named by its date in the UK order: from another month it goes
+  // back and keeps focus; on this month it moves focus to today's cell
+  const back = page.getByRole('button', {
+    name: /^Today, \w+day \d{1,2} [A-Z][a-z]+$/,
+  });
+  await page.getByRole('button', { name: 'Next month' }).click();
+  await expect(page).toHaveURL(/[?&]month=/);
+  await back.click();
+  await expect(page).not.toHaveURL(/month=/);
+  await expect(back).toBeFocused();
+  await back.click();
+  await expect(today).toBeFocused();
 });
 
 test('someone else’s calendar goes to their profile', async ({ page }) => {
@@ -73,6 +86,8 @@ test.describe('on a phone', () => {
       },
       { baseURL },
     );
+    // the phone's header is the month and ‹ › only
+    await expect(page.getByRole('button', { name: /^Today/ })).toBeHidden();
     await page.getByRole('grid').locator('[aria-current="date"]').click();
     const sheet = page.getByRole('dialog');
     await expect(

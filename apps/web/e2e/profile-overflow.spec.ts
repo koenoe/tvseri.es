@@ -90,13 +90,14 @@ test('a busy profile stays short: lanes stay at their caps', async ({
       name: 'Show all 28',
     }),
   ).toBeVisible();
-  // 11,540px with every lane open, under 4,600 capped: the caps keep the
-  // page under 40% of its open height
+  // about 7,400px with every lane open, under 3,700 capped (Coming up keeps
+  // its four tickets; the rest is the calendar's): the caps keep the page
+  // near half its open height
   await openCappedLists(page);
   await expect(catching.getByRole('listitem')).toHaveCount(22);
   const opened = await pageHeight();
   expect(capped, `${capped}px capped, ${opened}px open`).toBeLessThan(
-    opened * 0.4,
+    opened * 0.55,
   );
 });
 

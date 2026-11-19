@@ -87,7 +87,7 @@ Hono on Lambda behind an SST Router (CloudFront), deployed as two functions with
 
 Upstreams: TMDB (series data, watch providers via JustWatch), OMDb (IMDb ratings), MDBList (our curated lists only). Each has a circuit breaker and a per-instance budget (`src/lib/upstream`); answers are cached and served stale while they refresh.
 
-`src/lambdas/` holds the non-HTTP handlers: DynamoDB stream subscribers (`watched`: lists and per-show summaries; `follow`), the Plex scrobble, metrics, account-deletion and import-undo queues, dominant-color extraction, and daily crons (watched-status validation and summary repair, metrics aggregation).
+`src/lambdas/` holds the non-HTTP handlers: DynamoDB stream subscribers (`watched`: lists and per-show summaries; `follow`), the Plex scrobble, the streaming-service history sync (`connectionSync`: one resumable loop for every connected service, each read through its reader in `src/lib/connections/readers.ts`; queued nightly for every connection by `connectionSyncNightly`, and once by the viewer right after connecting; the only function that may decrypt stored sessions), metrics, account-deletion and import-undo queues, dominant-color extraction, and daily crons (watched-status validation and summary repair, metrics aggregation, the nightly connection sync).
 
 ## Infrastructure
 
@@ -137,5 +137,6 @@ Load these when the task touches their area (installed in `.claude/skills`, pinn
 - **valibot**: schemas in `packages/schemas` and validation.
 - **amazon-dynamodb**, **aws-sdk-js-v3-usage**, **aws-serverless**: tables, SDK calls, Lambdas and queues.
 - **turborepo**: pipeline and workspace config.
+- **chrome-extensions**: the tvseri.es browser extension (Manifest V3, Chrome Web Store).
 
 User-invoked only: `/improve-codebase-architecture`, `/grill-with-docs`.

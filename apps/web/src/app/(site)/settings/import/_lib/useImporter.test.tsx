@@ -124,7 +124,7 @@ const runOf = (hook: Hook) => {
   return state.run;
 };
 
-/** "Two shows with this name": Top Boy (2019) picked for both rows. */
+/** "Which series?": Top Boy (2019) picked for both rows. */
 const pickTopBoy = (hook: Hook) => {
   const { state } = hook.result.current;
   const rows = state.step === 'import' ? state.prepared.rows : [];

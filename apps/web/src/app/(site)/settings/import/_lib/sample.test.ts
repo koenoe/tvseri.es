@@ -1,9 +1,8 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-
+import { createEpisodeMatcher } from '@tvseri.es/import';
 import Papa from 'papaparse';
 import { describe, expect, it } from 'vitest';
-import { createEpisodeMatcher } from '@/lib/import/matcher';
 import {
   searchCatalogue,
   specById,

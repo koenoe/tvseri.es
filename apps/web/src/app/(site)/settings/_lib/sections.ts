@@ -11,7 +11,7 @@ export type SettingsSectionId =
   | 'profile'
   | 'services'
   | 'import'
-  | 'plex'
+  | 'connected-apps'
   | 'data';
 
 export type SettingsSection = Readonly<{
@@ -43,8 +43,8 @@ export const SETTINGS_SECTIONS: ReadonlyArray<SettingsSection> = [
   },
   {
     glyph: plugGlyph,
-    href: '/settings/plex',
-    id: 'plex',
+    href: '/settings/connected-apps',
+    id: 'connected-apps',
     label: 'Connected apps',
   },
   {

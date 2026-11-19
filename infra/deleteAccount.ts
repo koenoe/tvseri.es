@@ -3,6 +3,7 @@
 import { alarmOnDeadLetters } from './alerts';
 import { auth } from './auth';
 import { productionReserved } from './concurrency';
+import { connections } from './connections';
 import * as dynamo from './dynamo';
 
 /** Account deletion's queued steps: apps/api/src/lib/account/README.md */
@@ -49,6 +50,7 @@ deleteAccountQueue.subscribe(
     // Only the tables it deletes from, and its own queue for the next steps
     link: [
       authSignIns,
+      connections,
       deleteAccountQueue,
       dynamo.cache,
       dynamo.follow,

@@ -1,4 +1,3 @@
-import { episodeCode } from '@tvseri.es/schemas';
 import { plural } from '@tvseri.es/utils';
 
 import type {
@@ -7,9 +6,15 @@ import type {
   SeriesCandidate,
 } from '@/lib/import/contract';
 import type { SearchShow } from '@/lib/search/searchView';
-import type { NotFoundHandlers } from '../_components/NotFoundItem';
-import type { ImportStep, PickedFix } from './importState';
-import type { ProblemItem } from './problems';
+import type { PickedFix } from '../../_components/problems/fix';
+import type { NotFoundHandlers } from '../../_components/problems/NotFoundItem';
+import {
+  type ProblemItem,
+  pickedEpisodeLabel,
+  pickedSeriesLabel,
+  seriesLabel,
+} from '../../_components/problems/problems';
+import type { ImportStep } from './importState';
 import type { Importer } from './useImporter';
 
 const picked = (label: string, rows: number): PickedFix => ({
@@ -47,11 +52,7 @@ export function useProblemFixes(importer: Importer, state: ImportStep) {
     });
   };
   const onPickCandidate = (item: ProblemItem, candidate: SeriesCandidate) =>
-    pickSeries(
-      item,
-      candidate.id,
-      candidate.year ? `${item.query} (${candidate.year})` : candidate.title,
-    );
+    pickSeries(item, candidate.id, pickedSeriesLabel(item, candidate));
   const skipItem = (item: ProblemItem) =>
     importer.skip({
       keys: [item.key],
@@ -65,7 +66,7 @@ export function useProblemFixes(importer: Importer, state: ImportStep) {
       if (!series) {
         return;
       }
-      const label = `${series.title} ${episodeCode(episode)}`;
+      const label = pickedEpisodeLabel(series, episode);
       const rows = rowsFor(item, {
         episodeNumber: episode.episodeNumber,
         seasonNumber: episode.seasonNumber,
@@ -79,11 +80,7 @@ export function useProblemFixes(importer: Importer, state: ImportStep) {
       });
     },
     onPickShow: (item: ProblemItem, show: SearchShow) =>
-      pickSeries(
-        item,
-        show.id,
-        show.releaseYear ? `${show.title} (${show.releaseYear})` : show.title,
-      ),
+      pickSeries(item, show.id, seriesLabel(show.title, show.releaseYear)),
     onRetry: (item: ProblemItem) => {
       const rows = rowsFor(item, {});
       importer.pick({

@@ -2,8 +2,13 @@ import { plural, regionName } from '@tvseri.es/utils';
 
 import { importedEpisodes } from '@/lib/import/lastImport';
 
+import { loadConnectionStatuses } from '../_data/connections';
 import { loadPlexStatus } from '../_data/plex';
 import { getSettingsSession, getSettingsViewer } from '../_data/session';
+import {
+  connectedAppsSummary,
+  connectedAppsText,
+} from '../_lib/connectedAppsLine';
 import { plexStateOf } from '../_lib/plexState';
 import type { SettingsSectionId } from '../_lib/sections';
 import LocalMoment from './LocalMoment';
@@ -38,25 +43,23 @@ async function ImportLine() {
   return 'Netflix, Prime Video or any CSV';
 }
 
-async function PlexLine() {
+async function ConnectedAppsLine() {
   const { accessToken } = await getSettingsViewer();
-  const status = await loadPlexStatus(accessToken);
-  if (!status) {
-    return 'Plex';
+  const [plex, services] = await Promise.all([
+    loadPlexStatus(accessToken),
+    loadConnectionStatuses(accessToken),
+  ]);
+  const summary = connectedAppsSummary(plex, services);
+  // Plex alone, receiving: when the last play arrived
+  if (
+    summary.kind === 'one' &&
+    plex?.connected &&
+    plexStateOf(plex) === 'on' &&
+    plex.lastReceivedAt !== null
+  ) {
+    return <LocalMoment at={plex.lastReceivedAt} prefix="Plex receiving · " />;
   }
-  const state = plexStateOf(status);
-  if (state === 'on' && status.connected && status.lastReceivedAt !== null) {
-    return (
-      <LocalMoment at={status.lastReceivedAt} prefix="Plex receiving · " />
-    );
-  }
-  return {
-    broken: 'Plex not working',
-    none: 'Plex not connected',
-    on: 'Plex receiving',
-    paused: 'Plex paused',
-    wait: 'Plex waiting',
-  }[state];
+  return connectedAppsText(summary);
 }
 
 /** A row's state line, read inside its hole. */
@@ -70,8 +73,8 @@ export default function NavStateLine({
       return <ServicesLine />;
     case 'import':
       return <ImportLine />;
-    case 'plex':
-      return <PlexLine />;
+    case 'connected-apps':
+      return <ConnectedAppsLine />;
     case 'data':
       return 'Export or delete';
   }

@@ -494,3 +494,62 @@ describe('the sign-ins', () => {
     expect(keysOf('AuthSignIns')).toEqual([`${other.pk}|${other.sk}`]);
   });
 });
+
+describe('the streaming connections', () => {
+  it('go with the account at once (stored sign-ins, the review list, the live code), another user’s stay', async () => {
+    seedEverything();
+    const connection = (userId: string) => ({
+      pk: `USER#${userId}`,
+      secret: 'v1.sealed',
+      service: 'netflix',
+      sk: 'SERVICE#netflix',
+      userId,
+    });
+    db.seed('Connections', [
+      connection(USER_ID),
+      connection(OTHER_USER_ID),
+      { pk: `USER#${USER_ID}`, sk: 'UNRESOLVED#netflix#80001' },
+      { pk: `USER#${USER_ID}`, sk: 'CLOSED#netflix#80002' },
+      { count: 1, pk: `USER#${USER_ID}`, sk: 'UNRESOLVEDCOUNT#netflix' },
+      {
+        code: '1234',
+        expiresAt: Date.now() + 60_000,
+        pk: `USER#${USER_ID}`,
+        sk: 'LINKCODE',
+      },
+      {
+        expiresAt: Date.now() + 60_000,
+        pk: 'CODE#1234',
+        sk: 'CODE',
+        userId: USER_ID,
+      },
+      {
+        expiresAt: Date.now() + 60_000,
+        pk: 'CODE#5678',
+        sk: 'CODE',
+        userId: OTHER_USER_ID,
+      },
+    ]);
+    await request('/me', {
+      as: USER_ID,
+      body: { confirm: 'wren' },
+      method: 'DELETE',
+    });
+
+    // The first step already takes them
+    await runQueue();
+    expect(keysOf('Connections').sort()).toEqual([
+      'CODE#5678|CODE',
+      `USER#${OTHER_USER_ID}|SERVICE#netflix`,
+    ]);
+
+    // A link that lands during the window goes with the sweep
+    db.seed('Connections', [connection(USER_ID)]);
+    await runQueue();
+    await runQueue();
+    expect(keysOf('Connections').sort()).toEqual([
+      'CODE#5678|CODE',
+      `USER#${OTHER_USER_ID}|SERVICE#netflix`,
+    ]);
+  });
+});

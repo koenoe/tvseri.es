@@ -3,11 +3,11 @@
 import { historyGlyph, infoGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import Dot from '@/components/ui/lane/Dot';
-
+import { LINK } from '../../_components/problems/styles';
 import type { ColumnMapping } from '../_lib/columns';
 import { FIELDS } from '../_lib/copy';
 import FieldRow, { type ColumnsProps } from './FieldRow';
-import { CARD_COUNT, CARD_HEAD, CARD_TITLE, LINK } from './styles';
+import { CARD_COUNT, CARD_HEAD, CARD_TITLE } from './styles';
 
 type Props = ColumnsProps;
 

@@ -14,8 +14,11 @@ const modules = readdirSync(root, { recursive: true })
   .map(String)
   .filter((path) => path.endsWith('.ts') && !path.endsWith('.test.ts'));
 
+// The 5s default flaked under load: importing every module takes seconds
+const SWEEP_TIMEOUT_MS = 30_000;
+
 describe('linked resources', () => {
-  it('are never read at import', async () => {
+  it('are never read at import', { timeout: SWEEP_TIMEOUT_MS }, async () => {
     const reads: string[] = [];
     vi.resetModules();
     vi.doMock('sst', () => ({

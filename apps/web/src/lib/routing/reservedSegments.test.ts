@@ -68,7 +68,7 @@ describe('the static 404 rewrite', () => {
     '/1396/breaking-bad',
     '/0123/x',
     '/discover',
-    '/settings/plex',
+    '/settings/connected-apps',
     '/api/auth/callback',
     '/robots.txt',
     '/_next/static/chunk.js',

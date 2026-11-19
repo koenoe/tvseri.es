@@ -37,3 +37,30 @@ export const PLEX_WATCH_PROVIDER = {
   logoPath: '/vLZKlXUNDcZR7ilvfY9Wr9k80FZ.jpg',
   name: 'Plex',
 } as const;
+
+/**
+ * Where a Netflix sync says it was watched: TMDB's Netflix provider, so a
+ * synced episode reads like one marked by hand with Netflix picked
+ */
+export const NETFLIX_WATCH_PROVIDER = {
+  id: 8,
+  logo: '',
+  logoPath: '/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg',
+  name: 'Netflix',
+} as const;
+
+/** Where a BBC iPlayer sync says it was watched: TMDB's BBC iPlayer provider */
+export const BBC_IPLAYER_WATCH_PROVIDER = {
+  id: 38,
+  logo: '',
+  logoPath: '/nc8Tpsr8SqCbsTUogPDD06gGzB3.jpg',
+  name: 'BBC iPlayer',
+} as const;
+
+/** Where a Prime Video sync says it was watched: TMDB's Amazon Prime Video provider */
+export const PRIME_VIDEO_WATCH_PROVIDER = {
+  id: 9,
+  logo: '',
+  logoPath: '/pvske1MyAoymrs5bguRfVqYiM9a.jpg',
+  name: 'Amazon Prime Video',
+} as const;

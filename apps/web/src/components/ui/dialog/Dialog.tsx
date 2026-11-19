@@ -65,6 +65,7 @@ export function Dialog({
   description,
   onOpenChange,
   open,
+  restoreFocus,
   title,
   variant = 'tinted',
 }: Readonly<{
@@ -73,6 +74,8 @@ export function Dialog({
   description?: ReactNode;
   onOpenChange: (open: boolean) => void;
   open: boolean;
+  /** Where focus goes on close when nothing opened it (a deep link) */
+  restoreFocus?: () => HTMLElement | null;
   /** Required: names the dialog (aria-labelledby). */
   title: ReactNode;
   variant?: DialogVariant;
@@ -94,6 +97,7 @@ export function Dialog({
       onOpenChange={onOpenChange}
       open={open}
       panelClassName={panel}
+      restoreFocus={restoreFocus}
     >
       <SheetHandle className={HANDLE} />
       <header className="flex items-start gap-4">

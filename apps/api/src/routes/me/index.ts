@@ -27,6 +27,7 @@ import { readStartedIds } from '@/lib/rollups';
 import { getSeriesStates } from '@/lib/seriesStates';
 import { toWatchProvider } from '@/lib/watchProviders';
 import { requireAuth, type Variables } from '@/middleware/auth';
+import connections from './connections';
 import exportRoutes from './export';
 import home from './home';
 import imports from './imports';
@@ -174,6 +175,7 @@ app.put(
 
 app.route('/ledger', ledger);
 app.route('/person', person);
+app.route('/connections', connections);
 app.route('/export', exportRoutes);
 app.route('/home', home);
 app.route('/imports', imports);

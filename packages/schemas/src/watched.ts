@@ -1,4 +1,6 @@
 import * as v from 'valibot';
+
+import { CONNECTION_SERVICES, syncTagPrefix } from './connection-service';
 import { PositiveIdSchema } from './positive-id';
 import { WatchProviderSchema } from './watch-provider';
 
@@ -131,6 +133,20 @@ export const WatchedEpisodeEntrySchema = v.object({
  */
 export const ImportIdSchema = v.pipe(v.string(), v.uuid());
 
+/**
+ * Whether an import id is a sync's tag (`<service>-sync:<id>`, any service):
+ * a sync's writes carry one in place of an import id.
+ */
+export const isSyncTag = (tag: string): boolean =>
+  CONNECTION_SERVICES.some((service) => {
+    const prefix = syncTagPrefix(service);
+    return (
+      tag.startsWith(prefix) && v.is(ImportIdSchema, tag.slice(prefix.length))
+    );
+  });
+
+const SyncTagSchema = v.pipe(v.string(), v.check(isSyncTag));
+
 /** Most episodes one watched batch request takes (mark and unmark) */
 export const WATCHED_BATCH_MAX = 50;
 
@@ -138,9 +154,9 @@ export const CreateWatchedItemBatchSchema = v.pipe(
   v.array(
     v.object({
       ...WatchedEpisodeEntrySchema.entries,
-      // Undo of an unmark puts an imported episode back in its import; the
-      // API keeps it only for the caller's open last import
-      importId: v.optional(ImportIdSchema),
+      // Undo of an unmark puts an imported or synced episode back with its
+      // tag; the API keeps an import's only for the caller's open last import
+      importId: v.optional(v.union([ImportIdSchema, SyncTagSchema])),
       userId: boundedString(64),
     }),
   ),

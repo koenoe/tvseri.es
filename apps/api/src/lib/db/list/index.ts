@@ -1,5 +1,4 @@
 import {
-  ConditionalCheckFailedException,
   DeleteItemCommand,
   GetItemCommand,
   PutItemCommand,
@@ -18,6 +17,7 @@ import { buildPosterImageUrl } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 import { batchGet } from '../batch';
 import client from '../client';
+import { writeIf } from '../conditional';
 import { countQuery } from '../count';
 import { decodeCursor, encodeCursor } from '../cursor';
 import { prefsKey, toSeriesPrefs } from '../prefs';
@@ -420,9 +420,6 @@ const watchlistKey = (userId: string, id: number) => ({
   sk: listItemSk('WATCHLIST', id),
 });
 
-const isConditionFailure = (error: unknown) =>
-  error instanceof ConditionalCheckFailedException;
-
 /**
  * Takes a show off the watchlist because it is now being watched, and parks
  * the entry so that an unmark or Undo import that leaves nothing watched can
@@ -445,25 +442,19 @@ export const parkWatchlistItem = async (
     return;
   }
 
-  try {
-    await client.send(
-      new PutItemCommand({
-        ConditionExpression: 'attribute_not_exists(pk)',
-        Item: {
-          ...marshall({
-            ...parkedWatchlistKey(input.userId, input.id),
-            parkedAt: Date.now(),
-          }),
-          item: { M: Item },
-        },
-        TableName: Resource.Lists.name,
-      }),
-    );
-  } catch (error) {
-    if (!isConditionFailure(error)) {
-      throw error;
-    }
-  }
+  await writeIf(
+    new PutItemCommand({
+      ConditionExpression: 'attribute_not_exists(pk)',
+      Item: {
+        ...marshall({
+          ...parkedWatchlistKey(input.userId, input.id),
+          parkedAt: Date.now(),
+        }),
+        item: { M: Item },
+      },
+      TableName: Resource.Lists.name,
+    }),
+  );
 
   await client.send(
     new DeleteItemCommand({
@@ -499,19 +490,13 @@ export const restoreParkedWatchlistItem = async (
   // Only an intact copy of this show's watchlist item goes back
   const watchlist = watchlistKey(input.userId, input.id);
   if (original?.pk?.S === watchlist.pk && original.sk?.S === watchlist.sk) {
-    try {
-      await client.send(
-        new PutItemCommand({
-          ConditionExpression: 'attribute_not_exists(pk)',
-          Item: original,
-          TableName: Resource.Lists.name,
-        }),
-      );
-    } catch (error) {
-      if (!isConditionFailure(error)) {
-        throw error;
-      }
-    }
+    await writeIf(
+      new PutItemCommand({
+        ConditionExpression: 'attribute_not_exists(pk)',
+        Item: original,
+        TableName: Resource.Lists.name,
+      }),
+    );
   }
 
   await client.send(

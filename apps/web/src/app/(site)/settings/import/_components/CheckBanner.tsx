@@ -2,7 +2,7 @@ import Button from '@/components/ui/button/Button';
 import { checkGlyph, columnsGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
-import { SMALL_BUTTON } from './styles';
+import { SMALL_BUTTON } from '../../_components/problems/styles';
 
 const EDIT_BUTTON = `${SMALL_BUTTON} justify-self-start max-md:col-start-2`;
 

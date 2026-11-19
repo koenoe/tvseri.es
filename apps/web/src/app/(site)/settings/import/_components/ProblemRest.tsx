@@ -2,11 +2,14 @@
 
 import { useCallback } from 'react';
 
-import type { Fix } from '../_lib/importState';
-import { rowsIn } from '../_lib/problemRows';
-import { type ProblemItem, rowCount } from '../_lib/problems';
+import type { Fix } from '../../_components/problems/fix';
+import { rowsIn } from '../../_components/problems/problemRows';
+import {
+  type ProblemItem,
+  rowCount,
+} from '../../_components/problems/problems';
+import RestItem from '../../_components/problems/RestItem';
 import type { Importer } from '../_lib/useImporter';
-import RestItem from './RestItem';
 
 /** The summed-up rest of a group, skipped (or brought back) all at once. */
 export default function ProblemRest({

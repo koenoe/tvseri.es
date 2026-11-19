@@ -2,7 +2,7 @@
 
 import { plural } from '@tvseri.es/utils';
 import { useMemo } from 'react';
-
+import { unmatchedLines } from '../../_components/problems/problems';
 import type { ImportProvider } from '../_data/importer';
 import { isCombinedColumn } from '../_lib/columns';
 import { datesLine, readOrder, recognisedLine } from '../_lib/copy';
@@ -12,7 +12,6 @@ import {
   missingField,
 } from '../_lib/importState';
 import { dateExampleOf, previewHeads, previewRows } from '../_lib/previewTable';
-import { unmatchedLines } from '../_lib/problems';
 import type { Importer } from '../_lib/useImporter';
 import CheckBanner from './CheckBanner';
 import CheckFooter from './CheckFooter';

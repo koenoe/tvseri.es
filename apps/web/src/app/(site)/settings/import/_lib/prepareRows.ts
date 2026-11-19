@@ -59,7 +59,6 @@ const normalise = (value: unknown) =>
 const isNotAnEpisode = (fields: RowFields) =>
   !fields.title ||
   normalise(fields.episode) === '' ||
-  normalise(fields.title) === normalise(fields.season) ||
   fields.isMovie ||
   normalise(fields.episode).includes('trailer');
 

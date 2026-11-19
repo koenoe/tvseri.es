@@ -163,9 +163,10 @@ export default defineConfig({
     {
       // The build prerenders against the stub (data at build time), so
       // instant() tests see the shared sections in the shell.
+      // The extension's zip first, as `pnpm build` does (/extension links it)
       command: slow
-        ? `next build && E2E_SLOW_REAL=$(command -v next) ${clamp} start --port ${port}`
-        : `next build && next start --port ${port}`,
+        ? `node scripts/extension-zip.ts && next build && E2E_SLOW_REAL=$(command -v next) ${clamp} start --port ${port}`
+        : `node scripts/extension-zip.ts && next build && next start --port ${port}`,
       env: {
         API_KEY: 'stub',
         API_URL: `http://localhost:${stubPort}`,

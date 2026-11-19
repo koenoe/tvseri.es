@@ -14,7 +14,7 @@ import { fontsSettled, pageSettled, phoneScrollbars } from './helpers/viewport';
 const SIGN_IN_TITLE = 'Sign in, so we know your name.';
 
 test.describe('settings signed out', () => {
-  for (const url of ['/settings', '/settings/plex']) {
+  for (const url of ['/settings', '/settings/connected-apps']) {
     test(`${url} asks to sign in (not the show page's 404)`, async ({
       page,
     }) => {
@@ -86,7 +86,7 @@ test.describe('settings signed in (desktop)', () => {
   for (const [url, title] of [
     ['/settings/streaming-services', 'Streaming services'],
     ['/settings/import', 'Import'],
-    ['/settings/plex', 'Connected apps'],
+    ['/settings/connected-apps', 'Connected apps'],
     ['/settings/data', 'Your data'],
   ] as const) {
     test(`${url} is instant on an initial page load`, async ({
@@ -235,16 +235,21 @@ for (const width of [360, 800] as const) {
     await page.setViewportSize({ height: 900, width });
     await phoneScrollbars(page, width);
     await signInAs(context, 'nina');
-    await page.goto('/settings/plex');
+    await page.goto('/settings/connected-apps');
     await fontsSettled(page);
-    const statuses = page.getByText('Not available yet', { exact: true });
-    await expect(statuses).toHaveCount(2);
-    const pills = page.getByText('Coming next', { exact: true });
+    // Plex, Netflix, BBC iPlayer and Prime Video, none connected for this
+    // viewer (a spec can't import the service list: Playwright loads the
+    // workspace packages as CommonJS)
+    const apps = 4;
+    const statuses = page.getByText('Not connected', { exact: true });
+    await expect(statuses).toHaveCount(apps);
+    const pills = page.getByText('Available', { exact: true });
+    await expect(pills).toHaveCount(apps);
     // one line of the status's own type, whatever its font
     const lineHeight = await statuses
       .first()
       .evaluate((node) => Number.parseFloat(getComputedStyle(node).lineHeight));
-    for (let index = 0; index < 2; index += 1) {
+    for (let index = 0; index < apps; index += 1) {
       const status = await statuses.nth(index).boundingBox();
       const pill = await pills.nth(index).boundingBox();
       expect(status && pill).toBeTruthy();
@@ -327,7 +332,7 @@ test('Plex week: pressing a day filters the list, and it fits at 390px', async (
   await page.setViewportSize({ height: 844, width: 390 });
   await phoneScrollbars(page, 390);
   await signInAs(context, 'rae');
-  await page.goto('/settings/plex');
+  await page.goto('/settings/connected-apps');
   const week = page.getByRole('group', { name: 'Your week on Plex' });
   const days = week.getByRole('button');
   await expect(days).toHaveCount(7);

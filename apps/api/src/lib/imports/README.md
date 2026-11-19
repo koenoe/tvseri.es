@@ -31,3 +31,5 @@ A CSV of watched episodes (Netflix's viewing history or any file with mappable c
 3. Stamp `lastImport.undoneAt`.
 
 Undo covers the last import only. It is safe to ask again until it finishes, and it continues across runs for large imports.
+
+**Undo and the streaming sync (accepted):** the sync skips an episode that is already watched, so an episode a CSV import wrote and a later sync met stays tagged with the import. Undoing that import deletes it, and a later sync does not add it back: it reads back only to two days before the last synced date. Undo does exactly what it says: it removes what the import wrote.

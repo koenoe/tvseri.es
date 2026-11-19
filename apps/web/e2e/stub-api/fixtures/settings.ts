@@ -1,4 +1,10 @@
-import type { User, WebhookStatus } from '@tvseri.es/schemas';
+import {
+  CONNECTION_SERVICES,
+  type ConnectionService,
+  type ConnectionStatus,
+  type User,
+  type WebhookStatus,
+} from '@tvseri.es/schemas';
 
 import type { StubRequest, StubResponse, StubRoute } from '../types.ts';
 import {
@@ -21,6 +27,24 @@ import { fail, isRecord, isResponse, ok, requireViewer } from './show/http.ts';
  * and the Plex status line. Import, Connected apps and Your data add their
  * own files (`settings-*.ts`) on the same store.
  */
+
+const NOT_CONNECTED: ConnectionStatus = {
+  connected: false,
+  lastSyncedAt: null,
+  latest: null,
+  profileName: null,
+  recent: [],
+  status: null,
+  sync: null,
+  total: null,
+  unresolvedCount: 0,
+  week: [],
+};
+
+const isConnectionService = (
+  value: string | undefined,
+): value is ConnectionService =>
+  (CONNECTION_SERVICES as ReadonlyArray<string | undefined>).includes(value);
 
 const me =
   (handle: (request: StubRequest, viewer: SettingsViewer) => StubResponse) =>
@@ -232,5 +256,21 @@ export const routes: readonly StubRoute[] = [
       params.type === 'plex' ? ok(plexStatus(viewer)) : fail(404, 'Not found'),
     ),
     path: '/webhook/type/:type/status',
+  },
+  {
+    // Every service card's status: never linked in the e2e world
+    handle: (request) =>
+      isConnectionService(request.params.service)
+        ? me(() => ok(NOT_CONNECTED))(request)
+        : undefined,
+    path: '/me/connections/:service',
+  },
+  {
+    // Never linked, so nothing to review
+    handle: (request) =>
+      isConnectionService(request.params.service)
+        ? me(() => ok({ items: [], nextCursor: null }))(request)
+        : undefined,
+    path: '/me/connections/:service/unresolved',
   },
 ];

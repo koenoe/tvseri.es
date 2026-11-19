@@ -12,6 +12,7 @@ const OWN_ROUTES: ReadonlyArray<readonly [url: string, testId: string]> = [
   ['/person/17419', 'route-person'],
   ['/1396/breaking-bad', 'route-show'],
   ['/privacy', 'route-privacy'],
+  ['/extension', 'route-extension'],
 ];
 
 for (const [url, testId] of OWN_ROUTES) {

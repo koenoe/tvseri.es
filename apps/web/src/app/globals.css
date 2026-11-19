@@ -79,6 +79,11 @@
   --color-imdb: #f5c518;
   /* destructive: Delete account's dot and its refusal line */
   --color-danger: #ff8f8f;
+  /* app brands on Settings → Connected apps: Netflix red, iPlayer pink, Prime Video blue, Plex gold */
+  --color-netflix: #e50914;
+  --color-iplayer: #ff4c98;
+  --color-prime: #00a8e1;
+  --color-plex: #e5a00d;
   --text-display: var(--t-display-size);
   --text-display--line-height: var(--t-display-lh);
   --text-display--font-weight: 800;

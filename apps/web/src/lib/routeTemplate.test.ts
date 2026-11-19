@@ -45,7 +45,7 @@ describe('toRouteTemplate', () => {
     ['/1396/breaking-bad', '/[id]/[[...slug]]'],
     ['/person/17419', '/person/[id]/[[...slug]]'],
     ['/genre/drama', '/genre/[slug]'],
-    ['/settings/plex', '/settings/plex'],
+    ['/settings/connected-apps', '/settings/connected-apps'],
     ['/u/margaux', '/u/[username]'],
     ['/u/margaux/library/watchlist', '/u/[username]/library/watchlist'],
     ['/u/margaux/stats/2025', '/u/[username]/stats/[year]'],

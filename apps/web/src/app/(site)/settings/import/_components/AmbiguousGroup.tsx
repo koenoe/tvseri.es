@@ -2,15 +2,14 @@
 
 import { formatGrouped, plural } from '@tvseri.es/utils';
 import type { SeriesCandidate } from '@/lib/import/contract';
-import type { Fix } from '../_lib/importState';
-import { rowsIn, splitItems } from '../_lib/problemRows';
-import type { ProblemItem } from '../_lib/problems';
+import type { Fix } from '../../_components/problems/fix';
+import { AmbiguousProblems } from '../../_components/problems/KindGroups';
+import { rowsIn, splitItems } from '../../_components/problems/problemRows';
+import type { ProblemItem } from '../../_components/problems/problems';
 import type { Importer } from '../_lib/useImporter';
-import AmbiguousItem from './AmbiguousItem';
-import ProblemGroup from './ProblemGroup';
 import ProblemRest from './ProblemRest';
 
-/** "Two series with this name": pick the right one and its rows come in. */
+/** The import's "Which series?": two items, then the rest summed up. */
 export default function AmbiguousGroup({
   count,
   expanded,
@@ -40,24 +39,18 @@ export default function AmbiguousGroup({
   const restTitle = `${formatGrouped(restRows)} more rows across ${plural(rest.length, 'series', 'series')}`;
   const restToast = `Skipped ${plural(restRows, 'row')}`;
   return (
-    <ProblemGroup
+    <AmbiguousProblems
+      bodyId="import-group-ambiguous"
       count={count}
-      id="ambiguous"
-      name="Two series with this name"
+      fixes={fixes}
+      items={shown}
+      onPick={onPick}
+      onSkip={onSkip}
       onToggle={toggle}
+      onUndo={importer.clearFix}
       open={open}
-      what="Pick the right one and its rows come in"
+      unit="rows"
     >
-      {shown.map((item) => (
-        <AmbiguousItem
-          fix={fixes[item.key]}
-          item={item}
-          key={item.key}
-          onPick={onPick}
-          onSkip={onSkip}
-          onUndo={importer.clearFix}
-        />
-      ))}
       {rest.length > 0 ? (
         <ProblemRest
           fixes={fixes}
@@ -70,6 +63,6 @@ export default function AmbiguousGroup({
           why="More series that share a name"
         />
       ) : null}
-    </ProblemGroup>
+    </AmbiguousProblems>
   );
 }

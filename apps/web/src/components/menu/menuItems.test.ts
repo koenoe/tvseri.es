@@ -105,7 +105,7 @@ describe('menuModel: the current page', () => {
     ['/u/margaux/stats/2024', ['Stats']],
     ['/u/Margaux/library', ['Library']],
     ['/settings', ['Settings']],
-    ['/settings/plex', ['Settings']],
+    ['/settings/connected-apps', ['Settings']],
   ])('%s marks %j', (pathname, expected) => {
     expect(current(viewer(pathname))).toEqual(expected);
   });

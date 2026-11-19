@@ -1,9 +1,16 @@
 import 'server-only';
 
+import {
+  createEpisodeMatcher,
+  type ImportItemRow,
+  type MatchResult,
+  toImportItem,
+} from '@tvseri.es/import';
 import type {
   ImportBatch,
   ImportBatchResult,
   ImportCheckResult,
+  MatchProblem,
   WatchProvider,
 } from '@tvseri.es/schemas';
 import { chunk, createLimiter } from '@tvseri.es/utils';
@@ -21,13 +28,7 @@ import {
   type ImportProblem,
   type ImportRow,
 } from './contract';
-import { type ImportItemRow, toImportItem } from './importItems';
 import { searchSeries } from './loaders';
-import {
-  createEpisodeMatcher,
-  type MatchProblem,
-  type MatchResult,
-} from './matcher';
 import { matchProvider } from './providers';
 
 /**

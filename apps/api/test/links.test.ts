@@ -35,6 +35,7 @@ const NOT_RUN: ReadonlyArray<
   // module's imports (mdblistLink.test.ts runs them without the link)
   {
     handlers: [
+      lambda('connectionSync'),
       lambda('scrobble'),
       lambda('validateWatchedStatusQueue'),
       lambda('watched'),
@@ -383,7 +384,9 @@ describe('Lambda links', () => {
     expect(unlinked).toEqual([]);
     // An entry the graph no longer needs would hide a future read
     expect([...unused]).toEqual([]);
-  });
+    // Walks every function's import graph: seconds when the machine is busy
+    // (a full `pnpm test`), past the 5s default
+  }, 30_000);
 
   // A link is a permission as well as a value: the API keeps only the ones
   // its code reads (another Lambda that needs a resource links it itself)

@@ -68,7 +68,7 @@ test.describe('hydration', () => {
   }) => {
     await signInAs(context, 'rae');
     const errors = collectErrors(page);
-    await page.goto('/settings/plex');
+    await page.goto('/settings/connected-apps');
     await settle(page);
     await expect(
       page.getByRole('group', { name: 'Your week on Plex' }),

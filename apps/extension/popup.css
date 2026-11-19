@@ -1,0 +1,521 @@
+/* The popup in the site's look: the sign-in pages' ground, type, code
+   field, pill buttons and notes (apps/auth/src/ui/css), at popup size. */
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url(fonts/inter.woff2) format('woff2');
+}
+
+:root {
+  --w80: rgb(255 255 255 / 0.8);
+  --w60: rgb(255 255 255 / 0.6);
+  --cyan: #0ff;
+  --err: #ff6b6b;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: #1c2223;
+}
+
+body {
+  width: 340px;
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #fff;
+  background: radial-gradient(ellipse 90% 70% at 30% 0%, #25302f 0%, #1c2223 70%);
+}
+
+h1,
+p {
+  margin: 0;
+}
+
+button,
+input {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.hd {
+  padding: 20px 20px 0;
+}
+
+.logo {
+  display: block;
+  width: auto;
+  height: 20px;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px 20px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+.body {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--w80);
+}
+
+.body b {
+  font-weight: 600;
+  color: #fff;
+}
+
+form {
+  margin-top: 20px;
+}
+
+/* Read out, not drawn: the slots and the sentence above say what it is */
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.cap {
+  display: block;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--w60);
+}
+
+/* One real input over four painted slots (the sign-in code field) */
+.otp {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.otp input {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  padding: 0;
+  font-size: 16px;
+  color: transparent;
+  letter-spacing: 2em;
+  cursor: text;
+  caret-color: transparent;
+  outline: none;
+  background: transparent;
+  border: 0;
+}
+
+.otp input::selection {
+  background: transparent;
+}
+
+.sl {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  background: rgb(0 0 0 / 0.25);
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  transition: box-shadow 0.15s;
+}
+
+.sl b {
+  font-size: 32px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 40px;
+}
+
+.sl i {
+  position: absolute;
+  right: 6px;
+  bottom: -10px;
+  left: 6px;
+  height: 2px;
+  overflow: hidden;
+  background: rgb(255 255 255 / 0.14);
+  border-radius: 1px;
+}
+
+.sl i::before {
+  display: block;
+  height: 100%;
+  content: '';
+  background: var(--cyan);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sl.f i::before {
+  transform: scaleX(1);
+}
+
+.sl.on {
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.45);
+}
+
+.sl.on.cr::after {
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  content: '';
+  background: #fff;
+  border-radius: 1px;
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.otp.bad .sl {
+  box-shadow: inset 0 0 0 1px rgb(255 107 107 / 0.7);
+}
+
+.otp.bad .sl i::before {
+  background: var(--err);
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 48px;
+  padding: 0 20px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+  white-space: nowrap;
+  cursor: pointer;
+  background: rgb(255 255 255 / 0.08);
+  border: 0;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  transition: background-color 0.15s, transform 0.1s, opacity 0.15s;
+}
+
+.btn:hover {
+  background: rgb(255 255 255 / 0.14);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn.w {
+  font-weight: 600;
+  color: #171717;
+  background: #fff;
+  box-shadow: none;
+}
+
+.btn.w:hover {
+  background: #e8e8e8;
+}
+
+.btn.w:disabled {
+  color: var(--w60);
+  cursor: default;
+  background: rgb(255 255 255 / 0.18);
+}
+
+.btn:disabled:active {
+  transform: none;
+}
+
+.acts {
+  display: flex;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.btn[aria-busy='true'] {
+  cursor: progress;
+  opacity: 0.72;
+}
+
+#done .btn {
+  margin-top: 24px;
+}
+
+#pair .body,
+#done .body {
+  margin-top: 16px;
+}
+
+/* Where a link goes when it isn't www.tvseri.es (the dev copy) */
+.dest {
+  /* The form's own 20px below it: the line sits midway */
+  margin-top: 20px;
+  font-weight: 600;
+  color: var(--w80);
+}
+
+/* Whose account the code links to; nothing drawn while empty. Under #pair
+   to outrank `#pair .body`, which it also is. 24px from the slots' bars,
+   which hang 10px below the code field */
+#pair .acct {
+  margin-top: 34px;
+}
+
+#pair .acct:empty {
+  margin: 0;
+}
+
+.acct.wait {
+  color: var(--w60);
+}
+
+/* The result, in the sign-in pages' note */
+.note {
+  padding: 12px 16px;
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--w80);
+  background: rgb(255 255 255 / 0.06);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  animation: in 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.note.warn {
+  box-shadow: inset 0 0 0 1px rgb(255 107 107 / 0.45);
+}
+
+.note.ok {
+  box-shadow: inset 0 0 0 1px rgb(0 255 255 / 0.35);
+}
+
+/* Always in the DOM for screen readers, drawn only with text */
+.note:empty {
+  padding: 0;
+  margin: 0;
+  background: none;
+  box-shadow: none;
+  animation: none;
+}
+
+@keyframes in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  margin: 24px 0 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 10px 12px 10px 10px;
+  text-align: left;
+  cursor: pointer;
+  background: rgb(255 255 255 / 0.04);
+  border: 0;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  transition: background-color 0.15s, transform 0.1s;
+}
+
+.row:hover {
+  background: rgb(255 255 255 / 0.08);
+}
+
+.row:active {
+  transform: scale(0.99);
+}
+
+/* A service's logo on its dark tile, as on the site's Connected apps */
+.tile {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #141414;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px -8px rgb(0 0 0 / 0.7);
+}
+
+.tile img {
+  width: 22px;
+  height: 22px;
+}
+
+.tile.big {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+}
+
+.tile.big img {
+  width: 26px;
+  height: 26px;
+}
+
+/* Prime Video's mark is a wide wordmark: it needs the tile's width */
+.tile img[src$='prime.svg'] {
+  width: 32px;
+  height: 32px;
+}
+
+.tile.big img[src$='prime.svg'] {
+  width: 38px;
+  height: 38px;
+}
+
+.txt {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.nm {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+/* Not connected in the quiet step; connected with the site's cyan dot */
+.st {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--w60);
+  white-space: nowrap;
+}
+
+.st.on {
+  color: var(--w80);
+}
+
+.st.on::before {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  content: '';
+  background: var(--cyan);
+  border-radius: 50%;
+}
+
+.chev {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--w60);
+}
+
+.back {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  align-self: flex-start;
+  height: 28px;
+  padding: 0 10px 0 6px;
+  margin: -4px 0 16px -6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--w80);
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  transition: background-color 0.15s;
+}
+
+.back:hover {
+  color: #fff;
+  background: rgb(255 255 255 / 0.08);
+}
+
+.back svg {
+  width: 14px;
+  height: 14px;
+}
+
+#service {
+  display: flex;
+  flex-direction: column;
+}
+
+#service[hidden] {
+  display: none;
+}
+
+.who {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.title:focus {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

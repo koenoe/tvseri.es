@@ -136,7 +136,6 @@ export const restoreUnskipped = async (userId: string, importId: string) => {
   const watched = await getWatchedEpisodeKeys(
     userId,
     entries.map(([seriesId]) => Number(seriesId)),
-    { exceptImportId: importId },
   );
   await Promise.all(
     entries.map(([seriesId, codes]) =>
@@ -145,7 +144,11 @@ export const restoreUnskipped = async (userId: string, importId: string) => {
         Number(seriesId),
         [...codes].filter((code) => {
           const sk = codeSk(seriesId, code);
-          return sk !== null && !watched.has(sk);
+          // Unwatched, or watched only through this import (Undo deletes it)
+          return (
+            sk !== null &&
+            (!watched.has(sk) || watched.get(sk)?.importId === importId)
+          );
         }),
       ),
     ),

@@ -28,12 +28,13 @@ export const API_WRITE_ROUTES = {
   /**
    * GET/HEAD: the viewer's own state that reads only DynamoDB and must show a
    * write straight away. `/me`, the library ids, a series' status and prefs,
-   * the watched history and its counts, list membership and list counts.
+   * the watched history and its counts, list membership and list counts,
+   * each connected service card's status and its review list.
    * Not the list pages (`?include=facts` reads series facts) nor anything
    * else under /me (Home rows, overview, ledger, circle, export).
    */
   ownStateReadSource:
-    '^\\/(me(\\/library-ids|\\/series\\/\\d+\\/(status|prefs))?|user\\/[\\w-]+\\/(watched(\\/[\\w/-]*)?|list\\/\\w+\\/(count|\\d+)))$',
+    '^\\/(me(\\/library-ids|\\/series\\/\\d+\\/(status|prefs)|\\/connections\\/[a-z]+(\\/unresolved)?)?|user\\/[\\w-]+\\/(watched(\\/[\\w/-]*)?|list\\/\\w+\\/(count|\\d+)))$',
   /**
    * Any other method (POST, PUT, PATCH, DELETE) under these is a write of the
    * viewer's own state. Writes elsewhere (web-vitals beacons, admin) stay on

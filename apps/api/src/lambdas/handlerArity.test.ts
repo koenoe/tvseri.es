@@ -29,5 +29,7 @@ describe('Lambda handlers', () => {
     expect(lambdas.length).toBeGreaterThan(8);
     expect(wrong).toEqual([]);
     vi.doUnmock('sst');
-  });
+    // Imports every Lambda's whole module graph: far past the 5s default
+    // when the machine is busy
+  }, 30_000);
 });

@@ -27,15 +27,18 @@ export type WebhookToken = Readonly<{
 }>;
 
 /** A watched episode marked by the media server, for "Recent" and the week */
-export type RecentScrobble = Readonly<{
-  seriesId: number;
-  title: string;
-  seasonNumber: number;
-  episodeNumber: number;
+export const RecentScrobbleSchema = v.object({
+  episodeNumber: v.number(),
   /** The episode's name, as stored with the mark; absent on older marks */
-  episodeTitle?: string;
-  watchedAt: number;
-}>;
+  episodeTitle: v.optional(v.string()),
+  seasonNumber: v.number(),
+  seriesId: v.number(),
+  title: v.string(),
+  watchedAt: v.number(),
+});
+export type RecentScrobble = Readonly<
+  v.InferOutput<typeof RecentScrobbleSchema>
+>;
 
 /** `GET /webhook/type/:type/status`; never the token itself */
 export type WebhookStatus =

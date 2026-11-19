@@ -44,7 +44,11 @@ export default function HistoryDayZero({
         >
           Import a file
         </ButtonLink>
-        <ButtonLink href="/settings/plex" icon={arrowRightGlyph} size="sm">
+        <ButtonLink
+          href="/settings/connected-apps"
+          icon={arrowRightGlyph}
+          size="sm"
+        >
           Connect Plex
         </ButtonLink>
       </div>

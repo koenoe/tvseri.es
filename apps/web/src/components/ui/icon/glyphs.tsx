@@ -125,6 +125,18 @@ export const downloadGlyph: Glyph = {
   ),
 };
 
+/** A browser extension: three blocks and a fourth being added */
+export const extensionGlyph: Glyph = {
+  outline: (
+    <>
+      <rect height="7" rx="1.5" width="7" x="3" y="3" />
+      <rect height="7" rx="1.5" width="7" x="14" y="3" />
+      <rect height="7" rx="1.5" width="7" x="3" y="14" />
+      <path d="M17.5 14v7M14 17.5h7" />
+    </>
+  ),
+};
+
 export const externalGlyph: Glyph = {
   outline: <path d="M7 17 17 7M8 7h9v9" />,
 };
@@ -165,6 +177,12 @@ export const filmGlyph: Glyph = {
 
 export const flagGlyph: Glyph = {
   outline: <path d="M4 22V4M4 4h12l-2 4.5L16 13H4" />,
+};
+
+export const folderGlyph: Glyph = {
+  outline: (
+    <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+  ),
 };
 
 export const globeGlyph: Glyph = {
@@ -267,6 +285,15 @@ export const keyboardGlyph: Glyph = {
 export const languageGlyph: Glyph = {
   outline: (
     <path d="m5 8 6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6" />
+  ),
+};
+
+export const laptopGlyph: Glyph = {
+  outline: (
+    <>
+      <rect height="11" rx="2" width="16" x="4" y="5" />
+      <path d="M2 19h20" />
+    </>
   ),
 };
 
@@ -517,6 +544,15 @@ export const tagGlyph: Glyph = {
   ),
 };
 
+export const toggleGlyph: Glyph = {
+  outline: (
+    <>
+      <rect height="12" rx="6" width="20" x="2" y="6" />
+      <circle cx="16" cy="12" r="3" />
+    </>
+  ),
+};
+
 export const trashGlyph: Glyph = {
   outline: (
     <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
@@ -529,6 +565,15 @@ export const trendingGlyph: Glyph = {
 
 export const undoGlyph: Glyph = {
   outline: <path d="M9 14 4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3" />,
+};
+
+export const updateGlyph: Glyph = {
+  outline: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8 12 4-4 4 4M12 16V8" />
+    </>
+  ),
 };
 
 export const userGlyph: Glyph = {

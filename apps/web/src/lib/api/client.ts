@@ -13,17 +13,21 @@ import { FETCH_TIMEOUT } from '@/lib/constants';
  * message (e.g. `UsernameAlreadyTaken`) or one of the client's own codes:
  * `ApiNetworkError`, `ApiTimeout`, `ApiNotConfigured`, `ApiInvalidPathParam`
  * (400, nothing was sent), `ApiInvalidJson`, `ApiInvalidResponse` (the body
- * failed the call's schema; `status` is the response's).
+ * failed the call's schema; `status` is the response's). `body` is a failed
+ * answer's parsed body, for the few callers that read a structured refusal
+ * (a connect link's 422 reason); never logged.
  */
 export class ApiError extends Error {
   readonly status: number;
   readonly code?: string;
+  readonly body?: unknown;
 
-  constructor(status: number, code?: string) {
+  constructor(status: number, code?: string, body?: unknown) {
     super(code ?? `API request failed with status ${status}`);
     this.name = 'ApiError';
     this.status = status;
     this.code = code;
+    this.body = body;
   }
 }
 
@@ -257,7 +261,7 @@ export function createApiClient(transport: ApiTransport) {
       if (response.status !== 404) {
         console.error('API Fetch Error:', { path, status: response.status });
       }
-      throw new ApiError(response.status, errorCode(data));
+      throw new ApiError(response.status, errorCode(data), data);
     }
 
     return { data, status: response.status };

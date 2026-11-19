@@ -17,7 +17,7 @@
  * - `data-stats-year="finished|current|future"` on a stats route, from the
  *   year in the path against the current year: a finished year has a Share row.
  * - `data-plex="none|wait|on|paused"` (and `data-plex-n`, how many recent
- *   plays the card lists) on `/settings/plex`, for a signed-in viewer whose
+ *   plays the card lists) on `/settings/connected-apps`, for a signed-in viewer whose
  *   Plex hint is on this browser: the connected card is much taller than the
  *   not-connected one, so its placeholder takes the viewer's last known shape.
  *
@@ -101,7 +101,7 @@ export function applyHtmlHints(
       }
       return;
     }
-    if (/^\/settings\/plex\/?$/.test(path)) {
+    if (/^\/settings\/connected-apps\/?$/.test(path)) {
       const plex = read(plexKey, plexVersion, user);
       if (plex && ['none', 'wait', 'on', 'paused'].indexOf(plex.s) > -1) {
         root.setAttribute('data-plex', plex.s);

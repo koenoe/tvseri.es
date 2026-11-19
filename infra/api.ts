@@ -4,6 +4,8 @@ import { buildApiEdgeInjection } from './apiEdgeInjection';
 import { API_CONCURRENCY, API_WRITE_ROUTES } from './apiWriteRoutes';
 import { auth } from './auth';
 import { productionReserved } from './concurrency';
+import { connectionSyncQueue } from './connectionSync';
+import { connections, connectionsKey } from './connections';
 import { deleteAccountQueue } from './deleteAccount';
 import { domain, zone } from './dns';
 import { dominantColor } from './dominantColor';
@@ -93,6 +95,9 @@ const apiFunctionArgs = {
   handler: 'apps/api/src/index.handler',
   link: [
     auth,
+    // Connections: encrypted service sign-ins + link codes (routes/connections.ts)
+    connections,
+    connectionsKey,
     deleteAccountQueue, // Delete account (routes/me/index.ts)
     dominantColor,
     dynamo.cache,
@@ -105,6 +110,7 @@ const apiFunctionArgs = {
     dynamo.watched,
     dynamo.webhookTokens,
     metricsQueue,
+    connectionSyncQueue, // Sync now (routes/me/connections.ts)
     scrobbleQueue,
     secrets.apiKey,
     secrets.mdblistApiKey,

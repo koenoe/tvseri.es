@@ -5,6 +5,8 @@ export const TABLES: Readonly<Record<string, TableSchema>> = {
   // The auth service's storage (sst.aws.Auth's table)
   AuthSignIns: { hashKey: 'pk', rangeKey: 'sk' },
   Cache: { hashKey: 'pk' },
+  // Connections and their link codes (infra/connections.ts)
+  Connections: { hashKey: 'pk', rangeKey: 'sk' },
   Follow: {
     globalIndexes: {
       gsi1: { hashKey: 'gsi1pk', rangeKey: 'gsi1sk' },

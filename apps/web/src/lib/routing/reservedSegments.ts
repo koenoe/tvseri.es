@@ -16,6 +16,8 @@ export const RESERVED_SEGMENTS = [
   'decade',
   'dev',
   'discover',
+  // the Chrome extension's page
+  'extension',
   'genre',
   'language',
   'network',
@@ -58,11 +60,18 @@ const OWN_SUBPATHS: Readonly<Record<string, ReadonlyArray<string> | 'slug'>> = {
   decade: 'slug',
   dev: ['home', 'style-guide'],
   discover: [],
+  extension: [],
   genre: 'slug',
   language: 'slug',
   network: 'slug',
   privacy: [],
-  settings: ['profile', 'streaming-services', 'plex', 'import', 'data'],
+  settings: [
+    'profile',
+    'streaming-services',
+    'connected-apps',
+    'import',
+    'data',
+  ],
   'sign-in': ['error'],
   theme: 'slug',
 };

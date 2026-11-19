@@ -64,9 +64,15 @@ export const REDIRECTS: ReadonlyArray<Redirect> = [
     source: '/person/:zeros(0+):id([1-9]\\d*)/:rest*',
   },
   {
-    destination: '/settings/plex',
+    destination: '/settings/connected-apps',
     permanent: true,
     source: '/settings/webhooks',
+  },
+  // Connected apps lived at /settings/plex before it became more than Plex.
+  {
+    destination: '/settings/connected-apps',
+    permanent: true,
+    source: '/settings/plex',
   },
   // `/network/49` → `/network/hbo`: a landing's URL is its slug
   ...NETWORK_ID_REDIRECTS,

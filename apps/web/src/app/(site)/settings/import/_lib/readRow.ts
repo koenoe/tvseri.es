@@ -1,5 +1,5 @@
+import { type SplitEntry, splitEntry } from '@tvseri.es/import';
 import type { ImportCell } from '@/lib/import/contract';
-import { type SplitEntry, splitEntry } from '@/lib/import/parseEntry';
 import type { ColumnMapping } from './columns';
 
 /** A cell the way the importer reads it: numbers stay numbers. */

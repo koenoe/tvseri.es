@@ -158,6 +158,7 @@ const nextConfig = {
   },
   transpilePackages: [
     '@tvseri.es/constants',
+    '@tvseri.es/import',
     '@tvseri.es/schemas',
     '@tvseri.es/utils',
   ],

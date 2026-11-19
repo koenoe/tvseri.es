@@ -38,8 +38,11 @@ export { NETWORKS } from './networks';
 export { CATCHING_UP_MIN } from './overview';
 export { PAGE_COLOR_VERSION } from './pageColor';
 export {
+  BBC_IPLAYER_WATCH_PROVIDER,
+  NETFLIX_WATCH_PROVIDER,
   PLEX_SCROBBLE_EVENT,
   PLEX_WATCH_PROVIDER,
+  PRIME_VIDEO_WATCH_PROVIDER,
   SCROBBLE_PROVIDERS,
   SCROBBLE_WEBHOOK_PATH_SOURCE,
   type ScrobbleProvider,

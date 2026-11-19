@@ -12,6 +12,7 @@ import { retryDeadline } from './middleware/deadline';
 import { metrics as metricsMiddleware, redactPath } from './middleware/metrics';
 import admin from './routes/admin';
 import collection from './routes/collection';
+import connections from './routes/connections';
 import discover from './routes/discover';
 import dominantColor from './routes/dominant-color';
 import duration from './routes/duration';
@@ -53,6 +54,7 @@ app.use(retryDeadline());
 
 app.route('/admin', admin);
 app.route('/collection', collection);
+app.route('/connections', connections);
 app.route('/discover', discover);
 app.route('/dominant-color', dominantColor);
 app.route('/duration', duration);

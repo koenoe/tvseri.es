@@ -24,7 +24,11 @@ export default function HistoryLinks() {
   return (
     <div className={PILL_ROW}>
       <Pill glyph={importGlyph} href="/settings/import" label="Import a file" />
-      <Pill glyph={linkGlyph} href="/settings/plex" label="Connect Plex" />
+      <Pill
+        glyph={linkGlyph}
+        href="/settings/connected-apps"
+        label="Connect Plex"
+      />
     </div>
   );
 }

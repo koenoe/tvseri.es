@@ -79,3 +79,8 @@ test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
+
+# the extension zip /extension serves, built before every web build
+apps/web/public/tvseries-extension-*.zip
+# the extension's dev copy (localhost:3000), written by `pnpm dev`
+apps/extension/dev-build/

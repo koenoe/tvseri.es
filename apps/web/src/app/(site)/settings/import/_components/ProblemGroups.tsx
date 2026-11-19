@@ -2,23 +2,24 @@
 
 import { plural } from '@tvseri.es/utils';
 import { useMemo, useState } from 'react';
-
+import ProblemGroup, {
+  ProblemItemFrame,
+} from '../../_components/problems/ProblemGroup';
+import { openRows } from '../../_components/problems/problemRows';
+import { rowCount } from '../../_components/problems/problems';
 import type { ImportStep } from '../_lib/importState';
 import { groupsOf } from '../_lib/importState';
-import { openRows } from '../_lib/problemRows';
-import { rowCount } from '../_lib/problems';
 import type { Importer } from '../_lib/useImporter';
 import { useProblemFixes } from '../_lib/useProblemFixes';
 import AmbiguousGroup from './AmbiguousGroup';
 import NotFoundGroup from './NotFoundGroup';
-import ProblemGroup, { ProblemItemFrame } from './ProblemGroup';
 import { CARD_COUNT, CARD_HEAD, CARD_TITLE } from './styles';
 
 const HEAD = `${CARD_HEAD} mb-1`;
 
 /**
  * "Not imported": per-record problems as they stream
- * in, in three collapsible groups. Two shows with this name (pick one: its
+ * in, in three collapsible groups. Which series? (pick one: its
  * rows come in), Not found (search manually or skip), No episode in the
  * title (listed, skipped on purpose). Long groups show two items and sum up
  * the rest.
@@ -98,8 +99,8 @@ export default function ProblemGroups({
       ) : null}
       {films > 0 ? (
         <ProblemGroup
+          bodyId="import-group-no-episode"
           count={films}
-          id="no-episode"
           name="No episode in the title"
           onToggle={toggleNoEpisode}
           open={open.noEpisode}

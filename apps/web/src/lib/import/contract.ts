@@ -1,3 +1,12 @@
+import type {
+  EpisodeOption,
+  ImportCell,
+  ImportRow,
+  SeriesCandidate,
+} from '@tvseri.es/schemas';
+
+export type { EpisodeOption, ImportCell, ImportRow, SeriesCandidate };
+
 /**
  * The import's wire contract: what the browser sends to the
  * import route (`/api/account/import`) and the NDJSON events it streams back.
@@ -37,55 +46,10 @@ export const IMPORT_MAX_FILE_BYTES = 4 * 1024 * 1024;
 
 export const IMPORT_ENDPOINT = '/api/account/import';
 
-/** Season/episode cells: a number from a numeric column, or text. */
-export type ImportCell = string | number;
-
-/** One row as the browser understood it (sent to the route). */
-export type ImportRow = Readonly<{
-  /** Position in the prepared rows: problems point back at it. */
-  index: number;
-  /** The show's name as written ("Stranger Things"). */
-  title: string;
-  /** "Season 2", "Limited Series", 2, or '' (any season, by episode title). */
-  season: ImportCell;
-  /** 3, "Episode 3", or an episode title ("Chapter One: The Crawl"). */
-  episode: ImportCell;
-  /** Epoch ms (noon local time of the day read), or null: "I don't remember". */
-  watchedAt: number | null;
-  /** A service name from the file or the fixed "Same for all rows" value. */
-  watchProvider?: string;
-  /**
-   * The user's answer to a doubtful match ("Two shows with this name",
-   * Search manually): match this TMDB series, no title search.
-   */
-  seriesId?: number;
-  /** With `seriesId`: the episode picked by hand (Search manually). */
-  seasonNumber?: number;
-  episodeNumber?: number;
-}>;
-
-/** A series the user can pick for a doubtful match. */
-export type SeriesCandidate = Readonly<{
-  id: number;
-  title: string;
-  /** First air year, when known ("2019") */
-  year: string | null;
-  /** The network or origin, for "2019 · Netflix" */
-  network: string | null;
-  posterImage: string | null;
-}>;
-
-/** An episode the user can pick (Search manually → the episode). */
-export type EpisodeOption = Readonly<{
-  seasonNumber: number;
-  episodeNumber: number;
-  title: string;
-}>;
-
 /**
  * Why a row wasn't imported, grouped by the UI:
- * - `ambiguous`: two or more series fit (same title, or only a similar or
- *   first-search-result title): "Two shows with this name" / check this.
+ * - `ambiguous`: two or more series with the title, else TMDB's closest
+ *   (sometimes only one): "Which series?" / check this.
  * - `series-not-found`, `episode-not-found`: Search manually or Skip.
  * - `failed`: the write failed (the row can be retried), or the route refused
  *   the row (a cell too long, a date out of range).

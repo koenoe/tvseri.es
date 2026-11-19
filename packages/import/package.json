@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "@tvseri.es/schemas": "workspace:*",
+    "@tvseri.es/utils": "workspace:*",
+    "dice-coefficient": "^2.1.1"
+  },
+  "devDependencies": {
+    "@tvseri.es/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "5.1.0"
+  },
+  "main": "./src/index.ts",
+  "name": "@tvseri.es/import",
+  "private": true,
+  "scripts": {
+    "check-types": "tsc",
+    "test": "vitest run"
+  },
+  "sideEffects": false,
+  "type": "module",
+  "version": "0.0.0"
+}

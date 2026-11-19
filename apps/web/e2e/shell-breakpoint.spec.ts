@@ -42,7 +42,7 @@ for (const width of [1023, 1024] as const) {
       page,
     }) => {
       await signInAs(context, 'alex');
-      await page.goto('/settings/plex');
+      await page.goto('/settings/connected-apps');
       const nav = page.getByRole('navigation', { name: 'Settings' });
       const back = page.getByRole('link', { exact: true, name: 'Settings' });
       await expect(

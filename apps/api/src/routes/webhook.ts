@@ -4,7 +4,6 @@ import {
   type ScrobbleProvider,
 } from '@tvseri.es/constants';
 import {
-  type RecentScrobble,
   UpdateWebhookSettingsSchema,
   type WebhookStatus,
   type WebhookToken,
@@ -57,31 +56,6 @@ app.post(TYPE_PATH, requireAuth(), async (c) => {
 /** Plex marks carry this watch provider name (lambdas/scrobble.ts) */
 const PROVIDER_NAMES: Record<ScrobbleProvider, string> = { plex: 'Plex' };
 
-const RECENT_LIMIT = 5;
-
-/**
- * The week's marks reach back 8 days: the viewer's "last seven days ending
- * today" starts at most 7 days and a DST hour before now in any time zone,
- * and only the browser knows which zone that is.
- */
-const WEEK_MS = 8 * 24 * 60 * 60 * 1000;
-
-const toScrobble = ({
-  episodeNumber,
-  episodeTitle,
-  seasonNumber,
-  seriesId,
-  title,
-  watchedAt,
-}: RecentScrobble): RecentScrobble => ({
-  episodeNumber,
-  ...(episodeTitle && { episodeTitle }),
-  seasonNumber,
-  seriesId,
-  title,
-  watchedAt,
-});
-
 const toStatus = async (
   webhookToken: WebhookToken,
   provider: ScrobbleProvider,
@@ -91,8 +65,6 @@ const toStatus = async (
     ensureEdgeKey(webhookToken),
     getMarksByProvider({
       providerName: PROVIDER_NAMES[provider],
-      recentLimit: RECENT_LIMIT,
-      since: Date.now() - WEEK_MS,
       userId: webhookToken.userId,
     }),
   ]);
@@ -104,9 +76,9 @@ const toStatus = async (
     lastReceivedAt: webhookToken.lastReceivedAt ?? null,
     onlyAccount: webhookToken.onlyAccount ?? null,
     paused: webhookToken.paused === true,
-    recent: marks.recent.map(toScrobble),
+    recent: marks.recent,
     urlWorks,
-    week: marks.week.map(toScrobble),
+    week: marks.week,
   };
 };
 

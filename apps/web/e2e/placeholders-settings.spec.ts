@@ -7,7 +7,8 @@ import { measureNoScriptParity } from './helpers/placeholders';
 /**
  * Placeholder parity for every Settings section (see helpers/placeholders.ts).
  * The Plex card is checked as not connected, the state its placeholder
- * reserves (a connected card is taller and only grows that section).
+ * reserves (a connected card is taller and only grows that section); the
+ * service cards start closed, so their placeholders are the header alone.
  */
 
 /**
@@ -24,7 +25,7 @@ const SIZES = [
 const SECTIONS = [
   ['/settings/profile', 'alex', ['settings-profile']],
   ['/settings/streaming-services', 'alex', ['services']],
-  ['/settings/plex', 'nina', ['plex']],
+  ['/settings/connected-apps', 'nina', ['plex', 'netflix', 'bbc', 'prime']],
   ['/settings/import', 'alex', ['import']],
   ['/settings/data', 'alex', ['data-stats', 'data-delete']],
 ] as const;

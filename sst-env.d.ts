@@ -43,6 +43,22 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "ConnectionSyncDLQ": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "ConnectionSyncQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "Connections": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "ConnectionsKey": {
+      "keyId": string
+      "type": "sst.sst.Linkable"
+    }
     "Dashboard": {
       "type": "sst.aws.StaticSite"
       "url": string
@@ -83,6 +99,10 @@ declare module "sst" {
     "MdblistApiKey": {
       "type": "sst.sst.Secret"
       "value": string
+    }
+    "MetricsAggregate": {
+      "name": string
+      "type": "sst.aws.Function"
     }
     "MetricsApiAggregated": {
       "name": string

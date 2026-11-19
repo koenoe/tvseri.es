@@ -9,36 +9,41 @@ import {
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import { memberSince } from '@/lib/profile/memberSince';
-
+import { loadConnectionStatuses } from '../_data/connections';
 import { loadSettingsCounts } from '../_data/counts';
 import { loadPlexStatus } from '../_data/plex';
 import { getSettingsSession, getSettingsViewer } from '../_data/session';
+import {
+  connectedAppsSummary,
+  connectedAppsText,
+  plexWord,
+} from '../_lib/connectedAppsLine';
 import { plexStateOf } from '../_lib/plexState';
 import LineSkeleton from './LineSkeleton';
-
-const PLEX_WORD = {
-  broken: 'not working',
-  none: 'not connected',
-  on: 'receiving',
-  paused: 'paused',
-  wait: 'waiting',
-} as const;
 
 async function Handle() {
   const { user } = await getSettingsSession();
   return user.username;
 }
 
-async function PlexItem() {
+/** One item per connected app; Plex's own state when none is */
+async function AppItems() {
   const { accessToken } = await getSettingsViewer();
-  const status = await loadPlexStatus(accessToken);
-  if (!status) {
-    return null;
+  const [plex, services] = await Promise.all([
+    loadPlexStatus(accessToken),
+    loadConnectionStatuses(accessToken),
+  ]);
+  const summary = connectedAppsSummary(plex, services);
+  // Nothing connected keeps Plex's own word
+  if (summary.kind === 'none') {
+    return plex ? (
+      <MetaItem icon={variantSignalGlyph}>
+        Plex {plexWord(plexStateOf(plex))}
+      </MetaItem>
+    ) : null;
   }
   return (
-    <MetaItem icon={variantSignalGlyph}>
-      Plex {PLEX_WORD[plexStateOf(status)]}
-    </MetaItem>
+    <MetaItem icon={variantSignalGlyph}>{connectedAppsText(summary)}</MetaItem>
   );
 }
 
@@ -66,7 +71,7 @@ async function HeroMeta() {
         </MetaItem>
       ) : null}
       <span className="contents max-md:hidden">
-        <PlexItem />
+        <AppItems />
       </span>
     </MetaRow>
   );

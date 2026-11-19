@@ -4,9 +4,13 @@ import type {
   ImportedShow,
   ImportProblem,
 } from '@/lib/import/contract';
+import type { Fix } from '../../_components/problems/fix';
+import {
+  type ProblemGroups,
+  problemGroups,
+} from '../../_components/problems/problems';
 import type { ColumnMapping, DetectedSource } from './columns';
 import type { PreparedImport } from './prepareRows';
-import { type ProblemGroups, problemGroups } from './problems';
 import type { StopReason } from './runChunks';
 
 /**
@@ -41,19 +45,6 @@ export type Tally = Readonly<{
   problems: ReadonlyArray<ImportProblem>;
   shows: ReadonlyArray<ImportedShow>;
 }>;
-
-export type PickedFix = Readonly<{
-  kind: 'picked';
-  /** "Top Boy (2019)", "Wednesday S02E01" */
-  label: string;
-  rows: number;
-  /** waiting: still undoable (the toast's grace); then sent once */
-  status: 'waiting' | 'sending' | 'sent' | 'failed';
-  /** Episodes in the history from this fix; counted only once it is `sent` */
-  imported: number;
-}>;
-
-export type Fix = Readonly<{ kind: 'skipped'; rows: number }> | PickedFix;
 
 export type GroupId = 'ambiguous' | 'notFound' | 'noEpisode';
 

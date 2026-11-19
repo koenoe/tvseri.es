@@ -269,6 +269,29 @@ describe('prepareRows: another CSV', () => {
     expect(rows[0]?.season).toBe('');
   });
 
+  it('keeps a row whose season is the show’s name: any season, as the sync reads it', () => {
+    const { rows, skipped } = prepareRows(
+      [
+        {
+          E: 'The One Where Monica Gets a Roommate',
+          S: 'Friends',
+          Series: 'Friends',
+          'Watched on': '2025-01-01',
+        },
+      ],
+      mapping,
+      { now: NOW },
+    );
+    expect(rows).toEqual([
+      expect.objectContaining({
+        episode: 'The One Where Monica Gets a Roommate',
+        season: 'Friends',
+        title: 'Friends',
+      }),
+    ]);
+    expect(skipped.films).toBe(0);
+  });
+
   it('keeps season 0', () => {
     const { rows } = prepareRows(
       [{ E: 1, S: 0, Series: 'The Bear', 'Watched on': '2025-01-01' }],

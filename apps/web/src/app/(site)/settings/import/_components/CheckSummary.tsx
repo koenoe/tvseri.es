@@ -2,8 +2,9 @@ import { formatGrouped, plural } from '@tvseri.es/utils';
 import { helpGlyph, seasonGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
-import type { UnmatchedLine } from '../_lib/problems';
-import { LINK, META_ITEM, META_ROW } from './styles';
+import type { UnmatchedLine } from '../../_components/problems/problems';
+import { LINK } from '../../_components/problems/styles';
+import { META_ITEM, META_ROW } from './styles';
 
 const COUNTS_ROW = `${META_ROW} text-white/80 max-md:flex-col max-md:items-start`;
 

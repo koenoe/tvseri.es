@@ -54,6 +54,8 @@ describe('proxy matcher', () => {
     expect(urls).toEqual(
       expect.arrayContaining([
         '/api/admin/series/x/images',
+        '/api/connections/link-code',
+        '/api/connections/x',
         '/api/me/import-status',
         '/api/me/library-ids',
         '/api/me/series/x',
@@ -65,6 +67,14 @@ describe('proxy matcher', () => {
 
   it.each(urls)('runs before %s, which reads the session', (url) => {
     expect(doesProxyMatch({ config, cookies: withSession, url })).toBe(true);
+  });
+
+  // The extension calls them without a session: nothing to refresh
+  it.each([
+    '/api/connections/netflix/link',
+    '/api/connections/netflix/link/check',
+  ])('skips the extension’s public route %s', (url) => {
+    expect(doesProxyMatch({ config, cookies: withSession, url })).toBe(false);
   });
 
   // Vercel runs the proxy before its CDN cache: an image that reads no

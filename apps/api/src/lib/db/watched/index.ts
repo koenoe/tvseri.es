@@ -9,6 +9,7 @@ import {
   type EpisodeForWatched,
   episodeCode,
   type PaginationOptions,
+  type RecentScrobble,
   type Season,
   type TvSeries,
   type TvSeriesForWatched,
@@ -987,19 +988,24 @@ export const getWatchedCount = async (
   });
 };
 
+/** Who wrote a watched episode, and its date */
+type WatchedEpisodeKey = Readonly<{
+  /** The import (or sync chain) that wrote it; null: marked any other way */
+  importId: string | null;
+  watchedAt: number | null;
+}>;
+
 /**
  * The episode codes (`SERIES#<id>#S001#E001` sort keys) a user has of some
- * shows: one consistent base-table Query per show (bounded concurrency).
- * `exceptImportId`: leaves out the items that import wrote (Undo, before
- * deleting them).
+ * shows, each with who wrote it and when it was watched: one consistent
+ * base-table Query per show (bounded concurrency).
  */
 export const getWatchedEpisodeKeys = async (
   userId: string,
   seriesIds: ReadonlyArray<number>,
-  { exceptImportId }: Readonly<{ exceptImportId?: string }> = {},
-): Promise<ReadonlySet<string>> => {
+): Promise<ReadonlyMap<string, WatchedEpisodeKey>> => {
   const limit = createLimiter(BASE_QUERY_CONCURRENCY);
-  const keys = new Set<string>();
+  const keys = new Map<string, WatchedEpisodeKey>();
 
   await Promise.all(
     [...new Set(seriesIds)].map((seriesId) =>
@@ -1011,15 +1017,15 @@ export const getWatchedEpisodeKeys = async (
             ':prefix': seriesSkPrefix(seriesId),
           }),
           KeyConditionExpression: 'pk = :pk AND begins_with(sk, :prefix)',
-          ProjectionExpression: exceptImportId ? 'sk, importId' : 'sk',
+          ProjectionExpression: 'sk, importId, watchedAt',
           TableName: Resource.Watched.name,
         })) {
           for (const item of page.Items ?? []) {
-            if (
-              item.sk?.S &&
-              (!exceptImportId || item.importId?.S !== exceptImportId)
-            ) {
-              keys.add(item.sk.S);
+            if (item.sk?.S) {
+              keys.set(item.sk.S, {
+                importId: item.importId?.S ?? null,
+                watchedAt: item.watchedAt?.N ? Number(item.watchedAt.N) : null,
+              });
             }
           }
         }
@@ -1036,6 +1042,14 @@ const SCROBBLE_PAGE = 100;
 const SCROBBLE_SCAN_CAP = 2000;
 /** At most this many media server marks are kept for the week */
 const SCROBBLE_WEEK_CAP = 200;
+/** The latest marks a status shows */
+const RECENT_LIMIT = 5;
+/**
+ * The week's marks reach back 8 days: the viewer's "last seven days ending
+ * today" starts at most 7 days and a DST hour before now in any time zone,
+ * and only the browser knows which zone that is.
+ */
+const WEEK_MS = 8 * 24 * 60 * 60 * 1000;
 
 type ScrobbleMark = Pick<
   WatchedItem,
@@ -1047,11 +1061,29 @@ type ScrobbleMark = Pick<
   | 'watchedAt'
 >;
 
+/** A mark as a status shows it (no empty episode title) */
+const toRecent = ({
+  episodeNumber,
+  episodeTitle,
+  seasonNumber,
+  seriesId,
+  title,
+  watchedAt,
+}: ScrobbleMark): RecentScrobble => ({
+  episodeNumber,
+  ...(episodeTitle && { episodeTitle }),
+  seasonNumber,
+  seriesId,
+  title,
+  watchedAt,
+});
+
 /**
- * The marks made through a media server (`watchProviderName`, e.g. "Plex"),
- * newest first, from one Query on gsi2 (a user's dated marks by time) with
- * the provider as a filter: `recent` is the latest `recentLimit` of them,
- * `week` every one since `since` (at most 200). The filter applies after a
+ * The marks made through a media server or a sync (`watchProviderName`,
+ * e.g. "Plex", "Netflix"), newest first, for a status: `recent` is the
+ * latest 5 of them, `week` every one of the last 8 days (at most 200), from
+ * one Query on gsi2 (a user's dated marks by time) with the provider as a
+ * filter. The filter applies after a
  * page's `Limit`, so the Query keeps paging (100 marks a page, any source)
  * until a page ends before `since` (most users: one page), 200 media server
  * marks are in, or 2,000 marks were read: only a week with more hand marks
@@ -1059,27 +1091,28 @@ type ScrobbleMark = Pick<
  * reaches back past a quiet week.
  */
 export const getMarksByProvider = async ({
+  importIdPrefix,
   providerName,
-  recentLimit,
-  since,
   userId,
 }: Readonly<{
+  /** Only marks whose import id starts with this (a sync's tag) */
+  importIdPrefix?: string;
   providerName: string;
-  recentLimit: number;
-  since: number;
   userId: string;
 }>): Promise<
   Readonly<{
-    recent: ReadonlyArray<ScrobbleMark>;
-    week: ReadonlyArray<ScrobbleMark>;
+    recent: ReadonlyArray<RecentScrobble>;
+    week: ReadonlyArray<RecentScrobble>;
   }>
 > => {
+  const since = Date.now() - WEEK_MS;
   const marks: ScrobbleMark[] = [];
   let scanned = 0;
   for await (const page of queryPages({
     ExpressionAttributeNames: {
       '#e': 'episodeNumber',
       '#et': 'episodeTitle',
+      ...(importIdPrefix && { '#i': 'importId' }),
       '#p': 'watchProviderName',
       '#s': 'seasonNumber',
       '#sid': 'seriesId',
@@ -1089,8 +1122,11 @@ export const getMarksByProvider = async ({
     ExpressionAttributeValues: marshall({
       ':pk': historyIndexPk(userId),
       ':provider': providerName,
+      ...(importIdPrefix && { ':importIdPrefix': importIdPrefix }),
     }),
-    FilterExpression: '#p = :provider',
+    FilterExpression: importIdPrefix
+      ? '#p = :provider AND begins_with(#i, :importIdPrefix)'
+      : '#p = :provider',
     IndexName: 'gsi2',
     KeyConditionExpression: 'gsi2pk = :pk',
     Limit: SCROBBLE_PAGE,
@@ -1113,9 +1149,10 @@ export const getMarksByProvider = async ({
   }
 
   return {
-    recent: marks.slice(0, recentLimit),
+    recent: marks.slice(0, RECENT_LIMIT).map(toRecent),
     week: marks
       .filter((mark) => mark.watchedAt >= since)
-      .slice(0, SCROBBLE_WEEK_CAP),
+      .slice(0, SCROBBLE_WEEK_CAP)
+      .map(toRecent),
   };
 };

@@ -1,11 +1,11 @@
-import { dayMonthYear, localParts } from '@/lib/format/date';
-import { formatWhen } from '@/lib/format/when';
 import {
   parseEpisodeNumber,
   recogniseSeasonNumber,
   type SplitEntry,
   splitEntry,
-} from '@/lib/import/parseEntry';
+} from '@tvseri.es/import';
+import { dayMonthYear, localParts } from '@/lib/format/date';
+import { formatWhen } from '@/lib/format/when';
 import { matchProvider } from '@/lib/import/providers';
 import type { ColumnMapping } from './columns';
 import { type DateOrder, type DateProblem, parseDate } from './parseDate';

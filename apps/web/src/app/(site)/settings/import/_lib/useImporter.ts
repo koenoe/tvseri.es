@@ -9,10 +9,10 @@ import type {
   ImportProblem,
   ImportRow,
 } from '@/lib/import/contract';
+import type { Fix } from '../../_components/problems/fix';
 import { startImport } from './actions';
 import { type ColumnMapping, detectSource } from './columns';
 import {
-  type Fix,
   type GroupId,
   type HelpTab,
   importReducer,

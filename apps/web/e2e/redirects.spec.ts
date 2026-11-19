@@ -17,7 +17,7 @@ const REDIRECTS: ReadonlyArray<readonly [from: string, to: string]> = [
   ['/tv/0123/x', '/0123/x'],
   ['/track/1396', '/1396?history='],
   ['/track/1396/breaking-bad?season=2', '/1396/breaking-bad?season=2&history='],
-  ['/settings/webhooks', '/settings/plex'],
+  ['/settings/webhooks', '/settings/connected-apps'],
   // Leading zeros on a show id, at the edge with the query kept
   [
     '/0136315/the-bear?season=2&episode=6',

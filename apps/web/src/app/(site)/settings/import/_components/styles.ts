@@ -1,23 +1,12 @@
 /**
- * Class lists the importer repeats (links, small buttons,
- * chips, segmented controls). One-off values stay in
- * their component.
+ * Class lists the importer repeats (solid buttons, segmented controls, card
+ * heads, meta rows); the ones its review items share with other lists live
+ * in `_components/problems/styles`. One-off values stay in their component.
  */
-
-/** Text action: white/80, underlined on hover */
-export const LINK =
-  'inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap text-body-sm font-medium text-white/80 underline-offset-3 transition-[background-color,color] hover:text-white hover:underline';
 
 /** The importer's solid white action: no edge, 24px either side */
 export const SOLID_BUTTON =
   'border-0 px-6 font-medium text-[#171717] has-[>svg:first-child]:pl-6';
-
-/** 32px tonal button */
-export const SMALL_BUTTON = 'h-8 gap-1.5 px-3 has-[>svg:first-child]:pl-3';
-
-/** 36px choice chip: candidate shows and episodes */
-export const CHIP =
-  'inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full bg-white/6 px-4 text-caption font-medium text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] transition-[background-color,color] hover:bg-white/11 hover:text-white aria-pressed:bg-white aria-pressed:text-[#171717] aria-pressed:shadow-none max-md:h-8 max-md:px-3';
 
 /** The segmented control's track and items */
 export const SEGMENTED = 'flex gap-0.5 rounded-10 bg-black/28 p-0.75';

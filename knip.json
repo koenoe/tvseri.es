@@ -1,7 +1,11 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "exclude": ["duplicates"],
-  "ignore": [".claude/**", "packages/schemas/tmdb-v*.d.ts"],
+  "ignore": [
+    ".claude/**",
+    "apps/extension/**",
+    "packages/schemas/tmdb-v*.d.ts"
+  ],
   "ignoreExportsUsedInFile": {
     "interface": true,
     "type": true
@@ -21,6 +25,7 @@
       "entry": [
         "test/empty.ts",
         "scripts/*.mjs",
+        "scripts/*.ts",
         "e2e/stub-api/fixtures/**/*.ts"
       ],
       "project": [
@@ -29,6 +34,9 @@
       ]
     },
     "packages/constants": {
+      "includeEntryExports": true
+    },
+    "packages/import": {
       "includeEntryExports": true
     },
     "packages/kill-switch": {

@@ -142,29 +142,40 @@ const plexHint = (over: Record<string, unknown> = {}) =>
 
 describe('Plex card hint', () => {
   it('sets the state and the number of recent plays on the Plex route', () => {
-    expect(run('/settings/plex', { stored: plexHint() }).attributes).toEqual({
+    expect(
+      run('/settings/connected-apps', { stored: plexHint() }).attributes,
+    ).toEqual({
       'data-plex': 'on',
       'data-plex-n': '3',
     });
     expect(
-      run('/settings/plex/', { stored: plexHint({ n: 0, s: 'wait' }) })
-        .attributes,
+      run('/settings/connected-apps/', {
+        stored: plexHint({ n: 0, s: 'wait' }),
+      }).attributes,
     ).toEqual({ 'data-plex': 'wait' });
   });
 
   it('is keyed by the viewer and the version, and ignores junk', () => {
     expect(
-      run('/settings/plex', { cookie: `${COOKIE}=rae`, stored: plexHint() })
+      run('/settings/connected-apps', {
+        cookie: `${COOKIE}=rae`,
+        stored: plexHint(),
+      }).attributes,
+    ).toEqual({});
+    expect(
+      run('/settings/connected-apps', { stored: plexHint({ v: 99 }) })
         .attributes,
     ).toEqual({});
     expect(
-      run('/settings/plex', { stored: plexHint({ v: 99 }) }).attributes,
+      run('/settings/connected-apps', { stored: plexHint({ s: 'huge' }) })
+        .attributes,
     ).toEqual({});
     expect(
-      run('/settings/plex', { stored: plexHint({ s: 'huge' }) }).attributes,
+      run('/settings/connected-apps', { stored: '{nope' }).attributes,
     ).toEqual({});
-    expect(run('/settings/plex', { stored: '{nope' }).attributes).toEqual({});
-    expect(run('/settings/plex', { stored: null }).attributes).toEqual({});
+    expect(
+      run('/settings/connected-apps', { stored: null }).attributes,
+    ).toEqual({});
   });
 
   it('sets nothing on other settings routes, or without storage', () => {
@@ -172,7 +183,8 @@ describe('Plex card hint', () => {
       {},
     );
     expect(
-      run('/settings/plex', { stored: plexHint(), throws: true }).attributes,
+      run('/settings/connected-apps', { stored: plexHint(), throws: true })
+        .attributes,
     ).toEqual({});
   });
 });

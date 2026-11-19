@@ -1,7 +1,9 @@
+import { CONNECTION_SERVICES } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
 import { API_WRITE_ROUTES } from '../../../infra/apiWriteRoutes';
 import app from '../src/app';
+import { SERVICE_PARAM } from '../src/routes/serviceParam';
 import { runEdge } from './edge';
 import { API_KEY } from './request';
 
@@ -13,9 +15,14 @@ import { API_KEY } from './request';
 
 type Target = 'catalogue' | 'write';
 
+/** The connection routes' param, as the app builds it from the service list */
+const SERVICE = SERVICE_PARAM;
+
 const ROUTES: Readonly<Record<string, Target>> = {
   'DELETE /admin/preferred-images/series/:id{[0-9]+}': 'catalogue',
   'DELETE /me': 'write',
+  [`DELETE /me/connections/${SERVICE}`]: 'write',
+  'DELETE /me/connections/link-code': 'write',
   'DELETE /me/imports/:importId': 'write',
   'DELETE /user/:id/list/:list{favorites|in_progress|watchlist}/:itemId{[0-9]+}':
     'write',
@@ -48,6 +55,8 @@ const ROUTES: Readonly<Record<string, Target>> = {
   'GET /me': 'write',
   'GET /me/circle': 'catalogue',
   'GET /me/circle/people': 'catalogue',
+  [`GET /me/connections/${SERVICE}`]: 'write',
+  [`GET /me/connections/${SERVICE}/unresolved`]: 'write',
   'GET /me/export/everything.json': 'catalogue',
   'GET /me/export/history.csv': 'catalogue',
   'GET /me/get-started': 'catalogue',
@@ -144,6 +153,15 @@ const ROUTES: Readonly<Record<string, Target>> = {
   'GET /webhook/type/:type{plex}/status': 'catalogue',
   'PATCH /me/series/:id/prefs': 'write',
   'PATCH /webhook/type/:type{plex}': 'write',
+  // The link call waits on Netflix: keep it off the write function
+  [`POST /connections/${SERVICE}/link`]: 'catalogue',
+  // The consent screen's check: public, beside the link it comes before
+  [`POST /connections/${SERVICE}/link/check`]: 'catalogue',
+  [`POST /me/connections/${SERVICE}/sync`]: 'write',
+  [`POST /me/connections/${SERVICE}/unresolved/dismiss`]: 'write',
+  [`POST /me/connections/${SERVICE}/unresolved/dismiss-all`]: 'write',
+  [`POST /me/connections/${SERVICE}/unresolved/resolve`]: 'write',
+  'POST /me/connections/link-code': 'write',
   'POST /me/imports': 'write',
   'POST /me/imports/:importId/batch': 'write',
   'POST /me/imports/check': 'write',
@@ -172,6 +190,7 @@ const SAMPLES = [
   '1',
   '2026',
   'plex',
+  ...CONNECTION_SERVICES,
   'favorites',
   'watching',
   'genre',

@@ -1,0 +1,21 @@
+import LocalMoment from '../../_components/LocalMoment';
+import type { PlexState } from '../../_lib/plexState';
+import { STATE_DOT } from '../_lib/appState';
+import { STATUS_TEXT } from '../_lib/plexCopy';
+import AppStatus from './AppStatus';
+
+/** "Receiving · last scrobble today at 21:14" and its three siblings. */
+export default function PlexStatusLine({
+  lastReceivedAt,
+  state,
+}: Readonly<{ lastReceivedAt: number | null; state: PlexState }>) {
+  const receiving = state === 'on';
+  return (
+    <AppStatus dot={STATE_DOT[state]} strong={receiving}>
+      {STATUS_TEXT[state]}
+      {receiving && lastReceivedAt !== null ? (
+        <LocalMoment at={lastReceivedAt} style="at" />
+      ) : null}
+    </AppStatus>
+  );
+}

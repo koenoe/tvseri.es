@@ -1,0 +1,85 @@
+/*
+ * Builds once per open, after the panel settles: `--base` matches the
+ * dialog's motion (CENTER_MOTION 200ms, PHONE_MOTION 240ms). Under reduced
+ * motion the global rule ends every animation at once.
+ */
+.build {
+  --base: 200ms;
+}
+
+.phone {
+  --base: 240ms;
+}
+
+.line {
+  stroke-dasharray: 1;
+  animation: drawing-line 140ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  animation-delay: calc(var(--base) + var(--at));
+}
+
+.node {
+  animation: drawing-rise 160ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  animation-delay: calc(var(--base) + var(--at) + 70ms);
+}
+
+.fade {
+  animation: drawing-fade 100ms linear both;
+  animation-delay: calc(var(--base) + var(--at) + 110ms);
+}
+
+.s0 {
+  --at: 0ms;
+}
+
+.s1 {
+  --at: 75ms;
+}
+
+.s2 {
+  --at: 150ms;
+}
+
+.s3 {
+  --at: 225ms;
+}
+
+.s4 {
+  --at: 300ms;
+}
+
+.s5 {
+  --at: 375ms;
+}
+
+.s6 {
+  --at: 450ms;
+}
+
+@keyframes drawing-line {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes drawing-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes drawing-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

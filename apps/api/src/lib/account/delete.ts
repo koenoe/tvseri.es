@@ -17,6 +17,8 @@ import { Resource } from 'sst';
 import { batchWrite } from '@/lib/db/batch';
 import { deleteExistingCacheItems } from '@/lib/db/cache';
 import client from '@/lib/db/client';
+import { connectionsPk } from '@/lib/db/connections/keys';
+import { revokeLinkCode } from '@/lib/db/connections/linkCode';
 import { followersPk, followingPk } from '@/lib/db/follow/keys';
 import { userPk } from '@/lib/db/list/keys';
 import { queryPages } from '@/lib/db/query';
@@ -74,13 +76,15 @@ const deleteClaims = async (userId: string) => {
 
 /**
  * Delete account, as steps on a queue (lambdas/deleteAccount.ts):
- * - `data`: follows (both ways; the follow stream fixes the other users'
- *   counts) and the watched history (the watched stream then clears lists);
+ * - `data`: the streaming connections (stored sign-ins and the live link
+ *   code) first, then follows (both ways; the follow stream fixes the other
+ *   users' counts) and the watched history (the watched stream then clears
+ *   lists);
  * - `lists` (15 min later, once the stream settled): lists and prefs,
  *   sign-ins, the cache keys, the handle and email claims, then the Users
  *   item;
- * - `sweep` (15 min later): follows, watched, sign-ins and lists once more,
- *   for rows written while it ran.
+ * - `sweep` (15 min later): connections, follows, watched, sign-ins and
+ *   lists once more, for rows written while it ran.
  * Every step deletes final state only, so any of them can run again.
  */
 const DELETE_ACCOUNT_STEPS = ['data', 'lists', 'sweep'] as const;
@@ -214,6 +218,23 @@ const deleteSignIns = async (userId: string, hasTime: () => boolean) => {
   return 'done';
 };
 
+/** The live link code's item lives under the code, not the user, so it goes first */
+const deleteConnections = async (userId: string, hasTime: () => boolean) => {
+  if (!hasTime()) {
+    return 'continue';
+  }
+  await revokeLinkCode(userId);
+  return deleteQueried(
+    Resource.Connections.name,
+    {
+      ExpressionAttributeValues: marshall({ ':pk': connectionsPk(userId) }),
+      KeyConditionExpression: 'pk = :pk',
+    },
+    tableKey,
+    hasTime,
+  );
+};
+
 const deleteFollows = async (userId: string, hasTime: () => boolean) => {
   // gsi1: the user's followers; gsi2: who the user follows
   for (const [index, key] of [
@@ -268,11 +289,21 @@ export const runDeleteAccountStep = async (
   }
 
   if (step === 'data') {
+    // The stored sign-ins first: they are the most sensitive data held
+    const connections = await deleteConnections(userId, hasTime);
+    if (connections === 'continue') {
+      return connections;
+    }
     const follows = await deleteFollows(userId, hasTime);
     return follows === 'continue' ? follows : deleteWatched(userId, hasTime);
   }
 
   if (step === 'sweep') {
+    // A link that landed during the window would otherwise be left behind
+    const connections = await deleteConnections(userId, hasTime);
+    if (connections === 'continue') {
+      return connections;
+    }
     // A follow made during the window would otherwise be left behind
     const follows = await deleteFollows(userId, hasTime);
     if (follows === 'continue') {

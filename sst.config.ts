@@ -129,6 +129,8 @@ export default $config({
     await import('./infra/metrics');
     await import('./infra/watchedStatus');
     await import('./infra/imports');
+    await import('./infra/connections');
+    await import('./infra/connectionSync');
     await import('./infra/auth');
 
     await import('./infra/deleteAccount');

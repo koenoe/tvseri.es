@@ -45,4 +45,20 @@ describe('in-memory DynamoDB double', () => {
     expect(second.Items).toHaveLength(1);
     expect(second.LastEvaluatedKey).toBeUndefined();
   });
+
+  it('pages on from a start key whose item is gone, as DynamoDB does', async () => {
+    db.seed('Connections', [
+      { pk: 'U', sk: 'E#1' },
+      { pk: 'U', sk: 'E#3' },
+    ]);
+    const page = (await db.send(
+      new QueryCommand({
+        ExclusiveStartKey: marshall({ pk: 'U', sk: 'E#2' }),
+        ExpressionAttributeValues: marshall({ ':pk': 'U' }),
+        KeyConditionExpression: 'pk = :pk',
+        TableName: 'Connections',
+      }),
+    )) as { Items: unknown[] };
+    expect(page.Items).toEqual([marshall({ pk: 'U', sk: 'E#3' })]);
+  });
 });

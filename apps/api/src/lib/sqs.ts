@@ -34,11 +34,12 @@ const SAFETY_MS = 60_000;
  * batch response), retried, then dead-lettered (alarmed).
  */
 export const resumableStepHandler =
-  <Message, Outcome extends string>({
+  <Message, Outcome extends object | string>({
     label,
     next,
     queueUrl,
     run,
+    safetyMs = SAFETY_MS,
     summary,
   }: Readonly<{
     /** The log lines' prefix, e.g. `UNDO IMPORT` */
@@ -54,11 +55,13 @@ export const resumableStepHandler =
       message: Message,
       hasTime: () => boolean,
     ) => Promise<Outcome | 'continue'>;
+    /** How long before the Lambda timeout no new piece of work starts */
+    safetyMs?: number;
     /** The log line after a step */
     summary: (message: Message, outcome: Outcome | 'continue') => string;
   }>) =>
   async (event: SQSEvent, context: Context): Promise<SQSBatchResponse> => {
-    const hasTime = () => context.getRemainingTimeInMillis() > SAFETY_MS;
+    const hasTime = () => context.getRemainingTimeInMillis() > safetyMs;
 
     // No reserve: `run` checks `hasTime` itself and asks to continue
     return eachRecordInTime(

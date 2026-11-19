@@ -1,25 +1,22 @@
 import { randomUUID } from 'node:crypto';
 import { UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
-import {
-  episodeCode,
-  type ImportBatch,
-  type ImportBatchResult,
-  type ImportCheckResult,
-  type LastImport,
+import type {
+  ImportBatch,
+  ImportBatchResult,
+  ImportCheckResult,
+  LastImport,
 } from '@tvseri.es/schemas';
 import { userKey } from '@tvseri.es/utils';
 import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
 
 import client from '@/lib/db/client';
-import { clearSkippedCodes } from '@/lib/db/prefs';
-import { getWatchedEpisodeKeys, markWatchedInBatch } from '@/lib/db/watched';
-import { episodeSk } from '@/lib/db/watched/keys';
 import { sendMessage } from '@/lib/sqs';
 
 import type { UndoImportMessage } from './undo';
 import { freshUnskipped, recordUnskipped } from './unskipped';
+import { planBatch, writeWatchedBatch } from './write';
 
 const userItemKey = (userId: string) => marshall({ pk: userKey(userId) });
 
@@ -73,39 +70,6 @@ export const assertImportOpen = (
   }
 };
 
-/** Splits a batch into episodes to write and episodes already watched */
-const planBatch = async (userId: string, batch: ImportBatch) => {
-  const existing = await getWatchedEpisodeKeys(
-    userId,
-    batch.map((item) => item.tvSeries.id),
-  );
-  const seen = new Set<string>();
-  const toWrite: ImportBatch[number][] = [];
-  const alreadyWatched: { seriesId: number; code: string }[] = [];
-
-  for (const item of batch) {
-    const sk = episodeSk(
-      item.tvSeries.id,
-      item.episode.seasonNumber,
-      item.episode.episodeNumber,
-    );
-    if (seen.has(sk)) {
-      continue;
-    }
-    seen.add(sk);
-    if (existing.has(sk)) {
-      alreadyWatched.push({
-        code: episodeCode(item.episode),
-        seriesId: item.tvSeries.id,
-      });
-    } else {
-      toWrite.push(item);
-    }
-  }
-
-  return { alreadyWatched, toWrite };
-};
-
 /**
  * The import check step: what a batch would write and which episodes
  * are already watched (their dates are kept). Nothing is written.
@@ -152,9 +116,8 @@ const updateLastImport = (
   );
 
 /**
- * Writes one import batch: episodes watched before are skipped, so
- * their dates are kept and Undo never touches them; new ones carry the import
- * id. The caller checked the import is open (`assertImportOpen`).
+ * Writes one import batch (`writeWatchedBatch`), counted on the import. The
+ * caller checked the import is open (`assertImportOpen`).
  *
  * Accepted race: an episode the user marks by hand in the moment between the
  * check and the write is overwritten by the import (with its date) and would
@@ -165,36 +128,31 @@ export const writeImportBatch = async (
   importId: string,
   batch: ImportBatch,
 ): Promise<ImportBatchResult> => {
-  const { alreadyWatched, toWrite } = await planBatch(userId, batch);
-
-  if (toWrite.length > 0) {
+  const result = await writeWatchedBatch(userId, importId, batch, {
     // First claim the write on the import (409 once an Undo has started), so
     // no item tagged with the id can land after Undo scanned for them
-    await updateLastImport(userId, importId, {
-      claim: true,
-      expression: 'SET lastImport.importId = :importId',
-    });
-    const items = await markWatchedInBatch(
-      toWrite.map((item) => ({ ...item, importId, userId })),
-    );
-    // Writing an episode un-skips it; Undo puts those skips back
-    const unskipped = await recordUnskipped(userId, importId, items);
-    await clearSkippedCodes(userId, unskipped);
-  }
+    beforeWrite: () =>
+      updateLastImport(userId, importId, {
+        claim: true,
+        expression: 'SET lastImport.importId = :importId',
+      }),
+    // Undo puts the skips the import cleared back
+    onWritten: (items) => recordUnskipped(userId, importId, items),
+  });
 
-  if (toWrite.length > 0 || alreadyWatched.length > 0) {
+  if (result.written > 0 || result.skipped > 0) {
     // Counted once the episodes are in (a failed write counts nothing), so
     // "episodes in your history from this import" is written + skipped
     // everywhere. A batch with nothing to write still claims the import.
     await updateLastImport(userId, importId, {
-      claim: toWrite.length === 0,
+      claim: result.written === 0,
       expression:
         'ADD lastImport.written :written, lastImport.skipped :skipped',
-      values: { ':skipped': alreadyWatched.length, ':written': toWrite.length },
+      values: { ':skipped': result.skipped, ':written': result.written },
     });
   }
 
-  return { skipped: alreadyWatched.length, written: toWrite.length };
+  return result;
 };
 
 /**

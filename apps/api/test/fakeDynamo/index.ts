@@ -264,24 +264,23 @@ export class FakeDynamo {
     const tableKeys = [table.schema.hashKey, table.schema.rangeKey].filter(
       (key): key is string => Boolean(key),
     );
-    items.sort((a, b) => {
+    const direction = input.ScanIndexForward === false ? -1 : 1;
+    const order = (a: Item, b: Item) => {
       const byRange = index.rangeKey
         ? compareKeys(a[index.rangeKey], b[index.rangeKey])
         : 0;
       if (byRange !== 0) {
-        return byRange;
+        return direction * byRange;
       }
       for (const key of tableKeys) {
         const byKey = compareKeys(a[key], b[key]);
         if (byKey !== 0) {
-          return byKey;
+          return direction * byKey;
         }
       }
       return 0;
-    });
-    if (input.ScanIndexForward === false) {
-      items.reverse();
-    }
+    };
+    items.sort(order);
 
     const keyAttributes = [
       ...new Set([...tableKeys, index.hashKey, index.rangeKey]),
@@ -289,18 +288,10 @@ export class FakeDynamo {
     const keyOf = (item: Item) =>
       Object.fromEntries(keyAttributes.map((key) => [key, item[key]]));
 
+    // A start key is a position: its item may be gone, as in DynamoDB
     const start = toPlain(input.ExclusiveStartKey as Raw | undefined);
     if (start) {
-      const startId = JSON.stringify(keyOf(start));
-      const position = items.findIndex(
-        (item) => JSON.stringify(keyOf(item)) === startId,
-      );
-      if (position === -1) {
-        throw new Error(
-          'ValidationException: The provided starting key is invalid',
-        );
-      }
-      items = items.slice(position + 1);
+      items = items.filter((item) => order(item, start) > 0);
     }
 
     const limit = input.Limit as number | undefined;
@@ -416,6 +407,24 @@ export class FakeDynamo {
     const items = input.TransactItems as ReadonlyArray<
       Record<string, Record<string, unknown>>
     >;
+    // DynamoDB's own refusals, before any condition is read
+    if (items.length > 100) {
+      throw new Error('ValidationException: too many items in a transaction');
+    }
+    const targets = items.map((entry) => {
+      const [kind, operation] = Object.entries(entry)[0]!;
+      const table = this.table(operation.TableName as string);
+      const key =
+        kind === 'Put'
+          ? table.keyOf(toPlain(operation.Item as Raw)!)
+          : toPlain(operation.Key as Raw)!;
+      return `${operation.TableName as string}|${table.id(key)}`;
+    });
+    if (new Set(targets).size !== targets.length) {
+      throw new Error(
+        'ValidationException: Transaction request cannot include multiple operations on one item',
+      );
+    }
     // Check every condition first: all or nothing
     const reasons = items.map((entry) => {
       const [kind, operation] = Object.entries(entry)[0]!;
@@ -424,11 +433,16 @@ export class FakeDynamo {
         kind === 'Put'
           ? table.keyOf(toPlain(operation.Item as Raw)!)
           : toPlain(operation.Key as Raw)!;
+      const existing = table.get(key);
       try {
-        this.check(operation.ConditionExpression, table.get(key), operation);
+        this.check(operation.ConditionExpression, existing, operation);
         return { Code: 'None' };
       } catch {
-        return { Code: 'ConditionalCheckFailed' };
+        return {
+          Code: 'ConditionalCheckFailed',
+          ...(operation.ReturnValuesOnConditionCheckFailure === 'ALL_OLD' &&
+            existing && { Item: marshall(existing) }),
+        };
       }
     });
     if (reasons.some((reason) => reason.Code !== 'None')) {

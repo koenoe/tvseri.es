@@ -3,9 +3,8 @@ import { loginHref } from '@/auth/loginHref';
 import Button from '@/components/ui/button/Button';
 import { warningGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
-
+import { SMALL_BUTTON } from '../../_components/problems/styles';
 import type { StopReason } from '../_lib/runChunks';
-import { SMALL_BUTTON } from './styles';
 
 const LOGIN = loginHref('/settings/import');
 

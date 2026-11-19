@@ -92,11 +92,13 @@ describe('redirects', () => {
     expect(resolveRedirect('/123/x')).toBeNull();
   });
 
-  it('renames the webhooks settings page to plex', () => {
-    expect(resolveRedirect('/settings/webhooks')).toEqual({
-      location: '/settings/plex',
-      permanent: true,
-    });
+  it('sends the old webhooks and plex settings pages to connected apps', () => {
+    for (const old of ['/settings/webhooks', '/settings/plex']) {
+      expect(resolveRedirect(old)).toEqual({
+        location: '/settings/connected-apps',
+        permanent: true,
+      });
+    }
   });
 
   it('drops leading zeros from a person id, slug and all', () => {
@@ -141,7 +143,7 @@ describe('redirects', () => {
       '/1396/breaking-bad',
       '/discover',
       '/settings',
-      '/settings/plex',
+      '/settings/connected-apps',
       '/u/margaux',
       '/u/margaux/history',
       '/u/margaux/library',

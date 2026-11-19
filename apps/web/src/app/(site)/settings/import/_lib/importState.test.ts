@@ -319,7 +319,7 @@ describe('step 3 · import', () => {
     expect(showCount(r)).toBe(2);
   });
 
-  it('opens “Two shows with this name” first and toggles the groups', () => {
+  it('opens “Which series?” first and toggles the groups', () => {
     const r = runOf(
       run([...started, { group: 'notFound', type: 'toggleGroup' }]),
     );

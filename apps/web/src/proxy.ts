@@ -30,7 +30,7 @@ export const config = {
     // refresh themselves, the proxy does it first. Only with a session cookie.
     {
       has: [{ key: '__tvseries_session', type: 'cookie' }],
-      source: '/api/(region|account/import)',
+      source: '/api/(region|account/import|connections/[^/]+)',
     },
     // Everywhere else the proxy only refreshes the session, so skip requests
     // without a session cookie (crawlers, anonymous visitors): each proxy run

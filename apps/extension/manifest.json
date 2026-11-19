@@ -1,0 +1,38 @@
+{
+  "action": {
+    "default_icon": {
+      "16": "icons/idle-16.png",
+      "32": "icons/idle-32.png"
+    },
+    "default_popup": "popup.html",
+    "default_title": "tvseri.es"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "description": "Connect streaming services to your tvseri.es account.",
+  "externally_connectable": {
+    "matches": ["https://www.tvseri.es/*"]
+  },
+  "host_permissions": [
+    "https://netflix.com/*",
+    "https://*.netflix.com/*",
+    "https://bbc.co.uk/*",
+    "https://*.bbc.co.uk/*",
+    "https://primevideo.com/*",
+    "https://*.primevideo.com/*",
+    "https://www.tvseri.es/*"
+  ],
+  "icons": {
+    "16": "icons/active-16.png",
+    "32": "icons/active-32.png",
+    "48": "icons/active-48.png",
+    "128": "icons/active-128.png"
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtpNrK83pdrLDMVbENVjXsHbRqgA065ZVXiUvkmrB3Rj4/zLbZ+8PsE/DLwchWvLTkMD/6KUbKYrlhhO/IzF92BFeTS+Gd2pjyn0oGn+uVLIYJcGUKwkMfhfvLtQHGJujfyS1RyQVDy7p2rnrB57L8HC3bpdB+KLbRBYwRifm2bLs6/z5A3A9LsdhmSzQb+Ss/W9srdWZf6Ckkn/dqUzN3iP9CAX+985qglnqnHorp2w8KGxwIzXuhT6FWymeEUwOpyg1zuC2aiJpE3Y4/zXVe6vtm6dT2Nw7IEvO6g5U0VdqemaOIQhAAZvX1M3HO7Gap7WwelWzbW6m+xGzeTkxiwIDAQAB",
+  "manifest_version": 3,
+  "name": "tvseri.es",
+  "permissions": ["cookies", "storage"],
+  "version": "0.2.0"
+}

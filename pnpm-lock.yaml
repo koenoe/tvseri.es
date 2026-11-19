@@ -221,6 +221,9 @@ importers:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.1169.0
         version: 3.1169.0
+      '@aws-sdk/client-kms':
+        specifier: ^3.1171.0
+        version: 3.1171.0
       '@aws-sdk/client-lambda':
         specifier: ^3.1169.0
         version: 3.1169.0
@@ -245,6 +248,9 @@ importers:
       '@tvseri.es/constants':
         specifier: workspace:*
         version: link:../../packages/constants
+      '@tvseri.es/import':
+        specifier: workspace:*
+        version: link:../../packages/import
       '@tvseri.es/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
@@ -455,6 +461,9 @@ importers:
       '@tvseri.es/constants':
         specifier: workspace:*
         version: link:../../packages/constants
+      '@tvseri.es/import':
+        specifier: workspace:*
+        version: link:../../packages/import
       '@tvseri.es/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
@@ -476,9 +485,6 @@ importers:
       date-fns:
         specifier: ^4.4.0
         version: 4.4.0
-      dice-coefficient:
-        specifier: ^2.1.1
-        version: 2.1.1
       jose:
         specifier: ^6.2.17
         version: 6.2.17
@@ -570,6 +576,9 @@ importers:
       d3-geo:
         specifier: 3.1.2
         version: 3.1.2
+      fflate:
+        specifier: 0.8.3
+        version: 0.8.3
       jsdom:
         specifier: ^31.0.1
         version: 31.0.1
@@ -610,6 +619,31 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
+
+  packages/import:
+    dependencies:
+      '@tvseri.es/schemas':
+        specifier: workspace:*
+        version: link:../schemas
+      '@tvseri.es/utils':
+        specifier: workspace:*
+        version: link:../utils
+      dice-coefficient:
+        specifier: ^2.1.1
+        version: 2.1.1
+    devDependencies:
+      '@tvseri.es/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.19.2
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vitest:
+        specifier: 5.1.0
+        version: 5.1.0(@types/node@24.19.2)(jsdom@31.0.1)(msw@2.15.0(@types/node@24.19.2)(typescript@7.0.2))(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
   packages/kill-switch:
     dependencies:
@@ -744,6 +778,10 @@ packages:
 
   '@aws-sdk/client-dynamodb@3.1169.0':
     resolution: {integrity: sha512-FqvqV/l5gJCluCLxE37sNxd9UFunnZFwc/yQCizLYN368rlbFbcJ3SiHqYvJEmZZFFV3sWs9kyn3D3HiGxjumA==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/client-kms@3.1171.0':
+    resolution: {integrity: sha512-OI0XTSwCActJVI5XocP/F1Us4NUeK/KSnsqc0FoYK16v4F97wxjg5t0yZLia3whsnr64AfVN4jUt48UXj+V4CA==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/client-lambda@3.1169.0':
@@ -4818,6 +4856,17 @@ snapshots:
       '@aws-sdk/credential-provider-node': 3.972.97
       '@aws-sdk/dynamodb-codec': 3.973.58
       '@aws-sdk/middleware-endpoint-discovery': 3.972.39
+      '@aws-sdk/types': 3.975.1
+      '@smithy/core': 3.40.0
+      '@smithy/fetch-http-handler': 5.8.1
+      '@smithy/node-http-handler': 4.14.2
+      '@smithy/types': 4.20.0
+      tslib: 2.8.1
+
+  '@aws-sdk/client-kms@3.1171.0':
+    dependencies:
+      '@aws-sdk/core': 3.981.0
+      '@aws-sdk/credential-provider-node': 3.972.97
       '@aws-sdk/types': 3.975.1
       '@smithy/core': 3.40.0
       '@smithy/fetch-http-handler': 5.8.1

@@ -13,9 +13,9 @@
 
 | Step | When | Deletes |
 |---|---|---|
-| `data` | at once | follows, both ways (the follow stream fixes other users' counts), then every watched item (the watched stream then clears lists) |
+| `data` | at once | the streaming connections (stored service sign-ins and the live link code), then follows, both ways (the follow stream fixes other users' counts), then every watched item (the watched stream then clears lists) |
 | `lists` | 15 min later | lists and per-show prefs, the sign-ins (refresh rows in the auth service's storage, one partition per role, `authSubject` in `@tvseri.es/utils`), cached counters and stats, the username and email claims (only if they still name this user), then the Users item |
-| `sweep` | 15 min after that | follows, watched items, sign-ins and lists once more, for anything written meanwhile (a queued scrobble, a list the stream rebuilt, a sign-in) |
+| `sweep` | 15 min after that | connections, follows, watched items, sign-ins and lists once more, for anything written meanwhile (a queued scrobble, a list the stream rebuilt, a sign-in, a streaming link already in flight) |
 
 The 15-minute gaps let the streams reacting to the previous step settle. Otherwise they would write list rows after `lists` deleted them. About 30 minutes end to end. Once the email claim is gone, the same address can sign up again as a new account.
 

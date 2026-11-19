@@ -66,7 +66,10 @@ SECRET_KEY="${secretKey}"
 
   new sst.x.DevCommand('Website', {
     dev: {
-      command: 'next dev',
+      // The extension's zip first, as `pnpm build` does (/extension links
+      // it). Through the package script: SST runs the command without a
+      // shell, so an `&&` here would reach node as arguments
+      command: 'pnpm dev',
       directory: 'apps/web',
       title: 'Website',
     },

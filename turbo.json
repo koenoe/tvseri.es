@@ -11,6 +11,11 @@
       ],
       "outputs": []
     },
+    "@tvseri.es/web#test": {
+      "dependsOn": ["transit"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/apps/extension/**"],
+      "outputs": []
+    },
     "//#check-types:infra": {
       "inputs": [
         "sst.config.ts",

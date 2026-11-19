@@ -24,6 +24,12 @@
       "source": "aws/agent-toolkit-for-aws",
       "sourceType": "github"
     },
+    "chrome-extensions": {
+      "computedHash": "802ef1e0135ebd69e0eec533914754ba8ed0f080af86e55400de6e7fb22e6bae",
+      "skillPath": "skills/chrome-extensions/SKILL.md",
+      "source": "GoogleChrome/modern-web-guidance",
+      "sourceType": "github"
+    },
     "code-review": {
       "computedHash": "c2745e2be960b82b9fddd82cf45265f42431e7b045c403f297b25f0f311e9210",
       "skillPath": "skills/engineering/code-review/SKILL.md",

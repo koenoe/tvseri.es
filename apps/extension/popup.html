@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>tvseri.es</title>
+    <link href="popup.css" rel="stylesheet" />
+  </head>
+  <body>
+    <header class="hd">
+      <img alt="tvseri.es" class="logo" src="icons/logo.svg" />
+    </header>
+    <main class="main">
+      <section id="home">
+        <h1 class="title" tabindex="-1">Streaming services</h1>
+        <p class="body">
+          Connect a service once. Your history then syncs to tvseri.es every
+          night.
+        </p>
+        <ul class="list" id="services"></ul>
+      </section>
+
+      <section hidden id="service">
+        <button class="back" id="back" type="button">
+          <svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></svg>
+          All services
+        </button>
+        <div class="who">
+          <span class="tile big"><img alt="" data-logo /></span>
+          <h1 class="title" id="service-title" tabindex="-1"></h1>
+        </div>
+        <div id="pair">
+          <p class="body" id="disclosure"></p>
+          <p class="cap dest" hidden id="destination"></p>
+          <form id="link" novalidate>
+            <label class="sr" for="code">Link code from tvseri.es</label>
+            <div class="otp" id="otp">
+              <input
+                aria-describedby="disclosure destination account status"
+                autocomplete="one-time-code"
+                data-1p-ignore
+                data-lpignore="true"
+                id="code"
+                inputmode="numeric"
+                maxlength="4"
+                pattern="\d{4}"
+                required
+                spellcheck="false"
+              />
+              <div aria-hidden="true" class="sl"><b></b><i></i></div>
+              <div aria-hidden="true" class="sl"><b></b><i></i></div>
+              <div aria-hidden="true" class="sl"><b></b><i></i></div>
+              <div aria-hidden="true" class="sl"><b></b><i></i></div>
+            </div>
+            <!-- Whose tvseri.es account the code links to, before Continue:
+                 a code someone else sent would link to theirs -->
+            <p aria-live="polite" class="body acct" id="account"></p>
+            <div class="acts">
+              <button class="btn" id="cancel" type="button">Cancel</button>
+              <button class="btn w" disabled id="submit" type="submit">
+                Continue
+              </button>
+            </div>
+          </form>
+        </div>
+        <div hidden id="done">
+          <p class="body" id="done-body"></p>
+          <button class="btn" id="again" type="button">Use another code</button>
+        </div>
+        <p aria-atomic="true" aria-live="polite" class="note" id="status"></p>
+      </section>
+    </main>
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>

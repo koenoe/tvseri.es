@@ -67,7 +67,7 @@ test.describe('a failing read in Settings', () => {
       test.setTimeout(90_000);
       await signInAs(page.context(), 'alex');
       await failRead('alex', '/webhook/', mode);
-      await page.goto('/settings/plex');
+      await page.goto('/settings/connected-apps');
       await expect(
         page.getByRole('heading', { level: 2, name: 'Connected apps' }),
       ).toBeVisible({ timeout: 30_000 });

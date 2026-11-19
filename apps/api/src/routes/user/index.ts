@@ -7,6 +7,7 @@ import {
   CreateWatchedItemSchema,
   type DeleteWatchedItemBatch,
   DeleteWatchedItemBatchSchema,
+  isSyncTag,
   type TvSeries,
   type User,
   type WatchedItem,
@@ -453,9 +454,11 @@ app.post(
     validateBatchWatchedItemsOwnership(body, user.id);
 
     // An episode Undo puts back rejoins its import only while that import
-    // can still be undone: otherwise it is restored as an ordinary mark
+    // can still be undone: otherwise it is restored as an ordinary mark. A
+    // sync's tag has no Undo to protect, so it stays (the card reads by it)
     const items = body.map(({ importId, ...item }) =>
-      importId && isImportOpen(user.lastImport, importId)
+      importId &&
+      (isSyncTag(importId) || isImportOpen(user.lastImport, importId))
         ? { ...item, importId }
         : item,
     );

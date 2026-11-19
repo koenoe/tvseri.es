@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "exclude": ["node_modules"],
+  "extends": "@tvseri.es/typescript-config/base.json",
+  "include": ["**/*.ts"]
+}

@@ -1,15 +1,15 @@
 'use client';
 
 import { formatGrouped } from '@tvseri.es/utils';
-import type { Fix } from '../_lib/importState';
-import { rowsIn, splitItems } from '../_lib/problemRows';
-import type { ProblemItem } from '../_lib/problems';
+import type { Fix } from '../../_components/problems/fix';
+import { NotFoundProblems } from '../../_components/problems/KindGroups';
+import type { NotFoundHandlers } from '../../_components/problems/NotFoundItem';
+import { rowsIn, splitItems } from '../../_components/problems/problemRows';
+import type { ProblemItem } from '../../_components/problems/problems';
 import type { Importer } from '../_lib/useImporter';
-import NotFoundItem, { type NotFoundHandlers } from './NotFoundItem';
-import ProblemGroup from './ProblemGroup';
 import ProblemRest from './ProblemRest';
 
-/** "Not found": search manually or skip; recaps and extras are summed up. */
+/** The import's "Not found": two items, then recaps and extras summed up. */
 export default function NotFoundGroup({
   count,
   expanded,
@@ -43,22 +43,16 @@ export default function NotFoundGroup({
   const restToast = `Skipped ${restRows} recaps and extras`;
   const restWhy = `Recaps, extras and titles TMDB doesn’t know, like ${like}`;
   return (
-    <ProblemGroup
+    <NotFoundProblems
+      bodyId="import-group-not-found"
       count={count}
-      id="not-found"
-      name="Not found"
+      fixes={fixes}
+      handlers={handlers}
+      items={shown}
       onToggle={toggle}
       open={open}
-      what="No series or episode by that name on TMDB"
+      unit="rows"
     >
-      {shown.map((item) => (
-        <NotFoundItem
-          fix={fixes[item.key]}
-          handlers={handlers}
-          item={item}
-          key={item.key}
-        />
-      ))}
       {rest.length > 0 ? (
         <ProblemRest
           fixes={fixes}
@@ -71,6 +65,6 @@ export default function NotFoundGroup({
           why={restWhy}
         />
       ) : null}
-    </ProblemGroup>
+    </NotFoundProblems>
   );
 }

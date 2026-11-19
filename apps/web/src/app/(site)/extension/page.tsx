@@ -12,7 +12,7 @@ import ServiceLogos from './_components/ServiceLogos';
 
 export const metadata: Metadata = {
   description:
-    'Sync your streaming history from Netflix, BBC iPlayer and Prime Video. Connect once; it updates every night.',
+    'Sync your streaming history from Netflix, BBC iPlayer and Prime Video. Connect once, choose how far back, and it updates every night.',
   title: { absolute: 'Chrome Extension · tvseri.es' },
 };
 
@@ -33,8 +33,8 @@ export default function ExtensionPage() {
             Sync your streaming history
           </h1>
           <p className="max-w-140 text-body-sm text-white/80 md:text-body">
-            From Netflix, BBC iPlayer and Prime Video. Connect once; it updates
-            every night.
+            From Netflix, BBC iPlayer and Prime Video. Connect once, choose how
+            far back, and it updates every night.
           </p>
           <ServiceLogos />
           <div className="mt-3">

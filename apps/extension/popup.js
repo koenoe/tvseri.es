@@ -206,8 +206,8 @@ const checkIfFull = () => {
   showVerdict();
 };
 
-// Right after a link (`fresh`) nothing has synced yet: the card offers Sync
-// now only before a connection's first sync
+// Right after a link (`fresh`) nothing has synced yet: the first sync is the
+// viewer's, from its card (How far back, then Sync now); nightly runs follow
 const showDone = (profile, fresh) => {
   pair.hidden = true;
   done.hidden = false;
@@ -215,8 +215,8 @@ const showDone = (profile, fresh) => {
   title.textContent = `${config().name} is linked`;
   const whose = profile ? `${profile}’s history` : 'Your history';
   doneBody.textContent = fresh
-    ? 'It syncs tonight. Not synced yet? Run the first sync from its card on tvseri.es.'
-    : `${whose} syncs to tvseri.es every night. Check it or disconnect it in Settings → Connected apps on tvseri.es.`;
+    ? 'Now pick how far back on its card on tvseri.es and run the first sync. After that it syncs every night.'
+    : `${whose} syncs to tvseri.es every night once its first sync has run. Check it or disconnect it in Settings → Connected apps on tvseri.es.`;
   say('', null);
 };
 

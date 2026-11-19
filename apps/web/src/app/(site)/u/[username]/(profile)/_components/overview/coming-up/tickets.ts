@@ -1,18 +1,22 @@
 import { type ComingUpItem, episodeCode } from '@tvseri.es/schemas';
-import { plural } from '@tvseri.es/utils';
+import { countdownOf, plural } from '@tvseri.es/utils';
 
-/** The ticket stub: "2 DAYS", "3 WEEKS"; under two weeks in days */
+const UNITS = {
+  day: ['Day', 'Days'],
+  month: ['Month', 'Months'],
+  week: ['Week', 'Weeks'],
+} as const;
+
+/** The ticket stub: "2 DAYS", "3 WEEKS", "4 MONTHS" (the shared `countdownOf` rule) */
 export function countdown(
   daysToGo: number,
 ): Readonly<{ n: string; unit: string }> {
-  if (daysToGo <= 0) {
+  const { count, unit } = countdownOf(daysToGo);
+  if (unit === 'today') {
     return { n: '', unit: 'Today' };
   }
-  if (daysToGo < 14) {
-    return { n: String(daysToGo), unit: daysToGo === 1 ? 'Day' : 'Days' };
-  }
-  const weeks = Math.round(daysToGo / 7);
-  return { n: String(weeks), unit: weeks === 1 ? 'Week' : 'Weeks' };
+  const [one, many] = UNITS[unit];
+  return { n: String(count), unit: count === 1 ? one : many };
 }
 
 export type TicketText = Readonly<{

@@ -27,6 +27,7 @@ describe('countdown', () => {
     expect(countdown(20)).toEqual({ n: '3', unit: 'Weeks' });
     expect(countdown(30)).toEqual({ n: '4', unit: 'Weeks' });
     expect(countdown(0)).toEqual({ n: '', unit: 'Today' });
+    expect(countdown(120)).toEqual({ n: '4', unit: 'Months' });
   });
 });
 

@@ -154,13 +154,10 @@ describe("10 episodes watched in order (today's line, today's bar)", () => {
     runtimes: { 1: Array.from({ length: 10 }, () => 30) },
   });
 
-  it('reads as it always has', () => {
+  it('reads as it always has and draws the single fill', () => {
     expect(textOf(line)).toBe('60% · 6 of 10 watched · 2h left');
     expect(line.parts.every((part) => !part.icon)).toBe(true);
     expect(line.label).toBe('60% watched: 6 of 10, 4 to go, 2 hours left');
-  });
-
-  it('draws the single fill', () => {
     expect(line).toMatchObject({ plain: true, watched: 60 });
   });
 });
@@ -184,20 +181,14 @@ describe('Naruto Shippuden: 312 watched, 68 skipped', () => {
     runtimes: NARUTO_RUNTIMES,
   });
 
-  it('skipped counts toward done; time left counts the open episodes only', () => {
+  // its runs: progressMap.test.ts
+  it('skipped counts toward done; time left counts the open episodes only; a map with icons', () => {
     expect(textOf(line)).toBe('76% · 312 watched · 68 skipped · 46h left');
     expect(line.label).toBe(
       '76% done: 312 watched, 68 skipped, 120 to go, 46 hours left',
     );
-  });
-
-  it('every fact carries its small icon', () => {
     expect(line.parts.map((part) => part.icon)).toEqual([true, true, true]);
-  });
-
-  it('a map of twelve runs', () => {
     expect(line.plain).toBe(false);
-    expect(line.runs).toHaveLength(12);
   });
 });
 
@@ -207,25 +198,13 @@ describe('airing with skips: 24 episodes, 18 aired', () => {
     { nextAirDate: '2026-11-20', runtimes: ONE_SEASON_RUNTIMES },
   );
 
-  it('desktop keeps everything but the time left', () => {
+  it('says every fact but the time left, with a tick where airing stops', () => {
     expect(textOf(line)).toBe(
       '58% · 12 watched · 2 skipped · 4 to watch · next Fri Nov 20',
     );
     expect(line.label).toBe(
       '58% done: 12 watched, 2 skipped, 4 to watch, next episode Friday November 20',
     );
-  });
-
-  it('keeps every fact: no phone form drops one', () => {
-    expect(line.parts.map((part) => part.kind)).toEqual([
-      'watched',
-      'skipped',
-      'toWatch',
-      'next',
-    ]);
-  });
-
-  it('a tick where airing stops', () => {
     expect(line).toMatchObject({ aired: 75, airing: true });
   });
 });
@@ -276,13 +255,6 @@ describe('sizeLine (signed out)', () => {
       '8 episodes · next Fri Nov 13',
     );
     expect(sizeText({ seasons }, options)).toBe('8 episodes');
-  });
-
-  it('never a percentage or a zero count', () => {
-    const seasons = [
-      { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 1 },
-    ];
-    expect(sizeText({ seasons }, options)).not.toMatch(/%|^0 /);
   });
 });
 

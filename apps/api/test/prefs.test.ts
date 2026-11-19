@@ -255,17 +255,11 @@ describe('per-show prefs', () => {
     );
   });
 
-  it('marking a skipped episode watched clears the skip; a season mark leaves it', async () => {
+  // A season or whole-show mark leaves skips skipped: skippedFinishes.test.ts
+  it('marking a skipped episode watched clears the skip', async () => {
     setup();
     await patch({ skip: ['S01E02', 'S01E03', 'S02E01'] });
     await markEpisode({ episode: 2, show: SHOW });
-    expect(await prefs()).toMatchObject({ skipped: ['S01E03', 'S02E01'] });
-
-    await request(`/user/${USER_ID}/watched/series/${SHOW}/season/1`, {
-      as: USER_ID,
-      body: { watchProvider: null },
-      method: 'POST',
-    });
     expect(await prefs()).toMatchObject({ skipped: ['S01E03', 'S02E01'] });
 
     await request(`/user/${USER_ID}/watched/batch`, {
@@ -359,17 +353,6 @@ describe('per-show prefs', () => {
       'watchedAt',
     ]);
     expect(items[0]).toMatchObject({ watchProviderName: 'Netflix' });
-  });
-
-  it('marking the whole show leaves every skip', async () => {
-    setup();
-    await patch({ skip: ['S01E02', 'S02E03'] });
-    await request(`/user/${USER_ID}/watched/series/${SHOW}`, {
-      as: USER_ID,
-      body: { watchProvider: null },
-      method: 'POST',
-    });
-    expect(await prefs()).toMatchObject({ skipped: ['S01E02', 'S02E03'] });
   });
 
   it('returns list status and prefs in one call', async () => {

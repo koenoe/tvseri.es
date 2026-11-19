@@ -20,16 +20,14 @@ describe('LevelMeter', () => {
   it.each([
     ['super', 6],
     ['very-high', 5],
+    ['high', 4],
+    ['medium', 3],
     ['low', 2],
     ['very-low', 1],
+    [null, 0],
   ] as const)('%s lights %i of six steps', (level, lit) => {
     const { container } = render(<LevelMeter level={level} size="row" />);
     expect(meter(container)).toMatchObject({ lit, steps: 6 });
-  });
-
-  it('lights none without a level, at the same size', () => {
-    const { container } = render(<LevelMeter level={null} size="card" />);
-    expect(meter(container)).toMatchObject({ lit: 0, steps: 6 });
   });
 
   it('is hidden from assistive tech: the level word beside it says it', () => {

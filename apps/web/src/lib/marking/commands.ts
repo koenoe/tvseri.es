@@ -18,6 +18,7 @@ import {
   watchedOf,
 } from './chain';
 import {
+  allSkippedMessage,
   beforeTooLabel,
   beforeWhat,
   codeRange,
@@ -51,6 +52,7 @@ import {
   openInSeason,
   parseCode,
   regularWatchedCount,
+  seriesProgress,
   upToPlan,
   watchedInSeason,
 } from './progress';
@@ -752,15 +754,24 @@ export function createMarkingCommands(deps: MarkingDeps) {
      * "Finished it all"), so nothing enters this year's stats or the dated
      * history; episodes already watched keep their dates and skipped ones
      * stay skipped (the API adds only what is open). A finished show is
-     * left as it is, never unmarked: the press says it is already seen. The
+     * left as it is, never unmarked: the press says it is already seen (or,
+     * with every aired episode skipped and none watched, says that). The
      * toast names the show; its Undo removes exactly what this press added.
      */
     markSeen(seriesId: number, title: string) {
       command(seriesId, (prior) => {
         const open = openEpisodes(prior);
         if (open.length === 0) {
-          // Nothing left to mark: say so, the button itself never changes
-          deps.toast({ title: SEEN_MESSAGE });
+          // Nothing left to mark: say why, the button itself never changes.
+          // Aired, all skipped and none watched is not seen: skipped stays
+          // skipped
+          const progress = seriesProgress(prior);
+          deps.toast({
+            title:
+              progress.aired > 0 && !progress.isFinished
+                ? allSkippedMessage()
+                : SEEN_MESSAGE,
+          });
           return null;
         }
         return {
@@ -1026,7 +1037,8 @@ export function createMarkingCommands(deps: MarkingDeps) {
      * a scope finished through skips is unmarked, its skips never turned
      * into watches). A scope the store knows no aired episodes for (an
      * unknown season, a show before its premiere) is never unmarked from
-     * here.
+     * here; one whose aired episodes are all skipped changes nothing and
+     * says so.
      */
     toggleScope(seriesId: number, seasonNumber?: number): Promise<unknown> {
       const opened = markOpenScope(seriesId, seasonNumber);
@@ -1048,7 +1060,19 @@ export function createMarkingCommands(deps: MarkingDeps) {
                   return ref && ref.seasonNumber > 0 ? [ref] : [];
                 })
               : watchedInSeason(prior, seasonNumber);
-          if (aired.length === 0 || watched.length === 0) {
+          if (aired.length === 0) {
+            return null;
+          }
+          if (watched.length === 0) {
+            // Nothing open (markOpenScope found none) and nothing watched:
+            // every aired episode is skipped, and skipped stays skipped
+            deps.toast({
+              title: allSkippedMessage(
+                seasonNumber === undefined
+                  ? undefined
+                  : scopeName(seasonNumber),
+              ),
+            });
             return null;
           }
           return {

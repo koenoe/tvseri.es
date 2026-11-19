@@ -1,7 +1,7 @@
 import type { SeriesFacts } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
-import { sharedShowFacts } from './sharedShow';
+import { sharedShowNext } from './sharedShow';
 
 const NOW = Date.parse('2026-11-12T12:00:00Z');
 const day = (offset: number) =>
@@ -51,17 +51,17 @@ const facts = (overrides: Partial<SeriesFacts>): SeriesFacts => ({
   ...overrides,
 });
 
-describe('sharedShowFacts: episodes numbered on across seasons', () => {
+describe('sharedShowNext: episodes numbered on across seasons', () => {
   it('says the season is out when its last episode just aired', () => {
-    expect(sharedShowFacts(facts({}), NOW)).toEqual({
-      lastAiredSeason: 2,
-      next: { kind: 'season-out', season: 2 },
+    expect(sharedShowNext(facts({}), NOW)).toEqual({
+      kind: 'season-out',
+      season: 2,
     });
   });
 
   it('reads the next season’s first episode as its premiere', () => {
     expect(
-      sharedShowFacts(facts({ nextEpisodeToAir: ep(3, 17, day(5)) }), NOW).next,
+      sharedShowNext(facts({ nextEpisodeToAir: ep(3, 17, day(5)) }), NOW),
     ).toEqual({ date: day(5), kind: 'season-premiere', season: 3 });
   });
 });

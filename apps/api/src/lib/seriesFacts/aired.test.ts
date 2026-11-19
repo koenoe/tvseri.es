@@ -200,9 +200,7 @@ describe('airedEpisodesAt: episodes numbered on across seasons', () => {
       bySeason: { 1: 32, 2: 3 },
       total: 35,
     });
-  });
-
-  it('adds the next episode once its air date has passed', () => {
+    // the next episode (E36) once its air date has passed
     expect(airedEpisodesAt(numberedOn, Date.parse('2025-01-16'))).toEqual({
       bySeason: { 1: 32, 2: 4 },
       total: 36,

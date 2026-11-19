@@ -49,16 +49,17 @@ const progress = (patch: Partial<NonNullable<LibraryItem['progress']>>) => ({
 describe('toTileView heart', () => {
   const favourite = item({ on: { ...item().on, favourite: true } });
 
-  it.each(['watching', 'watchlist', 'finished', 'hidden', 'all'] as const)(
-    '%s: the heart on a favourite, none on the rest',
-    (shelf) => {
-      expect(toTileView(favourite, shelf, NOW).heart).toBe(true);
-      expect(toTileView(item(), shelf, NOW).heart).toBe(false);
-    },
-  );
-
-  it('favourites: no heart, every tile is one', () => {
-    expect(toTileView(favourite, 'favourites', NOW).heart).toBe(false);
+  it.each([
+    ['watching', true],
+    ['watchlist', true],
+    ['finished', true],
+    ['hidden', true],
+    ['all', true],
+    // every tile on Favourites is one
+    ['favourites', false],
+  ] as const)('%s: a heart on a favourite: %s', (shelf, shown) => {
+    expect(toTileView(favourite, shelf, NOW).heart).toBe(shown);
+    expect(toTileView(item(), shelf, NOW).heart).toBe(false);
   });
 });
 

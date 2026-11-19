@@ -9,22 +9,19 @@ const SEASON_OUT_DAYS = 14;
 const NO_PREFS = { paused: null, pausedAt: null, skipped: [] } as const;
 
 /**
- * What a shared show has aired and what comes next, from its facts alone
- * (nobody's episodes): the last season that has aired ("You both finished
- * S02") and the next date both of you are waiting for ("You both watch").
+ * What comes next for a shared show, from its facts alone (nobody's
+ * episodes): the next date both of you are waiting for ("You both watch").
  */
-export const sharedShowFacts = (
+export const sharedShowNext = (
   facts: SeriesFacts,
   now: number,
-): Readonly<{
-  lastAiredSeason: number | null;
-  next: SharedShowNext | null;
-}> => {
-  const { aired, latest } = analyzeShow(
+): SharedShowNext | null => {
+  const { aired, latest, progress } = analyzeShow(
     { facts, prefs: NO_PREFS, watched: [] },
     now,
   );
-  const current = latest?.season ?? 0;
+  // The latest season with a regular episode aired (the aired rule)
+  const current = progress.aired.at(-1)?.seasonNumber ?? 0;
   const today = todayUtc(now);
 
   // Not aired yet: an episode on today's date still counts as upcoming
@@ -60,19 +57,16 @@ export const sharedShowFacts = (
     latest.episode === seasonBounds(facts.seasons, current).last &&
     now - Date.parse(latest.airDate) <= SEASON_OUT_DAYS * DAY_MS;
 
-  return {
-    lastAiredSeason: latest?.season ?? null,
-    next: premiere
-      ? { kind: 'season-premiere', ...premiere }
-      : upcoming
-        ? {
-            date: upcoming.airDate,
-            episode: upcoming.episodeNumber,
-            kind: 'episode',
-            season: upcoming.seasonNumber,
-          }
-        : seasonOut
-          ? { kind: 'season-out', season: current }
-          : null,
-  };
+  return premiere
+    ? { kind: 'season-premiere', ...premiere }
+    : upcoming
+      ? {
+          date: upcoming.airDate,
+          episode: upcoming.episodeNumber,
+          kind: 'episode',
+          season: upcoming.seasonNumber,
+        }
+      : seasonOut
+        ? { kind: 'season-out', season: current }
+        : null;
 };

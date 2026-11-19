@@ -65,23 +65,20 @@ describe('seasonChips on a show TMDB numbers on across seasons', () => {
       ...overrides,
     });
 
-  it('draws exactly the season’s real episodes', () => {
-    const chips = seasonChips(numberedOn(), 2, null);
-    expect(chips.map((chip) => chipLabel(chip.ref))).toEqual(
+  it('draws exactly the season’s real episodes, never a made-up code below them', () => {
+    const plain = seasonChips(numberedOn(), 2, null);
+    expect(plain.map((chip) => chipLabel(chip.ref))).toEqual(
       Array.from({ length: 21 }, (_, index) => `E${33 + index}`),
     );
-    expect(chips.filter((chip) => chip.state === 'na')).toHaveLength(13);
-  });
-
-  it('draws no chip for a made-up code below the season’s first episode', () => {
-    const chips = seasonChips(
+    expect(plain.filter((chip) => chip.state === 'na')).toHaveLength(13);
+    const madeUp = seasonChips(
       numberedOn({ skipped: ['S02E01'], watched: { S02E02: at, S02E33: at } }),
       2,
       null,
     );
-    expect(chips).toHaveLength(21);
-    expect(chips[0]?.state).toBe('w');
-    expect(tally(chips)).toMatchObject({ aired: 8, watched: 1 });
+    expect(madeUp).toHaveLength(21);
+    expect(madeUp[0]?.state).toBe('w');
+    expect(tally(madeUp)).toMatchObject({ aired: 8, watched: 1 });
   });
 
   it('marks the season’s first real episode Next up', () => {
@@ -118,19 +115,14 @@ describe('tally', () => {
     expect(tally(seasonChips(view(), 2, null)).state).toBe('');
   });
 
-  it('is done once nothing aired is open, skips included, never by skips alone', () => {
+  // the done rule itself: packages/utils isDone
+  it('is done once nothing aired is open, skips included', () => {
     const done = seasonChips(
       view({ skipped: ['S02E02'], watched: { S02E01: at } }),
       2,
       null,
     );
     expect(tally(done)).toMatchObject({ state: 'w', watched: 1 });
-    const skippedOnly = seasonChips(
-      view({ skipped: ['S02E01', 'S02E02'] }),
-      2,
-      null,
-    );
-    expect(tally(skippedOnly).state).toBe('');
   });
 });
 

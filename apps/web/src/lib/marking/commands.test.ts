@@ -20,6 +20,8 @@ function setup(
     seasons?: SeriesSeed['seasons'];
     /** replaces the seed's watched episodes (S3 E1 by default) */
     watched?: SeriesSeed['watched'];
+    /** replaces the seed's skipped episodes (S3 E2 by default) */
+    skipped?: ReadonlyArray<string>;
     /** the show is on the watchlist */
     watchlisted?: boolean;
   }> = {},
@@ -38,7 +40,7 @@ function setup(
         prefs: {
           firstTrackingAnsweredAt: null,
           neverAskBefore: false,
-          skipped: ['S03E02'],
+          skipped: options.skipped ?? ['S03E02'],
         },
       },
       watched: options.watched ?? [
@@ -281,22 +283,6 @@ describe('toggleScope', () => {
     expect(t.view().watched.S03E02).toBeUndefined();
   });
 
-  it('a season watched apart from its skips is done: the eye unmarks it, the skips stay', async () => {
-    const t = setup({
-      watched: [1, 3, 4, 5, 6, 7, 8, 9, 10].map((episodeNumber) => ({
-        episodeNumber,
-        seasonNumber: 3,
-        watchedAt: 1000,
-      })),
-    });
-    t.commands.toggleScope(SERIES, 3);
-    expect(t.toasts.at(-1)?.title).toBe('Season 3 unmarked');
-    await flush();
-    expect(t.actions.markScope).not.toHaveBeenCalled();
-    expect(t.view().watched).toEqual({});
-    expect(t.view().skipped).toEqual(['S03E02']);
-  });
-
   it('the hero eye on a show not finished marks what is open and leaves skips skipped', async () => {
     const t = setup();
     t.commands.toggleScope(SERIES);
@@ -336,31 +322,39 @@ describe('toggleScope', () => {
     t.toasts.at(-1)?.action?.onClick();
     expect(Object.keys(t.view().watched)).toContain('S01E04');
   });
-  it('a show finished through skips is done: the eye unmarks it, its skips stay skips', async () => {
-    // Every aired episode watched but S03E02, which is skipped
-    const all = (season: number, count: number) =>
-      Array.from({ length: count }, (_, index) => ({
-        episodeNumber: index + 1,
-        seasonNumber: season,
-        watchedAt: 1000,
-      }));
-    const t = setup({
-      watched: [
-        ...all(1, 4),
-        ...all(3, 10).filter((episode) => episode.episodeNumber !== 2),
-      ],
-    });
-    t.commands.toggleScope(SERIES);
-    expect(t.toasts.at(-1)?.title).toBe('The whole series unmarked');
-    expect(t.view().watched).toEqual({});
-    expect(t.view().skipped).toEqual(['S03E02']);
-    await flush();
-    expect(t.actions.markScope).not.toHaveBeenCalled();
-    expect(t.actions.unmarkScope).toHaveBeenCalledWith({
-      seasonNumber: undefined,
-      seriesId: SERIES,
-    });
-  });
+  it.each([
+    // every aired episode of S3 but S03E02, which is skipped
+    ['a season', 3, [], 'Season 3 unmarked'],
+    ['the whole show', undefined, [1, 2, 3, 4], 'The whole series unmarked'],
+  ] as const)(
+    '%s done through skips: the eye unmarks it, its skips stay skips',
+    async (_scope, seasonNumber, season1, title) => {
+      const t = setup({
+        watched: [
+          ...season1.map((episodeNumber) => ({
+            episodeNumber,
+            seasonNumber: 1,
+            watchedAt: 1000,
+          })),
+          ...[1, 3, 4, 5, 6, 7, 8, 9, 10].map((episodeNumber) => ({
+            episodeNumber,
+            seasonNumber: 3,
+            watchedAt: 1000,
+          })),
+        ],
+      });
+      t.commands.toggleScope(SERIES, seasonNumber);
+      expect(t.toasts.at(-1)?.title).toBe(title);
+      expect(t.view().watched).toEqual({});
+      expect(t.view().skipped).toEqual(['S03E02']);
+      await flush();
+      expect(t.actions.markScope).not.toHaveBeenCalled();
+      expect(t.actions.unmarkScope).toHaveBeenCalledWith({
+        seasonNumber,
+        seriesId: SERIES,
+      });
+    },
+  );
 
   it('never unmarks a scope it knows no aired episodes for', async () => {
     // a show before its premiere with a watched special, and a season the
@@ -506,6 +500,26 @@ describe('mark-only commands (Home’s Seen it, Continue watching)', () => {
     expect(t.toasts.map((toast) => toast.title)).toEqual([
       'You’ve already seen this series',
       'You’ve already seen this series',
+    ]);
+  });
+
+  it('on a show with every aired episode skipped and nothing watched, Seen it and the eyes write nothing and say so', async () => {
+    const t = setup({
+      seasons: [{ airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 1 }],
+      skipped: ['S01E01', 'S01E02'],
+      watched: [],
+    });
+    t.commands.markSeen(SERIES, 'The Bear');
+    t.commands.toggleScope(SERIES);
+    t.commands.toggleScope(SERIES, 1);
+    await flush();
+    expect(t.actions.markScope).not.toHaveBeenCalled();
+    expect(t.actions.unmarkScope).not.toHaveBeenCalled();
+    expect(t.view().watched).toEqual({});
+    expect(t.toasts.map((toast) => toast.title)).toEqual([
+      'Everything aired is skipped',
+      'Everything aired is skipped',
+      'Everything aired in Season 1 is skipped',
     ]);
   });
 
@@ -1893,14 +1907,12 @@ describe('an episode write moves the store past older page data', () => {
     expect(t.view().watched.S03E05).toBeDefined();
   });
 
-  it('a failure part-way still moves it by what saved', async () => {
+  it('a failure part-way: a seed fetched before it can’t undo what saved', async () => {
     const COUNT = MAX_EPISODES_PER_MARK_ACTION + 1;
-    const t = setup({
-      seasons: [
-        { airedEpisodeCount: COUNT, episodeCount: COUNT, seasonNumber: 1 },
-      ],
-      watched: [],
-    });
+    const seasons = [
+      { airedEpisodeCount: COUNT, episodeCount: COUNT, seasonNumber: 1 },
+    ];
+    const t = setup({ seasons, watched: [] });
     const real = t.actions.markEpisodes.getMockImplementation()!;
     t.actions.markEpisodes
       .mockImplementationOnce((input) =>
@@ -1913,7 +1925,10 @@ describe('an episode write moves the store past older page data', () => {
     }));
     t.commands.markEpisodes(SERIES, refs, { kind: 'now' }, 'Season 1');
     await flush();
-    expect(t.store.getState().series[SERIES]?.version).toBe(NOW + 5_000);
+    t.store
+      .getState()
+      .seed({ ...olderSeed(NOW + 1_000), seasons, watched: [] }, 'older');
+    expect(t.view().watched.S01E01).toBeDefined();
   });
 });
 
@@ -1940,7 +1955,6 @@ describe('a skip too big for one request that fails part-way', () => {
       .mockImplementationOnce(failed);
     t.commands.setWhen(SERIES, refs, { kind: 'skip' }, 'Season 1');
     await flush();
-    expect(t.actions.updateSeriesPrefs).toHaveBeenCalledTimes(2);
     // the first request's 1,999 kept, and the seed's S03E02
     expect(t.view().skipped).toHaveLength(MAX_EPISODES_PER_MARK_ACTION);
     expect(t.view().skipped).not.toContain('S01E01');

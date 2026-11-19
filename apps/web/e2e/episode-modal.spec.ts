@@ -1,6 +1,7 @@
 import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
+import { recordNavigationFetches } from './helpers/navigationFetches';
 import { signInAs } from './helpers/session';
 import { untilStable } from './helpers/viewport';
 
@@ -131,12 +132,7 @@ test.describe('episode modal', () => {
     test('Back closes it, keeps the scroll and focuses the tile; Forward reopens it', async ({
       page,
     }) => {
-      const documents: string[] = [];
-      page.on('request', (request) => {
-        if (request.isNavigationRequest() || request.headers().rsc) {
-          documents.push(request.url());
-        }
-      });
+      const documents = recordNavigationFetches(page);
       const { scrollY, tile } = await openFromTile(page);
       documents.length = 0;
       await page.goBack();
@@ -150,7 +146,7 @@ test.describe('episode modal', () => {
         page.getByRole('dialog', { name: /^S01E02 / }),
       ).toBeVisible();
       await expect(page).toHaveURL(/\?season=1&episode=2$/);
-      // the History API only: no document or RSC request either way
+      // the History API only: no document load or RSC navigation either way
       expect(documents).toEqual([]);
     });
 

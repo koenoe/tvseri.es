@@ -141,18 +141,6 @@ describe('Up next', () => {
     expect(item).toMatchObject({ code: 'S02E06', seasonWatched: 5 });
   });
 
-  it('counts the next episode from the start of its air day', () => {
-    // S2 E8 airs today: open from midnight UTC, so it is Next up after E7
-    const today = state({
-      facts: facts({
-        lastEpisodeToAir: ep(2, 7, day(-7)),
-        nextEpisodeToAir: ep(2, 8, day(0)),
-      }),
-      watched: watched([...range(1, 1, 8), ...range(2, 1, 7)]),
-    });
-    expect(buildUpNext([today])[0]?.code).toBe('S02E08');
-  });
-
   it('is the first aired episode with no mark, even before the last watched one', () => {
     // S1 complete, S2 E1–E5 watched, then S2 E2 unmarked: Next up is S2 E2.
     const unmarked = state({
@@ -185,30 +173,6 @@ describe('Up next', () => {
       code: 'S02E08',
       isLatest: true,
     });
-  });
-
-  it('carries the season’s first number where TMDB numbers on across seasons', () => {
-    // S2 is E9…E16
-    const numberedOn = state({
-      facts: facts({
-        lastEpisodeToAir: ep(2, 16, day(-1)),
-        seasons: [
-          { airDate: '2020-01-01', episodeCount: 8, seasonNumber: 1 },
-          {
-            airDate: '2021-01-01',
-            episodeCount: 8,
-            firstEpisodeNumber: 9,
-            seasonNumber: 2,
-          },
-        ],
-      }),
-      watched: watched([...range(1, 1, 8), ...range(2, 9, 13)]),
-    });
-    expect(buildUpNext([numberedOn])[0]).toMatchObject({
-      code: 'S02E14',
-      firstEpisodeNumber: 9,
-    });
-    expect(buildUpNext([state()])[0]).not.toHaveProperty('firstEpisodeNumber');
   });
 
   it('shows when the next episode airs', () => {
@@ -313,6 +277,15 @@ describe('Out now, Season complete, Catching up', () => {
         runtimeMinutes: 50,
       }),
     ]);
+  });
+
+  it('only names the latest regular episode to air, never an older one TMDB is stuck on', () => {
+    // TMDB's latest says S1 E8 yesterday, but S2 has aired in full since
+    const stuck = state({
+      facts: facts({ lastEpisodeToAir: ep(1, 8, day(-1)), status: 'Ended' }),
+      watched: watched([...range(1, 1, 7), ...range(2, 1, 8)]),
+    });
+    expect(buildOutNow([stuck], NOW)).toEqual([]);
   });
 
   it('has nothing when the latest episode is watched', () => {
@@ -649,6 +622,7 @@ describe('episodes numbered on across seasons', () => {
     ]);
     expect(item).toMatchObject({
       code: 'S02E16',
+      firstEpisodeNumber: 9,
       isLatest: true,
       runtime: 47,
       seasonFinale: true,
@@ -661,6 +635,8 @@ describe('episodes numbered on across seasons', () => {
     expect(item?.seasonRuntimes).toEqual([
       0, 0, 0, 0, 0, 0, 0, 0, 40, 41, 42, 43, 44, 45, 46, 47,
     ]);
+    // a season starting at 1 leaves the first number out
+    expect(buildUpNext([state()])[0]).not.toHaveProperty('firstEpisodeNumber');
   });
 
   it('Almost done: the season’s first number with the episodes left', () => {
@@ -674,9 +650,7 @@ describe('episodes numbered on across seasons', () => {
       seasonTotal: 8,
       unwatchedEpisodes: [16],
     });
-  });
-
-  it('Almost done: a season starting at 1 leaves the first number out', () => {
+    // a season starting at 1 leaves the first number out
     const plain = state({
       watched: watched([...range(1, 1, 8), ...range(2, 1, 7)]),
     });

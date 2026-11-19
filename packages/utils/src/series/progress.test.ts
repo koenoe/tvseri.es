@@ -52,15 +52,16 @@ describe('showProgress', () => {
     expect(codes(progress)).toEqual(['S02E05']);
   });
 
-  it('never lets a watched row outside the aired episodes close an open one', () => {
+  it('never lets a mark outside the aired episodes close an open one', () => {
     // Every aired episode but S02E05 watched, plus a made-up S02E01 (below
-    // S2's first number) and S02E06 (not aired yet)
+    // S2's first number) and S02E06 (not aired yet), watched and skipped
     const progress = showProgress({
       seasons: numberedOn,
-      skipped: [],
+      skipped: ['S02E06', 'S02E07'],
       watched: ['S01E01', 'S01E02', 'S01E03', 'S02E04', 'S02E01', 'S02E06'],
     });
     expect(progress.watched).toBe(4);
+    expect(progress.skipped).toBe(0);
     expect(progress.done).toBe(4);
     expect(codes(progress)).toEqual(['S02E05']);
     expect(progress.isFinished).toBe(false);
@@ -149,9 +150,9 @@ describe('showProgress', () => {
       watched: ['S01E01', 'S02E04', 'S02E01'],
     });
     expect(progress.seasons).toEqual([
-      { aired: 3, open: 2, seasonNumber: 1, skipped: 0, watched: 1 },
-      { aired: 2, open: 0, seasonNumber: 2, skipped: 1, watched: 1 },
-      { aired: 0, open: 0, seasonNumber: 3, skipped: 0, watched: 0 },
+      { aired: 3, done: 1, open: 2, seasonNumber: 1, skipped: 0, watched: 1 },
+      { aired: 2, done: 2, open: 0, seasonNumber: 2, skipped: 1, watched: 1 },
+      { aired: 0, done: 0, open: 0, seasonNumber: 3, skipped: 0, watched: 0 },
     ]);
   });
 });
@@ -163,7 +164,14 @@ describe('seasonCounts', () => {
         { airedCount: 3, seasonNumber: 0 },
         { skipped: ['S00E02'], watched: ['S00E01', 'S00E09'] },
       ),
-    ).toEqual({ aired: 3, open: 1, seasonNumber: 0, skipped: 1, watched: 1 });
+    ).toEqual({
+      aired: 3,
+      done: 2,
+      open: 1,
+      seasonNumber: 0,
+      skipped: 1,
+      watched: 1,
+    });
   });
 });
 

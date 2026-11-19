@@ -130,7 +130,7 @@ describe('normalizeTvSeries: episodes numbered on across seasons', () => {
       ...overrides,
     });
 
-  it('gives each regular season its first episode number', () => {
+  it('gives each regular season its first episode number, only where it is not 1', () => {
     const series = normalizeTvSeries(
       naruto({ last_episode_to_air: episode(3, 58, '2026-11-01') }),
     );
@@ -140,6 +140,13 @@ describe('normalizeTvSeries: episodes numbered on across seasons', () => {
       54,
     ]);
     expect(series.specials?.firstEpisodeNumber).toBeUndefined();
+    // a show numbered per season goes without the field
+    const perSeason = normalizeTvSeries(
+      show({ last_episode_to_air: episode(3, 12, '2016-07-21') }),
+    );
+    expect(perSeason.seasons?.every((s) => !('firstEpisodeNumber' in s))).toBe(
+      true,
+    );
   });
 
   it('counts the current season from its first episode number', () => {
@@ -153,14 +160,5 @@ describe('normalizeTvSeries: episodes numbered on across seasons', () => {
       32, 21, 5,
     ]);
     expect(series.numberOfAiredEpisodes).toBe(58);
-  });
-
-  it('leaves a show numbered per season without the field', () => {
-    const series = normalizeTvSeries(
-      show({ last_episode_to_air: episode(3, 12, '2016-07-21') }),
-    );
-    expect(series.seasons?.every((s) => !('firstEpisodeNumber' in s))).toBe(
-      true,
-    );
   });
 });

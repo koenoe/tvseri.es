@@ -163,10 +163,21 @@ export function seasonProgress(
   };
 }
 
-const NO_COUNTS = { aired: 0, open: 0, skipped: 0, watched: 0 } as const;
+const NO_COUNTS = {
+  aired: 0,
+  done: 0,
+  open: 0,
+  skipped: 0,
+  watched: 0,
+} as const;
 
-/** A regular season's counts (none for a season the show doesn't list) */
-const countsOf = (series: SeriesMarks, seasonNumber: number) =>
+/**
+ * A regular season's counts by the shared rule (none for a season the show
+ * doesn't list): watched and done count its aired episodes only, so a record
+ * outside them (a made-up code below the first number on a show TMDB numbers
+ * on across seasons, an episode yet to air) doesn't count.
+ */
+export const seasonCountsOf = (series: SeriesMarks, seasonNumber: number) =>
   progressOf(series).seasons.find(
     (season) => season.seasonNumber === seasonNumber,
   ) ?? NO_COUNTS;
@@ -334,18 +345,6 @@ export function watchedInSeason(
     .map(parseCode)
     .filter((ref): ref is EpisodeRef => ref?.seasonNumber === seasonNumber)
     .sort((a, b) => a.episodeNumber - b.episodeNumber);
-}
-
-/**
- * How many of a season's aired episodes are watched (the API's Up next
- * count): a record outside them (a made-up code below the first number on a
- * show TMDB numbers on across seasons, an episode yet to air) doesn't count.
- */
-export function watchedCountInSeason(
-  series: SeriesMarks,
-  seasonNumber: number,
-): number {
-  return countsOf(series, seasonNumber).watched;
 }
 
 export const parseCode = (code: string): EpisodeRef | null =>

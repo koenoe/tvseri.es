@@ -71,7 +71,6 @@ export {
   resolveSeasonMinutes,
 } from './runtime/minutesFor';
 export { hasAiredAt } from './series/aired';
-export { doneCount } from './series/done';
 export {
   episodeNumbersOf,
   firstEpisodeNumbers,

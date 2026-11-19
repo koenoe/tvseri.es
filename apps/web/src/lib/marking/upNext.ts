@@ -1,10 +1,5 @@
 import { episodeCode, type UpNextItem } from '@tvseri.es/schemas';
-import {
-  doneCount,
-  episodeMinutes,
-  firstEpisodeOf,
-  minutesFor,
-} from '@tvseri.es/utils';
+import { episodeMinutes, firstEpisodeOf, minutesFor } from '@tvseri.es/utils';
 
 import {
   airedInSeason,
@@ -12,7 +7,7 @@ import {
   codeOf,
   markedIn,
   parseCode,
-  watchedCountInSeason,
+  seasonCountsOf,
 } from './progress';
 import type { SeriesBase } from './types';
 
@@ -78,7 +73,7 @@ export function liveUpNext(
     return null;
   }
   const inSeason = airedInSeason(view, next.seasonNumber);
-  const seasonWatched = watchedCountInSeason(view, next.seasonNumber);
+  const counts = seasonCountsOf(view, next.seasonNumber);
   const season = view.seasons.find(
     (candidate) => candidate.seasonNumber === next.seasonNumber,
   );
@@ -120,11 +115,11 @@ export function liveUpNext(
         )
       : null,
     season: next.seasonNumber,
-    seasonDone: doneCount(inSeason.length, left.length),
+    seasonDone: counts.done,
     seasonFinale,
     seasonRuntimes: sameSeason ? item.seasonRuntimes : undefined,
     seasonTotal,
-    seasonWatched,
+    seasonWatched: counts.watched,
     timeLeftMinutes: sameSeason ? minutesFor(left, runtimes, null) : null,
     toWatch: left.length,
   };

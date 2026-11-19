@@ -5,7 +5,7 @@ import type {
 } from '@tvseri.es/schemas';
 
 import { librarySets } from './librarySets';
-import { nextEpisode, seriesProgress, watchedCountInSeason } from './progress';
+import { nextEpisode, seasonCountsOf, seriesProgress } from './progress';
 import type { SeriesBase } from './types';
 
 /*
@@ -136,7 +136,7 @@ function stateOfView(view: SeriesBase, streamed: ControlState): ControlState {
       next,
       onWatchlist,
       seasonTotal: season?.episodeCount ?? null,
-      seasonWatched: watchedCountInSeason(view, next.seasonNumber),
+      seasonWatched: seasonCountsOf(view, next.seasonNumber).watched,
     };
   }
   if (streamed.kind === 'up-to-date') {

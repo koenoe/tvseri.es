@@ -1,6 +1,7 @@
 import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
+import { recordNavigationFetches } from './helpers/navigationFetches';
 import { signInAs } from './helpers/session';
 import { untilStable } from './helpers/viewport';
 
@@ -142,12 +143,7 @@ test.describe('Back closes the sheet, like the episode modal', () => {
   test('Back closes it, keeps the scroll and focus; Forward reopens it', async ({
     page,
   }) => {
-    const documents: string[] = [];
-    page.on('request', (request) => {
-      if (request.isNavigationRequest() || request.headers().rsc) {
-        documents.push(request.url());
-      }
-    });
+    const documents = recordNavigationFetches(page);
     const { length, scrollY, trigger } = await openFromProgress(page);
     expect(await page.evaluate(() => window.history.length)).toBe(length + 1);
     documents.length = 0;
@@ -160,7 +156,7 @@ test.describe('Back closes the sheet, like the episode modal', () => {
     await page.goForward();
     await expect(sheet(page)).toBeVisible();
     await expect(page).toHaveURL(/\?history$/);
-    // the History API only: no document or RSC request either way
+    // the History API only: no document load or RSC navigation either way
     expect(documents).toEqual([]);
   });
 

@@ -69,13 +69,13 @@ describe('match line', () => {
         sharedShows: (
           [
             [1, 'both-favourite', null],
-            [2, 'both-finished', 1],
-            [3, 'both-finished', 1],
-            [4, 'both-finished', 1],
+            [2, 'both-finished', 'ended'],
+            [3, 'both-finished', 'ended'],
+            [4, 'both-finished', 'ended'],
             [5, 'both-watching', null],
           ] as const
-        ).map(([id, relation, finishedSeason]) => ({
-          finishedSeason,
+        ).map(([id, relation, finished]) => ({
+          finished,
           genreId: 18,
           id,
           next: null,
@@ -218,12 +218,12 @@ describe('match: what is next for a shared show (You both watch)', () => {
       next: { date: '2026-11-15', episode: 3, kind: 'episode', season: 2 },
     });
     expect(byId.get(3)).toMatchObject({
-      finishedSeason: 2,
+      finished: 'up-to-date',
       next: { kind: 'season-out', season: 2 },
       relation: 'both-finished',
     });
     expect(byId.get(4)).toMatchObject({
-      finishedSeason: 2,
+      finished: 'ended',
       next: null,
       relation: 'both-finished',
     });

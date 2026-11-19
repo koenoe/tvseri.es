@@ -44,7 +44,11 @@ export type ShowState = Readonly<{
   watchedPerSeason: ReadonlyMap<number, number>;
   /** The next episode to watch: the first aired episode with no mark (watched or skipped) */
   nextUp: EpisodeRef | null;
-  /** The latest episode to have aired, and when */
+  /**
+   * The latest regular episode to have aired (by the aired rule), and when:
+   * null when TMDB's last or next aired episode isn't that one (a special,
+   * or one stuck in an earlier season), as the facts hold no other date
+   */
   latest: (EpisodeRef & Readonly<{ airDate: string }>) | null;
   lastWatched: EpisodeRef | null;
   /** Max `watchedAt` of the dated items: undated ones are no date */
@@ -91,6 +95,14 @@ export const analyzeShow = (input: ShowInput, now: number): ShowState => {
   const next = facts.nextEpisodeToAir;
   const last = facts.lastEpisodeToAir;
   const latestSource = next && hasAiredAt(next.airDate, now) ? next : last;
+  const latestAired = progress.aired.at(-1);
+  const latestDated =
+    latestSource &&
+    latestAired &&
+    latestSource.seasonNumber === latestAired.seasonNumber &&
+    latestSource.episodeNumber === latestAired.episodeNumber
+      ? latestSource
+      : null;
   const dated = input.watched.filter((item) => !item.dateUnknown);
 
   return {
@@ -100,11 +112,11 @@ export const analyzeShow = (input: ShowInput, now: number): ShowState => {
     lastWatchedAt: dated.length
       ? Math.max(...dated.map((item) => item.watchedAt))
       : null,
-    latest: latestSource
+    latest: latestDated
       ? {
-          airDate: latestSource.airDate,
-          episode: latestSource.episodeNumber,
-          season: latestSource.seasonNumber,
+          airDate: latestDated.airDate,
+          episode: latestDated.episodeNumber,
+          season: latestDated.seasonNumber,
         }
       : null,
     nextUp,

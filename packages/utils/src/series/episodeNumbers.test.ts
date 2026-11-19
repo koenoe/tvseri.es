@@ -146,12 +146,9 @@ describe('firstEpisodeNumbers', () => {
 });
 
 describe('firstEpisodeOf / episodeNumbersOf', () => {
-  it('defaults to 1 when a season has no first episode number', () => {
+  it('lists a season’s real episode numbers, from 1 without a first number', () => {
     expect(firstEpisodeOf({})).toBe(1);
     expect(episodeNumbersOf({}, 3)).toEqual([1, 2, 3]);
-  });
-
-  it('lists a season’s real episode numbers', () => {
     expect(episodeNumbersOf({ firstEpisodeNumber: 33 }, 3)).toEqual([
       33, 34, 35,
     ]);

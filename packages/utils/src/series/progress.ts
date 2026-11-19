@@ -22,6 +22,8 @@ export type SeasonCounts = Readonly<{
   skipped: number;
   /** Aired, neither watched nor skipped */
   open: number;
+  /** Aired and watched or skipped: the season's fill */
+  done: number;
 }>;
 
 export type ShowProgress = Readonly<{
@@ -74,6 +76,7 @@ function readSeason(season: ProgressSeason, marks: SeasonMarks) {
   }
   const counts: SeasonCounts = {
     aired: aired.length,
+    done: watched + skipped,
     open: open.length,
     seasonNumber: season.seasonNumber,
     skipped,

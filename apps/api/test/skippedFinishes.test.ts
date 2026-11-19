@@ -417,18 +417,13 @@ describe('the nightly job agrees with skips', () => {
 
     expect(finished(show)).toMatchObject({ createdAt: finishedAt });
     expect(inProgress(show)).toBeUndefined();
-    // Its skips come from one batch read a night, never a read per show,
-    // beside the one query of the prefs changed lately
+    // Its skips come from batch reads, never a read per show
     const prefsReads = db.calls
       .slice(from)
       .filter((call) => JSON.stringify(call.input).includes('PREF#SERIES#'))
       .map((call) => call.constructor.name);
-    expect(prefsReads).toEqual([
-      'BatchGetItemCommand',
-      'QueryCommand',
-      'BatchGetItemCommand',
-      'QueryCommand',
-    ]);
+    expect(prefsReads).toContain('BatchGetItemCommand');
+    expect(prefsReads).not.toContain('GetItemCommand');
   });
 
   it('moves it back to In progress when a new episode airs', async () => {

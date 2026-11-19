@@ -20,17 +20,12 @@ export function proofParts(
   >,
 ): ProofParts {
   const { level, notEnough, sharedCount } = match;
-  const shows = `${sharedCount} series`;
-  if (notEnough || !level) {
-    return {
-      after: '.',
-      before: `You share ${shows} so far, under the 5 a level needs: `,
-    };
-  }
-  if (level === 'very-low') {
+  // With no level the lead says there isn't enough and the count sits
+  // beside the meter (the board's option A): the proof only names shows
+  if (level === 'very-low' && !notEnough) {
     return {
       after: '. Here’s what they’d show you.',
-      before: `Different taste: you share ${shows}, like `,
+      before: `Different taste: you share ${sharedCount} series, like `,
     };
   }
   return { after: '.', before: 'You both watch ' };

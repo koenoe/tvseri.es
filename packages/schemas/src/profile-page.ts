@@ -84,12 +84,16 @@ export type SharedShow = TasteShow &
   Readonly<{
     /**
      * Strongest first: both favourited ("You both love it"), both finished
-     * ("You both finished Season 2"), anything else shared ("You're both
-     * watching")
+     * ("You both finished it", "You're both up to date"), anything else
+     * shared ("You're both watching")
      */
     relation: 'both-favourite' | 'both-finished' | 'both-watching';
-    /** both-finished: the last season that has aired (Season 2) */
-    finishedSeason: number | null;
+    /**
+     * both-finished (each has every aired episode): the show has ended
+     * ("You both finished it") or is still running ("You're both up to
+     * date"); null for the other relations
+     */
+    finished: 'ended' | 'up-to-date' | null;
     next: SharedShowNext | null;
     /** The first air year (2019), left out when unknown */
     year?: number;

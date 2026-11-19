@@ -3,13 +3,14 @@ import type {
   TasteMatchResponse,
   TasteShow,
 } from '@tvseri.es/schemas';
+import { isRunning } from '@tvseri.es/utils';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
 import { isFollowing } from '@/lib/db/follow';
 import { getLibraryIds } from '@/lib/db/list';
 import { getSeriesFacts } from '@/lib/seriesFacts';
-import { sharedShowFacts } from '@/lib/sharedShow';
+import { sharedShowNext } from '@/lib/sharedShow';
 import {
   computeTaste,
   newToViewerPicks,
@@ -77,13 +78,18 @@ app.get('/:id/match', user(), requireAuth(), async (c) => {
     if (!show || !showFacts) {
       return [];
     }
-    const { lastAiredSeason, next } = sharedShowFacts(showFacts, now);
     return [
       {
         ...show,
         ...sharedShowLine(showFacts),
-        finishedSeason: relation === 'both-finished' ? lastAiredSeason : null,
-        next,
+        // Both have every aired episode: the whole show once it has ended
+        finished:
+          relation === 'both-finished'
+            ? isRunning(showFacts.status)
+              ? 'up-to-date'
+              : 'ended'
+            : null,
+        next: sharedShowNext(showFacts, now),
         relation,
       },
     ];

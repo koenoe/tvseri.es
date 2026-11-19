@@ -22,48 +22,16 @@ describe('nextLabel', () => {
 });
 
 describe('relationLine', () => {
-  const show = { id: 1, posterImage: '', slug: 's', title: 'T' } as const;
-  it('says what you both did', () => {
-    expect(
-      relationLine({
-        ...show,
-        finishedSeason: null,
-        next: null,
-        relation: 'both-favourite',
-      }),
-    ).toBe('You both love it');
-    expect(
-      relationLine({
-        ...show,
-        finishedSeason: 2,
-        next: null,
-        relation: 'both-finished',
-      }),
-    ).toBe('You both finished Season 2');
-    expect(
-      relationLine({
-        ...show,
-        finishedSeason: 6,
-        next: null,
-        relation: 'both-finished',
-      }),
-    ).toBe('You both finished Season 6');
-    expect(
-      relationLine({
-        ...show,
-        finishedSeason: null,
-        next: null,
-        relation: 'both-finished',
-      }),
-    ).toBe('You both finished it');
-    expect(
-      relationLine({
-        ...show,
-        finishedSeason: null,
-        next: null,
-        relation: 'both-watching',
-      }),
-    ).toBe('You’re both watching');
+  const show = { id: 1, next: null, posterImage: '', slug: 's', title: 'T' };
+  it.each([
+    ['both-favourite', null, 'You both love it'],
+    // an ended show, every aired season finished: the whole show
+    ['both-finished', 'ended', 'You both finished it'],
+    // a running show with every aired episode finished
+    ['both-finished', 'up-to-date', 'You’re both up to date'],
+    ['both-watching', null, 'You’re both watching'],
+  ] as const)('%s (%s): %s', (relation, finished, line) => {
+    expect(relationLine({ ...show, finished, relation })).toBe(line);
   });
 });
 

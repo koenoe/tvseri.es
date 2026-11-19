@@ -22,9 +22,10 @@ describe('copy', () => {
       after: '. Here’s what they’d show you.',
       before: 'Different taste: you share 6 series, like ',
     });
+    // no level: the count stays beside the meter, the proof only names
     expect(
-      proofParts({ level: null, notEnough: true, sharedCount: 2 }).before,
-    ).toBe('You share 2 series so far, under the 5 a level needs: ');
+      proofParts({ level: null, notEnough: true, sharedCount: 2 }),
+    ).toEqual({ after: '.', before: 'You both watch ' });
   });
 
   it('joins names with commas and a last and', () => {

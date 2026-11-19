@@ -111,6 +111,14 @@ export const HIDDEN_MESSAGE = 'Hidden from in progress';
 /** Watchlist on a show already started: it lives in progress (or Finished) instead */
 export const STARTED_MESSAGE = 'You’ve already started this series';
 export const SEEN_MESSAGE = 'You’ve already seen this series';
+/**
+ * Seen it or an eye on a show (or a season: "Season 2") whose aired
+ * episodes are all skipped, none watched: nothing to mark
+ */
+export const allSkippedMessage = (season?: string) =>
+  season
+    ? `Everything aired in ${season} is skipped`
+    : 'Everything aired is skipped';
 /** "Added Marvel Zombies to your watchlist" / "Removed … from your favourites" */
 export const listMessage = (
   title: string,

@@ -61,8 +61,8 @@ export function relationLine(show: SharedShow): string {
     case 'both-favourite':
       return 'You both love it';
     case 'both-finished':
-      return show.finishedSeason
-        ? `You both finished Season ${show.finishedSeason}`
+      return show.finished === 'up-to-date'
+        ? 'You’re both up to date'
         : 'You both finished it';
     case 'both-watching':
       return 'You’re both watching';

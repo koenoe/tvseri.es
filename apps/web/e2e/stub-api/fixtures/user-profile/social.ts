@@ -199,7 +199,7 @@ const levelMatch = (
     sharedShows: card.proof.map((key) => ({
       ...taste(key),
       ...sharedLine(key),
-      finishedSeason: null,
+      finished: null,
       next: null,
       relation: 'both-watching' as const,
     })),
@@ -230,28 +230,28 @@ export const match = (
             {
               ...taste('pitt'),
               ...sharedLine('pitt'),
-              finishedSeason: null,
+              finished: null,
               next: { date: day(59), kind: 'season-premiere', season: 3 },
               relation: 'both-favourite',
             },
             {
               ...taste('severance'),
               ...sharedLine('severance'),
-              finishedSeason: 2,
+              finished: 'up-to-date',
               next: { date: day(67), kind: 'season-premiere', season: 3 },
               relation: 'both-finished',
             },
             {
               ...taste('dexter'),
               ...sharedLine('dexter'),
-              finishedSeason: null,
+              finished: null,
               next: { date: day(6), episode: 3, kind: 'episode', season: 2 },
               relation: 'both-watching',
             },
             {
               ...taste('blackDoves'),
               ...sharedLine('blackDoves'),
-              finishedSeason: null,
+              finished: null,
               next: { kind: 'season-out', season: 2 },
               relation: 'both-watching',
             },
@@ -265,7 +265,7 @@ export const match = (
             {
               // no facts: the row keeps its facts line's height
               ...taste('mcmafia'),
-              finishedSeason: 1,
+              finished: 'ended',
               next: null,
               relation: 'both-finished',
             },

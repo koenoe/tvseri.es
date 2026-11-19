@@ -14,12 +14,13 @@ const AT_ONCE = 10;
 
 /**
  * Queues a run for every linked connection. A signed-out session is skipped
- * (only linking again fixes it), and a run already queued is busy, not an
- * error. A failed scan throws so EventBridge retries the night; the claims
+ * (only linking again fixes it), and so is one whose first sync the viewer
+ * hasn't started: they choose when, and how far back. A run already queued
+ * is busy, not an error. A failed scan throws so EventBridge retries the night; the claims
  * make a second queue harmless.
  */
 export const handler = async () => {
-  const counts = { busy: 0, failed: 0, queued: 0, signedOut: 0 };
+  const counts = { busy: 0, failed: 0, queued: 0, signedOut: 0, waiting: 0 };
   const limit = createLimiter(AT_ONCE);
   const queueing: Array<Promise<void>> = [];
   const queueOne = async (connection: LinkedConnection) => {
@@ -43,6 +44,10 @@ export const handler = async () => {
     for await (const connection of linkedConnections()) {
       if (connection.status === 'signed-out') {
         counts.signedOut += 1;
+        continue;
+      }
+      if (connection.lastSyncedAt === null && !connection.sync) {
+        counts.waiting += 1;
         continue;
       }
       queueing.push(limit(() => queueOne(connection)));

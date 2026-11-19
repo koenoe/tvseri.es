@@ -12,10 +12,14 @@ import { db, sqsMessages } from './db';
 
 const QUEUE = 'https://sqs.test/connection-sync';
 
-const link = (userId: string, status: 'ok' | 'signed-out' = 'ok') =>
+const link = (
+  userId: string,
+  status: 'ok' | 'signed-out' = 'ok',
+  lastSyncedAt: number | null = 1,
+) =>
   saveConnection({
     createdAt: 1,
-    lastSyncedAt: 1,
+    lastSyncedAt,
     latestEpisodeTitle: null,
     latestTitle: null,
     latestWatchedAt: null,
@@ -49,6 +53,7 @@ describe('the nightly connection sync', () => {
       failed: 0,
       queued: 2,
       signedOut: 1,
+      waiting: 0,
     });
     expect(queued()).toEqual(['USER_A', 'USER_B']);
     // Each waits its own part of the 15 minutes
@@ -56,6 +61,27 @@ describe('the nightly connection sync', () => {
       expect(message.delaySeconds).toBeGreaterThanOrEqual(0);
       expect(message.delaySeconds).toBeLessThan(900);
     }
+  });
+
+  it('never starts a first sync: the viewer chooses when, and how far back', async () => {
+    await link('USER_A');
+    await link('USER_NEW', 'ok', null);
+    expect(await handler()).toMatchObject({ queued: 1, waiting: 1 });
+    expect(queued()).toEqual(['USER_A']);
+  });
+
+  it('carries on a first sync the viewer started', async () => {
+    await link('USER_NEW', 'ok', null);
+    const connection = await getConnection('USER_NEW', 'netflix');
+    if (!connection) {
+      throw new Error('not linked');
+    }
+    await claimSync('USER_NEW', 'netflix', connection);
+    sqsMessages.length = 0;
+    // The run went quiet: the nightly may take it over
+    vi.setSystemTime(Date.now() + 60 * 60 * 1000);
+    expect(await handler()).toMatchObject({ queued: 1, waiting: 0 });
+    vi.useRealTimers();
   });
 
   it('leaves a run that is already going alone', async () => {

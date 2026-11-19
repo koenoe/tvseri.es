@@ -220,6 +220,7 @@ export const deleteConnection = async (
 };
 
 const LinkedSchema = v.object({
+  lastSyncedAt: v.optional(v.nullable(v.number()), null),
   service: ConnectionServiceSchema,
   status: v.picklist(CONNECTION_STATUSES),
   sync: v.optional(StoredSyncSchema),
@@ -247,7 +248,8 @@ export async function* linkedConnections(): AsyncGenerator<LinkedConnection> {
         FilterExpression: 'begins_with(sk, :service)',
         // What the claim needs too, so it reads no connection again (a scan
         // pays for whole items whatever it projects)
-        ProjectionExpression: 'userId, service, #status, sync, syncedThrough',
+        ProjectionExpression:
+          'userId, service, #status, sync, syncedThrough, lastSyncedAt',
         TableName: table(),
       }),
     );

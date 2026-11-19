@@ -28,6 +28,7 @@ describe('countdown', () => {
     expect(countdown(30)).toEqual({ n: '4', unit: 'Weeks' });
     expect(countdown(0)).toEqual({ n: '', unit: 'Today' });
     expect(countdown(120)).toEqual({ n: '4', unit: 'Months' });
+    expect(countdown(-2)).toEqual({ n: '', unit: 'Aired' });
   });
 });
 
@@ -45,9 +46,9 @@ describe('ticketText', () => {
   });
 
   it('a returning show says how long it was away', () => {
-    expect(ticketText(item({ release: null }), 9).note).toBe(
-      'Back after 9 months',
-    );
+    expect(
+      ticketText(item({ release: null }), { backAfterMonths: 9 }).note,
+    ).toBe('Back after 9 months');
   });
 
   it('finales and episodes carry the code', () => {
@@ -69,6 +70,15 @@ describe('ticketText', () => {
       label: null,
       note: 'Weekly',
     });
+  });
+
+  it('a calendar ticket says how many of its episodes air that day', () => {
+    expect(
+      ticketText(item({ release: 'full-season' }), { episodes: 6 }).note,
+    ).toBe('Full season · all 6');
+    expect(
+      ticketText(item({ kind: 'episode' }), { code: 'S02E43', episodes: 2 }),
+    ).toMatchObject({ badge: 'S02E43', note: '2 episodes' });
   });
 
   it('measures the wait in months', () => {

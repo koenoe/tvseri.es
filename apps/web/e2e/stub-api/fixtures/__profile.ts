@@ -6,6 +6,7 @@ import type {
 } from '@tvseri.es/schemas';
 
 import type { StubRequest, StubResponse, StubRoute } from '../types.ts';
+import { calendarOf } from './user-profile/calendar.ts';
 import {
   heavyCircle,
   heavyLedger,
@@ -62,7 +63,7 @@ import {
   writeFollow,
 } from './user-profile/social.ts';
 import { kitOverview, raeOverview } from './user-profile/states.ts';
-import { daysAgo } from './user-profile/time.ts';
+import { day, daysAgo } from './user-profile/time.ts';
 import { withWatching } from './user-profile/watchingFollows.ts';
 
 /**
@@ -203,6 +204,24 @@ const waitingForOf = (name: Name) =>
         ? miraWaitingFor()
         : { items: [] };
 
+/** Calendar days the overview doesn't carry: alex has an episode today */
+const extraDaysOf = (name: Name) =>
+  name === 'alex'
+    ? [
+        {
+          ...identity('midsomer'),
+          date: day(0),
+          daysToGo: 0,
+          episode: 2,
+          kind: 'episode' as const,
+          onWatchlist: false,
+          provider: null,
+          release: 'weekly' as const,
+          season: 26,
+        },
+      ]
+    : [];
+
 const ledgerOf = (name: Name) =>
   name === 'alex' || name === 'rae'
     ? // rae has the real-data shape: a show with 23 missing episodes
@@ -335,6 +354,19 @@ export const routes: readonly StubRoute[] = [
         ),
       ),
     path: '/me/overview',
+  },
+  {
+    handle: (request) =>
+      withViewer(request, (viewer) =>
+        ok(
+          calendarOf(
+            overviewOf(viewer),
+            waitingForOf(viewer),
+            extraDaysOf(viewer),
+          ),
+        ),
+      ),
+    path: '/me/calendar',
   },
   // kit's home (Continue watching e2e): the other personal rows are empty
   {

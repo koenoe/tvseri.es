@@ -11,6 +11,7 @@ import type {
  */
 export type ProfileSegment =
   | ''
+  | 'calendar'
   | 'circle'
   | 'history'
   | 'library'
@@ -18,7 +19,7 @@ export type ProfileSegment =
 
 /**
  * A user's profile URL: `/u/{username}` (the overview) or
- * `/u/{username}/{segment}` (`history`, `circle`, `library`,
+ * `/u/{username}/{segment}` (`calendar`, `history`, `circle`, `library`,
  * `library/{shelf}`), the username encoded. The Library's links go through
  * `libraryPath`; Stats has its own builder, `statsPath`.
  */

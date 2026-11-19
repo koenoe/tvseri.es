@@ -7,10 +7,16 @@ const UNITS = {
   week: ['Week', 'Weeks'],
 } as const;
 
-/** The ticket stub: "2 DAYS", "3 WEEKS", "4 MONTHS" (the shared `countdownOf` rule) */
+/**
+ * The ticket stub: "2 DAYS", "3 WEEKS", "4 MONTHS" (the shared `countdownOf`
+ * rule); "AIRED" on a calendar day that has passed
+ */
 export function countdown(
   daysToGo: number,
 ): Readonly<{ n: string; unit: string }> {
+  if (daysToGo < 0) {
+    return { n: '', unit: 'Aired' };
+  }
   const { count, unit } = countdownOf(daysToGo);
   if (unit === 'today') {
     return { n: '', unit: 'Today' };
@@ -29,10 +35,22 @@ export type TicketText = Readonly<{
   note: string | null;
 }>;
 
-/** What a ticket says about the episode */
+type TicketExtras = Readonly<{
+  /** A finished show's wait, for "Back after 9 months" */
+  backAfterMonths?: number | null;
+  /** The code as the API spells it (a show numbered on across seasons) */
+  code?: string;
+  /** How many of the show's episodes air that day (the calendar's tickets) */
+  episodes?: number;
+}>;
+
+/**
+ * What a ticket says about the episode. A calendar ticket that holds more
+ * than one episode says so: "Full season · all 6", or "2 episodes".
+ */
 export function ticketText(
   item: ComingUpItem,
-  backAfterMonths: number | null = null,
+  { backAfterMonths = null, code, episodes = 1 }: TicketExtras = {},
 ): TicketText {
   const release =
     item.release === 'weekly'
@@ -40,26 +58,34 @@ export function ticketText(
       : item.release === 'full-season'
         ? 'Full season'
         : null;
+  const several =
+    episodes <= 1
+      ? null
+      : item.release === 'full-season'
+        ? `Full season · all ${episodes}`
+        : `${episodes} episodes`;
   const back =
     backAfterMonths && backAfterMonths > 0
       ? `Back after ${plural(backAfterMonths, 'month')}`
       : null;
-  const code = episodeCode({
-    episodeNumber: item.episode,
-    seasonNumber: item.season,
-  });
+  const badge =
+    code ??
+    episodeCode({
+      episodeNumber: item.episode,
+      seasonNumber: item.season,
+    });
   if (item.kind === 'season-premiere') {
     return {
       badge: null,
       kind: 'premiere',
       label: `Season ${item.season} premiere`,
-      note: release ?? back,
+      note: several ?? release ?? back,
     };
   }
   if (item.kind === 'season-finale') {
-    return { badge: code, kind: 'finale', label: 'Season finale', note: null };
+    return { badge, kind: 'finale', label: 'Season finale', note: several };
   }
-  return { badge: code, kind: 'episode', label: null, note: release };
+  return { badge, kind: 'episode', label: null, note: several ?? release };
 }
 
 /** Whole months between finishing a show and its return */

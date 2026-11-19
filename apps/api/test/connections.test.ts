@@ -660,7 +660,7 @@ describe('DELETE /me/connections/netflix', () => {
     ).toBe(false);
   });
 
-  it('takes the review list with it: open entries, closed markers, the count', async () => {
+  it('keeps the review list and where the sync got to: only the session goes', async () => {
     const { code } = await mintLinkCode(USER_ID, 'netflix');
     browseOk();
     activityOk();
@@ -671,26 +671,31 @@ describe('DELETE /me/connections/netflix', () => {
     const pk = `USER#${USER_ID}`;
     db.seed('Connections', [
       { kind: 'series-not-found', pk, sk: 'UNRESOLVED#netflix#1' },
-      { kind: 'series-not-found', pk, sk: 'UNRESOLVED#netflix#2' },
       { dismissedAt: 1, pk, sk: 'CLOSED#netflix#3' },
-      { open: 2, pk, sk: 'UNRESOLVEDCOUNT#netflix' },
-      { code: '1234', pk, sk: 'LINKCODE' },
-      {
-        kind: 'series-not-found',
-        pk: 'USER#someone-else',
-        sk: 'UNRESOLVED#netflix#1',
-      },
+      { open: 1, pk, sk: 'UNRESOLVEDCOUNT#netflix' },
     ]);
 
     await request('/me/connections/netflix', { as: USER_ID, method: 'DELETE' });
-    expect(
-      db
-        .dump('Connections')
-        // The link's attempt counter, given back: not the viewer's
-        .filter((item) => !String(item.pk).startsWith('LINKFAIL#'))
-        .map((item) => `${item.pk} ${item.sk}`)
-        .sort(),
-    ).toEqual([`${pk} LINKCODE`, 'USER#someone-else UNRESOLVED#netflix#1']);
+    const mine = db
+      .dump('Connections')
+      .filter((item) => item.pk === pk)
+      .map((item) => item.sk)
+      .sort();
+    expect(mine).toEqual([
+      'CLOSED#netflix#3',
+      'RESUME#netflix',
+      'UNRESOLVED#netflix#1',
+      'UNRESOLVEDCOUNT#netflix',
+    ]);
+    const resume = db
+      .dump('Connections')
+      .find((item) => item.sk === 'RESUME#netflix');
+    // Never the session: only the profile and, once synced, the position
+    expect(resume).toEqual({
+      pk,
+      profileId: expect.any(String),
+      sk: 'RESUME#netflix',
+    });
   });
 
   it('refuses an anonymous caller', async () => {

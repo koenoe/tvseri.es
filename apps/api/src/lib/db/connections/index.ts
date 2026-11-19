@@ -4,7 +4,6 @@ import {
   GetItemCommand,
   PutItemCommand,
   ScanCommand,
-  type WriteRequest,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
@@ -16,16 +15,8 @@ import {
 import { Resource } from 'sst';
 import * as v from 'valibot';
 
-import { batchWrite } from '../batch';
 import client from '../client';
-import { queryPages } from '../query';
-import {
-  closedPrefix,
-  connectionKey,
-  connectionsPk,
-  countSk,
-  openPrefix,
-} from './keys';
+import { connectionKey, connectionsPk, resumeSk } from './keys';
 
 /**
  * A viewer's linked streaming services and their link codes, kept apart from
@@ -41,6 +32,8 @@ import {
  * - Closed entry:      pk `USER#{userId}`, sk `CLOSED#{service}#{id}`, so a
  *   later sync never adds a resolved or dismissed entry again
  * - Review count:      pk `USER#{userId}`, sk `UNRESOLVEDCOUNT#{service}`
+ * - Resume point:      pk `USER#{userId}`, sk `RESUME#{service}`: left by
+ *   Disconnect (profile, sync position), taken by the next link
  * - Link attempts:     pk `LINKFAIL#ALL#{hour}` and
  *   `LINKFAIL#ADDR#{address hash}#{hour}`, sk `LINKFAIL`, with `ttl`;
  *   reserved before a code is tried, given back for a right one
@@ -110,33 +103,71 @@ export type Connection = Readonly<v.InferOutput<typeof ConnectionSchema>>;
 
 type NewConnection = Omit<Connection, 'sync' | 'syncedThrough'>;
 
+/** What Disconnect leaves: no session, nothing the card shows */
+const ResumeSchema = v.object({
+  profileId: v.string(),
+  recheckedWith: v.optional(v.number()),
+  syncedThrough: v.optional(v.nullable(v.number())),
+});
+type Resume = Readonly<v.InferOutput<typeof ResumeSchema>>;
+
+const resumeKey = (userId: string, service: ConnectionService) =>
+  marshall({ pk: connectionsPk(userId), sk: resumeSk(service) });
+
+const getResume = async (
+  userId: string,
+  service: ConnectionService,
+): Promise<Resume | null> => {
+  const found = await client.send(
+    new GetItemCommand({ Key: resumeKey(userId, service), TableName: table() }),
+  );
+  const parsed = found.Item
+    ? v.safeParse(ResumeSchema, unmarshall(found.Item))
+    : null;
+  return parsed?.success ? parsed.output : null;
+};
+
 /**
  * Linking the same profile again keeps the sync position, so the next sync
- * doesn't re-read the whole history. A running sync loses its claim.
+ * doesn't re-read the whole history; after a Disconnect too, from its resume
+ * point. Only a live connection keeps `lastSyncedAt`, so a fresh link gets
+ * its one Sync now. A running sync loses its claim.
  */
 export const saveConnection = async (
   connection: NewConnection,
 ): Promise<void> => {
-  const existing = await getConnection(connection.userId, connection.service);
-  const sameProfile = existing?.profileId === connection.profileId;
+  const { service, userId } = connection;
+  const existing = await getConnection(userId, service);
+  const previous = existing ?? (await getResume(userId, service));
+  const sameProfile = previous?.profileId === connection.profileId;
   await client.send(
     new PutItemCommand({
       Item: marshall(
         {
           ...connection,
           ...(sameProfile && {
-            lastSyncedAt: existing.lastSyncedAt,
-            syncedThrough: existing.syncedThrough ?? null,
+            syncedThrough: previous.syncedThrough ?? null,
           }),
-          // The review list outlives a relink, and so does its re-check
-          recheckedWith: existing?.recheckedWith ?? connection.recheckedWith,
-          ...connectionKey(connection.userId, connection.service),
+          ...(existing &&
+            sameProfile && { lastSyncedAt: existing.lastSyncedAt }),
+          // The review list outlives a relink and a Disconnect, and so does
+          // its re-check
+          recheckedWith: previous?.recheckedWith ?? connection.recheckedWith,
+          ...connectionKey(userId, service),
         },
         { removeUndefinedValues: true },
       ),
       TableName: table(),
     }),
   );
+  if (!existing && previous) {
+    await client.send(
+      new DeleteItemCommand({
+        Key: resumeKey(userId, service),
+        TableName: table(),
+      }),
+    );
+  }
 };
 
 export const getConnection = async (
@@ -157,46 +188,35 @@ export const getConnection = async (
 };
 
 /**
- * Removes the session and the review list; what was synced stays. The
- * connection goes first: every review-list write checks it in the same
- * transaction, so nothing lands after the sweep begins.
+ * Removes the stored session. The review list and where the sync got to
+ * stay (the resume point), so linking the same profile again carries on
+ * rather than reading the whole history; account deletion clears them.
  */
 export const deleteConnection = async (
   userId: string,
   service: ConnectionService,
 ): Promise<void> => {
-  await client.send(
+  const { Attributes } = await client.send(
     new DeleteItemCommand({
       Key: marshall(connectionKey(userId, service)),
+      ReturnValues: 'ALL_OLD',
       TableName: table(),
     }),
   );
-  const deletes: WriteRequest[] = [
-    {
-      DeleteRequest: {
-        Key: marshall({ pk: connectionsPk(userId), sk: countSk(service) }),
-      },
-    },
-  ];
-  for (const prefix of [openPrefix(service), closedPrefix(service)]) {
-    for await (const page of queryPages({
-      // Every entry written while the connection stood (its writes check
-      // it) is seen, not only those replicated
-      ConsistentRead: true,
-      ExpressionAttributeValues: marshall({
-        ':pk': connectionsPk(userId),
-        ':prefix': prefix,
+  const resume = Attributes
+    ? v.safeParse(ResumeSchema, unmarshall(Attributes))
+    : null;
+  if (resume?.success) {
+    await client.send(
+      new PutItemCommand({
+        Item: {
+          ...marshall(resume.output, { removeUndefinedValues: true }),
+          ...resumeKey(userId, service),
+        },
+        TableName: table(),
       }),
-      KeyConditionExpression: 'pk = :pk AND begins_with(sk, :prefix)',
-      ProjectionExpression: 'pk, sk',
-      TableName: table(),
-    })) {
-      for (const Key of page.Items ?? []) {
-        deletes.push({ DeleteRequest: { Key } });
-      }
-    }
+    );
   }
-  await batchWrite(table(), deletes);
 };
 
 const LinkedSchema = v.object({
@@ -212,7 +232,7 @@ export type LinkedConnection = Readonly<v.InferOutput<typeof LinkedSchema>>;
 /**
  * A scan, once a night: an index for one reader would cost more than it
  * saves. Known growth cost: it also reads every closed marker, which are kept
- * until Disconnect so a later sync never adds a closed entry again.
+ * until the account goes so a later sync never adds a closed entry again.
  */
 export async function* linkedConnections(): AsyncGenerator<LinkedConnection> {
   let start: Record<string, AttributeValue> | undefined;

@@ -11,7 +11,11 @@ import { cookiesFromSecret, mergeSetCookies } from '@/lib/connections/jar';
 import type { HistoryEntry, ServiceReader } from '@/lib/connections/reader';
 import type { ConnectionSyncMessage } from '@/lib/connections/request';
 import { runSync, syncTag } from '@/lib/connections/sync';
-import { getConnection, saveConnection } from '@/lib/db/connections';
+import {
+  deleteConnection,
+  getConnection,
+  saveConnection,
+} from '@/lib/db/connections';
 import { MAX_OPEN } from '@/lib/db/connections/unresolved';
 import { writeWatchedBatch } from '@/lib/imports/write';
 
@@ -879,9 +883,13 @@ describe('a sync run', () => {
     whileServing = () =>
       request('/me/connections/netflix', { as: USER_ID, method: 'DELETE' });
     expect(await runQueued()).toBe('stale');
+    // Only Disconnect's resume point: the run wrote nothing after it
     expect(
-      db.dump('Connections').filter((item) => item.pk === `USER#${USER_ID}`),
-    ).toEqual([]);
+      db
+        .dump('Connections')
+        .filter((item) => item.pk === `USER#${USER_ID}`)
+        .map((item) => item.sk),
+    ).toEqual(['RESUME#netflix']);
   });
 
   it('stores the session as Netflix renewed it', async () => {
@@ -1195,6 +1203,29 @@ describe('relinking', () => {
     expect((await getConnection(USER_ID, 'netflix'))?.syncedThrough).toBe(
       NOW - DAY,
     );
+    await seedConnection({ profileId: 'ANOTHERPROFILEGUID' });
+    expect(
+      (await getConnection(USER_ID, 'netflix'))?.syncedThrough ?? null,
+    ).toBeNull();
+  });
+
+  it('after Disconnect, the same profile carries on where it stopped; another starts over', async () => {
+    await seedConnection();
+    pages = [[episode(101, 'Show One', 'Season 1', 'Episode 1', NOW - DAY)]];
+    await syncNow();
+    await runQueued();
+    await deleteConnection(USER_ID, 'netflix');
+
+    await seedConnection();
+    const again = await getConnection(USER_ID, 'netflix');
+    expect(again?.syncedThrough).toBe(NOW - DAY);
+    // A fresh link: Sync now is offered once, and reads only what's new
+    expect(again?.lastSyncedAt).toBeNull();
+    expect(
+      db.dump('Connections').some((item) => item.sk === 'RESUME#netflix'),
+    ).toBe(false);
+
+    await deleteConnection(USER_ID, 'netflix');
     await seedConnection({ profileId: 'ANOTHERPROFILEGUID' });
     expect(
       (await getConnection(USER_ID, 'netflix'))?.syncedThrough ?? null,

@@ -18,3 +18,5 @@ export const closedPrefix = (service: ConnectionService) =>
   `CLOSED#${service}#`;
 export const countSk = (service: ConnectionService) =>
   `UNRESOLVEDCOUNT#${service}`;
+/** Where a disconnected service's sync got to, so linking again carries on */
+export const resumeSk = (service: ConnectionService) => `RESUME#${service}`;

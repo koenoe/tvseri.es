@@ -61,6 +61,8 @@ const entryKey = (gti: string): string => {
 
 type Played = Readonly<{
   episodeText: string | null;
+  /** Not played to the end (by its season page's progress bar): read, never marked */
+  unfinished?: true;
   gti: string;
   /** Null for a film */
   season: Readonly<{ season: number; show: string }> | null;
@@ -78,9 +80,22 @@ const guessedSeason = (text: string) => {
 
 type Flattened = Readonly<{ invalid: number; played: ReadonlyArray<Played> }>;
 
-type SeasonOf = (
-  entry: PrimeEntry,
-) => Promise<Readonly<{ ok: true; season: Played['season'] }> | ReadFailure>;
+type SeasonOf = (entry: PrimeEntry) => Promise<
+  | Readonly<{
+      ok: true;
+      /** By episode gti; null when the season page couldn't be read */
+      progress: ReadonlyMap<string, number> | null;
+      season: Played['season'];
+    }>
+  | ReadFailure
+>;
+
+/** Prime Video's own bar: an episode counts once it's 90% played */
+const FINISHED = 0.9;
+
+/** Without its progress an episode can't be known finished: it isn't marked */
+const finished = (progress: ReadonlyMap<string, number> | null, gti: string) =>
+  (progress?.get(gti) ?? 0) >= FINISHED;
 
 /** A real episode: "Episode <n>: …" past Episode 0 (trailers and extras) */
 const isEpisode = (entry: PrimeEntry) => primeEpisode(entry.text) !== null;
@@ -161,6 +176,7 @@ const flatten = async (
     // Never left out: without a sure season, the title's own words go to
     // the matcher, and what it can't place waits in the review list
     const sure = resolved.ok ? resolved.season : null;
+    const progress = resolved.ok ? resolved.progress : null;
     const season = sure ?? guessedSeason(entry.text);
     for (const episode of episodes) {
       played.push({
@@ -170,6 +186,9 @@ const flatten = async (
         time: episode.time,
         title: season.show,
         ...(sure ? {} : { unsure: true as const }),
+        ...(finished(progress, episode.gti)
+          ? {}
+          : { unfinished: true as const }),
       });
     }
   }
@@ -192,6 +211,15 @@ const toPage = ({ invalid, played }: Flattened, more: boolean): HistoryPage => {
       entries.push({
         key: entryKey(play.gti),
         row: null,
+        watchedAt: play.time,
+      });
+      continue;
+    }
+    if (play.unfinished) {
+      entries.push({
+        key: entryKey(play.gti),
+        row: null,
+        unfinished: true,
         watchedAt: play.time,
       });
       continue;
@@ -301,20 +329,22 @@ const createHistory = (jar: CookieJar) => {
     return walkTo(page, hasTime);
   };
 
+  /**
+   * The season page, once a run: it holds each episode's progress, and the
+   * season when the title doesn't name it
+   */
   const seasonOf: SeasonOf = async (entry) => {
     const named =
       entry.titleType === 'season'
         ? primeSeason(entry.text)
         : { season: null, show: null };
-    if (named.season !== null && named.show !== null) {
-      return {
-        ok: true,
-        season: { part: named.part, season: named.season, show: named.show },
-      };
-    }
+    const fromTitle =
+      named.season !== null && named.show !== null
+        ? { part: named.part, season: named.season, show: named.show }
+        : null;
     const id = detailId(entry.href);
     if (!id) {
-      return { ok: true, season: null };
+      return { ok: true, progress: null, season: fromTitle };
     }
     let detail = details.get(id);
     if (!detail) {
@@ -326,7 +356,11 @@ const createHistory = (jar: CookieJar) => {
       detail = read.detail;
       details.set(id, detail);
     }
-    return { ok: true, season: seasonFrom(named, detail) };
+    return {
+      ok: true,
+      progress: detail.progress,
+      season: fromTitle ?? seasonFrom(named, detail),
+    };
   };
 
   const flattenedPage = async (

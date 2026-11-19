@@ -195,9 +195,52 @@ const splitSeason = (season: number) =>
 
 export type SeasonDetail = Readonly<{
   pairs: ReadonlyArray<ShowSeason>;
+  /**
+   * How far the viewer got in each of the page's episodes (0–1, by gti), as
+   * its progress bars show; an episode never played has none
+   */
+  progress: ReadonlyMap<string, number>;
   seasons: ReadonlySet<number>;
   shows: ReadonlySet<string>;
 }>;
+
+const PlaybackActionsSchema = v.record(
+  v.string(),
+  v.object({ primaryActions: v.fallback(v.array(v.unknown()), []) }),
+);
+const ActionStateSchema = v.object({
+  body: v.object({
+    btf: v.object({
+      state: v.object({ action: v.object({ btf: PlaybackActionsSchema }) }),
+    }),
+  }),
+});
+const PlaybackSchema = v.object({
+  payload: v.object({
+    playback: v.object({ progress: v.pipe(v.number(), v.minValue(0)) }),
+  }),
+});
+
+/** Each episode's play button carries its progress (`playback.progress`) */
+const progressOf = (body: unknown): ReadonlyMap<string, number> => {
+  const parsed = v.safeParse(ActionStateSchema, body);
+  const progress = new Map<string, number>();
+  if (!parsed.success) {
+    return progress;
+  }
+  for (const [gti, { primaryActions }] of Object.entries(
+    parsed.output.body.btf.state.action.btf,
+  )) {
+    for (const action of primaryActions) {
+      const play = v.safeParse(PlaybackSchema, action);
+      if (play.success) {
+        progress.set(gti, play.output.payload.playback.progress);
+        break;
+      }
+    }
+  }
+  return progress;
+};
 
 const isSeasonNumber = (value: unknown): value is number | string =>
   (typeof value === 'number' && Number.isInteger(value) && value > 0) ||
@@ -236,6 +279,7 @@ const seasonDetailOf = (body: unknown): SeasonDetail => {
         ? [{ season: Number(seasonNumber), show: parentTitle.trim() }]
         : [],
     ),
+    progress: progressOf(body),
     seasons: new Set(
       objectsWith(body, 'seasonNumber').flatMap(({ seasonNumber }) =>
         isSeasonNumber(seasonNumber) ? [Number(seasonNumber)] : [],

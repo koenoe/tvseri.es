@@ -107,10 +107,37 @@ const PAGE_1 = historyPage([
   item('episode', 'Episode 0: Official Trailer', 8, T - 70 * MIN),
 ]);
 
-const DETAIL_5 = {
-  body: { atf: { state: { detail: { parentTitle: 'Hollow Creek' } } } },
-  globalStore: { seasons: [{ seasonNumber: 3 }] },
+/**
+ * A season page with its episodes' progress bars (`playback.progress`, 0–1),
+ * as Prime Video draws them; `played` episodes at 1 unless given
+ */
+const withProgress = (
+  page: Readonly<Record<string, unknown>>,
+  played: Readonly<Record<number, number>>,
+) => {
+  const body = (page.body ?? {}) as Record<string, unknown>;
+  const btf = Object.fromEntries(
+    Object.entries(played).map(([n, progress]) => [
+      gti(Number(n)),
+      {
+        primaryActions: [
+          { payload: { playback: { progress, resumeTime: 0 } } },
+        ],
+      },
+    ]),
+  );
+  return { ...page, body: { ...body, btf: { state: { action: { btf } } } } };
 };
+
+const DETAIL_1 = withProgress({}, { 2: 1, 3: 1 });
+
+const DETAIL_5 = withProgress(
+  {
+    body: { atf: { state: { detail: { parentTitle: 'Hollow Creek' } } } },
+    globalStore: { seasons: [{ seasonNumber: 3 }] },
+  },
+  { 6: 1, 9: 1 },
+);
 
 type Answer = Response | (() => Response);
 
@@ -146,6 +173,7 @@ beforeEach(() => {
   answers = new Map<string, Answer>([
     [PAGE_URL, json(PAGE_0)],
     [pageUrl('cursor-1'), json(PAGE_1)],
+    [`${ORIGIN}/detail/0DETAIL1`, json(DETAIL_1)],
     [`${ORIGIN}/detail/0DETAIL5`, json(DETAIL_5)],
   ]);
   fetchMock.mockClear();
@@ -198,7 +226,8 @@ describe('primeReader: a page', () => {
       string,
       { headers: Headers; redirect: string },
     ];
-    expect(urls()).toEqual([PAGE_URL]);
+    // The season page too, for its episodes' progress
+    expect(urls()).toEqual([PAGE_URL, `${ORIGIN}/detail/0DETAIL1`]);
     expect(init.headers.get('accept')).toBe('application/json');
     // primevideo.com's cookies only
     expect(init.headers.get('cookie')).toBe('at-main-av=session-value');
@@ -248,6 +277,7 @@ describe('primeReader: a page', () => {
     });
     expect(urls()).toEqual([
       PAGE_URL,
+      `${ORIGIN}/detail/0DETAIL1`,
       pageUrl('cursor-1'),
       `${ORIGIN}/detail/0DETAIL5`,
     ]);
@@ -276,7 +306,10 @@ describe('primeReader: a page', () => {
   });
 
   it('reads a season from its own title when its detail page names no show', async () => {
-    answers.set(`${ORIGIN}/detail/0DETAIL5`, json({ body: {} }));
+    answers.set(
+      `${ORIGIN}/detail/0DETAIL5`,
+      json(withProgress({ body: {} }, { 6: 1 })),
+    );
     const session = await open();
     const read = await session.readPage(1);
     // Never dropped: the matcher tries "Season 3", the rest goes to review
@@ -299,14 +332,19 @@ describe('primeReader: a page', () => {
     answers.set(PAGE_URL, json(freeForm));
     answers.set(
       `${ORIGIN}/detail/0DETAIL1`,
-      json({
-        body: { parentTitle: 'Hollow Creek' },
-        seasons: [
-          { seasonNumber: 1 },
-          { seasonNumber: 2 },
-          { seasonNumber: 3 },
-        ],
-      }),
+      json(
+        withProgress(
+          {
+            body: { parentTitle: 'Hollow Creek' },
+            seasons: [
+              { seasonNumber: 1 },
+              { seasonNumber: 2 },
+              { seasonNumber: 3 },
+            ],
+          },
+          { 2: 1 },
+        ),
+      ),
     );
     const session = await open();
     const read = await session.readPage(0);
@@ -323,10 +361,15 @@ describe('primeReader: a page', () => {
     answers.set(PAGE_URL, json(freeForm));
     answers.set(
       `${ORIGIN}/detail/0DETAIL1`,
-      json({
-        detail: { parentTitle: 'Hollow Creek', seasonNumber: 3 },
-        seasons: [{ seasonNumber: 1 }, { seasonNumber: 3 }],
-      }),
+      json(
+        withProgress(
+          {
+            detail: { parentTitle: 'Hollow Creek', seasonNumber: 3 },
+            seasons: [{ seasonNumber: 1 }, { seasonNumber: 3 }],
+          },
+          { 2: 1 },
+        ),
+      ),
     );
     const session = await open();
     const read = await session.readPage(0);
@@ -340,10 +383,15 @@ describe('primeReader: a page', () => {
   it('names a bare season’s show from the object for that season, not a related title', async () => {
     answers.set(
       `${ORIGIN}/detail/0DETAIL5`,
-      json({
-        detail: { parentTitle: 'Hollow Creek', seasonNumber: 3 },
-        related: [{ parentTitle: 'Something Else', seasonNumber: 1 }],
-      }),
+      json(
+        withProgress(
+          {
+            detail: { parentTitle: 'Hollow Creek', seasonNumber: 3 },
+            related: [{ parentTitle: 'Something Else', seasonNumber: 1 }],
+          },
+          { 6: 1 },
+        ),
+      ),
     );
     const session = await open();
     const read = await session.readPage(1);
@@ -383,7 +431,7 @@ describe('primeReader: a page', () => {
     const session = await open();
     const read = await session.readPage(0);
     expect('page' in read && read.page.entries).toHaveLength(3);
-    expect(urls()).toEqual([PAGE_URL, bounced]);
+    expect(urls()).toEqual([PAGE_URL, bounced, `${ORIGIN}/detail/0DETAIL1`]);
   });
 
   describe('a detail lookup that fails', () => {
@@ -409,7 +457,12 @@ describe('primeReader: a page', () => {
       for (const n of SEASONS) {
         answers.set(
           detailUrl(n),
-          json({ detail: { parentTitle: `Show ${n}`, seasonNumber: 3 } }),
+          json(
+            withProgress(
+              { detail: { parentTitle: `Show ${n}`, seasonNumber: 3 } },
+              { [n + 4]: 1 },
+            ),
+          ),
         );
       }
     });
@@ -433,7 +486,7 @@ describe('primeReader: a page', () => {
         html('<a href="https://www.amazon.co.uk/ap/signin">Sign in</a>'),
       ],
     ])(
-      'reads that season from its own title and the rest as usual: %s',
+      'reads past that season’s episode unmarked, the rest as usual: %s',
       async (_, answer) => {
         answers.set(detailUrl(2), answer);
         const session = await open();
@@ -442,12 +495,18 @@ describe('primeReader: a page', () => {
         expect(
           'page' in read && read.page.entries.map((entry) => entry.key),
         ).toEqual([key(5), key(6), key(7), key(8), key(9)]);
-        // The unsure one goes to the matcher by its title's words
-        const unsure =
+        // Without its season page, how far it was played is unknown: never
+        // marked on a guess
+        const unknown =
           'page' in read
             ? read.page.entries.find((entry) => entry.key === key(6))
             : undefined;
-        expect(unsure?.row).toMatchObject({ season: 3, title: 'Season 3' });
+        expect(unknown).toMatchObject({ row: null, unfinished: true });
+        const known =
+          'page' in read
+            ? read.page.entries.find((entry) => entry.key === key(5))
+            : undefined;
+        expect(known?.row).toMatchObject({ season: 3, title: 'Show 1' });
       },
     );
 
@@ -504,6 +563,37 @@ describe('primeReader: a page', () => {
         ok: false,
         reason: 'signed-out',
       });
+    });
+  });
+
+  it('marks an episode only once Prime Video’s bar is 90% played', async () => {
+    answers.set(
+      `${ORIGIN}/detail/0DETAIL1`,
+      json(withProgress({}, { 2: 0.27, 3: 0.9 })),
+    );
+    const session = await open();
+    const read = await session.readPage(0);
+    const entries = 'page' in read ? read.page.entries : [];
+    // E5 stopped at 27%: read past, never marked or reviewed
+    expect(entries.find((entry) => entry.key === key(2))).toEqual({
+      key: key(2),
+      row: null,
+      unfinished: true,
+      watchedAt: T,
+    });
+    expect(entries.find((entry) => entry.key === key(3))?.row).toMatchObject({
+      episode: 4,
+    });
+  });
+
+  it('never marks an episode the season page has no progress for', async () => {
+    answers.set(`${ORIGIN}/detail/0DETAIL1`, json(withProgress({}, { 3: 1 })));
+    const session = await open();
+    const read = await session.readPage(0);
+    const entries = 'page' in read ? read.page.entries : [];
+    expect(entries.find((entry) => entry.key === key(2))).toMatchObject({
+      row: null,
+      unfinished: true,
     });
   });
 

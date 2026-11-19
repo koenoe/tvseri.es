@@ -13,6 +13,7 @@ import {
   netflixTestRead,
   openSession,
   readActivityPage,
+  readFinished,
 } from './viewingActivity';
 
 /** Netflix for the sync; an entry is remembered by its `movieID` */
@@ -50,13 +51,33 @@ export const netflixReader: ServiceReader = {
           if (!read.ok) {
             return read;
           }
-          const entries = read.page.items.map((item, index): HistoryEntry => {
-            const entry = netflixRow(item, index);
-            return {
-              key: String(item.movieID),
-              row: entry.kind === 'episode' ? entry.row : null,
-              watchedAt: item.date,
-            };
+          const rows = read.page.items.map((item, index) => ({
+            item,
+            row: netflixRow(item, index),
+          }));
+          // Positions are the session's profile's: for another profile none
+          // can be known, so nothing is marked on a guess
+          const finished =
+            session.guid === profileId
+              ? await readFinished(
+                  session,
+                  rows.flatMap(({ item, row }) =>
+                    row.kind === 'episode' ? [item.movieID] : [],
+                  ),
+                )
+              : { finished: new Set<number>(), ok: true as const };
+          if (!finished.ok) {
+            return finished;
+          }
+          const entries = rows.map(({ item, row }): HistoryEntry => {
+            const key = String(item.movieID);
+            if (row.kind !== 'episode') {
+              return { key, row: null, watchedAt: item.date };
+            }
+            // Played but not to the end: read past, never marked
+            return finished.finished.has(item.movieID)
+              ? { key, row: row.row, watchedAt: item.date }
+              : { key, row: null, unfinished: true, watchedAt: item.date };
           });
           return { ok: true, page: { entries, invalid: read.page.invalid } };
         },

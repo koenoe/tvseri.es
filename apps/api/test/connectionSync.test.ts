@@ -145,7 +145,33 @@ const faultAnswer = (fault: Fault): Response => {
   );
 };
 
+/** Episodes played only partway (their position short of the credits) */
+let unfinished = new Set<number>();
+let progressCalls = 0;
+
+/** The positions behind Netflix's progress bars: finished unless listed */
+const progressAnswer = (init?: RequestInit) => {
+  progressCalls += 1;
+  const path = JSON.parse(
+    decodeURIComponent(String(init?.body).replace(/^path=/, '')),
+  ) as [string, number[], string[]];
+  const videos = Object.fromEntries(
+    path[1].map((id) => [
+      id,
+      {
+        bookmarkPosition: { value: unfinished.has(id) ? 600 : 2500 },
+        creditsOffset: { value: 2400 },
+        runtime: { value: 2600 },
+      },
+    ]),
+  );
+  return Response.json({ jsonGraph: { videos } });
+};
+
 const netflix = async (url: URL, init?: RequestInit): Promise<Response> => {
+  if (url.pathname.startsWith('/nq/website/memberapi/')) {
+    return progressAnswer(init);
+  }
   netflixCalls.push(url.pathname);
   if (url.pathname === '/browse' && browseFaults.length > 0) {
     return faultAnswer(browseFaults.shift() as Fault);
@@ -291,6 +317,8 @@ beforeEach(async () => {
   browseStatus = 200;
   browseSetCookie = null;
   pageSetCookie = null;
+  unfinished = new Set();
+  progressCalls = 0;
   pageCookies.length = 0;
   browseLocation = '/gb/login?nextpage=%2Fbrowse';
   whileServing = null;
@@ -1290,6 +1318,44 @@ describe('the run’s end in the logs', () => {
       ...runEnds('warn'),
       ...runEnds('error'),
     ]).toEqual([]);
+  });
+});
+
+describe('a played-but-unfinished episode', () => {
+  it('is read past: never marked, kept for review or counted as a film', async () => {
+    await seedConnection();
+    pages = [
+      [
+        episode(101, 'Show One', 'Season 1', 'Episode 2', NOW - DAY),
+        episode(102, 'Show One', 'Season 1', 'Episode 1', NOW - 2 * DAY),
+      ],
+    ];
+    unfinished = new Set([101]);
+    await syncNow();
+    expect(await runQueued()).toBe('done');
+    expect(watched().map((mark) => mark.episodeNumber)).toEqual([1]);
+    expect((await status()).sync).toMatchObject({
+      films: 0,
+      unresolved: 0,
+      written: 1,
+    });
+    // Still the newest read: the next sync starts after it
+    expect((await getConnection(USER_ID, 'netflix'))?.syncedThrough).toBe(
+      NOW - DAY,
+    );
+  });
+
+  it('asks Netflix for the page’s positions once, for its episodes only', async () => {
+    await seedConnection();
+    pages = [
+      [
+        episode(101, 'Show One', 'Season 1', 'Episode 2', NOW - DAY),
+        film(102, 'A Film', NOW - 2 * DAY),
+      ],
+    ];
+    await syncNow();
+    await runQueued();
+    expect(progressCalls).toBe(1);
   });
 });
 

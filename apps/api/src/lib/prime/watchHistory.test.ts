@@ -4,6 +4,7 @@ import { seasonFrom } from './watchHistory';
 
 const detail = (season: number, show = 'Vikings') => ({
   pairs: [{ season, show }],
+  progress: new Map<string, number>(),
   seasons: new Set([season]),
   shows: new Set([show]),
 });

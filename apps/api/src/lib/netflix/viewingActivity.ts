@@ -173,6 +173,99 @@ export const readActivityPage = async (
   };
 };
 
+const Seconds = orNull(v.object({ value: v.number() }));
+const VideoSchema = v.object({
+  bookmarkPosition: Seconds,
+  creditsOffset: Seconds,
+  runtime: Seconds,
+});
+const ProgressResponseSchema = v.object({
+  jsonGraph: v.object({
+    videos: v.fallback(v.record(v.string(), v.unknown()), {}),
+  }),
+});
+
+/** Netflix's own share of a title that counts as seen when it has no credits mark */
+const FINISHED_SHARE = 0.9;
+
+/**
+ * Played to the end: the position reached the credits, or 90% of the
+ * runtime. A title without a position or runtime can't be known finished.
+ */
+export const isFinished = (video: unknown): boolean => {
+  const parsed = v.safeParse(VideoSchema, video);
+  if (!parsed.success) {
+    return false;
+  }
+  const bookmark = parsed.output.bookmarkPosition?.value ?? null;
+  const runtime = parsed.output.runtime?.value ?? null;
+  const credits = parsed.output.creditsOffset?.value ?? null;
+  if (bookmark === null || runtime === null || runtime <= 0) {
+    return false;
+  }
+  return (
+    (credits !== null && credits > 0 && bookmark >= credits) ||
+    bookmark / runtime >= FINISHED_SHARE
+  );
+};
+
+/**
+ * Which of `ids` the session's profile played to the end, from the
+ * positions behind Netflix's own progress bars (one call per page)
+ */
+export const readFinished = async (
+  session: NetflixSession,
+  ids: ReadonlyArray<number>,
+): Promise<
+  Readonly<{ ok: true; finished: ReadonlySet<number> }> | ReadFailure
+> => {
+  if (ids.length === 0) {
+    return { finished: new Set(), ok: true };
+  }
+  const path = JSON.stringify([
+    'videos',
+    ids,
+    ['bookmarkPosition', 'runtime', 'creditsOffset'],
+  ]);
+  // A read, though a POST: asking again (`ask`) changes nothing at Netflix
+  const answer = await ask(
+    `${ORIGIN}/nq/website/memberapi/release/pathEvaluator?webp=true&drmSystem=widevine&isWatchlistEnabled=false&falcor_server=0.1.0&withSize=true&materialize=true&original_path=%2Fshakti%2Fmre%2FpathEvaluator`,
+    {
+      body: `path=${encodeURIComponent(path)}`,
+      headers: {
+        accept: '*/*',
+        'content-type': 'application/x-www-form-urlencoded',
+        'x-netflix.client.request.name': 'ui/xhrUnclassified',
+        'x-netflix.clienttype': 'akira',
+        'x-netflix.esnprefix': 'NFCDCH-LX-',
+        'x-netflix.nq.stack': 'prod',
+        'x-netflix.uiversion': session.build,
+      },
+      method: 'POST',
+      // Never followed: the jar goes to Netflix's own endpoint only
+      redirect: 'manual',
+    },
+    session.jar,
+  );
+  if (!answer) {
+    return readFailure('unavailable');
+  }
+  if (answer.status < 200 || answer.status >= 300) {
+    // The history page just read vouched for the session: a refusal here
+    // says nothing of it
+    return failureOf(answer, { authStatus: false });
+  }
+  const parsed = v.safeParse(ProgressResponseSchema, parseJson(answer.text));
+  if (!parsed.success) {
+    return readFailure('changed');
+  }
+  const { videos } = parsed.output.jsonGraph;
+  return {
+    finished: new Set(ids.filter((id) => isFinished(videos[String(id)]))),
+    ok: true,
+  };
+};
+
 const latestOf = (
   items: ReadonlyArray<NetflixViewedItem>,
 ): ConnectionLatest | null => {

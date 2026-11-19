@@ -50,6 +50,11 @@ export type HistoryEntry = Readonly<{
   key: string;
   /** Null for a film: counted, never written or kept for review */
   row: ImportRow | null;
+  /**
+   * Played but not to the end (the service's own progress says so): read
+   * past, never written, counted or kept for review
+   */
+  unfinished?: true;
   /** Epoch ms */
   watchedAt: number;
 }>;

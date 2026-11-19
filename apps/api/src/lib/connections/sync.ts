@@ -155,6 +155,9 @@ const syncEntries = async (
       break;
     }
     newest = Math.max(newest ?? 0, entry.watchedAt);
+    if (entry.unfinished) {
+      continue;
+    }
     const { row } = entry;
     if (!row) {
       films += 1;

@@ -1,6 +1,3 @@
-import { formatAirWeekdayDate, spokenAirDate } from '@/lib/format/airDate';
-import type { DateOrder } from '@/lib/format/date';
-
 /**
  * Calendar days as `YYYY-MM-DD` and months as `YYYY-MM`, counted in UTC:
  * the API's air dates and its `today` are plain days, so no time zone may
@@ -77,14 +74,3 @@ export const parseDay = (value: string | null) =>
   value && /^\d{4}-\d{2}-\d{2}$/.test(value) && isoOf(utc(value)) === value
     ? value
     : null;
-
-/** The calendar writes its days in the UK order, whatever the app's `DATE_ORDER` */
-const CALENDAR_DATE_ORDER: DateOrder = 'uk';
-
-/** "Thursday 19 November": a day's name in labels and the open day's title */
-export const spokenDay = (iso: string) =>
-  spokenAirDate(iso, CALENDAR_DATE_ORDER);
-
-/** "Fri 20 Nov" ("8 Jan 2027" in another year): the popover's ‹ › */
-export const shortDay = (iso: string, now: number) =>
-  formatAirWeekdayDate(iso, now, CALENDAR_DATE_ORDER);

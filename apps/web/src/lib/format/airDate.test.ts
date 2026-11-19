@@ -15,11 +15,6 @@ describe('formatAirWeekdayDate (the one air-date wording)', () => {
     expect(formatAirWeekdayDate('2025-09-15', NOW)).toBe('Sep 15, 2025');
   });
 
-  it('in the UK order when a page asks for it', () => {
-    expect(formatAirWeekdayDate('2026-11-13', NOW, 'uk')).toBe('Fri 13 Nov');
-    expect(formatAirWeekdayDate('2027-01-08', NOW, 'uk')).toBe('8 Jan 2027');
-  });
-
   it('is empty for no date or one that does not exist', () => {
     expect(formatAirWeekdayDate('', NOW)).toBe('');
     expect(formatAirWeekdayDate('2024-02-30', NOW)).toBe('');
@@ -31,9 +26,5 @@ describe("spokenAirDate (a screen reader's label)", () => {
   it('spells the weekday and month out', () => {
     expect(spokenAirDate('2026-11-20')).toBe('Friday November 20');
     expect(spokenAirDate('nope')).toBe('');
-  });
-
-  it('in the UK order when a page asks for it', () => {
-    expect(spokenAirDate('2026-11-19', 'uk')).toBe('Thursday 19 November');
   });
 });

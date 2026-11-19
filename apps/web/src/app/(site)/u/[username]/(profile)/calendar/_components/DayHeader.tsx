@@ -1,7 +1,7 @@
 import { closeGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import { spokenAirDate } from '@/lib/format/airDate';
 
-import { spokenDay } from '../_lib/calendarDates';
 import { type CalendarDayModel, daySummary } from '../_lib/calendarModel';
 
 /**
@@ -24,7 +24,7 @@ export default function DayHeader({
           className="text-[16px] leading-6 font-semibold text-balance"
           id={titleId}
         >
-          {spokenDay(day.date)}
+          {spokenAirDate(day.date)}
         </h3>
         <p className="text-caption text-white/60 tabular-nums">
           {daySummary(day)}

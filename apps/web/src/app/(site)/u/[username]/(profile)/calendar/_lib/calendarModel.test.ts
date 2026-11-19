@@ -157,19 +157,19 @@ describe('the calendar grid', () => {
 describe('the calendar in words', () => {
   const calendar = buildCalendar(DATA);
 
-  it('names a day in the UK order, with what airs', () => {
+  it('names a day, with what airs', () => {
     expect(dayLabel(calendar, '2026-11-20', null)).toBe(
-      'Friday 20 November, 1 show: The Gilded Age',
+      'Friday November 20, 1 show: The Gilded Age',
     );
     expect(dayLabel(calendar, '2026-11-21', null)).toBe(
-      'Saturday 21 November, nothing airs',
+      'Saturday November 21, nothing airs',
     );
     expect(dayLabel(calendar, '2026-12-15', '2026-12')).toBe(
-      'Tuesday 15 December, 1 show · 6 episodes · 1 premiere: Shōgun (opens December)',
+      'Tuesday December 15, 1 show · 6 episodes · 1 premiere: Shōgun (opens December)',
     );
   });
 
   it('names Today by its date', () => {
-    expect(todayName(calendar)).toBe('Today, Thursday 19 November');
+    expect(todayName(calendar)).toBe('Today, Thursday November 19');
   });
 });

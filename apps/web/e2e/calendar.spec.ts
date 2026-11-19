@@ -45,10 +45,10 @@ test('Coming up leads to the calendar, where today opens its tickets', async ({
   await expect(today).toBeFocused();
   await expect(page).not.toHaveURL(/day=/);
 
-  // Today, named by its date in the UK order: from another month it goes
+  // Today, named by its date: from another month it goes
   // back and keeps focus; on this month it moves focus to today's cell
   const back = page.getByRole('button', {
-    name: /^Today, \w+day \d{1,2} [A-Z][a-z]+$/,
+    name: /^Today, \w+day [A-Z][a-z]+ \d{1,2}$/,
   });
   await page.getByRole('button', { name: 'Next month' }).click();
   await expect(page).toHaveURL(/[?&]month=/);

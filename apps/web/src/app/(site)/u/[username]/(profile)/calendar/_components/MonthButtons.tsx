@@ -30,7 +30,7 @@ export default function MonthButtons({
   canPrevious: boolean;
   onMonth: (step: -1 | 1) => void;
   onToday: () => void;
-  /** "Today, Thursday 19 November" */
+  /** "Today, Thursday November 19" */
   todayLabel: string;
 }>) {
   const previous = () => onMonth(-1);

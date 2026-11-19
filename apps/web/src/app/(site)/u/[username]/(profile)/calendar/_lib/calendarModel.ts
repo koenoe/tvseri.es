@@ -4,8 +4,9 @@ import type {
   CalendarTicket,
 } from '@tvseri.es/schemas';
 import { plural } from '@tvseri.es/utils';
+import { spokenAirDate } from '@/lib/format/airDate';
 
-import { monthName, monthOf, spokenDay } from './calendarDates';
+import { monthName, monthOf } from './calendarDates';
 
 /** What the page hands the grid: everything but No date yet */
 export type CalendarData = Omit<Calendar, 'noDateYet'>;
@@ -219,9 +220,9 @@ export function datedMonths(
 export const datedFrom = (calendar: CalendarModel, month: string) =>
   calendar.dated.some((iso) => monthOf(iso) >= month);
 
-/** Today's button: "Today, Thursday 19 November" */
+/** Today's button: "Today, Thursday November 19" */
 export const todayName = (calendar: CalendarModel) =>
-  `Today, ${spokenDay(calendar.today)}`;
+  `Today, ${spokenAirDate(calendar.today)}`;
 
 /**
  * A day's name for its button: "Friday 4 December, 4 shows · 3 premieres:
@@ -241,5 +242,5 @@ export function dayLabel(
       ? ''
       : ', nothing airs';
   const opens = opensMonth ? ` (opens ${monthName(opensMonth)})` : '';
-  return `${spokenDay(iso)}${what}${opens}`;
+  return `${spokenAirDate(iso)}${what}${opens}`;
 }

@@ -3,7 +3,12 @@ import type { ReactNode } from 'react';
 import { Ghost, PULSE } from '@/components/ui/ghost/ghosts';
 import cn from '@/lib/cn';
 
-import { SECTION_HEAD_ROW, SECTION_RULE, SECTION_TITLE } from './SectionHead';
+import {
+  SECTION_HEAD_ROW,
+  SECTION_RULE,
+  SECTION_TITLE,
+  SectionRule,
+} from './SectionHead';
 
 /**
  * A `SectionHead` while its block streams: the dot as a flat shape (filled
@@ -24,7 +29,7 @@ export default function SectionHeadGhost({
     <div className={SECTION_HEAD_ROW}>
       <Ghost className={dot} />
       <span className={SECTION_TITLE}>{title}</span>
-      <span className={SECTION_RULE} />
+      <SectionRule className={SECTION_RULE} />
       {link}
     </div>
   );

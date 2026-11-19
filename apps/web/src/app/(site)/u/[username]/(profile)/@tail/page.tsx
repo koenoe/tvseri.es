@@ -8,7 +8,7 @@ import { getProfile, type ProfileParams } from '../_data/profile';
 type Props = Readonly<{ params: ProfileParams }>;
 
 /**
- * The overview's last sidebar blocks (Watchlist, Start something new, the
+ * The overview's last sidebar blocks (Watchlist, Pick one, the
  * year), after the main column in the DOM: the sidebar's column under the
  * identity on a desktop, the end of the page below it
  * (`overviewLayout.ts`). Every block fails alone.

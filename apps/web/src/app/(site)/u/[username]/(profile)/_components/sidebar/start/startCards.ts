@@ -1,6 +1,6 @@
 import { plural } from '@tvseri.es/utils';
 
-/** One card of Start something new's deck */
+/** One card of Pick one's deck */
 export type StartCard = Readonly<{
   id: number;
   slug: string;
@@ -32,7 +32,7 @@ export function sendToBack(
 }
 
 /**
- * Pick one: a random card other than the top one comes to the front, the
+ * Roll again: a random card other than the top one comes to the front, the
  * rest keep their order. `random` is injected for tests (0 up to 1).
  */
 export function dealRandom(

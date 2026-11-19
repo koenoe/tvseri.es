@@ -66,7 +66,7 @@ export const GET_STARTED_GRID = 'grid gap-4 md:grid-cols-3';
 /** Each place keeps its own look on purpose; don't unify them. */
 const HEAD: SectionHeadLayout = {
   row: 'flex items-center gap-3',
-  rule: 'h-0.5 flex-1 rounded-2 bg-white/8',
+  rule: 'flex-1',
   title: 'text-title-2 whitespace-nowrap text-white',
 };
 

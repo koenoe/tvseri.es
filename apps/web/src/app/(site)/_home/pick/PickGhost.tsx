@@ -1,12 +1,12 @@
 import type { CSSProperties } from 'react';
 import WatchlistToggleGhost from '@/components/marking/WatchlistToggleGhost';
+import { ROLL_GLYPH, ROLL_LABEL } from '@/components/ui/button/roll';
 import {
   ButtonFace,
   FLAT,
   PULSE,
   TextLine,
 } from '@/components/ui/ghost/ghosts';
-import { variantDiceGlyph } from '@/components/ui/icon/glyphs';
 import cn from '@/lib/cn';
 import { PAGE_COLUMN } from '../frame';
 import { restPose } from './deck';
@@ -20,7 +20,6 @@ import {
   RESULT_ACTIONS,
   RESULT_TITLE,
   RESULT_WHY,
-  ROLL_LABEL,
 } from './layout';
 import styles from './pick.module.css';
 
@@ -70,7 +69,7 @@ export default function PickGhost() {
             </span>
             <div className={ACTIONS}>
               <WatchlistToggleGhost />
-              <ButtonFace icon={variantDiceGlyph} variant="outline">
+              <ButtonFace icon={ROLL_GLYPH} variant="outline">
                 {ROLL_LABEL}
               </ButtonFace>
             </div>

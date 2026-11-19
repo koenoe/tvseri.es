@@ -261,7 +261,7 @@ test.describe('owner or visitor placeholders', () => {
  * Get started's failure is the profile's centred card over the block's ghost
  * (each "didn't load" look fits its context), so a failure keeps the
  * block's size. nina is a new user; her watchlist read fails, which the
- * block reads for the shows Start something new borrowed, to make it throw
+ * block reads for the shows Pick one borrowed, to make it throw
  * (a failed or broken Get started read only hides the block). The stub offers her no posters to mark as
  * seen, the ghost draws the common eight, so step 2 differs by exactly the
  * poster grid and everything else is exact.

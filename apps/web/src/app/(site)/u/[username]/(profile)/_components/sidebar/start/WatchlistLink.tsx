@@ -7,7 +7,7 @@ const EMPTY =
   'shrink-0 whitespace-nowrap text-body-sm font-medium text-white/60';
 
 /**
- * Start something new's way to the owner's watchlist shelf, where the
+ * Pick one's way to the owner's watchlist shelf, where the
  * sidebar's Watchlist row was: "Watchlist ›", the count in its name only
  * (beside the title and the rule, a visible count doesn't fit the 300px
  * sidebar). An empty list is the word without a link (nothing to open);

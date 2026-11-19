@@ -6,7 +6,7 @@
  *
  * - Desktop: the sidebar is the identity and the `@aside` blocks (a rule,
  *   someone else's match card), and under it the `@tail` blocks
- *   (Watchlist, or on your own Start something new, then the year), placed in the sidebar's
+ *   (Watchlist, or on your own Pick one, then the year), placed in the sidebar's
  *   column after the main column in the DOM. It scrolls with the page (the
  *   sub-pages' sidebars stick): the tail can't stick with the identity.
  * - Tablet and phone: one column, the tail's blocks after the page.
@@ -35,7 +35,7 @@ export const OVERVIEW_MAIN =
 export const NOT_ON_PHONE = 'max-md:hidden';
 
 /**
- * The owner's Watchlist row, on a phone only: wider, Start something new
+ * The owner's Watchlist row, on a phone only: wider, Pick one
  * stands in for it (their watchlist, its header links to the shelf)
  */
 export const ONLY_ON_PHONE = 'md:hidden';

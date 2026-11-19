@@ -47,4 +47,3 @@ export const RESULT =
 export const RESULT_TITLE = 'text-title-1 text-white';
 export const RESULT_WHY = 'max-xl:hidden';
 export const RESULT_ACTIONS = 'flex items-center gap-3 pt-4';
-export const ROLL_LABEL = 'Roll again';

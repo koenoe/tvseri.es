@@ -115,7 +115,7 @@ export async function loadPicks(
 
 /**
  * The shows an empty Up next borrows (its pick and the two × Not now swaps
- * to), first in the order of the day-one blocks: Start something new and
+ * to), first in the order of the day-one blocks: Pick one and
  * Get started's Already seen leave these out. Empty once something is in
  * progress. Every read is the one Up next makes (memoised per render).
  */

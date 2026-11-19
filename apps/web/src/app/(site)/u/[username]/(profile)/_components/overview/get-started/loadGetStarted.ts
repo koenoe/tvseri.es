@@ -44,7 +44,7 @@ export const loadGetStartedStatus = (profile: Profile) =>
  * The services you can pick in your region, and the shows to mark as seen:
  * Popular this week, minus every show already in one of your lists (a show
  * you have any history of is never offered, so "seen" can't touch it), and
- * minus the shows Up next and Start something new borrowed: a show appears
+ * minus the shows Up next and Pick one borrowed: a show appears
  * in one day-one block only, and this grid comes last.
  */
 export async function loadGetStartedChoices(
@@ -75,7 +75,7 @@ export async function loadGetStartedChoices(
   };
 }
 
-/** The shows Up next and a borrowed Start something new deck show */
+/** The shows Up next and a borrowed Pick one deck show */
 async function borrowedShowIds(profile: Profile): Promise<ReadonlySet<number>> {
   const [upNext, deck] = await Promise.all([
     borrowedUpNextIds(profile),

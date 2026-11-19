@@ -6,7 +6,7 @@ import type { Side } from './rows';
 
 /**
  * The day's pairs this viewer gets: neither series in any of their lists
- * (`isNewToViewer`, the rule "Start something new" uses).
+ * (`isNewToViewer`, the rule "Pick one" uses).
  */
 export function pairsForViewer(
   pairs: ReadonlyArray<VersusPair>,

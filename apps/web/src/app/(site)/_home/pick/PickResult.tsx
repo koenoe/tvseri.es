@@ -3,24 +3,18 @@
 import Link from 'next/link';
 import WatchlistToggle from '@/components/marking/WatchlistToggle';
 import Button from '@/components/ui/button/Button';
+import { ROLL_GLYPH, ROLL_LABEL } from '@/components/ui/button/roll';
 import {
   calendarGlyph,
   seasonGlyph,
   tagGlyph,
   trendingGlyph,
-  variantDiceGlyph,
 } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import type { ControlStatesRead } from '@/lib/marking/controlState';
 import showPath from '@/lib/routing/showPath';
-import {
-  RESULT,
-  RESULT_ACTIONS,
-  RESULT_TITLE,
-  RESULT_WHY,
-  ROLL_LABEL,
-} from './layout';
+import { RESULT, RESULT_ACTIONS, RESULT_TITLE, RESULT_WHY } from './layout';
 import type { PickCardItem } from './PickDeck';
 
 type Props = Readonly<{
@@ -69,7 +63,7 @@ export default function PickResult({ card, onRoll, states }: Props) {
         <WatchlistToggle id={card.id} states={states} title={card.title} />
         {onRoll ? (
           <Button
-            icon={variantDiceGlyph}
+            icon={ROLL_GLYPH}
             onClick={onRoll}
             size="sm"
             variant="outline"

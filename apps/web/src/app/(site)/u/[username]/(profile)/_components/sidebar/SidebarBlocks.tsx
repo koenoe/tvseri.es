@@ -7,6 +7,7 @@ import {
 } from '../shell/SidebarBlocksSkeleton';
 import MatchCard, { MatchCardSkeleton } from '../visitor/MatchCard';
 import StartSomethingNew, {
+  PICK_ONE_TITLE,
   StartSomethingNewSkeleton,
 } from './StartSomethingNew';
 import WatchlistBlock, { WatchlistBlockSkeleton } from './WatchlistBlock';
@@ -36,7 +37,7 @@ export function SidebarHead({ profile }: Readonly<{ profile: Profile }>) {
 
 /**
  * The sidebar's last blocks (`@tail`), after the page in the DOM
- * (`overviewLayout.ts`). Owner: Start something new, which is their
+ * (`overviewLayout.ts`). Owner: Pick one, which is their
  * watchlist and links to it (not on a phone: Home has its own pick, so a
  * phone keeps the Watchlist row instead), the year so far. Visitor:
  * Watchlist, their year. Each block streams in its own hole.
@@ -55,7 +56,7 @@ export function SidebarTail({ profile }: Readonly<{ profile: Profile }>) {
           <div className={NOT_ON_PHONE}>
             <Hole
               fallback={<StartSomethingNewSkeleton />}
-              title="Start something new"
+              title={PICK_ONE_TITLE}
             >
               <StartSomethingNew profile={profile} />
             </Hole>

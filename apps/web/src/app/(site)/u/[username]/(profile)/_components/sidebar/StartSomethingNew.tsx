@@ -1,4 +1,5 @@
 import { circleButtonStyles } from '@/components/ui/button/buttonStyles';
+import { ROLL_GLYPH, ROLL_LABEL } from '@/components/ui/button/roll';
 import {
   ButtonFace,
   FLAT,
@@ -6,11 +7,7 @@ import {
   PULSE,
   TextLine,
 } from '@/components/ui/ghost/ghosts';
-import {
-  shuffleGlyph,
-  trendingGlyph,
-  usersGlyph,
-} from '@/components/ui/icon/glyphs';
+import { trendingGlyph, usersGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import type { Glyph } from '@/components/ui/icon/types';
 import MetaRow from '@/components/ui/meta/MetaRow';
@@ -61,8 +58,11 @@ function Badge({
   );
 }
 
+/** The block's title: its section, placeholder and streaming hole say it alike */
+export const PICK_ONE_TITLE = 'Pick one';
+
 /**
- * Start something new: one show from your watchlist, with the rest fanned
+ * Pick one: one show from your watchlist, with the rest fanned
  * behind it, and the way to the whole watchlist in its header (the owner's
  * sidebar has no Watchlist row beside it). Owner only. With fewer than
  * three saved shows the deck is shows your circle finished, else Popular
@@ -86,7 +86,7 @@ export default async function StartSomethingNew({
           id="s-start"
           link={link}
           size="side"
-          title="Start something new"
+          title={PICK_ONE_TITLE}
         />
         <EmptyState
           className={CALM}
@@ -106,7 +106,7 @@ export default async function StartSomethingNew({
         id="s-start"
         link={link}
         size="side"
-        title="Start something new"
+        title={PICK_ONE_TITLE}
       />
       <StartDeck badge={badge} cards={deck.cards} mode={mode} />
     </section>
@@ -132,7 +132,7 @@ export function StartSomethingNewSkeleton() {
         id="s-start-sk"
         link={link}
         size="side"
-        title="Start something new"
+        title={PICK_ONE_TITLE}
       />
       <div className={GHOST_DECK}>
         <div className={DECK_FAN}>
@@ -151,8 +151,8 @@ export function StartSomethingNewSkeleton() {
         </div>
         <div className={DECK_BUTTONS}>
           <span className={NOT_NOW} />
-          <ButtonFace className={DECK_PICK} icon={shuffleGlyph} size="lg">
-            Pick one
+          <ButtonFace className={DECK_PICK} icon={ROLL_GLYPH} size="lg">
+            {ROLL_LABEL}
           </ButtonFace>
           <span className={NOT_NOW} />
         </div>

@@ -28,7 +28,7 @@ export type StartDeck = Readonly<{
 const MAX = 20;
 /** A borrowed deck's cards (a short fan) */
 const BORROWED = 8;
-/** Saved shows before the deck is your watchlist: with fewer, Pick one would pick from one or two */
+/** Saved shows before the deck is your watchlist: with fewer, Roll again would pick from one or two */
 const OWN_DECK = 3;
 /** Cards that get their network logo (one cached show read each) */
 const WITH_LOGO = 8;

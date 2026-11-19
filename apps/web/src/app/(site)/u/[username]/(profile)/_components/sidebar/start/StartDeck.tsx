@@ -7,12 +7,12 @@ import { type ReactNode, useState } from 'react';
 import Button from '@/components/ui/button/Button';
 import { circleButtonStyles } from '@/components/ui/button/buttonStyles';
 import CircleButton from '@/components/ui/button/CircleButton';
+import { ROLL_GLYPH, ROLL_LABEL } from '@/components/ui/button/roll';
 import {
   arrowRightGlyph,
   calendarGlyph,
   closeGlyph,
   seasonGlyph,
-  shuffleGlyph,
 } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import MetaItem from '@/components/ui/meta/MetaItem';
@@ -83,10 +83,10 @@ function Face({
 }
 
 /**
- * Start something new's card: the deck, the show on top and three buttons.
+ * Pick one's card: the deck, the show on top and three buttons.
  * The top card's poster and title link to the show (the cards behind are
- * pictures only). ✕ Not now sends the top card to the back, Pick one deals
- * a random one, → opens the show. On the Popular this week deck (`add`)
+ * pictures only). ✕ Not now sends the top card to the back, Roll again
+ * deals a random one, → opens the show. On the Popular this week deck (`add`)
  * the middle button saves the show on top instead.
  */
 export default function StartDeck({
@@ -111,7 +111,7 @@ export default function StartDeck({
     setDealt(true);
     setOrder(sendToBack);
   };
-  const pickOne = () => {
+  const roll = () => {
     setDealt(true);
     setOrder((current) => dealRandom(current, Math.random));
   };
@@ -144,13 +144,13 @@ export default function StartDeck({
           <Button
             className={DECK_PICK}
             disabled={alone}
-            icon={shuffleGlyph}
+            icon={ROLL_GLYPH}
             iconSize={16}
-            onClick={pickOne}
+            onClick={roll}
             size="lg"
             variant="primary"
           >
-            Pick one
+            {ROLL_LABEL}
           </Button>
         )}
         <Link aria-label={open} className={openClass} href={href} title={open}>

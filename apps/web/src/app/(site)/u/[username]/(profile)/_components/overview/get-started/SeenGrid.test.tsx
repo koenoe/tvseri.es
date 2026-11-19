@@ -125,7 +125,7 @@ describe('unseenShows', () => {
   });
 
   // A show appears in one day-one block only; this grid comes last
-  it('leaves out the shows Up next and Start something new borrowed', () => {
+  it('leaves out the shows Up next and Pick one borrowed', () => {
     const empty = { favorites: [], inProgress: [], watched: [], watchlist: [] };
     expect(
       unseenShows(shows, empty, new Set([1, 3])).map((item) => item.id),

@@ -36,7 +36,7 @@ export function librarySets(ids: LibraryIds): LibrarySets {
 /**
  * The viewer has the series in none of their lists (watching, finished,
  * watchlist, favourites): the one rule for "New to you" and for what a
- * "Start something new" pick may offer.
+ * "Pick one" pick may offer.
  */
 export function isNewToViewer(ids: LibraryIds, seriesId: number): boolean {
   const sets = librarySets(ids);

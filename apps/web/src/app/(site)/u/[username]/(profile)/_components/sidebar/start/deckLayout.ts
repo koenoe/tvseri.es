@@ -1,5 +1,5 @@
 /**
- * The deck's layout, shared with Start something new's placeholder (a
+ * The deck's layout, shared with Pick one's placeholder (a
  * server placeholder can't read values from the client deck's modules).
  */
 
@@ -18,7 +18,7 @@ export const DECK_CARD = 'absolute inset-0 overflow-hidden rounded-14';
 /** The face under the fan: title line, facts line */
 export const DECK_FACE =
   'relative flex flex-col items-center gap-3 text-center';
-/** The buttons: Not now, Pick one, the arrow */
+/** The buttons: Not now, Roll again, the arrow */
 export const DECK_BUTTONS = 'relative flex items-center gap-3';
-/** Pick one's padding (an icon-led large button) */
+/** Roll again's padding (an icon-led large button) */
 export const DECK_PICK = 'px-4 has-[>svg:first-child]:pl-4';

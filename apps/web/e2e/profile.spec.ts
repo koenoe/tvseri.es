@@ -120,7 +120,7 @@ test.describe('profile signed in', () => {
     ).toHaveCount(1);
     // the overview's blocks went with the overview (the tail sits outside the aside)
     await expect(
-      page.getByRole('region', { name: 'Start something new' }),
+      page.getByRole('region', { exact: true, name: 'Pick one' }),
     ).toHaveCount(0);
   });
 
@@ -360,7 +360,7 @@ test.describe('profile signed in', () => {
       expect(tabs).toBeLessThan(ys[1] ?? 0);
       // Home has its own pick
       await expect(
-        page.getByRole('heading', { name: 'Start something new' }),
+        page.getByRole('heading', { exact: true, name: 'Pick one' }),
       ).toBeHidden();
     });
 

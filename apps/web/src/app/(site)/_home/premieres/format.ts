@@ -1,5 +1,5 @@
 import type { Premiere, PremiereKind } from '@tvseri.es/schemas';
-import { plural } from '@tvseri.es/utils';
+import { countdownOf, plural } from '@tvseri.es/utils';
 import { DAY_MONTH_PATTERN, WEEKDAY_PATTERN } from '@/lib/format/date';
 
 import { formatDay } from '@/lib/format/datePattern';
@@ -11,27 +11,25 @@ import { formatDay } from '@/lib/format/datePattern';
  * server and the browser always agree.
  */
 
-/** From two weeks on, the stub counts in weeks */
-const WEEKS_FROM = 14;
-
 export type TicketStub = Readonly<{
   /** null for Tonight, which shows the dot instead */
   count: number | null;
-  unit: 'Day' | 'Days' | 'Tonight' | 'Weeks';
+  unit: 'Day' | 'Days' | 'Months' | 'Tonight' | 'Weeks';
 }>;
 
-/** The stub: Tonight, 1 day, 6 days, then whole weeks (21 days = 3 weeks) */
+/**
+ * The stub: Tonight, 1 day, 6 days, then whole weeks (21 days = 3 weeks),
+ * then months (the shared `countdownOf` rule; the 60-day list stays in weeks)
+ */
 export function ticketStub(daysAway: number): TicketStub {
-  if (daysAway <= 0) {
+  const { count, unit } = countdownOf(daysAway);
+  if (unit === 'today') {
     return { count: null, unit: 'Tonight' };
   }
-  if (daysAway === 1) {
-    return { count: 1, unit: 'Day' };
+  if (unit === 'day') {
+    return { count, unit: count === 1 ? 'Day' : 'Days' };
   }
-  if (daysAway < WEEKS_FROM) {
-    return { count: daysAway, unit: 'Days' };
-  }
-  return { count: Math.round(daysAway / 7), unit: 'Weeks' };
+  return { count, unit: unit === 'week' ? 'Weeks' : 'Months' };
 }
 
 /** "Thu 12 Nov", or "Tonight" on the day */

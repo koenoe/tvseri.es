@@ -34,6 +34,7 @@ const NOT_CONNECTED: ConnectionStatus = {
   latest: null,
   profileName: null,
   recent: [],
+  resumeFrom: null,
   status: null,
   sync: null,
   total: null,

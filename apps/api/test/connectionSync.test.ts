@@ -441,6 +441,107 @@ describe('POST /me/connections/netflix/sync', () => {
   });
 });
 
+const syncFrom = (since: number | null) =>
+  request('/me/connections/netflix/sync', {
+    as: USER_ID,
+    body: { since },
+    method: 'POST',
+  });
+
+describe('How far back, on the first sync', () => {
+  it('reads from the chosen day: that day in, the day before out', async () => {
+    seedUser();
+    await seedConnection();
+    const since = NOW - 10 * DAY;
+    pages = [
+      [
+        episode(101, 'Show One', 'Season 1', 'Episode 1', since),
+        episode(102, 'Show One', 'Season 1', 'Episode 2', since - 1),
+      ],
+    ];
+    expect((await syncFrom(since)).status).toBe(202);
+    expect(await runQueued()).toBe('done');
+    expect(watched().map((mark) => mark.episodeNumber)).toEqual([1]);
+    expect((await status()).sync).toMatchObject({ since, state: 'ok' });
+  });
+
+  it('a chosen day that found nothing still ends there, not at the start of the history', async () => {
+    seedUser();
+    await seedConnection();
+    const since = NOW - 10 * DAY;
+    pages = [[episode(101, 'Show One', 'Season 1', 'Episode 1', since - DAY)]];
+    await syncFrom(since);
+    await runQueued();
+    expect(watched()).toEqual([]);
+    expect((await getConnection(USER_ID, 'netflix'))?.syncedThrough).toBe(
+      since,
+    );
+  });
+
+  it('Everything reads the whole history, even after a Disconnect kept a resume point', async () => {
+    seedUser();
+    await seedConnection();
+    pages = [[episode(101, 'Show One', 'Season 1', 'Episode 1', NOW - DAY)]];
+    await syncNow();
+    await runQueued();
+    await deleteConnection(USER_ID, 'netflix');
+    await seedConnection();
+    // The card offers where the last sync reached as the default
+    expect((await status()).resumeFrom).toBe(NOW - DAY);
+
+    pages = [
+      [episode(102, 'Show One', 'Season 1', 'Episode 2', NOW - 300 * DAY)],
+    ];
+    sqsMessages.length = 0;
+    await syncFrom(null);
+    await runQueued();
+    expect(
+      watched()
+        .map((mark) => mark.episodeNumber)
+        .sort(),
+    ).toEqual([1, 2]);
+    expect((await status()).resumeFrom).toBeNull();
+  });
+
+  it('without a body, reads as it would by itself', async () => {
+    seedUser();
+    await seedConnection();
+    const response = await request('/me/connections/netflix/sync', {
+      as: USER_ID,
+      method: 'POST',
+    });
+    expect(response.status).toBe(202);
+    expect((await status()).sync).not.toHaveProperty('since');
+  });
+
+  it('refuses a day in the future, or a body that isn’t one', async () => {
+    seedUser();
+    await seedConnection();
+    expect((await syncFrom(NOW + 2 * DAY)).status).toBe(400);
+    expect(
+      (
+        await request('/me/connections/netflix/sync', {
+          as: USER_ID,
+          body: { since: 'yesterday' },
+          method: 'POST',
+        })
+      ).status,
+    ).toBe(400);
+    expect(queued()).toHaveLength(0);
+  });
+
+  it('is the first sync’s alone: an admin’s later Sync now ignores it', async () => {
+    await seedConnection();
+    pages = [[episode(101, 'Show One', 'Season 1', 'Episode 1', NOW - DAY)]];
+    await syncNow();
+    await runQueued();
+    expect((await syncFrom(NOW - 400 * DAY)).status).toBe(202);
+    const run = (await getConnection(USER_ID, 'netflix'))?.sync;
+    expect(run?.since).toBeUndefined();
+    expect(run?.stopBefore).toBe(NOW - DAY - 2 * DAY);
+  });
+});
+
 describe('a sync run', () => {
   it('writes matches as Netflix, counts films, keeps doubtful entries, and finishes', async () => {
     await seedConnection();

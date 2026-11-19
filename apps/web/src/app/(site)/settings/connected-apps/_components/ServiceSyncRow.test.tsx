@@ -51,6 +51,7 @@ const STATUS: ConnectionStatus = {
   latest: null,
   profileName: 'Koen',
   recent: [],
+  resumeFrom: null,
   status: 'ok',
   sync: null,
   total: null,

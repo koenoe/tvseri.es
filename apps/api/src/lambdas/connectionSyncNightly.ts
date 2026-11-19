@@ -29,7 +29,7 @@ export const handler = async () => {
         connection.userId,
         connection.service,
         connection,
-        nightlyDelay(),
+        { delaySeconds: nightlyDelay() },
       );
       counts[result === 'queued' ? 'queued' : 'busy'] += 1;
     } catch (error) {

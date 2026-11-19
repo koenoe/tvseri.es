@@ -87,7 +87,7 @@ Hono on Lambda behind an SST Router (CloudFront), deployed as two functions with
 
 Upstreams: TMDB (series data, watch providers via JustWatch), OMDb (IMDb ratings), MDBList (our curated lists only). Each has a circuit breaker and a per-instance budget (`src/lib/upstream`); answers are cached and served stale while they refresh.
 
-`src/lambdas/` holds the non-HTTP handlers: DynamoDB stream subscribers (`watched`: lists and per-show summaries; `follow`), the Plex scrobble, the streaming-service history sync (`connectionSync`: one resumable loop for every connected service, each read through its reader in `src/lib/connections/readers.ts`; queued nightly for every connection by `connectionSyncNightly`, and once by the viewer right after connecting; the only function that may decrypt stored sessions), metrics, account-deletion and import-undo queues, dominant-color extraction, and daily crons (watched-status validation and summary repair, metrics aggregation, the nightly connection sync).
+`src/lambdas/` holds the non-HTTP handlers: DynamoDB stream subscribers (`watched`: lists and per-show summaries; `follow`), the Plex scrobble, the streaming-service history sync (`connectionSync`: one resumable loop for every connected service, each read through its reader in `src/lib/connections/readers.ts`; the first sync is the viewer's own Sync now, from the day they choose ("How far back"), and after it `connectionSyncNightly` queues one a night, reading on from the last; the only function that may decrypt stored sessions), metrics, account-deletion and import-undo queues, dominant-color extraction, and daily crons (watched-status validation and summary repair, metrics aggregation, the nightly connection sync).
 
 ## Infrastructure
 

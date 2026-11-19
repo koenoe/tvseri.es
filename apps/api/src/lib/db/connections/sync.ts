@@ -33,6 +33,9 @@ const OVERLAP_MS = 2 * 24 * 60 * 60 * 1000;
 const key = (userId: string, service: ConnectionService) =>
   marshall(connectionKey(userId, service));
 
+/** The first sync's "How far back": a day's start, or null for everything */
+export type SyncScope = Readonly<{ since: number | null }>;
+
 /**
  * After an unfinished run, carries on from its checkpoint, so a history that
  * keeps failing at some depth still gets further each time.
@@ -41,8 +44,9 @@ const nextSync = (
   now: number,
   syncedThrough: number | null | undefined,
   previous: StoredSync | undefined,
+  scope: SyncScope | undefined,
 ): StoredSync => {
-  const fresh = freshSync(now, syncedThrough);
+  const fresh = freshSync(now, syncedThrough, scope);
   return previous && previous.state !== 'ok'
     ? {
         ...fresh,
@@ -52,6 +56,7 @@ const nextSync = (
         invalid: previous.invalid,
         newest: previous.newest,
         page: previous.page,
+        since: previous.since,
         skipped: previous.skipped,
         stopBefore: previous.stopBefore,
         unresolved: previous.unresolved,
@@ -61,9 +66,14 @@ const nextSync = (
     : fresh;
 };
 
+/**
+ * A chosen scope stops exactly at its day; otherwise the run reads back to
+ * the last synced watch, with the overlap.
+ */
 const freshSync = (
   now: number,
   syncedThrough: number | null | undefined,
+  scope: SyncScope | undefined,
 ): StoredSync => {
   const runId = randomUUID();
   return {
@@ -79,7 +89,12 @@ const freshSync = (
     runId,
     skipped: 0,
     state: 'queued',
-    stopBefore: syncedThrough == null ? null : syncedThrough - OVERLAP_MS,
+    ...(scope && { since: scope.since }),
+    stopBefore: scope
+      ? scope.since
+      : syncedThrough == null
+        ? null
+        : syncedThrough - OVERLAP_MS,
     strikes: 0,
     unresolved: 0,
     unresolvedOverflow: 0,
@@ -101,10 +116,12 @@ export const claimSync = async (
     sync?: StoredSync;
     syncedThrough?: number | null;
   }>,
+  /** Only for a first sync the viewer asked for */
+  scope?: SyncScope,
   now = Date.now(),
 ): Promise<ClaimResult> => {
   const seen = connection.sync;
-  const sync = nextSync(now, connection.syncedThrough, seen);
+  const sync = nextSync(now, connection.syncedThrough, seen, scope);
   const claimed = await writeIf(
     new UpdateItemCommand({
       ConditionExpression: `attribute_exists(pk) AND (attribute_not_exists(sync) OR NOT (sync.#state IN (:queued, :running)) OR sync.heartbeatAt < :stale) AND ${
@@ -210,7 +227,11 @@ export const finishSync = (
       ':now': now,
       ':ok': 'ok',
       ':sync': { ...sync, finishedAt: now, heartbeatAt: now, state: 'ok' },
-      ':through': Math.max(sync.newest ?? 0, previousThrough ?? 0) || null,
+      // A first sync from a chosen day that found nothing newer still
+      // reached that day: the next run must not read the whole history
+      ':through':
+        Math.max(sync.newest ?? 0, previousThrough ?? 0, sync.since ?? 0) ||
+        null,
     },
     { '#status': 'status' },
   );

@@ -5,6 +5,7 @@ import {
   ConnectionDismissRequestSchema,
   ConnectionResolveRequestSchema,
   type ConnectionStatus,
+  ConnectionSyncRequestSchema,
   ConnectionSyncRunSchema,
   canSyncNow,
   LinkCodeRequestSchema,
@@ -56,6 +57,7 @@ const NOT_CONNECTED: ConnectionStatus = {
   latest: null,
   profileName: null,
   recent: [],
+  resumeFrom: null,
   status: null,
   sync: null,
   total: null,
@@ -93,6 +95,10 @@ app.get(SERVICE, serviceParam, async (c) => {
         : null,
     profileName: connection.profileName,
     recent: [...marks.recent],
+    resumeFrom:
+      connection.lastSyncedAt === null && !connection.sync
+        ? (connection.syncedThrough ?? null)
+        : null,
     status: connection.status,
     // `stalled` is the claim's own test, so the card offers Sync now exactly
     // when the claim would take it
@@ -124,7 +130,29 @@ app.post(`${SERVICE}/sync`, serviceParam, async (c) => {
   if (!canSyncNow(user.role, connection.lastSyncedAt)) {
     return c.json({ message: 'Syncs run every night' }, 403);
   }
-  if ((await queueSync(user.id, service, connection)) === 'busy') {
+  // Optional: the button before this one sent none, and an admin's sends none
+  const text = await c.req.text();
+  let body: unknown = null;
+  try {
+    body = text ? JSON.parse(text) : null;
+  } catch {
+    return c.json({ message: 'Invalid JSON' }, 400);
+  }
+  const request =
+    body === null ? null : v.safeParse(ConnectionSyncRequestSchema, body);
+  if (
+    request &&
+    (!request.success ||
+      (request.output.since !== null && request.output.since > Date.now()))
+  ) {
+    return c.json({ message: 'Invalid sync request' }, 400);
+  }
+  // "How far back" is the first sync's alone: never a resumed run's
+  const scope =
+    request?.success && connection.lastSyncedAt === null && !connection.sync
+      ? request.output
+      : undefined;
+  if ((await queueSync(user.id, service, connection, { scope })) === 'busy') {
     return c.json({ message: 'A sync is already running' }, 409);
   }
   return c.json({ state: 'queued' } as const, 202);

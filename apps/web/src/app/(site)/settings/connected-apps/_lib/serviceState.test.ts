@@ -14,6 +14,7 @@ const LINKED: ConnectionStatus = {
   latest: null,
   profileName: 'Koen',
   recent: [],
+  resumeFrom: null,
   status: 'ok',
   sync: null,
   total: 2542,

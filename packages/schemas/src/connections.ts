@@ -205,6 +205,11 @@ export const ConnectionSyncRunSchema = v.object({
   finishedAt: v.nullable(v.number()),
   /** Epoch ms */
   requestedAt: v.number(),
+  /**
+   * The first sync's "How far back": the chosen day's start (epoch ms), null
+   * for Everything; absent on the runs after it
+   */
+  since: v.optional(v.nullable(v.number())),
   /** Episodes already in the history: their dates kept */
   skipped: v.number(),
   state: v.picklist(CONNECTION_SYNC_STATES),
@@ -237,6 +242,11 @@ export const ConnectionStatusSchema = v.object({
    * are not in it
    */
   recent: v.array(RecentScrobbleSchema),
+  /**
+   * Before the first sync on a connection linked again: where the last
+   * connection's sync reached, the default "Since" (null: none kept)
+   */
+  resumeFrom: v.optional(v.nullable(v.number()), null),
   /** Null when not connected */
   status: v.nullable(v.picklist(CONNECTION_STATUSES)),
   /** Null until the first sync is asked for */
@@ -251,6 +261,15 @@ export const ConnectionStatusSchema = v.object({
   week: v.array(RecentScrobbleSchema),
 });
 export type ConnectionStatus = v.InferOutput<typeof ConnectionStatusSchema>;
+
+/**
+ * Sync now's body. `since` counts only for a connection's first sync: the
+ * chosen day's start (epoch ms), or null for the whole history. No body:
+ * the run reads as it would by itself.
+ */
+export const ConnectionSyncRequestSchema = v.object({
+  since: v.nullable(v.pipe(v.number(), v.integer(), v.minValue(0))),
+});
 
 const ImportCellSchema = v.union([v.string(), v.number()]);
 

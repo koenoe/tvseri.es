@@ -6,7 +6,7 @@ import { Resource } from 'sst';
 import * as v from 'valibot';
 
 import type { Connection } from '@/lib/db/connections';
-import { claimSync } from '@/lib/db/connections/sync';
+import { claimSync, type SyncScope } from '@/lib/db/connections/sync';
 import { sendMessage } from '@/lib/sqs';
 
 /**
@@ -31,10 +31,15 @@ export const queueSync = async (
   userId: string,
   service: ConnectionService,
   connection: Pick<Connection, 'sync' | 'syncedThrough'>,
-  /** How long the run waits in the queue first (the nightly spreads them) */
-  delaySeconds?: number,
+  options: Readonly<{
+    /** How long the run waits in the queue first (the nightly spreads them) */
+    delaySeconds?: number;
+    /** A first sync's "How far back" */
+    scope?: SyncScope;
+  }> = {},
 ): Promise<'busy' | 'queued'> => {
-  const sync = await claimSync(userId, service, connection);
+  const { delaySeconds, scope } = options;
+  const sync = await claimSync(userId, service, connection, scope);
   if (!sync) {
     return 'busy';
   }

@@ -40,7 +40,7 @@ async function ImportLine() {
   ) {
     return `Imported ${plural(importedEpisodes(last), 'episode')} today`;
   }
-  return 'Netflix, Prime Video or any CSV';
+  return 'Upload your CSV file';
 }
 
 async function ConnectedAppsLine() {

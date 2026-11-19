@@ -25,7 +25,10 @@ export type CalendarDayModel = Readonly<{
   tickets: ReadonlyArray<DayTicket>;
   /** The poster on top of the cell's stack */
   lead: CalendarShow;
-  /** Up to two cards behind it: the next shows' posters, or blanks for one show's binge */
+  /**
+   * Up to two cards behind it, only for other shows: their posters (null: a
+   * show without one). One show's several episodes are ×N alone.
+   */
   behind: ReadonlyArray<string | null>;
   /** Every episode that day, across its shows: the cell's ×N */
   episodes: number;
@@ -66,10 +69,14 @@ export function buildCalendar(data: CalendarData): CalendarModel {
       (sum, { ticket }) => sum + ticket.episodes.length,
       0,
     );
-    const behind =
-      tickets.length > 1
-        ? tickets.slice(1, 3).map(({ show }) => show.posterImage || null)
-        : Array.from({ length: Math.min(2, episodes - 1) }, () => null);
+    const others = [
+      ...new Map(
+        tickets
+          .filter(({ show }) => show.seriesId !== first.show.seriesId)
+          .map(({ show }) => [show.seriesId, show]),
+      ).values(),
+    ];
+    const behind = others.slice(0, 2).map((show) => show.posterImage || null);
     days.set(day.date, {
       behind,
       date: day.date,

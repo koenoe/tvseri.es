@@ -31,7 +31,7 @@ const BEHIND = [
   ),
 ] as const;
 
-/** A blank card behind a one-show binge */
+/** A blank card for a show behind the lead that has no poster */
 const BLANK = ['bg-white/18', 'bg-white/10'] as const;
 
 const LEAD = cn(
@@ -55,7 +55,7 @@ const COUNT =
 
 /**
  * One poster per day: the lead show on top, up to two cards behind it (the
- * next shows, or blanks for a whole season on one day), the lead's premiere
+ * next shows; a blank for one without a poster), the lead's premiere
  * dot or finale ring, and ×N for every episode that day. Decorative: the
  * cell's name says it all in words.
  */

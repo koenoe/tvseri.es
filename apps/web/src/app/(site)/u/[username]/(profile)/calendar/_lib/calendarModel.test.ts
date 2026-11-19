@@ -36,6 +36,19 @@ const DATA: CalendarData = {
       ],
     },
     {
+      date: '2026-11-25',
+      daysToGo: 6,
+      tickets: [
+        {
+          episodes: [episode(4), episode(5)],
+          kind: 'episode',
+          release: 'weekly',
+          season: 4,
+          seriesId: 1,
+        },
+      ],
+    },
+    {
       date: '2026-12-04',
       daysToGo: 15,
       tickets: [
@@ -98,10 +111,13 @@ describe('the calendar grid', () => {
     expect(day?.episodes).toBe(4);
   });
 
-  it('stacks blank cards behind a whole season that lands on one day', () => {
-    const day = calendar.days.get('2026-12-15');
-    expect(day?.behind).toEqual([null, null]);
-    expect(day?.episodes).toBe(6);
+  it('stacks nothing behind one show, however many of its episodes air: ×N says it', () => {
+    const binge = calendar.days.get('2026-12-15');
+    expect(binge?.behind).toEqual([]);
+    expect(binge?.episodes).toBe(6);
+    const double = calendar.days.get('2026-11-25');
+    expect(double?.behind).toEqual([]);
+    expect(double?.episodes).toBe(2);
   });
 
   it('opens a day of the next month there, once the grid has slid over', () => {

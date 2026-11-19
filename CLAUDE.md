@@ -127,6 +127,7 @@ Always load these when working on React/frontend code:
 
 - **vercel-react-best-practices**: React/Next.js performance.
 - **vercel-composition-patterns**: component APIs, compound components, context.
+- **make-interfaces-feel-better**: UI polish: motion, surfaces, typography, icons, hit areas.
 
 Load these when the task touches their area (installed in `.claude/skills`, pinned in `skills-lock.json`):
 

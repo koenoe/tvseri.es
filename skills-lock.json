@@ -108,6 +108,12 @@
       "source": "mattpocock/skills",
       "sourceType": "github"
     },
+    "make-interfaces-feel-better": {
+      "computedHash": "076aa566b86b44e1691a4167ea88a85d6853c5f2eb00c39cc719ce5fa21d0731",
+      "skillPath": "skills/make-interfaces-feel-better/SKILL.md",
+      "source": "jakubkrehel/make-interfaces-feel-better",
+      "sourceType": "github"
+    },
     "next-bundle-optimizer": {
       "computedHash": "7c37f80887cf574e146b88d42cf7d8e847a96ac4cbd1a499672213a30a5ba8f5",
       "skillPath": "skills/next-bundle-optimizer/SKILL.md",

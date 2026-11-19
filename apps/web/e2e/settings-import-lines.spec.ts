@@ -48,5 +48,5 @@ test('the nav line follows Undo import without a reload', async ({ page }) => {
   await expect(page.getByText('Import undone')).toBeVisible({
     timeout: 15_000,
   });
-  await expect(nav.getByText('Netflix, Prime Video or any CSV')).toBeVisible();
+  await expect(nav.getByText('Upload a CSV file')).toBeVisible();
 });

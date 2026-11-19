@@ -1,6 +1,6 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
-import { alarmOnDeadLetters } from './alerts';
+import { alarmOnDeadLetters, alarmOnLogLine } from './alerts';
 import { connections, connectionsKey, connectionsKmsKey } from './connections';
 import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
@@ -33,7 +33,7 @@ export const connectionSyncQueue = new sst.aws.Queue('ConnectionSyncQueue', {
   visibilityTimeout: '1800 seconds',
 });
 
-connectionSyncQueue.subscribe(
+const connectionSync = connectionSyncQueue.subscribe(
   {
     handler: 'apps/api/src/lambdas/connectionSync.handler',
     // Only this function may open a stored session; the queue is for its
@@ -77,6 +77,18 @@ connectionSyncQueue.subscribe(
       },
     },
   },
+);
+
+// A service changed its pages: the run fails as handled, so no message
+// dead-letters. Only that failure logs at error level with "run failed"
+// (lib/connections/sync.ts, logRunEnd); its reader needs work.
+alarmOnLogLine(
+  'ConnectionSyncReaderChanged',
+  connectionSync.nodes.function.apply(
+    (fn) => fn.nodes.function.loggingConfig.logGroup,
+  ),
+  '"ERROR" "run failed"',
+  'A streaming service changed: its history reader can no longer read it',
 );
 
 /**

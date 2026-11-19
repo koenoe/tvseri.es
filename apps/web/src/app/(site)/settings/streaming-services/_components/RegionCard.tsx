@@ -2,12 +2,29 @@ import type { Ref } from 'react';
 
 import Button from '@/components/ui/button/Button';
 import { searchGlyph } from '@/components/ui/icon/glyphs';
+import cn from '@/lib/cn';
 
 import Flag from './Flag';
 
-/** The card's box: its placeholder takes the same */
+/**
+ * The card's box: its placeholder takes the same. On a phone it's a grid:
+ * flag, name and Change on the first row, the line under them at the card's
+ * full width (beside the flag and Change it took five lines and the name two).
+ */
 export const REGION_CARD_CLASS =
-  'flex items-center gap-4 rounded-18 bg-white/4 p-6 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.06)]';
+  'flex items-center gap-4 rounded-18 bg-white/4 p-6 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.06)] max-md:grid max-md:grid-cols-[auto_minmax(0,1fr)_auto] max-md:gap-y-3';
+/** The name and line's column, dissolved into the card's grid on a phone */
+export const REGION_TEXT_CLASS =
+  'flex min-w-0 flex-1 flex-col gap-2 max-md:contents';
+export const REGION_LINE_CLASS = 'max-md:col-span-full max-md:row-start-2';
+export const REGION_CHANGE_CLASS = 'max-md:col-start-3 max-md:row-start-1';
+
+const NAME_CLASS = 'text-title-3 max-md:truncate';
+const LINE_CLASS = cn('text-meta text-white/60', REGION_LINE_CLASS);
+const CHANGE_CLASS = cn(
+  'gap-1.5 px-3 text-body-sm has-[>svg:first-child]:pl-3 [&>svg]:size-[13px]',
+  REGION_CHANGE_CLASS,
+);
 
 /** The region card: flag, name, where it came from, and Change. */
 export default function RegionCard({
@@ -34,14 +51,14 @@ export default function RegionCard({
   return (
     <div className={REGION_CARD_CLASS}>
       <Flag className="h-[21px] w-8 max-md:h-4 max-md:w-6" code={code} />
-      <span className="flex min-w-0 flex-1 flex-col gap-2">
-        <b className="text-title-3">{name}</b>
-        <span className="text-meta text-white/60">{line}</span>
+      <span className={REGION_TEXT_CLASS}>
+        <b className={NAME_CLASS}>{name}</b>
+        <span className={LINE_CLASS}>{line}</span>
       </span>
       <Button
         aria-controls={controls}
         aria-expanded={open}
-        className="gap-1.5 px-3 text-body-sm has-[>svg:first-child]:pl-3 [&>svg]:size-[13px]"
+        className={CHANGE_CLASS}
         icon={searchGlyph}
         onClick={onToggle}
         onFocus={onPreload}

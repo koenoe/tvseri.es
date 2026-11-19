@@ -23,11 +23,11 @@ type Props = Readonly<{
 }>;
 
 /**
- * The header link's box: its own line on a phone, under the title (past the
- * 8px dot and the 10px gap); at the row's end from `md`
+ * The header's link or action ("All in progress ›", Hide all): at the row's
+ * end, beside the title and count; on a phone it wraps under them only when
+ * the row can't hold all three
  */
-export const LANE_LINK_CLASS =
-  'flex basis-full pl-[18px] md:ml-auto md:min-w-0 md:basis-auto md:pl-0';
+export const LANE_LINK_CLASS = 'ml-auto flex min-w-0';
 
 /** A lane's row panel: poster, lines, a control */
 export const LANE_ROW = 'flex items-center gap-4 rounded-12 bg-white/4 p-3.5';
@@ -35,7 +35,7 @@ export const LANE_ROW = 'flex items-center gap-4 rounded-12 bg-white/4 p-3.5';
 /**
  * One block of the two lanes under Up next: the shared lane panel
  * (`PROFILE_LANE`) with the profile's dot, its count grouped ("1,234") and
- * the header link on its own line on a phone.
+ * the header link or action at the row's end.
  */
 export default function Lane({
   children,

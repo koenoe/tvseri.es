@@ -9,15 +9,18 @@ import { LINE, TAG } from './rowBoxes';
 
 const NO_TAGS = [] as const;
 
-/** "Follows you" beside the name from md; on a phone it ends the level line, so the name keeps its width */
+/**
+ * "Follows you" beside the name from md; on a phone it sits at the end of
+ * the button's row, so the name and the level line keep their width
+ */
 const TAG_BESIDE_NAME = `${TAG} max-md:hidden`;
-const TAG_IN_LEVEL_LINE = `${TAG} ml-auto md:hidden`;
+const TAG_BY_BUTTON = `${TAG} ml-auto md:hidden`;
 
 const LEVEL_LINE = `flex min-w-0 items-center gap-2 text-meta whitespace-nowrap text-white/60 ${LINE.level}`;
 
 /**
  * A row on your own Circle: the name with the shared count and "Follows
- * you" on a mutual (at the end of the level line on a phone), the level
+ * you" on a mutual (at the end of the button's row on a phone), the level
  * meter, the level and its one-line reason, what they're watching,
  * and Following (or Follow back for someone who follows you and you don't
  * follow). No lead: the name starts the row.
@@ -36,7 +39,6 @@ export default function OwnerPersonRow({
       <LevelMeter level={level} size="row" />
       <b className={levelWord}>{levelLine(level)}</b>
       <span className="min-w-0 truncate">{proofLine(row.match)}</span>
-      {mutual ? <span className={TAG_IN_LEVEL_LINE}>Follows you</span> : null}
     </div>
   );
   const fact = (
@@ -46,13 +48,16 @@ export default function OwnerPersonRow({
     </>
   );
   const action = (
-    <FollowButton
-      followLabel={row.followsYou ? 'Follow back' : 'Follow'}
-      initialFollowing={row.following}
-      size="circle"
-      userId={row.id}
-      username={row.username}
-    />
+    <>
+      <FollowButton
+        followLabel={row.followsYou ? 'Follow back' : 'Follow'}
+        initialFollowing={row.following}
+        size="circle"
+        userId={row.id}
+        username={row.username}
+      />
+      {mutual ? <span className={TAG_BY_BUTTON}>Follows you</span> : null}
+    </>
   );
   return (
     <PersonRow

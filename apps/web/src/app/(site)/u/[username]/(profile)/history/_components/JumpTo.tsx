@@ -29,8 +29,17 @@ export default function JumpTo({
   const from = parseMonthKey(useSearchParams().get('month'));
   // below `lg` the sidebar is hidden: the month header's sheet has the list
   const shown = useMediaQuery(WIDE_LG);
-  const active = useActiveMonth(shown) ?? openingMonth(index, from);
+  const opening = openingMonth(index, from);
+  const active = useActiveMonth(shown) ?? opening;
+  // the fold keeps the opening year in view, not the scrolled one
+  const fold = { opened: opening ? Number(opening.slice(0, 4)) : null };
   return (
-    <JumpList active={active} basePath={basePath} index={index} week={week} />
+    <JumpList
+      active={active}
+      basePath={basePath}
+      fold={fold}
+      index={index}
+      week={week}
+    />
   );
 }

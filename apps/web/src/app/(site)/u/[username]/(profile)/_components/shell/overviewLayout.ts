@@ -10,8 +10,9 @@
  *   column after the main column in the DOM. It scrolls with the page (the
  *   sub-pages' sidebars stick): the tail can't stick with the identity.
  * - Tablet and phone: one column, the tail's blocks after the page.
- * - Phone: 20px between everything; the identity, someone else's match card
- *   and the tabs, then the page.
+ * - Phone: the identity, someone else's match card and the tabs 20px
+ *   apart; the page's blocks and the tail's 32px apart, so each block's
+ *   heading reads with its own content, not the block above.
  */
 
 /** On the frame */
@@ -28,7 +29,7 @@ export const OVERVIEW_SIDEBAR =
 
 /** On the main column: beside the sidebar and its tail */
 export const OVERVIEW_MAIN =
-  'max-md:profile-overview:gap-5 lg:profile-overview:row-span-2';
+  'max-md:profile-overview:gap-8 lg:profile-overview:row-span-2';
 
 /** Not on a phone: Home has its own pick */
 export const NOT_ON_PHONE = 'max-md:hidden';

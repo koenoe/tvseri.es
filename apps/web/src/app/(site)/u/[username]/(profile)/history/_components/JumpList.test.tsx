@@ -126,6 +126,69 @@ describe('JumpList (Jump to)', () => {
     expect(screen.queryByRole('link', { name: /This week/ })).toBeNull();
   });
 
+  describe('the sidebar folds a long history', () => {
+    // 2025 back to 2016, one episode each
+    const TEN = monthIndex(
+      Array.from({ length: 10 }, (_, index) => ({
+        episodes: 1,
+        months: months({ 0: 1 }),
+        year: 2025 - index,
+      })),
+    );
+    const shownYears = () =>
+      screen
+        .getAllByRole('button', { name: /^\d{4},/ })
+        .map((button) => Number(button.textContent?.slice(0, 4)));
+
+    it('shows the newest five and the year the page opened at; Show all reveals the rest', async () => {
+      const user = userEvent.setup();
+      render(
+        <JumpList
+          active="2018-01"
+          basePath={BASE}
+          fold={{ opened: 2018 }}
+          index={TEN}
+          week={null}
+        />,
+      );
+      expect(shownYears()).toEqual([2025, 2024, 2023, 2022, 2021, 2018]);
+      await user.click(
+        screen.getByRole('button', { name: 'Show all 10 years' }),
+      );
+      expect(shownYears()).toHaveLength(10);
+    });
+
+    it('opens the whole list when the scroll reaches a folded year, and stays open', async () => {
+      const user = userEvent.setup();
+      const list = (active: `${number}-${string}`) => (
+        <JumpList
+          active={active}
+          basePath={BASE}
+          fold={{ opened: 2025 }}
+          index={TEN}
+          week={null}
+        />
+      );
+      const { rerender } = render(list('2021-01'));
+      expect(shownYears()).toHaveLength(5);
+      rerender(list('2019-01'));
+      expect(shownYears()).toHaveLength(10);
+      rerender(list('2025-01'));
+      expect(shownYears()).toHaveLength(10);
+      // only the button folds it again
+      await user.click(screen.getByRole('button', { name: /Show fewer/ }));
+      expect(shownYears()).toHaveLength(5);
+    });
+
+    it('the phone sheet lists every year', () => {
+      render(
+        <JumpList active="2025-01" basePath={BASE} index={TEN} week={null} />,
+      );
+      expect(shownYears()).toHaveLength(10);
+      expect(screen.queryByRole('button', { name: /Show all/ })).toBeNull();
+    });
+  });
+
   it('a pick jumps in a transition, without Next’s scroll, and closes the sheet', async () => {
     const user = userEvent.setup();
     const onPick = vi.fn();

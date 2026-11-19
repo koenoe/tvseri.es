@@ -9,12 +9,9 @@ import {
   useState,
 } from 'react';
 
-import ExpandButton, {
-  type ExpandLayout,
-} from '@/components/ui/fold/ExpandButton';
+import { visibleYears } from '@/lib/fold';
 
-import { visibleYears } from './model';
-import { useSelectedYear } from './YearLink';
+import ExpandButton, { type ExpandLayout } from './ExpandButton';
 
 /** Rows before "Show all": a long-time member has twenty years and more */
 const NEWEST = 5;
@@ -30,26 +27,41 @@ const SHOW_ALL: ExpandLayout = {
 };
 
 /**
- * The sidebar's Years rows, folded to the newest five and the page's year
- * (`visibleYears`), which follows the URL like the highlight does. The
- * server drew every row, so "Show all" opens them at once, with no request.
+ * A sidebar's years (Stats, History), folded to the newest five and the
+ * `selected` year (`visibleYears`). The server or the parent drew every row,
+ * so "Show all" opens them at once, with no request. When `reveal` moves to
+ * a year the fold hides, the whole list opens and stays open: only the
+ * button folds it again.
  */
 export default function YearsFold({
   className,
+  reveal = null,
   rows,
+  selected,
 }: Readonly<{
   /** the list's classes */
   className: string;
+  /** a year that must come into view when it changes (History's scroll) */
+  reveal?: number | null;
+  /** each year's list item (keyed), newest first */
   rows: ReadonlyArray<Readonly<{ year: number; row: ReactNode }>>;
+  /** the year kept in view while folded */
+  selected: number | null;
 }>) {
   const listId = useId();
-  const selected = useSelectedYear();
   const [open, setOpen] = useState(false);
+  const [revealed, setRevealed] = useState<number | null>(null);
   const toggle = useCallback(() => {
     startTransition(() => setOpen((value) => !value));
   }, []);
   const all = rows.map((item) => item.year);
   const folded = visibleYears(all, selected, NEWEST);
+  if (reveal !== revealed) {
+    setRevealed(reveal);
+    if (reveal !== null && folded.hidden && !folded.years.includes(reveal)) {
+      setOpen(true);
+    }
+  }
   const shown =
     open || !folded.hidden
       ? rows
@@ -58,14 +70,11 @@ export default function YearsFold({
   return (
     <>
       <ul className={className} id={listId}>
-        {shown.map((item) => (
-          <li key={item.year}>{item.row}</li>
-        ))}
+        {shown.map((item) => item.row)}
       </ul>
       {folded.hidden ? (
         <ExpandButton
           aria-controls={listId}
-          className="-mx-3"
           label={showAll}
           layout={SHOW_ALL}
           onClick={toggle}

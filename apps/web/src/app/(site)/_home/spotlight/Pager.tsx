@@ -28,8 +28,9 @@ type Props = Readonly<{
 /**
  * The spotlight's ten countdown lines and the quiet pause/play. Desktop: 28px lines 8px apart, 18px
  * before the 32px pause button, bottom right on the buttons' line. Phone:
- * 18px lines 6px apart under the spotlight, each in a 44px-tall target that
- * reaches its neighbours, so a tap lands on the nearest line. The current
+ * under the spotlight at the content's width (the cards' edges below), the
+ * lines sharing it 6px apart, each in a 44px-tall target that reaches its
+ * neighbours, so a tap lands on the nearest line; pause ends the row. The current
  * line fills over 8s (longer than the usual 5 to 7s for a hero slide: each
  * carries a title and a few facts); earlier lines are full, later ones
  * empty. The markup is the same for every viewer (the pause button always
@@ -68,7 +69,7 @@ export default function Pager({
   ) => onIntent(Number(event.currentTarget.dataset.index));
 
   return (
-    <div className="pointer-events-auto absolute inset-x-0 top-[calc(100%+10px)] flex h-[13px] items-center justify-center gap-[13px] md:inset-x-auto md:top-auto md:right-8 md:bottom-[30px] md:h-7 md:gap-[18px]">
+    <div className="pointer-events-auto absolute inset-x-gutter top-[calc(100%+10px)] flex h-[13px] items-center justify-center gap-[13px] md:inset-x-auto md:top-auto md:right-8 md:bottom-[30px] md:h-7 md:gap-[18px]">
       {/* polite only while it holds still: a rotating slideshow stays quiet */}
       <span aria-live={running ? 'off' : 'polite'} className="sr-only">
         Series {String(current + 1).padStart(2, '0')} of {count}
@@ -85,7 +86,7 @@ export default function Pager({
       </button>
       <div
         aria-label="Trending series"
-        className="flex items-center md:gap-2"
+        className="flex items-center max-md:-mx-[3px] max-md:min-w-0 max-md:flex-1 md:gap-2"
         role="group"
       >
         {titles.map((title, index) => {
@@ -100,7 +101,7 @@ export default function Pager({
             <button
               aria-current={isCurrent ? 'true' : undefined}
               aria-label={label}
-              className="group flex h-11 w-6 cursor-pointer items-center justify-center rounded-4 md:h-7 md:w-7"
+              className="group flex h-11 min-w-0 cursor-pointer items-center justify-center rounded-4 max-md:flex-1 md:h-7 md:w-7"
               data-index={index}
               key={index}
               onClick={select}
@@ -108,7 +109,7 @@ export default function Pager({
               onPointerEnter={intent}
               type="button"
             >
-              <span className="relative block h-0.5 w-[18px] overflow-hidden rounded-2 bg-white/40 group-hover:bg-white/60 md:w-full">
+              <span className="relative block h-0.5 w-[calc(100%-6px)] overflow-hidden rounded-2 bg-white/40 group-hover:bg-white/60 md:w-full">
                 {isCurrent && animated ? (
                   <i
                     className={countdownClasses}

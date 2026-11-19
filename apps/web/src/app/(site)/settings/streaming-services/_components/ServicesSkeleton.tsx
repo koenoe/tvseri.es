@@ -11,7 +11,12 @@ import {
   POPULAR_MORE_CLASS,
   POPULAR_TITLE_CLASS,
 } from './PopularCard';
-import { REGION_CARD_CLASS } from './RegionCard';
+import {
+  REGION_CARD_CLASS,
+  REGION_CHANGE_CLASS,
+  REGION_LINE_CLASS,
+  REGION_TEXT_CLASS,
+} from './RegionCard';
 import { TILE_LOOK } from './ServiceTile';
 import {
   SHELF_CARD_CLASS,
@@ -111,13 +116,20 @@ const POPULAR_DOT = cn('size-2 shrink-0 rounded-full', GHOST_FILL);
 
 const SHELF_DOT = cn('size-2 rounded-full', GHOST_FILL);
 
-const CHANGE_GHOST = cn('h-8 w-24 shrink-0 rounded-full', GHOST_FILL);
+const CHANGE_GHOST = cn(
+  'h-8 w-24 shrink-0 rounded-full',
+  GHOST_FILL,
+  REGION_CHANGE_CLASS,
+);
 
-const DETAIL_BAR = cn('block h-5 w-56 max-w-full max-md:h-20', BAR);
+/** On a phone the line has the card's width: two lines at 390 */
+const DETAIL_BAR = cn(
+  'block h-5 w-56 max-w-full max-md:h-10 max-md:w-full',
+  BAR,
+  REGION_LINE_CLASS,
+);
 
-const NAME_TAIL_LINE = cn('w-20 md:hidden', line('text-title-3'));
-
-const NAME_LINE = cn('w-40', line('text-title-3'));
+const NAME_LINE = cn('w-40 max-w-full', line('text-title-3'));
 
 const FLAG_GHOST = cn('h-[21px] w-8 shrink-0 max-md:h-4 max-md:w-6', BAR);
 
@@ -131,12 +143,8 @@ export default function ServicesSkeleton() {
     <div aria-hidden="true" className="flex animate-ghost flex-col gap-6">
       <div className={REGION_GHOST}>
         <span className={FLAG_GHOST} />
-        <span className="flex min-w-0 flex-1 flex-col gap-2">
-          {/* beside the flag and Change a phone leaves the text 127px at 390: "United Kingdom" takes two lines, its line four */}
-          <span className="flex flex-col">
-            <b className={NAME_LINE}>&nbsp;</b>
-            <b className={NAME_TAIL_LINE}>&nbsp;</b>
-          </span>
+        <span className={REGION_TEXT_CLASS}>
+          <b className={NAME_LINE}>&nbsp;</b>
           <span className={DETAIL_BAR} />
         </span>
         <span className={CHANGE_GHOST} />

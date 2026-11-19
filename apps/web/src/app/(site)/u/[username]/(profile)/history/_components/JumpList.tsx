@@ -13,6 +13,7 @@ import {
 } from 'react';
 
 import MaxMotion from '@/components/motion/MaxMotion';
+import YearsFold from '@/components/ui/fold/YearsFold';
 import { calendarGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
@@ -21,6 +22,9 @@ import { useDiaryJump } from '../_lib/useDiaryJump';
 import JumpYear from './JumpYear';
 
 type Week = Readonly<{ episodes: number; last: string | null }>;
+
+/** The years' list (no `-mx-3`: the rows sit on the column's edges) */
+const YEARS = 'flex flex-col gap-0.5';
 
 const weekLine = ({ episodes, last }: Week) =>
   last ? `${plural(episodes, 'episode')} · ${last}` : 'No episodes yet';
@@ -31,11 +35,14 @@ const weekLine = ({ episodes, last }: Week) =>
  * month you're reading is white. A month is a link to the list from that
  * month down (`?month=`). A new active month opens its year, whichever
  * year you opened before. Shared by the sidebar and the phone's sheet
- * (`onPick` closes the sheet).
+ * (`onPick` closes the sheet). The sidebar folds the years like Stats does
+ * (`fold`), keeping the year the page opened at in view; the sheet lists
+ * them all.
  */
 export default function JumpList({
   active,
   basePath,
+  fold,
   index,
   onPick,
   week,
@@ -44,6 +51,11 @@ export default function JumpList({
   active: MonthKey | null;
   /** `/u/alex/history` */
   basePath: string;
+  /**
+   * The sidebar's fold: `opened` is the year the page opened at, fixed, so
+   * the list doesn't grow and shrink as the scroll moves through the years
+   */
+  fold?: Readonly<{ opened: number | null }>;
   index: ReadonlyArray<Year>;
   onPick?: () => void;
   /** This week so far, the owner only */
@@ -73,6 +85,24 @@ export default function JumpList({
     setChoice({ base: now.active, open: now.open === year ? null : year });
   }, []);
 
+  const rows = index.map((year) => {
+    const yearActive = activeYear === year.year ? active : null;
+    const yearOpen = open === year.year;
+    const row = (
+      <JumpYear
+        active={yearActive}
+        animate={touched}
+        basePath={basePath}
+        key={year.year}
+        onPick={pick}
+        onToggle={toggle}
+        open={yearOpen}
+        year={year}
+      />
+    );
+    return { row, year: year.year };
+  });
+
   return (
     <MaxMotion>
       {week ? (
@@ -89,24 +119,16 @@ export default function JumpList({
         </Link>
       ) : null}
       <LayoutGroup id={group}>
-        <ul className="flex flex-col gap-0.5">
-          {index.map((year) => {
-            const yearActive = activeYear === year.year ? active : null;
-            const yearOpen = open === year.year;
-            return (
-              <JumpYear
-                active={yearActive}
-                animate={touched}
-                basePath={basePath}
-                key={year.year}
-                onPick={pick}
-                onToggle={toggle}
-                open={yearOpen}
-                year={year}
-              />
-            );
-          })}
-        </ul>
+        {fold ? (
+          <YearsFold
+            className={YEARS}
+            reveal={activeYear ?? null}
+            rows={rows}
+            selected={fold.opened}
+          />
+        ) : (
+          <ul className={YEARS}>{rows.map((item) => item.row)}</ul>
+        )}
       </LayoutGroup>
     </MaxMotion>
   );

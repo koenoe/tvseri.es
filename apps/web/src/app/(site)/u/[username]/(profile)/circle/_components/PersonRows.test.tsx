@@ -55,7 +55,7 @@ describe('a row on your own Circle', () => {
     expect(
       within(row).getByRole('link', { name: 'edw1n' }).getAttribute('href'),
     ).toBe('/u/edw1n');
-    // beside the name from md, at the end of the level line on a phone (one shows)
+    // beside the name from md, at the end of the button's row on a phone (one shows)
     expect(within(row).getAllByText('Follows you')).toHaveLength(2);
     expect(within(row).getByText('Super match')).toBeTruthy();
     expect(
@@ -88,17 +88,20 @@ describe('a row on your own Circle', () => {
     expect(within(row).getByText('3 shared series')).toBeTruthy();
   });
 
-  it('moves Follows you to the end of the level line on a phone, so the name keeps its width', () => {
+  it('moves Follows you to the end of the button’s row on a phone, so the name and level line keep their width', () => {
     renderRow(edw1n);
     const name = screen.getByRole('link', { name: 'edw1n' });
-    const [besideName, inLevelLine] = screen.getAllByText('Follows you');
+    const [besideName, byButton] = screen.getAllByText('Follows you');
     expect(besideName?.parentElement).toBe(name.parentElement);
     expect(besideName?.className).toContain('max-md:hidden');
+    const buttonCell = screen.getByRole('button').parentElement;
+    expect(byButton?.parentElement).toBe(buttonCell);
+    expect(buttonCell?.lastElementChild).toBe(byButton);
+    expect(byButton?.className).toContain('ml-auto');
+    expect(byButton?.className).toContain('md:hidden');
+    expect(byButton?.className).not.toContain('max-md:hidden');
     const levelLine = screen.getByText('Super match').parentElement;
-    expect(inLevelLine?.parentElement).toBe(levelLine);
-    expect(levelLine?.lastElementChild).toBe(inLevelLine);
-    expect(inLevelLine?.className).toContain('md:hidden');
-    expect(inLevelLine?.className).not.toContain('max-md:hidden');
+    expect(levelLine?.textContent).not.toContain('Follows you');
   });
 
   it('has no Follows you tag for someone who doesn’t follow you', () => {

@@ -19,8 +19,9 @@ export const POPULAR_CARD_CLASS =
 export const POPULAR_HEAD_CLASS = '-mb-2 flex flex-wrap items-center gap-3';
 /** The dot and the title stay together; the title wraps before it leaves its dot */
 export const POPULAR_TITLE_CLASS = 'flex min-w-0 items-center gap-3';
+/** On a phone the filter takes its own row under the title, at the card's width */
 export const POPULAR_FILTER_CLASS =
-  'ml-auto h-10 w-70 gap-2.5 px-3 text-white/60 max-md:w-[201px]';
+  'ml-auto h-10 w-70 gap-2.5 px-3 text-white/60 max-md:w-full';
 export const POPULAR_GRID_CLASS =
   'grid grid-cols-3 gap-2.5 md:grid-cols-[repeat(7,minmax(0,1fr))] md:gap-3';
 /** Folded on phones only: the tiles past the first 7 (`VISIBLE_RESTING`) hide there */

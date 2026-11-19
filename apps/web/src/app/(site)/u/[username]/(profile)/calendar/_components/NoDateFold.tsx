@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence } from 'motion/react';
+import { AnimatePresence, useReducedMotion } from 'motion/react';
 import * as m from 'motion/react-m';
 import { type ReactNode, useId, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
@@ -26,6 +26,7 @@ const FOLD_TIMING = {
   height: { duration: 0.32, ease: SHEET_EASE },
   opacity: { duration: 0.2, ease: 'easeOut' },
 } as const;
+const SNAP = { duration: 0 } as const;
 const FOLD_EXIT = {
   ...FOLD_OUT,
   transition: {
@@ -44,6 +45,10 @@ export default function NoDateFold({
   tiles,
 }: Readonly<{ tiles: ReadonlyArray<ReactNode> }>) {
   const phone = useMediaQuery(PHONE);
+  // with reduced motion the fold snaps open and shut
+  const reduced = useReducedMotion();
+  const timing = reduced ? SNAP : FOLD_TIMING;
+  const exit = reduced ? { ...FOLD_OUT, transition: SNAP } : FOLD_EXIT;
   const first = phone ? 2 : 5;
   const [folds, setFolds] = useState(0);
   const id = useId();
@@ -77,10 +82,10 @@ export default function NoDateFold({
               animate={FOLD_IN}
               className="overflow-hidden"
               data-fold={index + 1}
-              exit={FOLD_EXIT}
+              exit={exit}
               initial={FOLD_OUT}
               key={index}
-              transition={FOLD_TIMING}
+              transition={timing}
             >
               <div className={FOLD_TILES}>{chunk}</div>
             </m.div>

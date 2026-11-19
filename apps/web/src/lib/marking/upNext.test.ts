@@ -145,6 +145,33 @@ describe('liveUpNext', () => {
     });
   });
 
+  it('flags the finale of a season TMDB numbers on from the last', () => {
+    // S2 is E4…E6 (numbered on from S1's E1…E3)
+    const aired = view({
+      seasons: [
+        { airedEpisodeCount: 3, episodeCount: 3, seasonNumber: 1 },
+        {
+          airedEpisodeCount: 3,
+          episodeCount: 3,
+          firstEpisodeNumber: 4,
+          seasonNumber: 2,
+        },
+      ],
+      watched: {
+        ...view().watched,
+        S02E04: { runtime: 0, watchedAt: NOW },
+        S02E05: { runtime: 0, watchedAt: NOW },
+      },
+    });
+    const onS2 = { ...item, code: 'S02E05', episode: 5, seasonTotal: 3 };
+    expect(liveUpNext(onS2, aired)).toMatchObject({
+      code: 'S02E06',
+      seasonFinale: true,
+      // S02E01 (a made-up code from the fixture's watched) isn't S2's own
+      seasonWatched: 2,
+    });
+  });
+
   it('leaves Up next when nothing aired is left', () => {
     const caughtUp = view({
       skipped: ['S02E04'],

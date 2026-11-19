@@ -3,7 +3,7 @@ import type {
   SeriesFactsEpisode,
   TmdbTvSeries,
 } from '@tvseri.es/schemas';
-import { toSlug } from '@tvseri.es/utils';
+import { firstEpisodeNumbers, toSlug } from '@tvseri.es/utils';
 
 import { getCacheEntries, setCacheItems } from '@/lib/db/cache';
 import { claim } from '@/lib/db/cache/singleFlight';
@@ -69,19 +69,31 @@ const average = (values: ReadonlyArray<number>) =>
     : null;
 
 const toSeriesFacts = (series: TmdbTvSeries): SeriesFacts => {
-  const seasons = (series.seasons ?? [])
+  const lastEpisodeToAir = toEpisode(
+    series.last_episode_to_air as TmdbEpisode | null,
+  );
+  const nextEpisodeToAir = toEpisode(
+    series.next_episode_to_air as TmdbEpisode | null,
+  );
+  const counted = (series.seasons ?? [])
     .filter((season) => season.season_number > 0 && season.episode_count > 0)
     .map((season) => ({
       airDate: season.air_date ?? '',
       episodeCount: season.episode_count,
       seasonNumber: season.season_number,
     }));
+  const firstEpisodes = firstEpisodeNumbers(counted, {
+    last: lastEpisodeToAir,
+    next: nextEpisodeToAir,
+  });
+  // Only where TMDB numbers on across seasons: absent means 1
+  const seasons = counted.map((season) => {
+    const first = firstEpisodes[season.seasonNumber] ?? 1;
+    return first === 1 ? season : { ...season, firstEpisodeNumber: first };
+  });
   const numberOfEpisodes = seasons.reduce(
     (sum, season) => sum + season.episodeCount,
     0,
-  );
-  const lastEpisodeToAir = toEpisode(
-    series.last_episode_to_air as TmdbEpisode | null,
   );
   const episodeRuntime =
     average((series.episode_run_time ?? []).filter((runtime) => runtime > 0)) ??
@@ -100,9 +112,7 @@ const toSeriesFacts = (series: TmdbTvSeries): SeriesFacts => {
       id: network.id,
       name: network.name ?? '',
     })),
-    nextEpisodeToAir: toEpisode(
-      series.next_episode_to_air as TmdbEpisode | null,
-    ),
+    nextEpisodeToAir,
     numberOfEpisodes,
     originalLanguage: series.original_language ?? '',
     originCountries: series.origin_country ?? [],

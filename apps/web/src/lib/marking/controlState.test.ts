@@ -22,7 +22,7 @@ const NONE: LibraryIds = {
 const view = (
   watched: ReadonlyArray<string>,
   isWatchlisted = false,
-  seasons = [
+  seasons: SeriesBase['seasons'] = [
     { airedEpisodeCount: 8, episodeCount: 8, seasonNumber: 1 },
     { airedEpisodeCount: 6, episodeCount: 6, seasonNumber: 2 },
   ],
@@ -188,6 +188,26 @@ describe('liveControlState: the server’s state until the tab knows better', ()
       onWatchlist: false,
       seasonTotal: 6,
       seasonWatched: 4,
+    });
+  });
+
+  it('counts only the season’s own episodes on a show TMDB numbers on', () => {
+    // S2 is E9…E14; S02E01 is a made-up code
+    const seeded = view([...all(1, 8), 'S02E01', 'S02E09', 'S02E10'], false, [
+      { airedEpisodeCount: 8, episodeCount: 8, seasonNumber: 1 },
+      {
+        airedEpisodeCount: 6,
+        episodeCount: 6,
+        firstEpisodeNumber: 9,
+        seasonNumber: 2,
+      },
+    ]);
+    expect(liveControlState(WATCHING, seeded, null, ID)).toEqual({
+      kind: 'watching',
+      next: { episodeNumber: 11, seasonNumber: 2 },
+      onWatchlist: false,
+      seasonTotal: 6,
+      seasonWatched: 2,
     });
   });
 

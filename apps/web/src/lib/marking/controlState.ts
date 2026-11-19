@@ -5,7 +5,7 @@ import type {
 } from '@tvseri.es/schemas';
 
 import { librarySets } from './librarySets';
-import { nextEpisode, parseCode, seriesProgress } from './progress';
+import { nextEpisode, seriesProgress, watchedCountInSeason } from './progress';
 import type { SeriesBase } from './types';
 
 /*
@@ -108,12 +108,6 @@ function membershipIn(ids: LibraryIds, seriesId: number): Membership {
   return sets.watchlist.has(seriesId) ? 'watchlist' : 'new';
 }
 
-/** Regular episodes of `season` the view has watched */
-const watchedInSeason = (view: SeriesBase, season: number) =>
-  Object.keys(view.watched).filter(
-    (code) => parseCode(code)?.seasonNumber === season,
-  ).length;
-
 /** Announced episodes still to air in a regular season */
 const stillComing = (view: SeriesBase) =>
   view.seasons.some(
@@ -142,7 +136,7 @@ function stateOfView(view: SeriesBase, streamed: ControlState): ControlState {
       next,
       onWatchlist,
       seasonTotal: season?.episodeCount ?? null,
-      seasonWatched: watchedInSeason(view, next.seasonNumber),
+      seasonWatched: watchedCountInSeason(view, next.seasonNumber),
     };
   }
   if (streamed.kind === 'up-to-date') {

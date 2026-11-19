@@ -145,6 +145,32 @@ describe('GET /premieres', () => {
     expect(cacheControl).toContain('s-maxage=50400');
   });
 
+  it('reads premieres and finales by the real numbers where TMDB numbers on across seasons', async () => {
+    // Naruto Shippuden-like: S1 = E1…E8, S2 = E9…E16, S3 = E17…E24
+    onTmdb('/tv/3', {
+      ...show(3),
+      last_episode_to_air: episode(2, 16, '2026-06-01'),
+      next_episode_to_air: episode(3, 17, '2026-11-14'),
+      seasons: [season(1, 8), season(2, 8), season(3, 8)],
+    });
+    onTmdb('/tv/4', {
+      ...show(4),
+      last_episode_to_air: episode(2, 15, '2026-11-07'),
+      next_episode_to_air: episode(2, 16, '2026-11-21'),
+      seasons: [season(1, 8), season(2, 8)],
+    });
+
+    const { body } = await fetchPremieres();
+    expect(
+      body.items
+        .filter((i) => i.series.id === 3 || i.series.id === 4)
+        .map((i) => [i.series.id, i.kind]),
+    ).toEqual([
+      [3, 'season-premiere'],
+      [4, 'season-finale'],
+    ]);
+  });
+
   it('flags big premieres and builds the countdown', async () => {
     const { body } = await fetchPremieres();
 

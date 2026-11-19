@@ -67,6 +67,12 @@ export {
   resolveSeasonMinutes,
 } from './runtime/minutesFor';
 export {
+  episodeNumbersOf,
+  firstEpisodeNumbers,
+  firstEpisodeOf,
+  isSeasonPremiere,
+} from './series/episodeNumbers';
+export {
   firstSeasonAfter,
   type SeasonsOutlook,
   seasonsOutlook,

@@ -62,4 +62,11 @@ describe('resolveSeasonMinutes', () => {
     expect(resolveSeasonMinutes({}, 1, 2, 30)).toEqual([30, 30]);
     expect(resolveSeasonMinutes({}, 1, 2, null)).toEqual([0, 0]);
   });
+
+  it('runs from the season’s first episode where TMDB numbers on across seasons, still indexed by episode − 1', () => {
+    // Season 2 is E4…E6
+    expect(
+      resolveSeasonMinutes({ 2: [0, 0, 0, 40, 0, 50] }, 2, 3, 60, 4),
+    ).toEqual([0, 0, 0, 40, 45, 50]);
+  });
 });

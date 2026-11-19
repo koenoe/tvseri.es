@@ -1,5 +1,5 @@
 import type { TvSeries } from '@tvseri.es/schemas';
-import { plural } from '@tvseri.es/utils';
+import { isSeasonPremiere, plural } from '@tvseri.es/utils';
 import { isValid, parseISO } from 'date-fns';
 import { DAY_MONTH_PATTERN } from '@/lib/format/date';
 
@@ -14,6 +14,7 @@ export type HookSource = Pick<
   | 'nextEpisodeToAir'
   | 'numberOfEpisodes'
   | 'numberOfSeasons'
+  | 'seasons'
   | 'status'
   | 'tagline'
   | 'topCast'
@@ -62,7 +63,12 @@ function premiereLine(series: HookSource, day: string | undefined): string {
   const next = series.nextEpisodeToAir;
   // a calendar date ('2026-11-17'): parsed and printed in the same zone
   const airDate = next ? parseISO(next.airDate) : null;
-  if (next?.episodeNumber !== 1 || !airDate || !isValid(airDate)) {
+  if (
+    !next ||
+    !isSeasonPremiere(next, series.seasons ?? []) ||
+    !airDate ||
+    !isValid(airDate)
+  ) {
     return '';
   }
   // a cached show can name a premiere that has aired since

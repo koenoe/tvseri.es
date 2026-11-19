@@ -133,14 +133,20 @@ const GHOST_CHIP = markChipClass('', undefined, cn(CHIP_LAYOUT, FLAT));
  */
 export function ChipGridGhost({
   count,
+  first,
   seasonNumber,
-}: Readonly<{ count: number; seasonNumber: number }>) {
+}: Readonly<{
+  count: number;
+  /** The season's first episode number (TMDB numbers some shows on). */
+  first: number;
+  seasonNumber: number;
+}>) {
   return (
     <div aria-hidden="true" className={GHOST_GRID} data-chip-ghost="">
       {Array.from({ length: count }, (_, index) => (
         <span className={GHOST_CHIP} key={index}>
           <ChipGlyphSpace />
-          {chipLabel({ episodeNumber: index + 1, seasonNumber })}
+          {chipLabel({ episodeNumber: first + index, seasonNumber })}
         </span>
       ))}
     </div>

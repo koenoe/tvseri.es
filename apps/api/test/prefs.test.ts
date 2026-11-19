@@ -2,8 +2,9 @@ import type { SQSEvent } from 'aws-lambda';
 import { describe, expect, it } from 'vitest';
 
 import { handler as scrobbleHandler } from '@/lambdas/scrobble';
+import { setCacheItem } from '@/lib/db/cache';
 import { db } from './db';
-import { onTmdb } from './fakeHttp';
+import { onTmdb, requestedUrls } from './fakeHttp';
 import { fakeShow } from './fixtures/tmdb';
 import { lambdaContext } from './lambdaContext';
 import { listItem, seedWatched } from './library';
@@ -33,6 +34,13 @@ const prefs = async () => {
   return response.json();
 };
 
+/** The TMDB reads of the show's seasons (their `append_to_response`) */
+const seasonReads = () =>
+  requestedUrls()
+    .filter((url) => url.pathname === `/3/tv/${SHOW}`)
+    .map((url) => url.searchParams.get('append_to_response') ?? '')
+    .filter((append) => append.startsWith('season/'));
+
 const EMPTY = {
   firstTrackingAnsweredAt: null,
   neverAskBefore: false,
@@ -55,15 +63,164 @@ describe('per-show prefs', () => {
 
   it('skips and unskips episodes, in canonical codes', async () => {
     setup();
-    const skipped = await patch({ skip: ['S2E6', 'S02E05'] });
+    const skipped = await patch({ skip: ['S2E3', 'S02E02'] });
     expect(skipped.status).toBe(200);
     expect(await skipped.json()).toMatchObject({
-      skipped: ['S02E05', 'S02E06'],
+      skipped: ['S02E02', 'S02E03'],
     });
-    expect(await prefs()).toMatchObject({ skipped: ['S02E05', 'S02E06'] });
+    expect(await prefs()).toMatchObject({ skipped: ['S02E02', 'S02E03'] });
 
-    await patch({ unskip: ['S02E05'] });
-    expect(await prefs()).toMatchObject({ skipped: ['S02E06'] });
+    await patch({ unskip: ['S02E02'] });
+    expect(await prefs()).toMatchObject({ skipped: ['S02E03'] });
+  });
+
+  it('keeps only skips of episodes TMDB lists, specials too', async () => {
+    seedUser();
+    fakeShow({
+      id: SHOW,
+      seasons: [
+        { airDate: '2020-01-01', episodes: 3 },
+        { airDate: '2021-01-01', episodes: 3 },
+      ],
+      specials: { airDate: '2019-12-01', episodes: 2 },
+    });
+    const response = await patch({
+      skip: ['S01E03', 'S01E04', 'S03E01', 'S00E02', 'S00E03'],
+    });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      skipped: ['S00E02', 'S01E03'],
+    });
+  });
+
+  it('keeps skips by the real episode numbers where TMDB numbers on across seasons', async () => {
+    seedUser();
+    // Naruto Shippuden-like: S1 = E1…E3, S2 = E4…E6
+    fakeShow({
+      id: SHOW,
+      numberedOn: true,
+      seasons: [
+        { airDate: '2020-01-01', episodes: 3 },
+        { airDate: '2021-01-01', episodes: 3 },
+      ],
+    });
+    await patch({ skip: ['S02E01', 'S02E04', 'S02E06', 'S02E07'] });
+    expect(await prefs()).toMatchObject({ skipped: ['S02E04', 'S02E06'] });
+  });
+
+  it('checks skips against TMDB’s real episode list, not the season’s count', async () => {
+    seedUser();
+    const series = fakeShow({
+      id: SHOW,
+      seasons: [
+        { airDate: '2020-01-01', episodes: 3 },
+        { airDate: '2021-01-01', episodes: 3 },
+      ],
+    });
+    // TMDB lists season 2 as E1, E2, E4: three episodes, no E3
+    const listed = [1, 2, 4].map((number) => ({
+      air_date: '2021-01-01',
+      episode_number: number,
+      id: 900 + number,
+      name: `Episode ${number}`,
+      season_number: 2,
+    }));
+    onTmdb(`/tv/${SHOW}`, { ...series, 'season/2': { episodes: listed } });
+    onTmdb(`/tv/${SHOW}/season/2`, { episodes: listed, season_number: 2 });
+
+    await patch({ skip: ['S02E03', 'S02E04'] });
+    expect(await prefs()).toMatchObject({ skipped: ['S02E04'] });
+  });
+
+  it('a stored show without first episode numbers drops no real skip', async () => {
+    seedUser();
+    fakeShow({
+      id: SHOW,
+      numberedOn: true,
+      seasons: [
+        { airDate: '2020-01-01', episodes: 3 },
+        { airDate: '2021-01-01', episodes: 3 },
+      ],
+    });
+    // The copy the marks stored before seasons carried their first number
+    await setCacheItem(`mark-series:v1:${SHOW}`, {
+      freshUntil: Date.now() + 3_600_000,
+      value: {
+        id: SHOW,
+        seasons: [
+          { numberOfEpisodes: 3, seasonNumber: 1 },
+          { numberOfEpisodes: 3, seasonNumber: 2 },
+        ],
+      },
+    });
+    await patch({ skip: ['S02E01', 'S02E05'] });
+    expect(await prefs()).toMatchObject({ skipped: ['S02E05'] });
+  });
+
+  it('reads several seasons in one TMDB call', async () => {
+    setup();
+    await patch({ skip: ['S01E01', 'S02E01', 'S00E01'] });
+    // the show (its seasons bound the codes), then its seasons in one call
+    expect(seasonReads()).toEqual(['season/1,season/2']);
+    expect(await prefs()).toMatchObject({ skipped: ['S01E01', 'S02E01'] });
+  });
+
+  it('asks TMDB only for the show’s own seasons, whatever codes are sent', async () => {
+    setup();
+    const crafted = Array.from(
+      { length: 200 },
+      (_, index) => `S${String(index + 3).padStart(2, '0')}E01`,
+    );
+    const response = await patch({ skip: ['S01E01', ...crafted] });
+    expect(response.status).toBe(200);
+    expect(seasonReads()).toEqual(['season/1']);
+    expect(await prefs()).toMatchObject({ skipped: ['S01E01'] });
+  });
+
+  it('a skip of nothing TMDB lists stores nothing; other fields still change', async () => {
+    setup();
+    const response = await patch({ skip: ['S09E01'] });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(EMPTY);
+    expect(
+      db.dump('Lists').filter((item) => String(item.sk).startsWith('PREF#')),
+    ).toEqual([]);
+
+    await patch({ paused: 'keep', skip: ['S09E01'] });
+    expect(await prefs()).toMatchObject({ paused: 'keep', skipped: [] });
+  });
+
+  it('unskips a code TMDB no longer lists', async () => {
+    setup();
+    db.seed('Lists', [
+      {
+        pk: `USER#${USER_ID}`,
+        seriesId: SHOW,
+        sk: `PREF#SERIES#${SHOW}`,
+        skipped: new Set(['S01E01', 'S05E09']),
+      },
+    ]);
+    await patch({ unskip: ['S05E09'] });
+    expect(await prefs()).toMatchObject({ skipped: ['S01E01'] });
+  });
+
+  it('fails a skip rather than drop it when TMDB fails with nothing stored', async () => {
+    seedUser();
+    onTmdb(`/tv/${SHOW}`, {}, { status: 500 });
+    expect((await patch({ skip: ['S01E01'] })).status).toBeGreaterThanOrEqual(
+      500,
+    );
+  });
+
+  it('keeps no skips of a show TMDB doesn’t know', async () => {
+    seedUser();
+    const response = await request('/me/series/424242/prefs', {
+      as: USER_ID,
+      body: { skip: ['S01E01'] },
+      method: 'PATCH',
+    });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(EMPTY);
   });
 
   it('records the first-tracking answer, "never ask before" and Paused', async () => {

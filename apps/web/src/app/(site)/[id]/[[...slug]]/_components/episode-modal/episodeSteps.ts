@@ -1,13 +1,24 @@
 import type { EpisodeRef } from '@tvseri.es/schemas';
+import { firstEpisodeOf } from '@tvseri.es/utils';
 
-type StepSeason = Readonly<{ seasonNumber: number; episodeCount: number }>;
+type StepSeason = Readonly<{
+  seasonNumber: number;
+  episodeCount: number;
+  /** Absent means 1: TMDB numbers some shows on across seasons. */
+  firstEpisodeNumber?: number;
+}>;
+
+/** The season's last episode number (announced ones included) */
+const lastOf = (season: StepSeason, count = season.episodeCount) =>
+  firstEpisodeOf(season) + count - 1;
 
 /**
  * The modal's ‹ ›: the episode before or after `ref` across seasons, or null
  * at the show's first and last episode. Regular
  * seasons step into each other in order; specials (season 0) step only
- * among themselves, so ‹ on S1E1 never lands in the specials. Episodes are
- * numbered 1…episodeCount within a season (announced ones included).
+ * among themselves, so ‹ on S1E1 never lands in the specials. A season's
+ * episodes run from its first number for `episodeCount` (announced ones
+ * included).
  */
 export function stepEpisode(
   seasons: ReadonlyArray<StepSeason>,
@@ -29,7 +40,10 @@ export function stepEpisode(
     return null;
   }
   const episodeNumber = ref.episodeNumber + direction;
-  if (episodeNumber >= 1 && episodeNumber <= current.episodeCount) {
+  if (
+    episodeNumber >= firstEpisodeOf(current) &&
+    episodeNumber <= lastOf(current)
+  ) {
     return { episodeNumber, seasonNumber: ref.seasonNumber };
   }
   const neighbour = run[at + direction];
@@ -37,18 +51,24 @@ export function stepEpisode(
     return null;
   }
   return {
-    episodeNumber: direction === 1 ? 1 : neighbour.episodeCount,
+    episodeNumber:
+      direction === 1 ? firstEpisodeOf(neighbour) : lastOf(neighbour),
     seasonNumber: neighbour.seasonNumber,
   };
 }
 
-/** "Episode 5 of 10". */
+/**
+ * "Episode 5 of 10". A season TMDB numbers on from the last says "Episode
+ * 33" alone: "of 21" would contradict the number.
+ */
 export function positionLabel(
   seasons: ReadonlyArray<StepSeason>,
   ref: EpisodeRef,
 ): string {
   const season = seasons.find((s) => s.seasonNumber === ref.seasonNumber);
-  return season && season.episodeCount >= ref.episodeNumber
+  return season &&
+    firstEpisodeOf(season) === 1 &&
+    season.episodeCount >= ref.episodeNumber
     ? `Episode ${ref.episodeNumber} of ${season.episodeCount}`
     : `Episode ${ref.episodeNumber}`;
 }
@@ -66,8 +86,11 @@ export function isKnownEpisode(
   const season = seasons.find((item) => item.seasonNumber === ref.seasonNumber);
   return (
     season !== undefined &&
-    ref.episodeNumber >= 1 &&
+    ref.episodeNumber >= firstEpisodeOf(season) &&
     ref.episodeNumber <=
-      Math.max(season.episodeCount, season.airedEpisodeCount ?? 0)
+      lastOf(
+        season,
+        Math.max(season.episodeCount, season.airedEpisodeCount ?? 0),
+      )
   );
 }

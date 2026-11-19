@@ -1,3 +1,5 @@
+import { firstEpisodeOf } from '@tvseri.es/utils';
+
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
 
 /**
@@ -9,8 +11,15 @@ import { formatAirWeekdayDate } from '@/lib/format/airDate';
  */
 
 export type KickerInput = Readonly<{
-  /** the show's next episode, when TMDB knows it */
-  next: Readonly<{ airDate: string; episodeNumber: number }> | null;
+  /**
+   * the show's next episode, when TMDB knows it, and its season's first
+   * number (absent = 1: TMDB numbers some shows on across seasons)
+   */
+  next: Readonly<{
+    airDate: string;
+    episodeNumber: number;
+    firstEpisodeNumber?: number;
+  }> | null;
   running: boolean;
   /** the year of its last episode, for a finished show */
   lastYear: number | null;
@@ -21,7 +30,7 @@ export function spotlightKicker(input: KickerInput, today: Date): string {
   const date = next ? new Date(`${next.airDate}T00:00:00Z`) : null;
   if (date && !Number.isNaN(date.getTime())) {
     const day = formatAirWeekdayDate(next?.airDate ?? '', today.getTime());
-    return next?.episodeNumber === 1
+    return next && next.episodeNumber === firstEpisodeOf(next)
       ? `Returning ${day}`
       : `New episode ${day}`;
   }

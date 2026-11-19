@@ -1,6 +1,7 @@
 import type { Feature, FeatureOfTheDay, TvSeries } from '@tvseri.es/schemas';
 import {
   buildStillImageUrl,
+  episodeNumbersOf,
   fallThroughOrder,
   featureKindOfDay,
   FEATURE_KINDS as KINDS,
@@ -179,14 +180,10 @@ const stillsFor = async (
     fetchTvSeriesSeason(series.id, target.seasonNumber),
     fetchTvSeriesSeasonPoster(series.id, target.seasonNumber),
     mapSettledPartial(
-      Array.from(
-        {
-          length: Math.min(
-            target.numberOfEpisodes ?? 0,
-            STILLS_EPISODES_LOOKED_AT,
-          ),
-        },
-        (_, i) => i + 1,
+      // The season's real numbers: TMDB numbers some shows on across seasons
+      episodeNumbersOf(
+        target,
+        Math.min(target.numberOfEpisodes ?? 0, STILLS_EPISODES_LOOKED_AT),
       ),
       async (episodeNumber) => ({
         episodeNumber,

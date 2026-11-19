@@ -163,8 +163,10 @@ export type SeriesArt = Readonly<{
   backdropColor: string | null;
   titleTreatmentImage: string | null;
   posterImage: string | null;
-  /** Regular seasons: number → episode count */
-  seasons: ReadonlyArray<Readonly<{ number: number; episodes: number }>>;
+  /** Regular seasons: number → episode count, and the first number when not 1 */
+  seasons: ReadonlyArray<
+    Readonly<{ number: number; episodes: number; firstEpisodeNumber?: number }>
+  >;
 }>;
 
 /** `GET /series/:id` trimmed to `SeriesArt`; null when the show is gone */
@@ -192,6 +194,9 @@ const toSeriesArt = (series: TvSeries): SeriesArt => ({
     .filter((season) => season.seasonNumber > 0)
     .map((season) => ({
       episodes: season.numberOfEpisodes ?? 0,
+      ...(season.firstEpisodeNumber === undefined
+        ? {}
+        : { firstEpisodeNumber: season.firstEpisodeNumber }),
       number: season.seasonNumber,
     })),
   slug: series.slug,

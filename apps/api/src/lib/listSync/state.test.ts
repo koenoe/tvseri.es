@@ -75,6 +75,21 @@ describe('countDoneSkips: which skips count towards finishing', () => {
     ).toBe(0);
   });
 
+  it('counts by the real episode numbers where TMDB numbers on across seasons', () => {
+    // Season 2 is E5…E8, 2 of them aired
+    const numberedOn = [
+      { numberOfAiredEpisodes: 4, seasonNumber: 1 },
+      { firstEpisodeNumber: 5, numberOfAiredEpisodes: 2, seasonNumber: 2 },
+    ];
+    expect(
+      countDoneSkips({
+        seasons: numberedOn,
+        skipped: ['S02E05', 'S02E06', 'S02E07', 'S02E01'],
+        watched,
+      }),
+    ).toBe(2);
+  });
+
   it('never counts a special', () => {
     expect(
       countDoneSkips({

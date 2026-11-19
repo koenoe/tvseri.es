@@ -32,7 +32,7 @@ import { loadSeriesForWrite } from '@/lib/series/forWrite';
 import { loadSeason, loadWatchProviders } from '@/lib/series/loaders';
 import { revalidateViewerStats } from '@/lib/stats/revalidateViewerStats';
 import { yourService } from '@/lib/watchProviders/yourService';
-import { airedCountIn, hasEpisodeAired, nextEpisode } from './progress';
+import { hasEpisodeAired, lastAiredIn, nextEpisode } from './progress';
 import { toSeasonInfo } from './seasonInfo';
 import {
   addToList,
@@ -212,7 +212,7 @@ export async function markEpisodes(
         hasAired: (episode) =>
           hasEpisodeAired(
             episode,
-            airedCountIn(seasonInfo, episode.seasonNumber),
+            lastAiredIn(seasonInfo, episode.seasonNumber),
           ) || Date.parse(episode.airDate) <= now,
         knownProviders: [PLEX_WATCH_PROVIDER, ...userProviders, ...providers],
         lookup,

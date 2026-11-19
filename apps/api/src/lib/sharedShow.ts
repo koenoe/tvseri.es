@@ -1,5 +1,6 @@
 import type { SeriesFacts, SharedShowNext } from '@tvseri.es/schemas';
-import { DAY_MS, todayUtc } from '@tvseri.es/utils';
+import { DAY_MS, isSeasonPremiere, todayUtc } from '@tvseri.es/utils';
+import { seasonBounds } from '@/lib/episodeKind';
 import { analyzeShow } from '@/lib/overview/analyze';
 
 /** "S02 out now": the season finished airing at most this many days ago (as Out now) */
@@ -31,7 +32,9 @@ export const sharedShowFacts = (
   const upcoming = next?.airDate && next.airDate >= today ? next : null;
 
   const premiere =
-    upcoming && upcoming.episodeNumber === 1 && upcoming.seasonNumber > current
+    upcoming &&
+    isSeasonPremiere(upcoming, facts.seasons) &&
+    upcoming.seasonNumber > current
       ? { date: upcoming.airDate, season: upcoming.seasonNumber }
       : facts.seasons
           .filter(
@@ -54,7 +57,7 @@ export const sharedShowFacts = (
     latest &&
     season &&
     (aired[current] ?? 0) >= season.episodeCount &&
-    latest.episode === season.episodeCount &&
+    latest.episode === seasonBounds(facts.seasons, current).last &&
     now - Date.parse(latest.airDate) <= SEASON_OUT_DAYS * DAY_MS;
 
   return {

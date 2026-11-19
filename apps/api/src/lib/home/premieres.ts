@@ -6,6 +6,7 @@ import type {
 } from '@tvseri.es/schemas';
 import { addDaysUtc, daysBetweenUtc, todayUtc } from '@tvseri.es/utils';
 import { readDayBuild } from '@/lib/db/cache/readThroughDay';
+import { episodeKindOf } from '@/lib/episodeKind';
 import { fetchTvSeriesBase, fetchTvSeriesSeason } from '@/lib/tmdb';
 import { mapSettledPartial } from '@/utils/limit';
 import { withTitleTreatment } from './artwork';
@@ -100,17 +101,20 @@ const compute = async (
     if (date < today || date > end) {
       return undefined;
     }
-    const episodes = series.seasons?.find(
-      (season) => season.seasonNumber === next.seasonNumber,
-    )?.numberOfEpisodes;
+    const seasonKind = episodeKindOf(
+      next,
+      (series.seasons ?? []).map((season) => ({
+        episodeCount: season.numberOfEpisodes ?? 0,
+        firstEpisodeNumber: season.firstEpisodeNumber,
+        seasonNumber: season.seasonNumber,
+      })),
+    );
     const kind: PremiereKind | undefined =
       next.seasonNumber === 0
         ? 'special'
-        : next.episodeNumber === 1
-          ? 'season-premiere'
-          : episodes && next.episodeNumber === episodes
-            ? 'season-finale'
-            : undefined;
+        : seasonKind === 'episode'
+          ? undefined
+          : seasonKind;
     return kind
       ? ({ date, kind, seasonNumber: next.seasonNumber, series } as Draft)
       : undefined;

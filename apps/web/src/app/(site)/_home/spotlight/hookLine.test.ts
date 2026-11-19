@@ -114,6 +114,23 @@ describe('hookLine', () => {
     ).toBe('Season 4 premieres Nov 17');
   });
 
+  it('names the premiere of a season TMDB numbers on from the last', () => {
+    // S2 is E33…E53: E33 opens it, E34 is an ordinary episode
+    const seasons = [
+      { firstEpisodeNumber: 33, seasonNumber: 2 },
+    ] as unknown as HookSource['seasons'];
+    expect(
+      hookLine(
+        show({ nextEpisodeToAir: upcoming('2026-11-17', 2, 33), seasons }),
+      ),
+    ).toBe('Season 2 premieres Nov 17');
+    expect(
+      hookLine(
+        show({ nextEpisodeToAir: upcoming('2026-11-17', 2, 34), seasons }),
+      ),
+    ).toBe('');
+  });
+
   it('says nothing about a premiere without a date', () => {
     expect(hookLine(show({ nextEpisodeToAir: upcoming('', 2, 1) }))).toBe('');
   });

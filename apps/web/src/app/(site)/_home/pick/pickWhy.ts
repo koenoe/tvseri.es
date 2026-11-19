@@ -1,5 +1,10 @@
 import type { TvSeries } from '@tvseri.es/schemas';
-import { daysBetweenUtc, isOver, plural } from '@tvseri.es/utils';
+import {
+  daysBetweenUtc,
+  isOver,
+  isSeasonPremiere,
+  plural,
+} from '@tvseri.es/utils';
 
 import { formatDay } from '@/lib/format/datePattern';
 
@@ -43,7 +48,7 @@ const isEnded = (series: TvSeries) => isOver(series.status);
 
 function premiereLine(series: TvSeries, today: string): string | null {
   const next = series.nextEpisodeToAir;
-  if (!next?.airDate || next.episodeNumber !== 1) {
+  if (!next?.airDate || !isSeasonPremiere(next, series.seasons ?? [])) {
     return null;
   }
   const days = daysFrom(today, next.airDate);

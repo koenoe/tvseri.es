@@ -89,3 +89,40 @@ describe('positionLabel', () => {
     expect(positionLabel(SEASONS, ref(9, 2))).toBe('Episode 2');
   });
 });
+
+describe('a show TMDB numbers on across seasons', () => {
+  // S1 is E1…E32, S2 E33…E53, specials 1…3
+  const seasons = [
+    { airedEpisodeCount: 32, episodeCount: 32, seasonNumber: 1 },
+    {
+      airedEpisodeCount: 8,
+      episodeCount: 21,
+      firstEpisodeNumber: 33,
+      seasonNumber: 2,
+    },
+    { airedEpisodeCount: 3, episodeCount: 3, seasonNumber: 0 },
+  ];
+
+  it('steps through the real numbers and across seasons', () => {
+    expect(stepEpisode(seasons, ref(1, 32), 1)).toEqual(ref(2, 33));
+    expect(stepEpisode(seasons, ref(2, 33), -1)).toEqual(ref(1, 32));
+    expect(stepEpisode(seasons, ref(2, 33), 1)).toEqual(ref(2, 34));
+    expect(stepEpisode(seasons, ref(2, 53), 1)).toBeNull();
+  });
+
+  it('knows the real numbers only', () => {
+    expect(isKnownEpisode(seasons, ref(2, 33))).toBe(true);
+    expect(isKnownEpisode(seasons, ref(2, 53))).toBe(true);
+    expect(isKnownEpisode(seasons, ref(2, 1))).toBe(false);
+    expect(isKnownEpisode(seasons, ref(2, 54))).toBe(false);
+  });
+
+  it('names the episode by its number, without a count it would contradict', () => {
+    expect(positionLabel(seasons, ref(2, 33))).toBe('Episode 33');
+    const long = [
+      { episodeCount: 100, firstEpisodeNumber: 54, seasonNumber: 3 },
+    ];
+    expect(positionLabel(long, ref(3, 60))).toBe('Episode 60');
+    expect(positionLabel(seasons, ref(1, 5))).toBe('Episode 5 of 32');
+  });
+});

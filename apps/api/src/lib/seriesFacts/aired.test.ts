@@ -159,3 +159,44 @@ describe('seasonsOutlookAt', () => {
     ).toEqual({ airedSeasons: 2, renewedSeason: 3 });
   });
 });
+
+// Naruto Shippuden: TMDB numbers the episodes on across seasons
+describe('airedEpisodesAt: episodes numbered on across seasons', () => {
+  const numberedOn = facts({
+    lastEpisodeToAir: {
+      airDate: '2025-01-08',
+      episodeNumber: 35,
+      runtime: 24,
+      seasonNumber: 2,
+    },
+    nextEpisodeToAir: {
+      airDate: '2025-01-15',
+      episodeNumber: 36,
+      runtime: 24,
+      seasonNumber: 2,
+    },
+    seasons: [
+      { airDate: '2020-01-01', episodeCount: 32, seasonNumber: 1 },
+      {
+        airDate: '2025-01-01',
+        episodeCount: 21,
+        firstEpisodeNumber: 33,
+        seasonNumber: 2,
+      },
+    ],
+  });
+
+  it('counts the current season from its first episode number', () => {
+    expect(airedEpisodesAt(numberedOn, Date.parse('2025-01-10'))).toEqual({
+      bySeason: { 1: 32, 2: 3 },
+      total: 35,
+    });
+  });
+
+  it('adds the next episode once its air date has passed', () => {
+    expect(airedEpisodesAt(numberedOn, Date.parse('2025-01-16'))).toEqual({
+      bySeason: { 1: 32, 2: 4 },
+      total: 36,
+    });
+  });
+});

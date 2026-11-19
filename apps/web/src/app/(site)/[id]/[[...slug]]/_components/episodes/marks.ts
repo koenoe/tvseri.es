@@ -1,6 +1,6 @@
 import type { EpisodeRef } from '@tvseri.es/schemas';
 
-import { airedCountIn, codeOf, hasEpisodeAired } from '@/lib/marking/progress';
+import { codeOf, hasEpisodeAired, lastAiredIn } from '@/lib/marking/progress';
 import type { SeriesBase, WatchRecord } from '@/lib/marking/types';
 
 import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
@@ -35,13 +35,13 @@ export function markEpisodes(
   episodes: ReadonlyArray<ShowEpisode>,
   nextUp: EpisodeRef | null,
 ): ReadonlyArray<MarkedEpisode> {
-  const aired = airedCountIn(view, seasonNumber);
+  const lastAired = lastAiredIn(view, seasonNumber);
   const skipped = new Set(view.skipped);
   return episodes.map((episode) => {
     const code = codeOf(episode);
     const record = view.watched[code];
     let mark: EpisodeMark;
-    if (!record && !hasEpisodeAired(episode, aired)) {
+    if (!record && !hasEpisodeAired(episode, lastAired)) {
       mark = 'unaired';
     } else if (skipped.has(code) && !record) {
       mark = 'skipped';

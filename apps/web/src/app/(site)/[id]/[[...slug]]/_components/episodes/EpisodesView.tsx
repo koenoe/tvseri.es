@@ -32,6 +32,7 @@ export function signedOutView(
     seasons: seasons.map((season) => ({
       airedEpisodeCount: season.airedEpisodeCount,
       episodeCount: season.episodeCount,
+      firstEpisodeNumber: season.firstEpisodeNumber,
       seasonNumber: season.seasonNumber,
     })),
     seriesId,

@@ -1,5 +1,5 @@
 import { type EpisodeRef, shortCode } from '@tvseri.es/schemas';
-import { plural } from '@tvseri.es/utils';
+import { episodeNumbersOf, firstEpisodeOf, plural } from '@tvseri.es/utils';
 
 import { codeOf } from '@/lib/marking/progress';
 import type { SeriesBase } from '@/lib/marking/types';
@@ -65,9 +65,8 @@ export function runtimesBySeason(
 
 /** Each episode's width: its runtime once the season is loaded, else equal. */
 function weightsOf(
-  count: number,
   episodes: ReadonlyArray<EpisodeRuntime> | undefined,
-): (index: number) => number {
+): (episodeNumber: number) => number {
   if (!episodes?.length) {
     return () => 1;
   }
@@ -75,9 +74,9 @@ function weightsOf(
   const byNumber = new Map(
     episodes.map((episode) => [episode.episodeNumber, episode]),
   );
-  return (index) => {
-    const episode = byNumber.get(index + 1);
-    return index < count && episode ? weightOf(episode, fallback) : fallback;
+  return (episodeNumber) => {
+    const episode = byNumber.get(episodeNumber);
+    return episode ? weightOf(episode, fallback) : fallback;
   };
 }
 
@@ -91,9 +90,10 @@ function segmentsOf(
   if (season.airedEpisodeCount === 0 || count === 0) {
     return [{ flex: 1, kind: 'na' }];
   }
-  const weight = weightsOf(count, episodes);
-  const raw: PanelSegment[] = Array.from({ length: count }, (_, index) => {
-    const ref = { episodeNumber: index + 1, seasonNumber: season.seasonNumber };
+  const weight = weightsOf(episodes);
+  const lastAired = firstEpisodeOf(season) + season.airedEpisodeCount - 1;
+  const raw = episodeNumbersOf(season, count).map((episodeNumber) => {
+    const ref = { episodeNumber, seasonNumber: season.seasonNumber };
     const record = view.watched[codeOf(ref)];
     const kind: PanelSegment['kind'] = record
       ? record.dateUnknown
@@ -102,10 +102,10 @@ function segmentsOf(
       : nextUp?.seasonNumber === ref.seasonNumber &&
           nextUp.episodeNumber === ref.episodeNumber
         ? 'nx'
-        : index >= season.airedEpisodeCount
+        : episodeNumber > lastAired
           ? 'na'
           : '';
-    return { flex: weight(index), kind };
+    return { flex: weight(episodeNumber), kind };
   });
   if (count <= PANEL_MERGE_ABOVE) {
     return raw;
@@ -130,16 +130,12 @@ function stateOf(
   const name = seasonName(season.seasonNumber);
   const count = Math.max(season.episodeCount, season.airedEpisodeCount);
   const aired = season.airedEpisodeCount;
-  let watched = 0;
-  for (let episode = 1; episode <= count; episode += 1) {
-    if (
+  const watched = episodeNumbersOf(season, count).filter(
+    (episodeNumber) =>
       view.watched[
-        codeOf({ episodeNumber: episode, seasonNumber: season.seasonNumber })
-      ]
-    ) {
-      watched += 1;
-    }
-  }
+        codeOf({ episodeNumber, seasonNumber: season.seasonNumber })
+      ],
+  ).length;
   const year = airYear(season.airDate);
   if (aired === 0 && count > 0 && year) {
     return {
@@ -150,7 +146,7 @@ function stateOf(
   if (aired > 0 && aired < count) {
     const next =
       nextToAir?.seasonNumber === season.seasonNumber ? nextToAir : null;
-    const number = next?.episodeNumber ?? aired + 1;
+    const number = next?.episodeNumber ?? firstEpisodeOf(season) + aired;
     const day = next ? airWeekday(next.airDate) : '';
     return {
       aria: `${name}, airing, ${watched} of ${aired} aired watched, next episode ${number}${day ? ` on ${day}` : ''}`,

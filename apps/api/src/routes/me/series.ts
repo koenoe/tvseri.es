@@ -5,6 +5,7 @@ import { Hono } from 'hono';
 import { getSeriesStatus } from '@/lib/db/list';
 import { getSeriesPrefs, updateSeriesPrefs } from '@/lib/db/prefs';
 import { syncListsForSkips } from '@/lib/listSync';
+import { listedEpisodeCodes } from '@/lib/marking/listedEpisodes';
 import type { Variables } from '@/middleware/auth';
 import { IdParamSchema } from '@/utils/params';
 
@@ -31,7 +32,15 @@ app.patch(
   async (c) => {
     const { user } = c.get('auth')!;
     const { id } = c.req.valid('param');
-    const update = c.req.valid('json');
+    const { skip: requested, ...rest } = c.req.valid('json');
+    // Skips are checked against TMDB's episode lists like watched marks: an
+    // episode it doesn't list is dropped. Unskips never are, so a stale
+    // code can go.
+    const skip = requested ? await listedEpisodeCodes(id, requested) : [];
+    const update = { ...rest, ...(skip.length > 0 && { skip }) };
+    if (Object.keys(update).length === 0) {
+      return c.json(await getSeriesPrefs(user.id, id));
+    }
     const prefs = await updateSeriesPrefs(user.id, id, update);
     // A skipped episode counts as done for Finished
     if (update.skip || update.unskip) {

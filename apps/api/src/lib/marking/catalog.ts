@@ -1,7 +1,11 @@
 import type { Season, TvSeries } from '@tvseri.es/schemas';
 
 import { readStored, readThroughStale } from '@/lib/db/cache/readThroughStale';
-import { fetchTvSeriesBase, fetchTvSeriesSeason } from '@/lib/tmdb';
+import {
+  fetchTvSeriesBase,
+  fetchTvSeriesSeason,
+  fetchTvSeriesSeasons,
+} from '@/lib/tmdb';
 
 /**
  * What season and show marks and unmarks read from TMDB (the show, and each
@@ -39,14 +43,50 @@ export const seriesForMark = async (
     { waitMs: WAIT_MS },
   )) ?? undefined;
 
+const seasonKey = (id: number | string, seasonNumber: number) =>
+  `mark-season:v1:${id}:${seasonNumber}`;
+
 export const seasonForMark = async (
   id: number | string,
   seasonNumber: number,
 ): Promise<Season | undefined> =>
   (await readThroughStale(
-    `mark-season:v1:${id}:${seasonNumber}`,
+    seasonKey(id, seasonNumber),
     FRESH_SECONDS,
     KEEP_SECONDS,
     async () => (await fetchTvSeriesSeason(id, seasonNumber)) ?? null,
     { waitMs: WAIT_MS },
   )) ?? undefined;
+
+/**
+ * Several seasons at once, each stored as `seasonForMark` stores it: those
+ * not stored fresh come from one batched TMDB call
+ * (`fetchTvSeriesSeasons`). A season TMDB doesn't list is absent.
+ */
+export const seasonsForMark = async (
+  id: number | string,
+  seasonNumbers: ReadonlyArray<number>,
+): Promise<ReadonlyMap<number, Season>> => {
+  const numbers = [...new Set(seasonNumbers)];
+  // Started by the first season that needs TMDB, shared by the rest
+  let batch: ReturnType<typeof fetchTvSeriesSeasons> | undefined;
+  const loaded = await Promise.all(
+    numbers.map((number) =>
+      readThroughStale(
+        seasonKey(id, number),
+        FRESH_SECONDS,
+        KEEP_SECONDS,
+        async () => {
+          batch ??= fetchTvSeriesSeasons(id, numbers);
+          return (await batch)?.get(number) ?? null;
+        },
+        { waitMs: WAIT_MS },
+      ),
+    ),
+  );
+  return new Map(
+    loaded.flatMap((season, index) =>
+      season ? [[numbers[index] as number, season] as const] : [],
+    ),
+  );
+};

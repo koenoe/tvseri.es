@@ -1,4 +1,5 @@
 import { shortCode } from '@tvseri.es/schemas';
+import { episodeNumbersOf, firstEpisodeOf } from '@tvseri.es/utils';
 
 import { episodeState, parseCode } from '@/lib/marking/progress';
 import type { EpisodeRef, SeriesBase } from '@/lib/marking/types';
@@ -31,7 +32,7 @@ function chipState(
   view: SeriesBase,
   ref: EpisodeRef,
   next: EpisodeRef | null,
-  airedEpisodeCount: number,
+  lastAired: number,
 ): ChipState {
   const state = episodeState(view, ref);
   if (state === 'watched') {
@@ -43,15 +44,17 @@ function chipState(
   if (state === 'skipped') {
     return 'sk';
   }
-  if (ref.episodeNumber > airedEpisodeCount) {
+  if (ref.episodeNumber > lastAired) {
     return 'na';
   }
   return sameRef(next, ref) ? 'nx' : '';
 }
 
 /**
- * Every episode of a season as a chip, in order: the announced count, or more
- * when the aired count or a watched record says so.
+ * Every episode of a season as a chip, in order, from its first real number
+ * (TMDB numbers some shows on across seasons): the announced count, or more
+ * when the aired count or a watched record past the end says so. A record
+ * below the first number (a made-up code) draws no chip.
  */
 export function seasonChips(
   view: SeriesBase,
@@ -61,15 +64,21 @@ export function seasonChips(
   const season = view.seasons.find(
     (item) => item.seasonNumber === seasonNumber,
   );
+  const first = firstEpisodeOf(season ?? {});
   const aired = season?.airedEpisodeCount ?? 0;
   const recorded = Object.keys(view.watched)
     .map(parseCode)
     .filter((ref) => ref?.seasonNumber === seasonNumber)
     .reduce((max, ref) => Math.max(max, ref?.episodeNumber ?? 0), 0);
-  const count = Math.max(season?.episodeCount ?? 0, aired, recorded);
-  return Array.from({ length: count }, (_, index) => {
-    const ref = { episodeNumber: index + 1, seasonNumber };
-    return { ref, state: chipState(view, ref, next, aired) };
+  const count = Math.max(
+    season?.episodeCount ?? 0,
+    aired,
+    recorded - first + 1,
+  );
+  const lastAired = first + aired - 1;
+  return episodeNumbersOf(season ?? {}, count).map((episodeNumber) => {
+    const ref = { episodeNumber, seasonNumber };
+    return { ref, state: chipState(view, ref, next, lastAired) };
   });
 }
 

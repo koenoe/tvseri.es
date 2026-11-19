@@ -17,11 +17,12 @@ import {
   daysBetweenUtc,
   episodeMinutes,
   isOver,
+  isSeasonPremiere,
   minutesFor,
   resolveSeasonMinutes,
   todayUtc,
 } from '@tvseri.es/utils';
-import { episodeKindOf } from '@/lib/episodeKind';
+import { episodeKindOf, seasonBounds } from '@/lib/episodeKind';
 import { codeOf, type EpisodeRef, type ShowState } from './analyze';
 
 const PAUSED_AFTER = 90 * DAY_MS;
@@ -93,10 +94,11 @@ export const buildUpNext = (states: ReadonlyArray<ShowState>): UpNextItem[] =>
       const toWatch = seasonToWatch(state, next.season);
       const progress = seasonProgress(state, next.season);
       const total = progress.seasonTotal;
+      const bounds = seasonBounds(state.facts.seasons, next.season);
       const upcoming = state.facts.nextEpisodeToAir;
       const seasonFinale =
         total > 0 &&
-        next.episode === total &&
+        next.episode === bounds.last &&
         (state.aired[next.season] ?? 0) === total;
 
       return {
@@ -124,6 +126,7 @@ export const buildUpNext = (states: ReadonlyArray<ShowState>): UpNextItem[] =>
           next.season,
           total,
           state.facts.episodeRuntime,
+          bounds.first,
         ),
         ...progress,
         timeLeftMinutes: minutesOf(state, seasonUnwatched(state, next.season)),
@@ -152,9 +155,11 @@ export const buildAlmostDone = (
     .filter(({ done, toGo }) => done && toGo >= 1 && toGo <= ALMOST_DONE_MAX)
     .map(({ season, state, toGo }) => {
       const left = seasonUnwatched(state, season);
+      const { first } = seasonBounds(state.facts.seasons, season);
       return {
         ...identity(state),
         code: codeOf(state.nextUp as EpisodeRef),
+        ...(first === 1 ? {} : { firstEpisodeNumber: first }),
         season,
         seasonTotal: seasonTotal(state, season),
         timeLeftMinutes: minutesOf(state, left),
@@ -189,7 +194,8 @@ const completeSeason = (state: ShowState, now: number) => {
   ) {
     return null;
   }
-  const isLast = latest.episode === seasonTotal(state, latest.season);
+  const isLast =
+    latest.episode === seasonBounds(state.facts.seasons, latest.season).last;
   const recent =
     now - Date.parse(latest.airDate) <= SEASON_COMPLETE_DAYS * DAY_MS;
   return isLast &&
@@ -245,7 +251,7 @@ export const buildOutNow = (
 
 const runwayOf = (state: ShowState, now: number): PremiereRunway | null => {
   const next = state.facts.nextEpisodeToAir;
-  if (next?.airDate && next.episodeNumber === 1) {
+  if (next?.airDate && isSeasonPremiere(next, state.facts.seasons)) {
     const daysToGo = daysBetweenUtc(todayUtc(now), next.airDate);
     if (daysToGo >= 0 && daysToGo <= WINDOW_DAYS) {
       return {

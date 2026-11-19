@@ -16,6 +16,7 @@ import {
 import {
   buildPosterImageUrl,
   endOfDayUtc,
+  isSeasonPremiere,
   type LibraryEntry,
   type LibraryLetter,
   queryShelf,
@@ -202,7 +203,7 @@ const toProgress = (
     airing: Boolean(
       next?.airDate &&
         endOfDayUtc(next.airDate) > now &&
-        next.episodeNumber > 1,
+        !isSeasonPremiere(next, facts.seasons),
     ),
     lastSeason: latest?.seasonNumber ?? null,
     lastWatched: state.lastWatched

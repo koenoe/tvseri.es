@@ -3,6 +3,7 @@ import {
   episodeCode,
   parseEpisodeCode,
 } from '@tvseri.es/schemas';
+import { episodeNumbersOf, firstEpisodeOf } from '@tvseri.es/utils';
 
 import type {
   EpisodeCode,
@@ -14,8 +15,9 @@ import type {
 
 /**
  * The watch-progress rules, pure. Specials (season 0) never count for
- * progress, Next up or completion; aired episodes are numbered
- * 1…airedEpisodeCount within a season. Skipped is not watched (progress,
+ * progress, Next up or completion; a season's aired episodes are its first
+ * `airedEpisodeCount`, numbered from its `firstEpisodeNumber` (1 unless TMDB
+ * numbers the show on across seasons). Skipped is not watched (progress,
  * complete, the eye), but it is done: never "left", and a show with every aired episode watched or skipped is Finished (the API's
  * list rule, `isFinished`).
  */
@@ -46,10 +48,9 @@ export const isWatched = (series: SeriesBase, ref: EpisodeRef): boolean =>
 
 /** Every aired episode of a season, in order. */
 function airedEpisodes(season: SeasonInfo): ReadonlyArray<EpisodeRef> {
-  return Array.from({ length: season.airedEpisodeCount }, (_, index) => ({
-    episodeNumber: index + 1,
-    seasonNumber: season.seasonNumber,
-  }));
+  return episodeNumbersOf(season, season.airedEpisodeCount).map(
+    (episodeNumber) => ({ episodeNumber, seasonNumber: season.seasonNumber }),
+  );
 }
 
 /** Aired regular episodes of the show, in order. */
@@ -233,24 +234,30 @@ export function airedInSeason(
   return season ? airedEpisodes(season) : [];
 }
 
-/** How many episodes of a season have aired, by number (0 for a season it doesn't know). */
-export const airedCountIn = (
+/**
+ * The number of a season's last aired episode (0 for a season it doesn't
+ * know; one before its first when none has aired).
+ */
+export function lastAiredIn(
   series: Pick<SeriesBase, 'seasons'>,
   seasonNumber: number,
-): number =>
-  series.seasons.find((item) => item.seasonNumber === seasonNumber)
-    ?.airedEpisodeCount ?? 0;
+): number {
+  const season = series.seasons.find(
+    (item) => item.seasonNumber === seasonNumber,
+  );
+  return season ? firstEpisodeOf(season) + season.airedEpisodeCount - 1 : 0;
+}
 
 /**
  * Has this episode aired? By its own air date (the API's `hasAired`), or by
- * the season's aired count (`airedCountIn`): a full-season drop dates every
+ * the season's aired count (`lastAiredIn`): a full-season drop dates every
  * episode the same day while the count says one.
  */
 export const hasEpisodeAired = (
   episode: Readonly<Pick<Episode, 'airDate' | 'episodeNumber' | 'hasAired'>>,
-  airedCount: number,
+  lastAired: number,
 ): boolean =>
-  episode.episodeNumber <= airedCount ||
+  episode.episodeNumber <= lastAired ||
   (episode.hasAired && episode.airDate !== '');
 
 /** Aired episodes of a season that aren't watched yet (skipped included). */
@@ -282,6 +289,25 @@ export function watchedInSeason(
     .map(parseCode)
     .filter((ref): ref is EpisodeRef => ref?.seasonNumber === seasonNumber)
     .sort((a, b) => a.episodeNumber - b.episodeNumber);
+}
+
+/**
+ * How many of a season's own episodes are watched (aired or not): a record
+ * below its first number (a made-up code on a show TMDB numbers on across
+ * seasons, S02E01 where S2 starts at E33) doesn't count.
+ */
+export function watchedCountInSeason(
+  series: Pick<SeriesBase, 'seasons' | 'watched'>,
+  seasonNumber: number,
+): number {
+  const season = series.seasons.find(
+    (item) => item.seasonNumber === seasonNumber,
+  );
+  const first = firstEpisodeOf(season ?? {});
+  return Object.keys(series.watched).filter((code) => {
+    const ref = parseCode(code);
+    return ref?.seasonNumber === seasonNumber && ref.episodeNumber >= first;
+  }).length;
 }
 
 export const parseCode = (code: string): EpisodeRef | null =>

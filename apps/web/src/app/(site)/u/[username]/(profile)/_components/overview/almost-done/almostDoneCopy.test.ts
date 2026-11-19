@@ -32,6 +32,24 @@ describe('Almost done copy', () => {
     ).toEqual([true, false, true, true, true, true, false, true]);
   });
 
+  it('draws a season TMDB numbers on from its first real episode', () => {
+    // S2 is E33…E53: E52 and E53 to go
+    expect(
+      seasonSegments({
+        firstEpisodeNumber: 33,
+        seasonTotal: 21,
+        unwatchedEpisodes: [52, 53],
+      }),
+    ).toMatchObject({ total: 21, watched: 19 });
+    expect(
+      seasonSegments({
+        firstEpisodeNumber: 33,
+        seasonTotal: 3,
+        unwatchedEpisodes: [33],
+      }).segments,
+    ).toEqual([false, true, true]);
+  });
+
   it('never draws fewer segments than the episodes to go', () => {
     expect(seasonSegments({ seasonTotal: 0, unwatchedEpisodes: [3] })).toEqual({
       segments: [true, true, false],

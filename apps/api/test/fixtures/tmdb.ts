@@ -19,6 +19,11 @@ type FakeShow = Readonly<{
   /** Season 1, 2... (index + 1); a season 0 of specials with `specials` */
   seasons: ReadonlyArray<FakeSeason>;
   specials?: FakeSeason;
+  /**
+   * TMDB numbers the episodes on across seasons (Naruto Shippuden: S2 is
+   * E33…E53), regular seasons only
+   */
+  numberedOn?: boolean;
   extra?: Record<string, unknown>;
 }>;
 
@@ -27,19 +32,24 @@ const addDays = (date: string, days: number) =>
     .toISOString()
     .slice(0, 10);
 
-const episodesOf = (showId: number, seasonNumber: number, season: FakeSeason) =>
+const episodesOf = (
+  showId: number,
+  seasonNumber: number,
+  season: FakeSeason,
+  first: number,
+) =>
   Array.from({ length: season.episodes }, (_, index) => ({
     air_date:
       index < (season.aired ?? season.episodes)
         ? addDays(season.airDate, index * 7)
         : addDays('2099-01-01', index),
-    episode_number: index + 1,
-    id: showId * 10_000 + seasonNumber * 100 + index + 1,
-    name: `Episode ${index + 1}`,
+    episode_number: first + index,
+    id: showId * 10_000 + seasonNumber * 100 + first + index,
+    name: `Episode ${first + index}`,
     overview: '',
     runtime: season.runtimes?.[index] ?? season.runtime ?? 30,
     season_number: seasonNumber,
-    still_path: `/still-${seasonNumber}-${index + 1}.jpg`,
+    still_path: `/still-${seasonNumber}-${first + index}.jpg`,
   }));
 
 /**
@@ -50,6 +60,7 @@ export const fakeShow = ({
   extra,
   id,
   name = `Show ${id}`,
+  numberedOn = false,
   seasons,
   specials,
   status = 'Ended',
@@ -58,6 +69,13 @@ export const fakeShow = ({
     ...(specials ? [[0, specials] as const] : []),
     ...seasons.map((season, index) => [index + 1, season] as const),
   ];
+  const firstOf = (seasonNumber: number) =>
+    numberedOn && seasonNumber > 0
+      ? 1 +
+        seasons
+          .slice(0, seasonNumber - 1)
+          .reduce((sum, season) => sum + season.episodes, 0)
+      : 1;
   const lastAired = [...seasons.entries()]
     .reverse()
     .find(([, season]) => (season.aired ?? season.episodes) > 0);
@@ -73,7 +91,10 @@ export const fakeShow = ({
             lastAired[1].airDate,
             ((lastAired[1].aired ?? lastAired[1].episodes) - 1) * 7,
           ),
-          episode_number: lastAired[1].aired ?? lastAired[1].episodes,
+          episode_number:
+            firstOf(lastAired[0] + 1) +
+            (lastAired[1].aired ?? lastAired[1].episodes) -
+            1,
           id: 1,
           name: 'Last',
           season_number: lastAired[0] + 1,
@@ -104,12 +125,19 @@ export const fakeShow = ({
     ...Object.fromEntries(
       all.map(([seasonNumber, season]) => [
         `season/${seasonNumber}`,
-        { episodes: episodesOf(id, seasonNumber, season) },
+        {
+          episodes: episodesOf(id, seasonNumber, season, firstOf(seasonNumber)),
+        },
       ]),
     ),
   });
   for (const [seasonNumber, season] of all) {
-    const episodes = episodesOf(id, seasonNumber, season);
+    const episodes = episodesOf(
+      id,
+      seasonNumber,
+      season,
+      firstOf(seasonNumber),
+    );
     onTmdb(`/tv/${id}/season/${seasonNumber}`, {
       air_date: season.airDate,
       episodes,

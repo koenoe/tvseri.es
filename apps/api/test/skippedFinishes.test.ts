@@ -97,6 +97,34 @@ describe('a skipped episode counts as done for Finished', () => {
     expect(finished(show)).toMatchObject({ createdAt: day(3) });
   });
 
+  it('finishes by the real episode numbers where TMDB numbers on across seasons', async () => {
+    seedUser();
+    nextShow += 1;
+    const show = nextShow;
+    // Naruto Shippuden-like: S1 = E1…E6, S2 = E7…E9 (S2's last lies more
+    // than a lagging count past its 3, so it reads as numbered on)
+    fakeShow({
+      id: show,
+      numberedOn: true,
+      seasons: [
+        { airDate: '2025-01-01', episodes: 6 },
+        { airDate: '2026-01-01', episodes: 3 },
+      ],
+    });
+    await skip(show, ['S02E09']);
+
+    await withStream(async () =>
+      seedWatched(
+        USER_ID,
+        show,
+        [...episodes(1, 1, 6), ...episodes(2, 7, 8)],
+        '2026-02-01T20:00:00Z',
+      ),
+    );
+
+    expect(lists()).toEqual([`LIST#WATCHED#ITEM#${show}`]);
+  });
+
   it('only skips, nothing watched: in no list', async () => {
     seedUser();
     const show = newShow(3);

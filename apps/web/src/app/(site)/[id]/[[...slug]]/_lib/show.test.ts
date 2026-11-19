@@ -60,3 +60,24 @@ describe('a show with specials', () => {
     ]);
   });
 });
+
+describe('a show TMDB numbers on across seasons', () => {
+  it('keeps each season’s first episode number in the summary and the marking seasons', () => {
+    const numberedOn = {
+      ...series(),
+      seasons: [season(1, 32), { ...season(2, 21), firstEpisodeNumber: 33 }],
+    } as unknown as TvSeries;
+    expect(
+      toShowSummary(numberedOn).seasons.map((item) => item.firstEpisodeNumber),
+    ).toEqual([undefined, 33]);
+    expect(toSeasonInfo(numberedOn)).toEqual([
+      { airedEpisodeCount: 32, episodeCount: 32, seasonNumber: 1 },
+      {
+        airedEpisodeCount: 21,
+        episodeCount: 21,
+        firstEpisodeNumber: 33,
+        seasonNumber: 2,
+      },
+    ]);
+  });
+});

@@ -1,7 +1,12 @@
 import { formatDuration, plural } from '@tvseri.es/utils';
 
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
-import { codeOf, openEpisodes, toPercentage } from '@/lib/marking/progress';
+import {
+  airedRegularEpisodes,
+  codeOf,
+  openEpisodes,
+  toPercentage,
+} from '@/lib/marking/progress';
 import type { SeriesBase } from '@/lib/marking/types';
 
 /**
@@ -37,6 +42,16 @@ function minutesOf(
   );
 }
 
+/** Every regular episode, announced or aired */
+const totalOf = (series: Pick<SeriesBase, 'seasons'>) =>
+  series.seasons
+    .filter((season) => season.seasonNumber > 0)
+    .reduce(
+      (sum, season) =>
+        sum + Math.max(season.episodeCount, season.airedEpisodeCount),
+      0,
+    );
+
 export function progressLine(
   series: Pick<SeriesBase, 'seasons' | 'skipped' | 'watched'>,
   options: Readonly<{
@@ -46,22 +61,10 @@ export function progressLine(
     nextAirDay: string | null;
   }>,
 ): ProgressLine {
-  let total = 0;
-  let aired = 0;
-  let watched = 0;
-  for (const season of series.seasons) {
-    if (season.seasonNumber === 0) {
-      continue;
-    }
-    total += Math.max(season.episodeCount, season.airedEpisodeCount);
-    aired += season.airedEpisodeCount;
-    for (let number = 1; number <= season.airedEpisodeCount; number++) {
-      const ref = { episodeNumber: number, seasonNumber: season.seasonNumber };
-      if (series.watched[codeOf(ref)]) {
-        watched++;
-      }
-    }
-  }
+  const total = totalOf(series);
+  const airedRefs = airedRegularEpisodes(series);
+  const aired = airedRefs.length;
+  const watched = airedRefs.filter((ref) => series.watched[codeOf(ref)]).length;
   // Left = aired, neither watched nor skipped (one rule for the page)
   const left = openEpisodes(series);
   const minutesLeft = minutesOf(left, options.runtimes);
@@ -100,17 +103,8 @@ export function sizeLine(
     nextAirDay: string | null;
   }>,
 ): string {
-  const aired: Array<{ episodeNumber: number; seasonNumber: number }> = [];
-  let total = 0;
-  for (const season of series.seasons) {
-    if (season.seasonNumber === 0) {
-      continue;
-    }
-    total += Math.max(season.episodeCount, season.airedEpisodeCount);
-    for (let number = 1; number <= season.airedEpisodeCount; number++) {
-      aired.push({ episodeNumber: number, seasonNumber: season.seasonNumber });
-    }
-  }
+  const aired = airedRegularEpisodes(series);
+  const total = totalOf(series);
   const count = aired.length > 0 ? aired.length : total;
   const episodes = plural(count, 'episode');
   if (aired.length === 0) {

@@ -1,5 +1,6 @@
 'use client';
 
+import { firstEpisodeOf } from '@tvseri.es/utils';
 import { memo } from 'react';
 
 import { PULSE, TextLine } from '@/components/ui/ghost/ghosts';
@@ -56,6 +57,7 @@ function SeasonSection({
     toggleSeason,
   } = useSeasonSection(season);
   const { seasonNumber } = season;
+  const first = firstEpisodeOf(season);
   const count = tally(chips);
   const lastChip = last
     ? chips.find((chip) => chip.ref.episodeNumber === last.episodeNumber)
@@ -104,6 +106,7 @@ function SeasonSection({
       ) : (
         <ChipGridGhost
           count={season.episodeCount}
+          first={first}
           seasonNumber={seasonNumber}
         />
       )}

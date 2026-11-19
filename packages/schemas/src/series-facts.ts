@@ -35,9 +35,14 @@ export type SeriesFacts = Readonly<{
   popularity: number;
   voteAverage: number;
   voteCount: number;
-  /** Regular seasons only */
+  /** Regular seasons only. `firstEpisodeNumber` absent means 1 (TvSeries.seasons) */
   seasons: ReadonlyArray<
-    Readonly<{ seasonNumber: number; episodeCount: number; airDate: string }>
+    Readonly<{
+      seasonNumber: number;
+      episodeCount: number;
+      airDate: string;
+      firstEpisodeNumber?: number;
+    }>
   >;
   /** All regular episodes, aired or not */
   numberOfEpisodes: number;

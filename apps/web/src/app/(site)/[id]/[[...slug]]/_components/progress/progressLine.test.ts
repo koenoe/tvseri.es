@@ -179,3 +179,31 @@ describe('sizeLine (signed out)', () => {
     expect(sizeLine({ seasons }, options)).not.toMatch(/%|^0 /);
   });
 });
+
+describe('a show TMDB numbers on across seasons', () => {
+  // S1 is E1–E2, S2 E3–E4; runtimes stay indexed by episode number − 1
+  const seasons = [
+    { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 1 },
+    {
+      airedEpisodeCount: 2,
+      episodeCount: 2,
+      firstEpisodeNumber: 3,
+      seasonNumber: 2,
+    },
+  ];
+  const runtimes = { 1: [28, 32], 2: [0, 0, 60, 45] };
+
+  it('counts the real episodes and times what is left by them', () => {
+    const line = progressLine(
+      { seasons, skipped: [], watched: { S01E01: record, S02E03: record } },
+      { nextAirDay: null, runtimes },
+    );
+    expect(line).toMatchObject({ count: '2 of 4', tail: '1h 17m left' });
+  });
+
+  it('signed out, sizes the show by its real episodes', () => {
+    expect(sizeLine({ seasons }, { nextAirDay: null, runtimes })).toBe(
+      '4 episodes · 2h 45m in all',
+    );
+  });
+});

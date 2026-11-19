@@ -73,9 +73,10 @@ const fromFacts = (facts: SeriesFacts): PlacementSeries => {
     id: facts.id,
     numberOfAiredEpisodes: aired.total,
     posterPath: facts.posterPath ?? '',
-    seasons: Object.entries(aired.bySeason).map(([season, count]) => ({
-      numberOfAiredEpisodes: count,
-      seasonNumber: Number(season),
+    seasons: facts.seasons.map((season) => ({
+      firstEpisodeNumber: season.firstEpisodeNumber,
+      numberOfAiredEpisodes: aired.bySeason[season.seasonNumber] ?? 0,
+      seasonNumber: season.seasonNumber,
     })),
     slug: facts.slug,
     status: facts.status as TvSeries['status'],

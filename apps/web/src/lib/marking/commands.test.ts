@@ -71,14 +71,16 @@ function setup(
     setInList: vi.fn(() => ok(undefined)),
     unmarkEpisodes: vi.fn(() => ok(undefined)),
     unmarkScope: vi.fn(() => ok(undefined)),
-    updateSeriesPrefs: vi.fn(() =>
-      ok({
-        firstTrackingAnsweredAt: null,
-        neverAskBefore: false,
-        paused: null,
-        pausedAt: null,
-        skipped: [],
-      }),
+    // keeps every skip it is sent, as the API does for listed episodes
+    updateSeriesPrefs: vi.fn(
+      (_id: number, patch: Readonly<{ skip?: ReadonlyArray<string> }>) =>
+        ok({
+          firstTrackingAnsweredAt: null,
+          neverAskBefore: false,
+          paused: null,
+          pausedAt: null,
+          skipped: patch.skip ?? [],
+        }),
     ),
   };
   const promptSignIn = vi.fn();
@@ -498,6 +500,31 @@ describe('setWhen (the picker)', () => {
     expect(t.actions.updateSeriesPrefs).toHaveBeenCalledWith(SERIES, {
       skip: ['S03E01'],
     });
+  });
+
+  it('a skip the API refuses (an episode TMDB doesn’t list) is undone in the tab', async () => {
+    const t = setup();
+    t.actions.updateSeriesPrefs.mockImplementationOnce(() =>
+      ok({
+        firstTrackingAnsweredAt: null,
+        neverAskBefore: false,
+        paused: null,
+        pausedAt: null,
+        skipped: ['S03E02'],
+      }),
+    );
+    t.commands.setWhen(
+      SERIES,
+      [
+        { episodeNumber: 4, seasonNumber: 3 },
+        { episodeNumber: 5, seasonNumber: 3 },
+      ],
+      { kind: 'skip' },
+      'S03E04–S03E05',
+    );
+    expect(t.view().skipped).toContain('S03E04');
+    await flush();
+    expect(t.view().skipped).toEqual(['S03E02']);
   });
 
   it('Not watched on a skipped episode says it is no longer skipped', async () => {

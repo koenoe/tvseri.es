@@ -697,10 +697,58 @@ export async function fetchTvSeriesSeason(
     `/3/tv/${id}/season/${season}`,
   )) as TmdbTvSeriesSeason;
 
-  if (!response) {
+  return response ? toSeason(response) : undefined;
+}
+
+/** TMDB answers at most 20 appended sub-requests per call. */
+const APPEND_LIMIT = 20;
+
+/**
+ * Several seasons of a show with their episodes (as `fetchTvSeriesSeason`),
+ * in one `/tv/:id` call per 20 seasons (`append_to_response=season/N,…`).
+ * A season TMDB doesn't list is absent; undefined for an unknown show.
+ */
+export async function fetchTvSeriesSeasons(
+  id: number | string,
+  seasonNumbers: ReadonlyArray<number>,
+): Promise<ReadonlyMap<number, Season> | undefined> {
+  const chunks = chunk([...new Set(seasonNumbers)], APPEND_LIMIT);
+  const pages = await Promise.all(
+    chunks.map(
+      (numbers) =>
+        tmdbFetch(`/3/tv/${id}`, {
+          query: {
+            append_to_response: numbers
+              .map((number) => `season/${number}`)
+              .join(','),
+          },
+        }) as Promise<Record<string, unknown> | undefined>,
+    ),
+  );
+  if (pages.some((page) => !page)) {
     return undefined;
   }
+  const seasons = new Map<number, Season>();
+  for (const [index, numbers] of chunks.entries()) {
+    for (const number of numbers) {
+      const season = pages[index]?.[`season/${number}`] as
+        | TmdbTvSeriesSeason
+        | undefined;
+      if (season) {
+        seasons.set(
+          number,
+          toSeason({
+            ...season,
+            season_number: season.season_number ?? number,
+          }),
+        );
+      }
+    }
+  }
+  return seasons;
+}
 
+const toSeason = (response: TmdbTvSeriesSeason): Season => {
   const episodes = (response?.episodes ?? []).map((episode) =>
     normalizeTvSeriesEpisode(episode as unknown as TmdbTvSeriesEpisode),
   );
@@ -738,10 +786,7 @@ export async function fetchTvSeriesSeason(
     seasonNumber: response.season_number,
     title: response.name as string,
   };
-}
-
-/** TMDB answers at most 20 appended sub-requests per call. */
-const APPEND_LIMIT = 20;
+};
 
 type TmdbRuntimeEpisode = Readonly<{
   episode_number: number;

@@ -5,6 +5,7 @@ import {
   defaultSeasonNumber,
   filterRows,
   panelRows,
+  runtimesBySeason,
   seasonFromQuery,
   seasonName,
   typeAhead,
@@ -159,6 +160,73 @@ describe('panelRows: runtime weights', () => {
     ]);
     const weighted = panelRows(show, marks, null, runtimes);
     expect(weighted[0]!.segments[1]!.flex).toBe(30);
+  });
+});
+
+describe('panelRows on a show TMDB numbers on across seasons', () => {
+  // S1 is E1…E32, S2 E33…E53 (8 aired), S3 E54…E63
+  const seasons: ReadonlyArray<ShowSeason> = [
+    s(1, 32, 32, '2007-02-15'),
+    { ...s(2, 21, 8, '2007-08-23'), firstEpisodeNumber: 33 },
+    { ...s(3, 10, 10, '2008-01-01'), firstEpisodeNumber: 54 },
+  ];
+  const codes = (season: number, numbers: ReadonlyArray<number>) =>
+    Object.fromEntries(
+      numbers.map((number) => [
+        `S0${season}E${String(number).padStart(2, '0')}`,
+        record(1),
+      ]),
+    );
+  const watched = view({
+    seasons: [],
+    watched: {
+      ...codes(
+        1,
+        Array.from({ length: 32 }, (_, index) => index + 1),
+      ),
+      // S02E01 is a made-up code: never one of the season's episodes
+      ...codes(2, [1, 33, 34, 35]),
+      ...codes(3, [54]),
+    },
+  });
+  const rows = panelRows({ nextEpisodeToAir: null, seasons }, watched, {
+    episodeNumber: 36,
+    seasonNumber: 2,
+  });
+
+  it('says each season’s state from its real episodes', () => {
+    expect(rows.map((row) => row.state.text)).toEqual([
+      'Watched',
+      'E41',
+      '1 of 10',
+    ]);
+    expect(rows[1]!.aria).toBe(
+      'Season 2, airing, 3 of 8 aired watched, next episode 41',
+    );
+  });
+
+  it('draws the season’s line over its real episodes', () => {
+    expect(rows[1]!.segments).toEqual([
+      { flex: 3, kind: 'w' },
+      { flex: 1, kind: 'nx' },
+      { flex: 4, kind: '' },
+      { flex: 13, kind: 'na' },
+    ]);
+  });
+
+  it('weights the segments by the real episodes’ runtimes', () => {
+    const runtimes = runtimesBySeason({
+      3: [...Array.from({ length: 53 }, () => 0), 20, 30, 40],
+    });
+    const weighted = panelRows(
+      { nextEpisodeToAir: null, seasons: [seasons[2]!] },
+      view({ seasons: [] }),
+      null,
+      runtimes,
+    );
+    expect(weighted[0]!.segments.slice(0, 3).map((g) => g.flex)).toEqual([
+      20, 30, 40,
+    ]);
   });
 });
 

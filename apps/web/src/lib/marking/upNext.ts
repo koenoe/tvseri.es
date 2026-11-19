@@ -1,5 +1,5 @@
 import { episodeCode, type UpNextItem } from '@tvseri.es/schemas';
-import { episodeMinutes, minutesFor } from '@tvseri.es/utils';
+import { episodeMinutes, firstEpisodeOf, minutesFor } from '@tvseri.es/utils';
 
 import {
   airedInSeason,
@@ -7,6 +7,7 @@ import {
   codeOf,
   markedIn,
   parseCode,
+  watchedCountInSeason,
 } from './progress';
 import type { SeriesBase } from './types';
 
@@ -72,16 +73,15 @@ export function liveUpNext(
     return null;
   }
   const inSeason = airedInSeason(view, next.seasonNumber);
-  const seasonWatched = Object.keys(view.watched).filter(
-    (code) => parseCode(code)?.seasonNumber === next.seasonNumber,
-  ).length;
+  const seasonWatched = watchedCountInSeason(view, next.seasonNumber);
   const season = view.seasons.find(
     (candidate) => candidate.seasonNumber === next.seasonNumber,
   );
   const seasonTotal = season?.episodeCount ?? 0;
   const seasonFinale =
+    season !== undefined &&
     seasonTotal > 0 &&
-    next.episodeNumber === seasonTotal &&
+    next.episodeNumber === firstEpisodeOf(season) + seasonTotal - 1 &&
     inSeason.length === seasonTotal;
   const last = lastWatched(view);
   // Time by the overview's rule (each episode's own runtime), from the

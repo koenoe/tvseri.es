@@ -115,3 +115,52 @@ describe('normalizeTvSeries: specials beside the shared aired rule', () => {
     expect(series.numberOfAiredEpisodes).toBe(36);
   });
 });
+
+// Naruto Shippuden: S1 = E1…E32, S2 = E33…E53, S3 = E54…E71
+describe('normalizeTvSeries: episodes numbered on across seasons', () => {
+  const naruto = (overrides: Record<string, unknown>) =>
+    show({
+      seasons: [
+        season(0, '2008-01-01', 2),
+        season(1, '2007-02-15', 32),
+        season(2, '2007-10-04', 21),
+        season(3, '2026-10-01', 18),
+      ],
+      status: 'Returning Series',
+      ...overrides,
+    });
+
+  it('gives each regular season its first episode number', () => {
+    const series = normalizeTvSeries(
+      naruto({ last_episode_to_air: episode(3, 58, '2026-11-01') }),
+    );
+    expect(series.seasons?.map((s) => s.firstEpisodeNumber)).toEqual([
+      undefined,
+      33,
+      54,
+    ]);
+    expect(series.specials?.firstEpisodeNumber).toBeUndefined();
+  });
+
+  it('counts the current season from its first episode number', () => {
+    const series = normalizeTvSeries(
+      naruto({
+        last_episode_to_air: episode(3, 58, '2026-11-01'),
+        next_episode_to_air: episode(3, 59, '2026-11-20'),
+      }),
+    );
+    expect(series.seasons?.map((s) => s.numberOfAiredEpisodes)).toEqual([
+      32, 21, 5,
+    ]);
+    expect(series.numberOfAiredEpisodes).toBe(58);
+  });
+
+  it('leaves a show numbered per season without the field', () => {
+    const series = normalizeTvSeries(
+      show({ last_episode_to_air: episode(3, 12, '2016-07-21') }),
+    );
+    expect(series.seasons?.every((s) => !('firstEpisodeNumber' in s))).toBe(
+      true,
+    );
+  });
+});

@@ -1,8 +1,9 @@
 import type { SQSEvent } from 'aws-lambda';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { handler as undoImport } from '@/lambdas/undoImport';
 import { db, sqsMessages } from './db';
+import { fakeShow } from './fixtures/tmdb';
 import { lambdaContext } from './lambdaContext';
 import { request } from './request';
 import { OTHER_USER_ID, seedUser, USER_ID } from './seed';
@@ -414,6 +415,17 @@ describe('Undo of an unmark puts an imported episode back in its import', () => 
 });
 
 describe('import and skipped marks', () => {
+  // Skips are kept only for episodes TMDB lists
+  beforeEach(() => {
+    fakeShow({
+      id: SHOW,
+      seasons: [
+        { airDate: '2020-01-01', episodes: 3 },
+        { airDate: '2021-01-01', episodes: 3 },
+      ],
+    });
+  });
+
   const prefsOf = async (userId: string) => {
     const response = await request(`/me/series/${SHOW}/prefs`, { as: userId });
     expect(response.status).toBe(200);
@@ -501,10 +513,10 @@ describe('import and skipped marks', () => {
     seedUser();
     seedUser({ id: OTHER_USER_ID, username: 'other' });
     await skip(USER_ID, ['S01E02']);
-    await skip(OTHER_USER_ID, ['S01E02', 'S01E05']);
+    await skip(OTHER_USER_ID, ['S01E02', 'S02E03']);
     const importId = await importRows([row(1, 2)]);
     await undo(importId);
-    expect(await prefsOf(OTHER_USER_ID)).toEqual(['S01E02', 'S01E05']);
+    expect(await prefsOf(OTHER_USER_ID)).toEqual(['S01E02', 'S02E03']);
     expect(await prefsOf(USER_ID)).toEqual(['S01E02']);
   });
 

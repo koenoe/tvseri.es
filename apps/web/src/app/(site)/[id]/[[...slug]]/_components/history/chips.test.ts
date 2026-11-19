@@ -49,6 +49,50 @@ describe('seasonChips', () => {
   });
 });
 
+describe('seasonChips on a show TMDB numbers on across seasons', () => {
+  // Naruto Shippuden: S1 is E1…E32, S2 E33…E53 (8 aired)
+  const numberedOn = (overrides: Partial<SeriesBase> = {}) =>
+    view({
+      seasons: [
+        { airedEpisodeCount: 32, episodeCount: 32, seasonNumber: 1 },
+        {
+          airedEpisodeCount: 8,
+          episodeCount: 21,
+          firstEpisodeNumber: 33,
+          seasonNumber: 2,
+        },
+      ],
+      ...overrides,
+    });
+
+  it('draws exactly the season’s real episodes', () => {
+    const chips = seasonChips(numberedOn(), 2, null);
+    expect(chips.map((chip) => chipLabel(chip.ref))).toEqual(
+      Array.from({ length: 21 }, (_, index) => `E${33 + index}`),
+    );
+    expect(chips.filter((chip) => chip.state === 'na')).toHaveLength(13);
+  });
+
+  it('draws no chip for a made-up code below the season’s first episode', () => {
+    const chips = seasonChips(
+      numberedOn({ skipped: ['S02E01'], watched: { S02E02: at, S02E33: at } }),
+      2,
+      null,
+    );
+    expect(chips).toHaveLength(21);
+    expect(chips[0]?.state).toBe('w');
+    expect(tally(chips)).toMatchObject({ aired: 8, watched: 1 });
+  });
+
+  it('marks the season’s first real episode Next up', () => {
+    const chips = seasonChips(numberedOn(), 2, {
+      episodeNumber: 33,
+      seasonNumber: 2,
+    });
+    expect(chips[0]?.state).toBe('nx');
+  });
+});
+
 describe('tally', () => {
   it('counts watched over aired, skipped as not watched', () => {
     const chips = seasonChips(

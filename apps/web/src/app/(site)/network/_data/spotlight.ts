@@ -123,7 +123,13 @@ export async function getNetworkSpotlight(
       {
         lastYear: yearOf(series.lastAirDate),
         next: next
-          ? { airDate: next.airDate, episodeNumber: next.episodeNumber }
+          ? {
+              airDate: next.airDate,
+              episodeNumber: next.episodeNumber,
+              firstEpisodeNumber: series.seasons?.find(
+                (season) => season.seasonNumber === next.seasonNumber,
+              )?.firstEpisodeNumber,
+            }
           : null,
         running,
       },

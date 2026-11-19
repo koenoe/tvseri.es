@@ -14,6 +14,9 @@ export function toSeasonInfo(
   return seasonsWithSpecials(series).map((season) => ({
     airedEpisodeCount: season.numberOfAiredEpisodes ?? 0,
     episodeCount: season.numberOfEpisodes ?? season.episodes.length,
+    ...(season.firstEpisodeNumber === undefined
+      ? {}
+      : { firstEpisodeNumber: season.firstEpisodeNumber }),
     seasonNumber: season.seasonNumber,
   }));
 }

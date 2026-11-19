@@ -59,6 +59,18 @@ describe('pickWhy', () => {
     expect(pickWhy(saturday, TODAY)).toBe('Season 2 premieres Saturday');
   });
 
+  it('names the premiere of a season TMDB numbers on from the last', () => {
+    // S2 is E33…E53: E33 opens it
+    const naruto = show({
+      nextEpisodeToAir: episode(2, 33, '2026-11-12'),
+      numberOfSeasons: 2,
+      seasons: [
+        { firstEpisodeNumber: 33, seasonNumber: 2 },
+      ] as unknown as TvSeries['seasons'],
+    });
+    expect(pickWhy(naruto, TODAY)).toBe('Season 2 premieres tomorrow');
+  });
+
   it('does not count a premiere more than a week away, or a mid-season episode', () => {
     const later = show({
       nextEpisodeToAir: episode(2, 1, '2026-11-30'),

@@ -3,14 +3,19 @@ import {
   type StatsNightEpisode,
   type StatsShowRow,
 } from '@tvseri.es/schemas';
-import { DAY_MS, plural } from '@tvseri.es/utils';
+import {
+  DAY_MS,
+  episodeNumbersOf,
+  firstEpisodeOf,
+  plural,
+} from '@tvseri.es/utils';
 
 import { longWeekdayMonthDay } from '@/lib/format/date';
 import { dateMs, monthName, shortDay } from '@/lib/stats/weeks';
 
 /** A show's regular seasons and their sizes (`SeriesArt['seasons']`) */
 export type SeasonSizes = ReadonlyArray<
-  Readonly<{ number: number; episodes: number }>
+  Readonly<{ number: number; episodes: number; firstEpisodeNumber?: number }>
 > | null;
 
 export type NightSeries = Readonly<{
@@ -59,8 +64,8 @@ function coversShow(
   return seasons.every(
     (season) =>
       season.episodes > 0 &&
-      Array.from({ length: season.episodes }, (_, index) => index + 1).every(
-        (number) => seen.has(`${season.number}:${number}`),
+      episodeNumbersOf(season, season.episodes).every((number) =>
+        seen.has(`${season.number}:${number}`),
       ),
   );
 }
@@ -95,10 +100,12 @@ export function nightLine(
     return `Episode ${first.episodeNumber}`;
   }
   const season = first.seasonNumber;
-  const size =
-    seasons?.find((candidate) => candidate.number === season)?.episodes ?? 0;
-  const start = first.episodeNumber;
-  const end = last.episodeNumber;
+  const sized = seasons?.find((candidate) => candidate.number === season);
+  const size = sized?.episodes ?? 0;
+  // Positions within the season: TMDB numbers some shows on across seasons
+  const offset = firstEpisodeOf(sized ?? {}) - 1;
+  const start = first.episodeNumber - offset;
+  const end = last.episodeNumber - offset;
   const contiguous = end - start + 1 === count;
   if (size > 0 && contiguous) {
     if (start === 1 && end === size) {

@@ -21,6 +21,11 @@ export const SeasonSchema = v.object({
   airDate: v.string(),
   description: v.string(),
   episodes: v.array(EpisodeSchema),
+  /**
+   * The season's first episode number; absent means 1. TMDB numbers some
+   * shows on across seasons (Naruto Shippuden S2 = E33…E53).
+   */
+  firstEpisodeNumber: v.optional(v.number()),
   hasAired: v.fallback(v.boolean(), false),
   id: v.number(),
   numberOfAiredEpisodes: v.optional(v.number()),

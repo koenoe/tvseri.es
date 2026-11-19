@@ -268,3 +268,66 @@ describe('specials and unknown seasons', () => {
     expect(unwatchedInSeason(series, 7)).toEqual([]);
   });
 });
+
+describe('a show TMDB numbers on across seasons', () => {
+  // Naruto Shippuden: S1 is E1…E32, S2 E33…E53 (S2 still airing at E40)
+  const numberedOn = (watched: SeriesBase['watched'] = {}): SeriesBase =>
+    base({
+      seasons: [
+        { airedEpisodeCount: 32, episodeCount: 32, seasonNumber: 1 },
+        {
+          airedEpisodeCount: 8,
+          episodeCount: 21,
+          firstEpisodeNumber: 33,
+          seasonNumber: 2,
+        },
+      ],
+      watched,
+    });
+  const allOfSeason1 = Object.fromEntries(
+    Array.from({ length: 32 }, (_, index) => [
+      `S01E${String(index + 1).padStart(2, '0')}`,
+      at(1),
+    ]),
+  );
+
+  it('counts the real episodes of a season, not 1…count', () => {
+    const series = numberedOn({ S02E01: at(1), S02E33: at(1), S02E34: at(1) });
+    expect(seasonProgress(series, 2)).toMatchObject({
+      aired: 8,
+      total: 21,
+      watched: 2,
+    });
+  });
+
+  it('crosses into the next season at its first real episode', () => {
+    expect(nextEpisode(numberedOn(allOfSeason1))).toEqual({
+      episodeNumber: 33,
+      seasonNumber: 2,
+    });
+  });
+
+  it('leaves the real aired episodes open, not made-up codes', () => {
+    const open = openEpisodes(numberedOn(allOfSeason1));
+    expect(open.map((ref) => ref.episodeNumber)).toEqual([
+      33, 34, 35, 36, 37, 38, 39, 40,
+    ]);
+  });
+
+  it('has the show progress over its real episodes', () => {
+    const series = numberedOn({ ...allOfSeason1, S02E33: at(1) });
+    expect(seriesProgress(series)).toMatchObject({
+      aired: 40,
+      left: 7,
+      watched: 33,
+    });
+  });
+
+  it('asks about the open real episodes before one', () => {
+    const before = openBefore(numberedOn({ S02E33: at(1) }), {
+      episodeNumber: 36,
+      seasonNumber: 2,
+    });
+    expect(before.map((ref) => ref.episodeNumber)).toEqual([34, 35]);
+  });
+});

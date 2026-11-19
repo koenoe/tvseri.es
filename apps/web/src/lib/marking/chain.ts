@@ -11,7 +11,7 @@ import type * as Actions from './actions';
 import { codeOf, parseCode } from './progress';
 import type { ProgressItem } from './server/api';
 import { recordsFrom } from './state';
-import type { MarkingOp, WatchRecord } from './types';
+import type { EpisodeCode, MarkingOp, WatchRecord } from './types';
 
 /**
  * The request side of the marking commands: the server calls that make the
@@ -52,6 +52,18 @@ const unmarkedOf = (result: Result): ReadonlyArray<EpisodeRef> =>
     ? (result.data as { unmarked: ReadonlyArray<EpisodeRef> }).unmarked
     : [];
 
+/**
+ * The skips the API refused: requested, but not in the skipped set it
+ * answers with (an episode TMDB doesn't list is dropped).
+ */
+export const refusedOf = (result: Result): ReadonlyArray<EpisodeCode> =>
+  result.ok &&
+  typeof result.data === 'object' &&
+  result.data !== null &&
+  'refused' in result.data
+    ? (result.data as { refused: ReadonlyArray<EpisodeCode> }).refused
+    : [];
+
 /** The store ops for what a failed write did save. */
 export const savedOps = (
   partial: NonNullable<Extract<Result, { ok: false }>['partial']>,
@@ -71,6 +83,7 @@ export const savedOps = (
 export async function sequence(calls: ReadonlyArray<Send>): Promise<Result> {
   const watched: ProgressItem[] = [];
   const unmarked: EpisodeRef[] = [];
+  const refused: EpisodeCode[] = [];
   for (const call of calls) {
     const result = await call();
     if (!result.ok) {
@@ -85,8 +98,9 @@ export async function sequence(calls: ReadonlyArray<Send>): Promise<Result> {
     }
     watched.push(...watchedOf(result));
     unmarked.push(...unmarkedOf(result));
+    refused.push(...refusedOf(result));
   }
-  return { data: { unmarked, watched }, ok: true };
+  return { data: { refused, unmarked, watched }, ok: true };
 }
 
 type MarkEpisodes = Parameters<MarkingActions['markEpisodes']>[0]['episodes'];
@@ -135,10 +149,23 @@ export function callsFor(
             ),
         );
       }
-    } else if (op.kind === 'skip' || op.kind === 'unskip') {
+    } else if (op.kind === 'unskip') {
+      for (const part of chunk(op.codes, MAX_EPISODES_PER_MARK_ACTION)) {
+        calls.push(() => actions.updateSeriesPrefs(seriesId, { unskip: part }));
+      }
+    } else if (op.kind === 'skip') {
       for (const part of chunk(op.codes, MAX_EPISODES_PER_MARK_ACTION)) {
         calls.push(() =>
-          actions.updateSeriesPrefs(seriesId, { [op.kind]: part }),
+          actions.updateSeriesPrefs(seriesId, { skip: part }).then((result) => {
+            if (!result.ok) {
+              return result;
+            }
+            const kept = new Set(result.data.skipped);
+            return {
+              ...result,
+              data: { refused: part.filter((code) => !kept.has(code)) },
+            };
+          }),
         );
       }
     } else if (op.kind === 'list') {

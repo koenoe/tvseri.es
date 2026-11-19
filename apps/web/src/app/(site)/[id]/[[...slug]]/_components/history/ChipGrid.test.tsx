@@ -2,7 +2,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import ChipGrid from './ChipGrid';
+import ChipGrid, { ChipGridGhost } from './ChipGrid';
 import type { ChipState, SheetChip } from './chips';
 import type { SheetMode } from './paint';
 import { createSheetUi, SheetUiContext, type SheetUiStore } from './sheetUi';
@@ -154,5 +154,17 @@ describe('ChipGrid', () => {
     expect(t.onCommit).toHaveBeenCalledWith(
       expect.objectContaining({ direction: 'mark', kind: 'paint' }),
     );
+  });
+});
+
+describe('ChipGridGhost', () => {
+  it('labels its chips from the season’s first real episode', () => {
+    const { container } = render(
+      <ChipGridGhost count={3} first={33} seasonNumber={2} />,
+    );
+    const labels = [
+      ...container.querySelectorAll('[data-chip-ghost] > span'),
+    ].map((chip) => chip.textContent);
+    expect(labels).toEqual(['E33', 'E34', 'E35']);
   });
 });

@@ -10,6 +10,7 @@ import {
   type MarkingActions,
   markCalls,
   type Result,
+  refusedOf,
   type Send,
   savedOps,
   sequence,
@@ -221,10 +222,16 @@ export function createMarkingCommands(deps: MarkingDeps) {
     const result = await enqueue(seriesId, send);
     if (result.ok) {
       const watched = watchedOf(result);
-      const corrections: MarkingOp[] =
-        watched.length > 0
-          ? [{ kind: 'mark', records: recordsFrom(watched) }]
-          : [];
+      // A skip the API refused (an episode TMDB doesn't list) comes off again
+      const refused = refusedOf(result);
+      const corrections: MarkingOp[] = [
+        ...(watched.length > 0
+          ? [{ kind: 'mark', records: recordsFrom(watched) } as const]
+          : []),
+        ...(refused.length > 0
+          ? [{ codes: refused, kind: 'unskip' } as const]
+          : []),
+      ];
       ids.forEach((id, index) => {
         store
           .getState()

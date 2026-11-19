@@ -530,3 +530,142 @@ describe('waitingForLater', () => {
     expect(later.endedCount).toBe(2);
   });
 });
+
+// Naruto Shippuden: TMDB numbers on across seasons (S2 = E9…E16 here)
+describe('episodes numbered on across seasons', () => {
+  const seasons = [
+    { airDate: '2020-01-01', episodeCount: 8, seasonNumber: 1 },
+    {
+      airDate: '2021-01-01',
+      episodeCount: 8,
+      firstEpisodeNumber: 9,
+      seasonNumber: 2,
+    },
+    {
+      airDate: day(6),
+      episodeCount: 8,
+      firstEpisodeNumber: 17,
+      seasonNumber: 3,
+    },
+  ];
+  const numberedOn = (overrides: Partial<SeriesFacts> = {}) =>
+    facts({ lastEpisodeToAir: ep(2, 16, day(-1)), seasons, ...overrides });
+
+  it('Up next: the season’s real numbers, its finale and its minutes', () => {
+    const [item] = buildUpNext([
+      state({
+        facts: numberedOn(),
+        runtimes: {
+          2: [
+            ...Array.from({ length: 8 }, () => 0),
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+          ],
+        },
+        watched: watched([...range(1, 1, 8), ...range(2, 9, 15)]),
+      }),
+    ]);
+    expect(item).toMatchObject({
+      code: 'S02E16',
+      isLatest: true,
+      runtime: 47,
+      seasonFinale: true,
+      seasonTotal: 8,
+      seasonWatched: 7,
+      timeLeftMinutes: 47,
+      toWatch: 1,
+    });
+    // Indexed by episode − 1, like the series' runtimes
+    expect(item?.seasonRuntimes).toEqual([
+      0, 0, 0, 0, 0, 0, 0, 0, 40, 41, 42, 43, 44, 45, 46, 47,
+    ]);
+  });
+
+  it('Almost done: the season’s first number with the episodes left', () => {
+    const almost = state({
+      facts: numberedOn(),
+      watched: watched([...range(1, 1, 8), ...range(2, 9, 15)]),
+    });
+    expect(buildAlmostDone([almost]).items[0]).toMatchObject({
+      code: 'S02E16',
+      firstEpisodeNumber: 9,
+      seasonTotal: 8,
+      unwatchedEpisodes: [16],
+    });
+  });
+
+  it('Almost done: a season starting at 1 leaves the first number out', () => {
+    const plain = state({
+      watched: watched([...range(1, 1, 8), ...range(2, 1, 7)]),
+    });
+    expect(buildAlmostDone([plain]).items[0]).not.toHaveProperty(
+      'firstEpisodeNumber',
+    );
+  });
+
+  it('Out now: a season that just finished is complete', () => {
+    const fresh = state({
+      facts: numberedOn(),
+      watched: watched(range(1, 1, 8)),
+    });
+    expect(buildOutNow([fresh], NOW)).toEqual([
+      expect.objectContaining({
+        episodes: 8,
+        kind: 'season-complete',
+        season: 2,
+      }),
+    ]);
+  });
+
+  it('Catching up: the next season’s first episode is its premiere', () => {
+    const lagging = state({
+      facts: numberedOn({
+        lastEpisodeToAir: ep(2, 16, day(-30)),
+        nextEpisodeToAir: ep(3, 17, day(6)),
+      }),
+      watched: watched([...range(1, 1, 8), ...range(2, 9, 12)]),
+    });
+    const [row] = buildCatchingUp([lagging], NOW);
+    expect(row?.episodes).toEqual(['S02E13', 'S02E14', 'S02E15', 'S02E16']);
+    expect(row?.runway).toEqual({
+      date: day(6),
+      daysToGo: 6,
+      season: 3,
+      state: 'upcoming',
+    });
+  });
+
+  it('Coming up: premiere and finale by the season’s real numbers', () => {
+    const tickets = buildComingUp(
+      [
+        {
+          onWatchlist: false,
+          state: state({
+            facts: numberedOn({ id: 1, nextEpisodeToAir: ep(3, 17, day(6)) }),
+          }),
+        },
+        {
+          onWatchlist: false,
+          state: state({
+            facts: numberedOn({
+              id: 2,
+              lastEpisodeToAir: ep(2, 15, day(-6)),
+              nextEpisodeToAir: ep(2, 16, day(1)),
+            }),
+          }),
+        },
+      ],
+      NOW,
+    );
+    expect(tickets.map((ticket) => [ticket.seriesId, ticket.kind])).toEqual([
+      [2, 'season-finale'],
+      [1, 'season-premiere'],
+    ]);
+  });
+});

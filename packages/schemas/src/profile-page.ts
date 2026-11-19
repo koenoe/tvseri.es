@@ -297,6 +297,11 @@ export type AlmostDoneItem = Readonly<{
   code: string;
   /** Episodes in the season (regular, all aired) */
   seasonTotal: number;
+  /**
+   * The season's first episode number; absent means 1. TMDB numbers some
+   * shows on across seasons (Naruto Shippuden S2 = E33…E53).
+   */
+  firstEpisodeNumber?: number;
   /** The season's episode numbers still to watch, wherever they sit (`toGo` of them) */
   unwatchedEpisodes: ReadonlyArray<number>;
   /** "52m to finish the season" */

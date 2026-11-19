@@ -189,6 +189,37 @@ describe('season ledger', () => {
     expect(summaryReads).toHaveLength(1);
   });
 
+  it('finds holes by the real episode numbers where TMDB numbers on across seasons', async () => {
+    seedUser();
+    // Naruto Shippuden: S1 = E1…E4, S2 = E5…E8, S3 = E9…E12
+    fakeShow({
+      id: 31910,
+      numberedOn: true,
+      seasons: [
+        { airDate: '2020-01-01', episodes: 4 },
+        { airDate: '2021-01-01', episodes: 4 },
+        { airDate: '2022-01-01', episodes: 4 },
+      ],
+    });
+    db.seed('Lists', [listItem(USER_ID, 'IN_PROGRESS', 31910, 100)]);
+    watched(USER_ID, 31910, [
+      [1, 1],
+      [1, 2],
+      [1, 3],
+      [1, 4],
+      [2, 5],
+      [2, 7],
+      [2, 8],
+      [3, 9],
+      [3, 11],
+    ]);
+
+    const response = await request('/me/ledger', { as: USER_ID });
+    expect(await response.json()).toMatchObject({
+      shows: [{ episodes: ['S02E06', 'S03E10'], seriesId: 31910 }],
+    });
+  });
+
   it('closes a hole with a skip', async () => {
     setup();
     skip(USER_ID, 1, ['S01E03']);

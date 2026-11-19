@@ -9,7 +9,10 @@ vi.mock('../../_lib/ShowProvider', () => ({
   useShow: () => ({ id: 201, title: 'The Bear' }),
 }));
 
-beforeAll(() => {
+beforeAll(async () => {
+  // The sheet is a lazy chunk: transformed up front, so a busy full run
+  // can't push the click's import past findByRole's wait
+  await import('./CastSheet');
   MotionGlobalConfig.skipAnimations = true;
   // jsdom has no showModal/close: stand in for the browser's part
   HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement) {

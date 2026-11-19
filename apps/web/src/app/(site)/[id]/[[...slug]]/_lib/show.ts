@@ -15,6 +15,8 @@ export type ShowSeason = Readonly<{
   airDate: string;
   episodeCount: number;
   airedEpisodeCount: number;
+  /** The first episode number; absent means 1 (TMDB numbers some shows on). */
+  firstEpisodeNumber?: number;
 }>;
 
 export type ShowSummary = Readonly<{
@@ -57,6 +59,9 @@ export function toShowSummary(series: TvSeries): ShowSummary {
         airDate: season.airDate ?? '',
         airedEpisodeCount: season.numberOfAiredEpisodes ?? 0,
         episodeCount: season.numberOfEpisodes ?? season.episodes.length,
+        ...(season.firstEpisodeNumber === undefined
+          ? {}
+          : { firstEpisodeNumber: season.firstEpisodeNumber }),
         seasonNumber: season.seasonNumber,
         title: season.title,
       }))

@@ -39,6 +39,46 @@ describe('series facts', () => {
     expect(second.get(87108)).toEqual(first.get(87108));
   });
 
+  it('carries each season’s first episode number where TMDB numbers on across seasons', async () => {
+    fakeShow({
+      id: 31910,
+      numberedOn: true,
+      seasons: [
+        { airDate: '2007-02-15', episodes: 32 },
+        { airDate: '2007-10-04', episodes: 21 },
+        { airDate: '2008-03-20', episodes: 18 },
+      ],
+    });
+    fakeShow({
+      id: 1396,
+      seasons: [
+        { airDate: '2008-01-20', episodes: 7 },
+        { airDate: '2009-03-08', episodes: 13 },
+      ],
+    });
+
+    const facts = await getSeriesFacts([31910, 1396]);
+    expect(facts.get(31910)?.seasons).toEqual([
+      { airDate: '2007-02-15', episodeCount: 32, seasonNumber: 1 },
+      {
+        airDate: '2007-10-04',
+        episodeCount: 21,
+        firstEpisodeNumber: 33,
+        seasonNumber: 2,
+      },
+      {
+        airDate: '2008-03-20',
+        episodeCount: 18,
+        firstEpisodeNumber: 54,
+        seasonNumber: 3,
+      },
+    ]);
+    expect(facts.get(1396)?.seasons).toEqual([
+      { airDate: '2008-01-20', episodeCount: 7, seasonNumber: 1 },
+      { airDate: '2009-03-08', episodeCount: 13, seasonNumber: 2 },
+    ]);
+  });
+
   it('uses the last episode runtime when TMDB has no typical runtime', async () => {
     fakeShow({
       extra: { episode_run_time: [] },

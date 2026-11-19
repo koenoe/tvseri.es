@@ -18,6 +18,25 @@ describe('spotlightKicker', () => {
     ).toBe('Returning Tue Nov 17');
   });
 
+  it('says when a season TMDB numbers on from the last comes back', () => {
+    // S2 is E33…E53: E33 opens it, E34 doesn't
+    const kicker = (episodeNumber: number) =>
+      spotlightKicker(
+        {
+          lastYear: 2025,
+          next: {
+            airDate: '2026-11-17',
+            episodeNumber,
+            firstEpisodeNumber: 33,
+          },
+          running: true,
+        },
+        today,
+      );
+    expect(kicker(33)).toBe('Returning Tue Nov 17');
+    expect(kicker(34)).toBe('New episode Tue Nov 17');
+  });
+
   it('adds the year when the date is not this year', () => {
     expect(
       spotlightKicker(

@@ -18,6 +18,7 @@ import {
   buildProfileImageUrl,
   buildStillImageUrl,
   buildTitleTreatmentImageUrl,
+  firstEpisodeNumbers,
   formatSeriesYears,
   generateTmdbImageUrl,
   regionName,
@@ -232,7 +233,11 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     new Date(nextEpisodeToAir.air_date).getTime() <= Date.now();
 
   type TmdbSeason = NonNullable<TmdbTvSeries['seasons']>[number];
-  const toSeason = (season: TmdbSeason, airedCount: number) => {
+  const toSeason = (
+    season: TmdbSeason,
+    airedCount: number,
+    firstEpisodeNumber = 1,
+  ) => {
     const airDate = season.air_date
       ? new Date(season.air_date).toISOString()
       : '';
@@ -240,6 +245,8 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
       airDate,
       description: season.overview ?? '',
       episodes: [],
+      // Only where TMDB numbers on across seasons: absent means 1
+      ...(firstEpisodeNumber !== 1 && { firstEpisodeNumber }),
       hasAired: new Date(airDate) <= new Date(),
       id: season.id,
       numberOfAiredEpisodes: Math.min(airedCount, season.episode_count),
@@ -261,12 +268,21 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
           seasonNumber: episode.season_number,
         }
       : null;
+  const last = toEpisode(lastEpisodeToAir ?? null);
+  const next = toEpisode(nextEpisodeToAir ?? null);
+  const firstEpisodes = firstEpisodeNumbers(
+    regularSeasons.map((season) => ({
+      episodeCount: season.episode_count,
+      seasonNumber: season.season_number,
+    })),
+    { last, next },
+  );
   // The one aired rule for regular seasons (lib/seriesFacts/aired.ts): a
   // special as TMDB's last aired episode doesn't zero them. The next episode
   // counts as aired from the start of its air date.
   const airedPerSeason = airedBySeason({
-    last: toEpisode(lastEpisodeToAir ?? null),
-    next: toEpisode(nextEpisodeToAir ?? null),
+    last,
+    next,
     nextHasAired: Boolean(
       nextEpisodeToAir?.air_date &&
         new Date(nextEpisodeToAir.air_date).getTime() <= Date.now(),
@@ -275,13 +291,18 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     seasons: regularSeasons.map((season) => ({
       airDate: season.air_date ?? '',
       episodeCount: season.episode_count,
+      firstEpisodeNumber: firstEpisodes[season.season_number],
       seasonNumber: season.season_number,
     })),
     status,
   });
 
   const seasons = regularSeasons.map((season) =>
-    toSeason(season, airedPerSeason[season.season_number] ?? 0),
+    toSeason(
+      season,
+      airedPerSeason[season.season_number] ?? 0,
+      firstEpisodes[season.season_number],
+    ),
   );
 
   // Specials: TMDB's last/next episode follow the regular seasons, so the

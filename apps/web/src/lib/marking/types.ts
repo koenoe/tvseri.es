@@ -21,8 +21,13 @@ export type SeasonInfo = Readonly<{
   seasonNumber: number;
   /** Announced episodes. */
   episodeCount: number;
-  /** Aired episodes: numbered 1…airedEpisodeCount within the season. */
+  /** Aired episodes: the season's first `airedEpisodeCount`, in order. */
   airedEpisodeCount: number;
+  /**
+   * The season's first episode number; absent means 1. TMDB numbers some
+   * shows on across seasons (Naruto Shippuden S2 = E33…E53).
+   */
+  firstEpisodeNumber?: number;
 }>;
 
 export type ListStatus = Readonly<{

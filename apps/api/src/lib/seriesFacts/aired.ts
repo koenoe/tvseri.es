@@ -1,6 +1,8 @@
 import type { SeriesFacts } from '@tvseri.es/schemas';
 import {
   endOfDayUtc,
+  episodeNumbersOf,
+  firstEpisodeOf,
   isOver,
   type SeasonsOutlook,
   seasonsOutlook,
@@ -14,8 +16,9 @@ type Episode = Readonly<{ seasonNumber: number; episodeNumber: number }>;
  * overview and the library count by it):
  *
  * - from TMDB's last aired episode: every season before its season, and its
- *   number in its own season; in the next episode's season, the episodes
- *   before it, and the next episode itself once it has aired (`nextHasAired`:
+ *   place in its own season (its number from the season's first, which
+ *   isn't 1 where TMDB numbers on across seasons); in the next episode's
+ *   season, the episodes before it, and the next episode itself once it has aired (`nextHasAired`:
  *   the caller's day rule);
  * - never fewer than the seasons prove: a season that started (air date in
  *   the past) counts in full when a later season has started too, or when
@@ -29,7 +32,12 @@ type Episode = Readonly<{ seasonNumber: number; episodeNumber: number }>;
 export const airedBySeason = (
   input: Readonly<{
     seasons: ReadonlyArray<
-      Readonly<{ seasonNumber: number; episodeCount: number; airDate: string }>
+      Readonly<{
+        seasonNumber: number;
+        episodeCount: number;
+        airDate: string;
+        firstEpisodeNumber?: number;
+      }>
     >;
     last: Episode | null;
     next: Episode | null;
@@ -50,18 +58,21 @@ export const airedBySeason = (
 
   const bySeason: Record<number, number> = {};
   for (const season of input.seasons) {
+    // How many of the season's episodes run up to this one, inclusive
+    const placeOf = (episode: Episode) =>
+      episode.episodeNumber - firstEpisodeOf(season) + 1;
     let aired = 0;
     if (last && season.seasonNumber < last.seasonNumber) {
       aired = season.episodeCount;
     } else if (last && season.seasonNumber === last.seasonNumber) {
-      aired = last.episodeNumber;
+      aired = placeOf(last);
     }
     if (next?.seasonNumber === season.seasonNumber) {
       // Its season's episodes before the next one have aired, whatever the
       // last aired episode says (a special there counts none)
       aired = Math.max(
         aired,
-        input.nextHasAired ? next.episodeNumber : next.episodeNumber - 1,
+        input.nextHasAired ? placeOf(next) : placeOf(next) - 1,
       );
     }
     const isProvenAired =
@@ -70,7 +81,10 @@ export const airedBySeason = (
     if (isProvenAired) {
       aired = season.episodeCount;
     }
-    bySeason[season.seasonNumber] = Math.min(aired, season.episodeCount);
+    bySeason[season.seasonNumber] = Math.max(
+      0,
+      Math.min(aired, season.episodeCount),
+    );
   }
   return bySeason;
 };
@@ -100,6 +114,23 @@ export const airedEpisodesAt = (
   const total = Object.values(bySeason).reduce((sum, count) => sum + count, 0);
   return { bySeason, total };
 };
+
+/**
+ * The aired regular episodes by their real numbers, in order: each season's
+ * aired count (`airedBySeason`) from its first episode number, which isn't 1
+ * where TMDB numbers on across seasons.
+ */
+export const airedEpisodeRefs = (
+  seasons: SeriesFacts['seasons'],
+  bySeason: Readonly<Record<number, number>>,
+): ReadonlyArray<Readonly<{ season: number; episode: number }>> =>
+  [...seasons]
+    .sort((a, b) => a.seasonNumber - b.seasonNumber)
+    .flatMap((season) =>
+      episodeNumbersOf(season, bySeason[season.seasonNumber] ?? 0).map(
+        (episode) => ({ episode, season: season.seasonNumber }),
+      ),
+    );
 
 /**
  * Aired seasons and a listed renewal (`seasonsOutlook`) at `now`. A season

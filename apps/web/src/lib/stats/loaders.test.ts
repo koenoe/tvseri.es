@@ -170,6 +170,24 @@ describe('getSeriesArt', () => {
     expect(cacheLife.mock.calls).toEqual([['short'], ['short']]);
   });
 
+  it('keeps the first episode number of a season TMDB numbers on', async () => {
+    apiFetch.mockResolvedValue({
+      id: 7,
+      seasons: [
+        { numberOfEpisodes: 8, seasonNumber: 1 },
+        { firstEpisodeNumber: 9, numberOfEpisodes: 8, seasonNumber: 2 },
+      ],
+      slug: 'show',
+      title: 'Show',
+    });
+    await expect(getSeriesArt(7)).resolves.toMatchObject({
+      seasons: [
+        { episodes: 8, number: 1 },
+        { episodes: 8, firstEpisodeNumber: 9, number: 2 },
+      ],
+    });
+  });
+
   it('is Unavailable when the series read fails, as it reaches us from its cached scope', async () => {
     apiFetch.mockRejectedValue(new ApiError(0, 'ApiTimeout'));
     expect(isUnavailable(await getSeriesArt(7))).toBe(true);

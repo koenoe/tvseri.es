@@ -57,20 +57,27 @@ export function minutesFor(
 }
 
 /**
- * Episodes 1 to `count` of a season with every gap filled by the same rule,
- * 0 where nothing is known: what a client needs to sum the time left again
- * after a mark without the series' runtimes.
+ * The season's `count` episodes, from `firstEpisodeNumber` (1 unless TMDB
+ * numbers on across seasons), with every gap filled by the same rule, 0
+ * where nothing is known: what a client needs to sum the time left again
+ * after a mark without the series' runtimes. Indexed by episode number − 1
+ * like `RuntimesBySeason`, so a season that starts later leads with zeros.
  */
 export function resolveSeasonMinutes(
   runtimes: RuntimesBySeason | undefined,
   season: number,
   count: number,
   seriesAverage: number | null,
+  firstEpisodeNumber = 1,
 ): number[] {
-  return Array.from(
-    { length: Math.max(count, 0) },
-    (_, index) =>
-      episodeMinutes(runtimes, { episode: index + 1, season }, seriesAverage) ??
-      0,
+  const lead = Math.max(firstEpisodeNumber - 1, 0);
+  return Array.from({ length: lead + Math.max(count, 0) }, (_, index) =>
+    index < lead
+      ? 0
+      : (episodeMinutes(
+          runtimes,
+          { episode: index + 1, season },
+          seriesAverage,
+        ) ?? 0),
   );
 }

@@ -6,7 +6,7 @@ import {
 } from '@tvseri.es/schemas';
 import { endOfDayUtc } from '@tvseri.es/utils';
 
-import { airedEpisodesAt } from '@/lib/seriesFacts/aired';
+import { airedEpisodeRefs, airedEpisodesAt } from '@/lib/seriesFacts/aired';
 
 export type WatchedEpisode = Readonly<{
   seasonNumber: number;
@@ -61,20 +61,10 @@ export const analyzeShow = (input: ShowInput, now: number): ShowState => {
   const watchedCodes = new Set(regular.map((item) => episodeCode(item)));
   const skipped = new Set(prefs.skipped);
 
-  const unwatched: EpisodeRef[] = [];
-  for (const season of Object.keys(aired)
-    .map(Number)
-    .sort((a, b) => a - b)) {
-    for (let episode = 1; episode <= (aired[season] ?? 0); episode++) {
-      const code = episodeCode({
-        episodeNumber: episode,
-        seasonNumber: season,
-      });
-      if (!watchedCodes.has(code) && !skipped.has(code)) {
-        unwatched.push({ episode, season });
-      }
-    }
-  }
+  const unwatched = airedEpisodeRefs(facts.seasons, aired).filter((ref) => {
+    const code = codeOf(ref);
+    return !watchedCodes.has(code) && !skipped.has(code);
+  });
 
   const lastWatched =
     regular

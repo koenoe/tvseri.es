@@ -12,7 +12,10 @@ export type PlacementSeries = Pick<
 > &
   Readonly<{
     seasons?: ReadonlyArray<
-      Pick<Season, 'numberOfAiredEpisodes' | 'seasonNumber'>
+      Pick<
+        Season,
+        'firstEpisodeNumber' | 'numberOfAiredEpisodes' | 'seasonNumber'
+      >
     >;
   }>;
 

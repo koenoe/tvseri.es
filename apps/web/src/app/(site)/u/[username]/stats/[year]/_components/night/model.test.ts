@@ -86,6 +86,33 @@ describe('nightLine', () => {
   });
 });
 
+describe('nightLine on a show TMDB numbers on across seasons', () => {
+  // S1 is E1…E10, S2 E11…E22
+  const numberedOn = [
+    { episodes: 10, number: 1 },
+    { episodes: 12, firstEpisodeNumber: 11, number: 2 },
+  ];
+
+  it('says all, the halves and the whole show by the real numbers', () => {
+    expect(nightLine(run(2, 11, 22), numberedOn)).toBe('All of season 2');
+    expect(nightLine(run(2, 17, 22), numberedOn)).toBe(
+      'The back half of season 2',
+    );
+    expect(nightLine(run(2, 11, 16), numberedOn)).toBe(
+      'The first half of season 2',
+    );
+    expect(nightLine([...run(1, 1, 10), ...run(2, 11, 22)], numberedOn)).toBe(
+      'The whole series',
+    );
+  });
+
+  it('never covers a season with made-up codes', () => {
+    expect(nightLine(run(2, 1, 12), numberedOn)).toBe(
+      '12 episodes of season 2',
+    );
+  });
+});
+
 describe('alsoBigText', () => {
   const night = [ep(9, 1, 1), ep(9, 1, 2), ep(9, 1, 3), ep(9, 1, 4)];
 

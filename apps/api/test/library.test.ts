@@ -369,6 +369,58 @@ describe('GET /user/:id/library/:shelf', () => {
     });
   });
 
+  it('counts progress by the real episode numbers where TMDB numbers on across seasons', async () => {
+    setup();
+    // Naruto Shippuden: S1 = E1…E32, S2 = E33…E53
+    fakeShow({
+      extra: { next_episode_to_air: tmdbEpisode(2, 36, '2026-11-17') },
+      id: 3,
+      numberedOn: true,
+      seasons: [
+        { airDate: '2025-01-01', episodes: 32 },
+        { airDate: '2026-10-20', aired: 3, episodes: 21 },
+      ],
+      status: 'Returning Series',
+    });
+    seedWatched(OWNER, 3, [...episodes(1, 1, 32), [2, 33]]);
+
+    const result = await page('watching?limit=1');
+    expect(result.items[0]).toMatchObject({
+      id: 3,
+      progress: {
+        aired: 35,
+        airing: true,
+        lastWatched: 'S02E33',
+        next: 'S02E34',
+        total: 53,
+        toWatch: 2,
+        watched: 33,
+      },
+    });
+  });
+
+  it('is not airing before a season’s first episode where TMDB numbers on across seasons', async () => {
+    setup();
+    fakeShow({
+      extra: { next_episode_to_air: tmdbEpisode(2, 33, '2026-11-17') },
+      id: 3,
+      numberedOn: true,
+      seasons: [
+        { airDate: '2025-01-01', episodes: 32 },
+        { airDate: '2026-11-17', aired: 0, episodes: 21 },
+      ],
+      status: 'Returning Series',
+    });
+    seedWatched(OWNER, 3, episodes(1, 1, 30));
+
+    const result = await page('watching?limit=1');
+    expect(result.items[0]?.progress).toMatchObject({
+      aired: 32,
+      airing: false,
+      next: 'S01E31',
+    });
+  });
+
   it('reads the summaries for progress and "Seen, no date" once, beside the facts', async () => {
     setup();
     // The Bear (1) is watching and a favourite, Andor (2) finished and one

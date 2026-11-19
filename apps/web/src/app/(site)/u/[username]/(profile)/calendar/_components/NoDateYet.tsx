@@ -52,6 +52,8 @@ export default function NoDateYet({
   noDateYet: Calendar['noDateYet'];
 }>) {
   const { listed, renewed } = noDateYet;
+  const listedTiles = tilesOf(listed);
+  const renewedTiles = tilesOf(renewed);
   return (
     <section
       aria-labelledby={NO_DATE_TITLE_ID}
@@ -71,7 +73,7 @@ export default function NoDateYet({
         {listed.length > 0 ? (
           <>
             <GroupRule count={listed.length} label="Next season listed" />
-            <NoDateFold tiles={tilesOf(listed)} />
+            <NoDateFold tiles={listedTiles} />
           </>
         ) : null}
         {renewed.length > 0 ? (
@@ -80,7 +82,7 @@ export default function NoDateYet({
               count={renewed.length}
               label="Renewed, nothing listed yet"
             />
-            <NoDateFold tiles={tilesOf(renewed)} />
+            <NoDateFold tiles={renewedTiles} />
           </>
         ) : null}
       </div>

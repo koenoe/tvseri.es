@@ -415,7 +415,7 @@ export type Overview = Readonly<{
   /** Newest first */
   outNow: ReadonlyArray<OutNowItem>;
   catchingUp: ReadonlyArray<CatchingUpItem>;
-  /** Soonest first; the first also answers "Next: The Rings of Power, Wed 11 Nov" for an empty Out now */
+  /** Soonest first; the first also answers "Next: The Rings of Power, Wed Nov 11" for an empty Out now */
   comingUp: ReadonlyArray<ComingUpItem>;
   /**
    * A show Coming up follows has a date past its 30 days: the calendar has

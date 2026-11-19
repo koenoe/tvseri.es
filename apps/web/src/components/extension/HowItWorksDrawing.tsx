@@ -9,7 +9,7 @@ import styles from './drawing.module.css';
 
 /** The drawing's name for assistive tech */
 const LABEL =
-  'How a sign-in moves: your browser and the tvseri.es extension send it once over HTTPS with a one-time code to the tvseri.es API Lambda, which test-reads it and encrypts it with a KMS data key (envelope encryption, encryption context user id and service), storing AES-256-GCM ciphertext and the wrapped key in DynamoDB in eu-west-2. Only the nightly sync Lambda has kms:Decrypt; it reads your watch history on the service and marks episodes watched in your tvseri.es history.';
+  'How a sign-in moves: your browser and the tvseri.es extension send it once over HTTPS with a one-time code to the tvseri.es API Lambda, which test-reads it and encrypts it with a KMS data key (envelope encryption, encryption context user id and service), storing AES-256-GCM ciphertext and the wrapped key in DynamoDB in eu-west-2. Only the sync Lambda has kms:Decrypt; right after you connect, then every night, it reads your watch history on the service and marks episodes watched in your tvseri.es history.';
 
 /**
  * Drawn twice, not scaled: across on a computer, top to bottom in a phone's
@@ -437,7 +437,7 @@ export default function HowItWorksDrawing() {
             <path d="M8 11V7a4 4 0 0 1 8 0v4" />
           </g>
           <text fill="#fff" fontSize="12.5" fontWeight="600" x="670" y="341">
-            Nightly sync job
+            Sync job
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="650" y="359">
             Lambda
@@ -580,8 +580,8 @@ export default function HowItWorksDrawing() {
             fill="#15191a"
             height="36"
             rx="10"
-            width="64.2"
-            x="681.9"
+            width="86"
+            x="671"
             y="250.0"
           />
           <text
@@ -592,7 +592,7 @@ export default function HowItWorksDrawing() {
             x="714"
             y="264.0"
           >
-            nightly
+            after Connect
           </text>
           <text
             fill="rgba(255,255,255,.8)"
@@ -602,7 +602,7 @@ export default function HowItWorksDrawing() {
             x="714"
             y="280.0"
           >
-            04:00 UTC
+            then nightly
           </text>
         </g>
         <g className={cn(styles.fade, styles.s4)}>
@@ -1093,7 +1093,7 @@ export default function HowItWorksDrawing() {
             <path d="M8 11V7a4 4 0 0 1 8 0v4" />
           </g>
           <text fill="#fff" fontSize="12.5" fontWeight="600" x="130" y="499">
-            Nightly sync job
+            Sync job
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="110" y="517">
             Lambda
@@ -1233,8 +1233,8 @@ export default function HowItWorksDrawing() {
             fill="#15191a"
             height="36"
             rx="10"
-            width="64.2"
-            x="27.9"
+            width="86"
+            x="17"
             y="432.0"
           />
           <text
@@ -1245,7 +1245,7 @@ export default function HowItWorksDrawing() {
             x="60"
             y="446.0"
           >
-            nightly
+            after Connect
           </text>
           <text
             fill="rgba(255,255,255,.8)"
@@ -1255,7 +1255,7 @@ export default function HowItWorksDrawing() {
             x="60"
             y="462.0"
           >
-            04:00 UTC
+            then nightly
           </text>
         </g>
         <g className={cn(styles.fade, styles.s4)}>

@@ -13,7 +13,7 @@ import { getSeriesFacts } from '@/lib/seriesFacts';
 import { getSeriesRuntimes } from '@/lib/seriesRuntimes';
 import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
 import { getWaitingFor } from '@/lib/waitingFor';
-import { logWarn } from '@/utils/logWarn';
+import { orLeaveOut } from '@/utils/orLeaveOut';
 
 import { analyzeShow } from './analyze';
 import {
@@ -35,13 +35,24 @@ const MAX_WATCHLIST = 100;
 const MAX_TITLES = 3;
 const MAX_TICKETS = 10;
 
-const attempt = async <T>(label: string, run: () => Promise<T>) => {
-  try {
-    return await run();
-  } catch (error) {
-    logWarn(`Overview: ${label} failed, leaving it out`, error);
-    return undefined;
-  }
+/**
+ * The in-progress shows and the watchlist that the profile reads (the
+ * overview and the calendar), most recently added first, each capped
+ */
+export const readFollowedLists = async (
+  userId: string,
+  { withWatchlist = true }: Readonly<{ withWatchlist?: boolean }> = {},
+) => {
+  const [inProgress, watchlist] = await Promise.all([
+    getAllListItems({ listId: 'IN_PROGRESS', sortDirection: 'desc', userId }),
+    withWatchlist
+      ? getAllListItems({ listId: 'WATCHLIST', sortDirection: 'desc', userId })
+      : [],
+  ]);
+  return {
+    saved: watchlist.slice(0, MAX_WATCHLIST),
+    tracked: inProgress.slice(0, MAX_IN_PROGRESS),
+  };
 };
 
 /** Episode titles and air dates for the first few Up next tiles */
@@ -49,7 +60,7 @@ const withEpisodeTitles = async (items: ReadonlyArray<UpNextItem>) => {
   const head = await Promise.all(
     items.slice(0, MAX_TITLES).map(async (item) => {
       const episodes = (
-        await attempt('season', () =>
+        await orLeaveOut('Overview: season', () =>
           seasonEpisodes(item.seriesId, [item.season]),
         )
       )?.get(item.season);
@@ -76,14 +87,14 @@ const withTicketDetails = async (
     tickets.slice(0, MAX_TICKETS).map(async (ticket) => {
       const [episodes, provider] = await Promise.all([
         ticket.kind === 'season-premiere'
-          ? attempt('ticket season', async () =>
+          ? orLeaveOut('Overview: ticket season', async () =>
               (await seasonEpisodes(ticket.seriesId, [ticket.season])).get(
                 ticket.season,
               ),
             )
           : undefined,
         country
-          ? attempt('ticket provider', () =>
+          ? orLeaveOut('Overview: ticket provider', () =>
               fetchTvSeriesWatchProvider(ticket.seriesId, country),
             )
           : undefined,
@@ -144,15 +155,10 @@ export const getOverview = async (
   now: number,
   { upNextOnly = false }: OverviewOptions = {},
 ): Promise<Overview> => {
-  const [inProgress, watchlist, waiting] = await Promise.all([
-    getAllListItems({ listId: 'IN_PROGRESS', sortDirection: 'desc', userId }),
-    upNextOnly
-      ? []
-      : getAllListItems({ listId: 'WATCHLIST', sortDirection: 'desc', userId }),
+  const [{ saved, tracked }, waiting] = await Promise.all([
+    readFollowedLists(userId, { withWatchlist: !upNextOnly }),
     upNextOnly ? NOTHING_WAITING : getWaitingFor(userId),
   ]);
-  const tracked = inProgress.slice(0, MAX_IN_PROGRESS);
-  const saved = watchlist.slice(0, MAX_WATCHLIST);
 
   // Each show's items: their summaries in one read (a show without one is
   // read itself); a failed read fails the request rather than showing the

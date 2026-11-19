@@ -1,6 +1,7 @@
 import { vValidator } from '@hono/valibot-validator';
 import { SCROBBLE_PROVIDERS } from '@tvseri.es/constants';
 import {
+  CalendarQuerySchema,
   CountryCodeSchema,
   DeleteAccountSchema,
   SeriesStatesQuerySchema,
@@ -11,6 +12,7 @@ import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import * as v from 'valibot';
 import { queueAccountDeletion } from '@/lib/account/queue';
+import { getCalendar } from '@/lib/calendar';
 import { invalidatePaths } from '@/lib/cdn';
 import { getCircle } from '@/lib/circle';
 import { getCirclePeople } from '@/lib/circlePeople';
@@ -87,6 +89,14 @@ app.get('/overview', vValidator('query', OverviewQuerySchema), async (c) => {
       upNextOnly: view === 'up-next',
     }),
   );
+});
+
+// The profile calendar: every dated episode of the viewer's shows for
+// 12 months, and No date yet. `?region=` as the overview's
+app.get('/calendar', vValidator('query', CalendarQuerySchema), async (c) => {
+  const { user } = c.get('auth')!;
+  const { region } = c.req.valid('query');
+  return c.json(await getCalendar(user.id, user.country || region, Date.now()));
 });
 
 // From your circle: unseen shows from the people you follow

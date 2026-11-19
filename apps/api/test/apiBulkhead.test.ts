@@ -53,6 +53,7 @@ const ROUTES: Readonly<Record<string, Target>> = {
   'GET /home/new-this-week': 'catalogue',
   'GET /home/toy': 'catalogue',
   'GET /me': 'write',
+  'GET /me/calendar': 'catalogue',
   'GET /me/circle': 'catalogue',
   'GET /me/circle/people': 'catalogue',
   [`GET /me/connections/${SERVICE}`]: 'write',

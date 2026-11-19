@@ -1,4 +1,5 @@
 export * from './cache';
+export * from './calendar';
 export * from './circle-people';
 export * from './connection-service';
 export * from './connection-sync-policy';

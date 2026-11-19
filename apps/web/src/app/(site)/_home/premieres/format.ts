@@ -1,5 +1,6 @@
 import type { Premiere, PremiereKind } from '@tvseri.es/schemas';
-import { countdownOf, plural } from '@tvseri.es/utils';
+import { plural } from '@tvseri.es/utils';
+import { countdownOf, type StubUnit, stubUnit } from '@/lib/format/countdown';
 import { DAY_MONTH_PATTERN, WEEKDAY_PATTERN } from '@/lib/format/date';
 
 import { formatDay } from '@/lib/format/datePattern';
@@ -14,7 +15,7 @@ import { formatDay } from '@/lib/format/datePattern';
 export type TicketStub = Readonly<{
   /** null for Tonight, which shows the dot instead */
   count: number | null;
-  unit: 'Day' | 'Days' | 'Months' | 'Tonight' | 'Weeks';
+  unit: StubUnit | 'Tonight';
 }>;
 
 /**
@@ -26,13 +27,10 @@ export function ticketStub(daysAway: number): TicketStub {
   if (unit === 'today') {
     return { count: null, unit: 'Tonight' };
   }
-  if (unit === 'day') {
-    return { count, unit: count === 1 ? 'Day' : 'Days' };
-  }
-  return { count, unit: unit === 'week' ? 'Weeks' : 'Months' };
+  return { count, unit: stubUnit(count, unit) };
 }
 
-/** "Thu 12 Nov", or "Tonight" on the day */
+/** "Thu Nov 12", or "Tonight" on the day */
 export function ticketDate(date: string, daysAway: number): string {
   if (daysAway <= 0) {
     return 'Tonight';
@@ -64,7 +62,7 @@ export function releaseLabel(release: Premiere['release']): string | null {
   return release === 'full-season' ? 'Full season' : null;
 }
 
-/** The ticket link's name: "Dept. Q, Season 2 premiere, Thu 12 Nov, full season, on Netflix" */
+/** The ticket link's name: "Dept. Q, Season 2 premiere, Thu Nov 12, full season, on Netflix" */
 export function ticketLabel(premiere: Premiere): string {
   const release = releaseLabel(premiere.release);
   const network = premiere.series.network?.name;

@@ -96,7 +96,6 @@ export { isOver, isRunning } from './series/status';
 export { sleep } from './sleep';
 export { formatGrouped, plural } from './text/count';
 export { upperFirst } from './text/upperFirst';
-export { countdownOf } from './time/countdown';
 export {
   addDaysUtc,
   DAY_MS,

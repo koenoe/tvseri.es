@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { countdownOf } from './countdown';
+import { countdownOf, stubUnit } from './countdown';
 
 describe('countdownOf', () => {
   it('counts days under two weeks, then weeks, then months past about three months', () => {
@@ -13,5 +13,15 @@ describe('countdownOf', () => {
     expect(countdownOf(91)).toEqual({ count: 3, unit: 'month' });
     expect(countdownOf(200)).toEqual({ count: 7, unit: 'month' });
     expect(countdownOf(365)).toEqual({ count: 12, unit: 'month' });
+  });
+});
+
+describe('stubUnit', () => {
+  it('names the unit, one or many', () => {
+    expect(stubUnit(1, 'day')).toBe('Day');
+    expect(stubUnit(6, 'day')).toBe('Days');
+    expect(stubUnit(3, 'week')).toBe('Weeks');
+    expect(stubUnit(1, 'month')).toBe('Month');
+    expect(stubUnit(4, 'month')).toBe('Months');
   });
 });

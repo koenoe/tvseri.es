@@ -1,11 +1,6 @@
 import { type ComingUpItem, episodeCode } from '@tvseri.es/schemas';
-import { countdownOf, plural } from '@tvseri.es/utils';
-
-const UNITS = {
-  day: ['Day', 'Days'],
-  month: ['Month', 'Months'],
-  week: ['Week', 'Weeks'],
-} as const;
+import { plural } from '@tvseri.es/utils';
+import { countdownOf, stubUnit } from '@/lib/format/countdown';
 
 /**
  * The ticket stub: "2 DAYS", "3 WEEKS", "4 MONTHS" (the shared `countdownOf`
@@ -21,8 +16,7 @@ export function countdown(
   if (unit === 'today') {
     return { n: '', unit: 'Today' };
   }
-  const [one, many] = UNITS[unit];
-  return { n: String(count), unit: count === 1 ? one : many };
+  return { n: String(count), unit: stubUnit(count, unit) };
 }
 
 export type TicketText = Readonly<{

@@ -1,6 +1,7 @@
 import { vValidator } from '@hono/valibot-validator';
 import { SCROBBLE_PROVIDERS } from '@tvseri.es/constants';
 import {
+  CountryCodeSchema,
   DeleteAccountSchema,
   SeriesStatesQuerySchema,
   UpdateUserSchema,
@@ -68,17 +69,22 @@ app.get(
 );
 
 const OverviewQuerySchema = v.object({
+  region: v.optional(CountryCodeSchema),
   view: v.optional(v.picklist(['up-next'])),
 });
 
 // The profile page's trackers and calendar blocks. `?view=up-next`:
 // Up next only (Home's Continue watching), without the watchlist, Waiting
-// for and the tickets' TMDB lookups
+// for and the tickets' TMDB lookups. `?region=`: the web's region (the
+// saved country, else where the viewer is), for the tickets' services when
+// no country is saved; the API only sees the web server's location
 app.get('/overview', vValidator('query', OverviewQuerySchema), async (c) => {
   const { user } = c.get('auth')!;
-  const upNextOnly = c.req.valid('query').view === 'up-next';
+  const { region, view } = c.req.valid('query');
   return c.json(
-    await getOverview(user.id, user.country, Date.now(), { upNextOnly }),
+    await getOverview(user.id, user.country || region, Date.now(), {
+      upNextOnly: view === 'up-next',
+    }),
   );
 });
 

@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const { apiFetch } = vi.hoisted(() => ({ apiFetch: vi.fn() }));
 
 vi.mock('server-only', () => ({}));
+// the owner's overview sends their region
+vi.mock('@/auth', () => ({ default: async () => ({ user: null }) }));
+vi.mock('@/lib/geo', () => ({ resolveRegion: async () => 'GB' }));
 vi.mock('@/lib/api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/lib/api/client')>()),
   apiFetch,

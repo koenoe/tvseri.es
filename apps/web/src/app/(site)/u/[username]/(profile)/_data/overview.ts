@@ -2,7 +2,9 @@ import 'server-only';
 
 import type { Overview, WaitingFor } from '@tvseri.es/schemas';
 
+import auth from '@/auth';
 import { ApiError, apiFetch } from '@/lib/api/client';
+import { resolveRegion } from '@/lib/geo';
 
 import { type Profile, withToken } from './profile';
 
@@ -11,14 +13,21 @@ import { type Profile, withToken } from './profile';
  * profile, `GET /user/:id/overview` for someone else's (signed-in
  * viewers). Computed per request by the API, so it is fetched once per
  * render (the API client memoises GETs) and only inside Suspense holes.
+ * Your own sends your region (saved country, else where you are): the
+ * tickets' services follow it, as on every other page.
  */
-export function loadOverview(profile: Profile): Promise<Overview> {
-  return profile.viewer === 'owner'
-    ? apiFetch<Overview>('/me/overview', withToken(profile))
-    : apiFetch<Overview>('/user/:id/overview', {
-        ...withToken(profile),
-        params: { id: profile.user.id },
-      });
+export async function loadOverview(profile: Profile): Promise<Overview> {
+  if (profile.viewer !== 'owner') {
+    return apiFetch<Overview>('/user/:id/overview', {
+      ...withToken(profile),
+      params: { id: profile.user.id },
+    });
+  }
+  const region = await resolveRegion((await auth()).user);
+  return apiFetch<Overview>('/me/overview', {
+    ...withToken(profile),
+    query: { region },
+  });
 }
 
 /**

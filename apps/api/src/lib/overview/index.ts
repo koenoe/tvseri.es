@@ -100,7 +100,10 @@ const withEpisodeTitles = async (items: ReadonlyArray<UpNextItem>) => {
   return [...head, ...items.slice(MAX_TITLES)];
 };
 
-/** Release style (premieres) and where to watch for the first tickets */
+/**
+ * Release style (premieres; an episode's comes from the facts) and where to
+ * watch for the first tickets
+ */
 const withTicketDetails = async (
   tickets: ReadonlyArray<ComingUpItem>,
   country: string | undefined,
@@ -130,7 +133,7 @@ const withTicketDetails = async (
             ? dates.size === 1
               ? ('full-season' as const)
               : ('weekly' as const)
-            : null,
+            : ticket.release,
       };
     }),
   );

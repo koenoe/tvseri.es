@@ -373,7 +373,11 @@ export type ComingUpItem = Readonly<{
   season: number;
   episode: number;
   kind: 'season-premiere' | 'season-finale' | 'episode';
-  /** Known for premieres only (do all episodes air at once?); `null` when unknown */
+  /**
+   * A premiere: do all its episodes air at once? An episode: `weekly` when
+   * one before it in the season aired on another day. `null` when unknown
+   * (and for a finale)
+   */
   release: 'weekly' | 'full-season' | null;
   onWatchlist: boolean;
   /** Where to watch in the viewer's country, when known */

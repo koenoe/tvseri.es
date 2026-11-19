@@ -232,6 +232,48 @@ describe('profile overview', () => {
     });
   });
 
+  it("gives a ticket its service in the web's region when no country is saved, and an episode its release", async () => {
+    seedUser();
+    fakeShow({
+      extra: { next_episode_to_air: episode(1, 3, '2026-11-19') },
+      id: 7,
+      seasons: [{ airDate: '2026-11-05', aired: 2, episodes: 6 }],
+      status: 'Returning Series',
+    });
+    onTmdb('/tv/7/watch/providers', {
+      results: {
+        NL: {
+          flatrate: [
+            { logo_path: '/n.png', provider_id: 8, provider_name: 'Netflix' },
+          ],
+        },
+      },
+    });
+    db.seed('Lists', [listItem('IN_PROGRESS', 7, 100)]);
+    watched(7, range(1, 1, 2));
+    resetRequests();
+
+    const { comingUp } = (await (
+      await request('/me/overview?region=NL', { as: USER_ID })
+    ).json()) as { comingUp: Array<Record<string, unknown>> };
+
+    expect(comingUp).toEqual([
+      expect.objectContaining({
+        kind: 'episode',
+        provider: {
+          logoImage: expect.stringContaining('/n.png'),
+          name: 'Netflix',
+        },
+        release: 'weekly',
+        seriesId: 7,
+      }),
+    ]);
+    // the episode's release comes from the facts, not its season
+    expect(
+      requestedUrls().some((url) => url.pathname.endsWith('/tv/7/season/1')),
+    ).toBe(false);
+  });
+
   it('leaves a hidden show out of every block', async () => {
     setup();
 

@@ -317,7 +317,26 @@ export const buildCatchingUp = (
 
 type TicketSource = Readonly<{ state: ShowState; onWatchlist: boolean }>;
 
-/** Tickets for the next 30 days from the shows' next episode to air; no release or provider yet */
+/**
+ * An episode ticket's release from the facts, no TMDB call: an episode of
+ * the season aired on another day, so the season comes out one by one
+ */
+const episodeRelease = (
+  facts: ShowState['facts'],
+  next: NonNullable<ShowState['facts']['nextEpisodeToAir']>,
+): ComingUpItem['release'] => {
+  const last = facts.lastEpisodeToAir;
+  return last?.seasonNumber === next.seasonNumber &&
+    last.airDate &&
+    last.airDate !== next.airDate
+    ? 'weekly'
+    : null;
+};
+
+/**
+ * Tickets for the next 30 days from the shows' next episode to air; an
+ * episode's release from the facts, a premiere's and the provider later
+ */
 export const buildComingUp = (
   sources: ReadonlyArray<TicketSource>,
   now: number,
@@ -332,15 +351,16 @@ export const buildComingUp = (
     if (daysToGo < 0 || daysToGo > WINDOW_DAYS) continue;
     seen.add(state.facts.id);
 
+    const kind = episodeKindOf(next, state.facts.seasons);
     tickets.push({
       ...identity(state),
       date: next.airDate,
       daysToGo,
       episode: next.episodeNumber,
-      kind: episodeKindOf(next, state.facts.seasons),
+      kind,
       onWatchlist,
       provider: null,
-      release: null,
+      release: kind === 'episode' ? episodeRelease(state.facts, next) : null,
       season: next.seasonNumber,
     });
   }

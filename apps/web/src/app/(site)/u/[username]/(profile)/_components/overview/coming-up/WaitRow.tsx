@@ -119,8 +119,8 @@ export default function WaitRow({
         </Track>
         {/* one line: the return date stays at the right, "Finished …" drops
             whole when they don't both fit (reversed, so it wraps away first).
-            On a phone the title has its line to itself and "31 days to go"
-            joins this one, before "Finished …" */}
+            On a phone the title has its line to itself, "31 days to go"
+            joins this one and "Finished …" is left out */}
         <span className="flex h-5 flex-row-reverse flex-wrap content-start justify-between gap-x-2.5 gap-y-8 overflow-clip whitespace-nowrap text-caption text-white/60">
           <span className={whatClass}>
             {what} ·{' '}
@@ -129,7 +129,7 @@ export default function WaitRow({
               : 'No date yet'}
           </span>
           <span className={TO_GO_PHONE}>{toGo}</span>
-          {finished ? <span>{finished}</span> : null}
+          {finished ? <span className="max-md:hidden">{finished}</span> : null}
         </span>
       </span>
     </TileLink>

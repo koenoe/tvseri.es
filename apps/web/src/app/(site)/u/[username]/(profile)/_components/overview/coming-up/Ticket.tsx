@@ -29,6 +29,9 @@ const TICKET_LOOK =
 
 const TICKET_CLASS = cn(TICKET_GRID, TICKET_LOOK);
 
+/** The date line's watchlist tag follows the text column's width */
+const TEXT_CLASS = cn(TICKET_TEXT, '@container');
+
 /** Each place keeps its own look on purpose; don't unify them. */
 const PROVIDER: ServiceIconLayout = {
   className: 'absolute top-3 right-4 size-5 rounded-6 max-md:hidden',
@@ -63,10 +66,14 @@ export default function Ticket({
     'truncate text-caption font-medium',
     text.kind === 'finale' ? 'text-cyan' : 'text-pink-light',
   );
+  // "On your watchlist" sits at the end of the date's line. Where the line
+  // is tight (a 416px lane) it follows the date and may run up to 12px into
+  // the ticket's padding, as on the board; where even that is too narrow it
+  // takes a line of its own, never cut
   const metaClass = cn(
-    'mt-0.5 justify-between gap-2',
-    // the watchlist tag is 24px tall
-    item.onWatchlist && 'h-6',
+    'mt-0.5',
+    item.onWatchlist &&
+      'flex-wrap justify-between gap-2 @max-[240px]:-mr-3 @max-[240px]:max-w-none @max-[240px]:justify-start',
   );
   return (
     <TileLink className={TICKET_CLASS} href={href}>
@@ -77,8 +84,8 @@ export default function Ticket({
         <span className="text-overline uppercase text-white/60">{unit}</span>
       </span>
       <span className={TICKET_BODY}>
-        <LanePoster className="w-9" src={item.posterImage} width={34} />
-        <span className={TICKET_TEXT}>
+        <LanePoster src={item.posterImage} width={36} />
+        <span className={TEXT_CLASS}>
           <span
             className="min-w-0 truncate pr-8 text-body-sm font-semibold max-md:pr-0"
             title={item.title}
@@ -97,13 +104,12 @@ export default function Ticket({
               </span>
             ) : null}
           </MetaRow>
-          {/* the date stays; "On your watchlist" drops whole when there is no room */}
-          <MetaRow className={metaClass} fit="drop">
+          <MetaRow className={metaClass}>
             <MetaItem icon={calendarGlyph}>
               {formatAirWeekdayDate(item.date, now)}
             </MetaItem>
             {item.onWatchlist ? (
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-[5px] bg-black/10 px-[7px] py-0.5 text-caption text-white/60">
+              <span className="inline-flex min-w-0 max-w-full shrink-0 items-center gap-1 whitespace-normal rounded-[5px] bg-black/10 px-[7px] py-0.5 text-caption text-white/60">
                 <Icon active glyph={bookmarkGlyph} size={12} />
                 On your watchlist
               </span>

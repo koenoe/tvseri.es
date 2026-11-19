@@ -63,7 +63,7 @@ function TicketGhost() {
         <TextLine className="text-overline" width="w-8" />
       </span>
       <span className={TICKET_BODY}>
-        <Ghost className="h-[51px] w-[34px] shrink-0 rounded-[5px]" />
+        <Ghost className="h-[54px] w-9 shrink-0 rounded-[5px]" />
         <span className={TICKET_TEXT}>
           <TextLine className="text-body-sm" width="w-32" />
           <MetaRow fit="drop">

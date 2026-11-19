@@ -1,6 +1,6 @@
 import cn from '@/lib/cn';
 
-import { LEGEND, MARK_FILL } from './calendarStyles';
+import { COUNT_BADGE, LEGEND, MARK_FILL } from './calendarStyles';
 
 const ITEM = 'inline-flex items-center gap-1.5';
 
@@ -23,10 +23,7 @@ export default function Legend() {
         Finale
       </span>
       <span className={COUNT_ITEM}>
-        <span className="h-5 min-w-5 rounded-full bg-[#121616] px-1.5 text-center text-[11px] leading-5 font-semibold text-white shadow-[0_0_0_1px_rgb(255_255_255/0.18)]">
-          ×N
-        </span>
-        · episodes that day
+        <span className={COUNT_BADGE}>×N</span>· episodes that day
       </span>
     </div>
   );

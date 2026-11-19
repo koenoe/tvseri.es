@@ -4,6 +4,8 @@ import * as m from 'motion/react-m';
 
 import cn from '@/lib/cn';
 
+import { TODAY_RING } from './calendarStyles';
+
 /**
  * Today pressed on this month: one brief white ring where focus went,
  * opacity and scale only (a spring without bounce); reduced motion keeps
@@ -13,9 +15,6 @@ const TIMING = {
   opacity: { duration: 0.6, ease: 'easeOut' },
   scale: { bounce: 0, duration: 0.6, type: 'spring' },
 } as const;
-
-const RING =
-  'pointer-events-none absolute inset-0 rounded-[inherit] shadow-[0_0_0_2px_#fff]';
 
 const FROM = {
   cell: { opacity: 0.9, scale: 1 },
@@ -41,7 +40,7 @@ export default function TodayFlash({
   if (flash === 0) {
     return null;
   }
-  const ring = cn(RING, className);
+  const ring = cn(TODAY_RING, className);
   return (
     <m.span
       animate={TO[on]}

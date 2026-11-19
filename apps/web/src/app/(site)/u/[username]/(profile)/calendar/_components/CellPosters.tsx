@@ -4,11 +4,14 @@ import cn from '@/lib/cn';
 
 import { dayNumber } from '../_lib/calendarDates';
 import type { CalendarDayModel } from '../_lib/calendarModel';
+import { TODAY_RING } from './calendarStyles';
 import PosterStack from './PosterStack';
 import TodayFlash from './TodayFlash';
 
 const NUMBER =
-  'absolute top-2 left-2.5 text-[13px] leading-4 font-semibold tabular-nums';
+  'absolute top-2 left-2.5 text-meta leading-4 font-semibold tabular-nums';
+
+const PULSE_RING = `${TODAY_RING} motion-reduce:hidden`;
 
 /** Today's ring grows to 1.12 and fades once, after the first paint */
 const PULSE_FROM = { opacity: 0.9, scale: 1 } as const;
@@ -49,7 +52,7 @@ export default function CellPosters({
         <m.span
           animate={PULSE_TO}
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[0_0_0_2px_#fff] motion-reduce:hidden"
+          className={PULSE_RING}
           initial={PULSE_FROM}
           transition={PULSE_TIMING}
         />

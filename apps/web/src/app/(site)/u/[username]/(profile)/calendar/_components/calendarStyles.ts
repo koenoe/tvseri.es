@@ -23,7 +23,7 @@ export const DAY_CELL =
 
 /** The phone's date: a 24px circle on top of the day */
 export const DOT_DATE =
-  'absolute top-1.5 left-1/2 -ml-3 size-6 rounded-full text-center text-[13px] leading-6 font-semibold tabular-nums';
+  'absolute top-1.5 left-1/2 -ml-3 size-6 rounded-full text-center text-meta leading-6 font-semibold tabular-nums';
 
 /** The phone's marks under the date, one per show */
 export const DOT_ROW =
@@ -46,13 +46,16 @@ export const MONTH_TITLE =
 
 export const MONTH_NAV = 'flex shrink-0 items-center gap-1 max-md:gap-2';
 
-/** The month's heading: 34px on a phone, the buttons' height */
+/**
+ * The month's heading: 34px on a phone, the buttons' height. 30px on
+ * desktop sits between title-1 (32) and title-2 (24): no token has it.
+ */
 export const MONTH_NAME =
-  'text-[30px] leading-9 font-bold tracking-[-0.02em] text-balance whitespace-nowrap max-md:text-[20px] max-md:leading-[34px]';
+  'text-[30px] leading-9 font-bold tracking-[-0.02em] text-balance whitespace-nowrap max-md:text-title-2 max-md:leading-[34px]';
 
 /** Today: a pill beside ‹ › on desktop; a phone has ‹ › only */
 export const TODAY_BUTTON =
-  'mr-1 h-9 rounded-full px-3.5 text-[13px] font-medium max-md:hidden';
+  'mr-1 h-9 rounded-full px-3.5 text-meta font-medium max-md:hidden';
 
 /** ‹ ›: 36px (34 on a phone) */
 export const ARROW_BUTTON = 'size-9 max-md:size-[34px]';
@@ -60,11 +63,22 @@ export const ARROW_BUTTON = 'size-9 max-md:size-[34px]';
 /** Under the grid: what the dot, the ring and ×N mean (×N on desktop only) */
 export const LEGEND = `flex flex-wrap gap-x-4.5 gap-y-1.5 text-caption text-white/60 max-md:pt-0.5 ${COLUMN_INSET}`;
 
-/** A premiere's filled pink dot and a finale's cyan ring, as the legend and the phone's days draw them */
+/** A premiere's filled pink dot and a finale's cyan ring, as the legend, the posters and the phone's days draw them */
 export const MARK_FILL = {
-  finale: 'shadow-[inset_0_0_0_2.5px_#00ffff]',
+  finale: 'shadow-[inset_0_0_0_2.5px_var(--color-cyan)]',
   premiere: 'bg-pink',
 } as const;
+
+/**
+ * ×N: every episode of a day, on its posters and in the legend. Its ground
+ * is darker than ground-deep, which has no token of its own.
+ */
+export const COUNT_BADGE =
+  'h-5 min-w-5 rounded-full bg-[#121616] px-1.5 text-center text-overline font-semibold tracking-normal text-white shadow-[0_0_0_1px_rgb(255_255_255/0.18)]';
+
+/** Today's white ring round its cell: the first paint's pulse and Today's flash */
+export const TODAY_RING =
+  'pointer-events-none absolute inset-0 rounded-[inherit] ring-2 ring-white';
 
 /** No date yet's panel, as the month's */
 export const NO_DATE_PANEL =

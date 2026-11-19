@@ -1,14 +1,9 @@
+import { WEEKDAY_NAMES } from '@/lib/format/months';
+
 import { WEEK } from './calendarStyles';
 
-const WEEKDAYS = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-  'Sunday',
-] as const;
+/** The grid's weeks start on Monday; the names list starts on Sunday */
+const WEEKDAYS = [...WEEKDAY_NAMES.slice(1), WEEKDAY_NAMES[0]];
 
 /** "Mon" on desktop, "M" on a phone; the full name for assistive tech */
 export default function WeekdayRow() {
@@ -16,7 +11,7 @@ export default function WeekdayRow() {
     <div className={WEEK} role="row">
       {WEEKDAYS.map((name) => (
         <div
-          className="px-2.5 pb-0.5 text-overline leading-4 text-white/60 uppercase max-md:px-0 max-md:pb-0 max-md:text-center max-md:text-[11px] max-md:leading-6"
+          className="px-2.5 pb-0.5 text-overline leading-4 text-white/60 uppercase max-md:px-0 max-md:pb-0 max-md:text-center max-md:leading-6"
           key={name}
           role="columnheader"
         >

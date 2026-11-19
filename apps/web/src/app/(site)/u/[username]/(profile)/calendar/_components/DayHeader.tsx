@@ -5,7 +5,7 @@ import { spokenAirDate } from '@/lib/format/airDate';
 import { type CalendarDayModel, daySummary } from '../_lib/calendarModel';
 
 /**
- * The popover's and the sheet's head: the day ("Friday 4 December"), what
+ * The popover's and the sheet's head: the day ("Friday December 4"), what
  * it holds ("4 shows · 3 premieres") and the close button (a 40px reach)
  */
 export default function DayHeader({
@@ -21,7 +21,7 @@ export default function DayHeader({
     <div className="flex items-start justify-between gap-2.5 pt-0.5 pr-0.5 pl-1">
       <div className="flex min-w-0 flex-col">
         <h3
-          className="text-[16px] leading-6 font-semibold text-balance"
+          className="text-body leading-6 font-semibold text-balance"
           id={titleId}
         >
           {spokenAirDate(day.date)}

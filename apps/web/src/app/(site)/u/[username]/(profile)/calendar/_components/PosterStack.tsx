@@ -3,6 +3,7 @@ import Image from 'next/image';
 import cn from '@/lib/cn';
 
 import type { CalendarDayModel } from '../_lib/calendarModel';
+import { COUNT_BADGE, MARK_FILL } from './calendarStyles';
 
 /** A day's posters: 46 × 69 in its cell (desktop only: a phone shows marks) */
 const STACK = 'absolute top-[30px] left-1/2 -ml-[23px] block h-[69px] w-[46px]';
@@ -40,15 +41,16 @@ const LEAD = cn(
 /** The lead casts the stack's shadow */
 const LEAD_POSTER = cn(POSTER, 'shadow-[0_8px_16px_-8px_rgb(0_0_0/0.9)]');
 
+/** The lead's mark on its corner, cut out of the poster by a ground-coloured edge */
 const MARK = {
-  finale: 'bg-ground-deep shadow-[0_0_0_2px_#161b1c,inset_0_0_0_2.5px_#00ffff]',
-  premiere: 'bg-pink shadow-[0_0_0_2px_#161b1c]',
+  finale: cn('bg-ground-deep', MARK_FILL.finale),
+  premiere: MARK_FILL.premiere,
 } as const;
 
-const MARK_BOX = 'absolute -top-1 -left-1 z-4 size-2.5 rounded-full';
+const MARK_BOX =
+  'absolute -top-1 -left-1 z-4 size-2.5 rounded-full ring-2 ring-ground-deep';
 
-const COUNT =
-  'absolute -top-1.5 -right-3.5 z-4 h-5 min-w-5 rounded-full bg-[#121616] px-1.5 text-center text-[11px] leading-5 font-semibold tabular-nums shadow-[0_0_0_1px_rgb(255_255_255/0.18)]';
+const COUNT = cn('absolute -top-1.5 -right-3.5 z-4 tabular-nums', COUNT_BADGE);
 
 /**
  * One poster per day: the lead show on top, up to two cards behind it (the

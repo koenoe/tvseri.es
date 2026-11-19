@@ -14,6 +14,10 @@ const MARK = {
   premiere: cn('size-2 rounded-full', MARK_FILL.premiere),
 } as const;
 
+/** +N in the 10px row beside 8px dots: smaller than every type token */
+const MORE =
+  'text-[10px] leading-[10px] font-semibold text-white/70 tabular-nums';
+
 /**
  * A day on a phone: the date on top (today a filled white circle, the open
  * day a white ring round it) and one mark per show under it: a small dim
@@ -45,6 +49,7 @@ export default function CellDots({
     // contrast-exempt: another month's dates sit on the month panel (black/22 over the ground), where white/50 is ≥4.8:1
     outside && 'text-white/50',
     open && 'text-white shadow-[inset_0_0_0_2px_rgb(255_255_255/0.85)]',
+    // the ×N badge's ground, which has no token
     today && 'bg-white font-bold text-[#121616]',
     today && open && 'shadow-none outline-2 outline-offset-2 outline-white/85',
   );
@@ -62,11 +67,7 @@ export default function CellDots({
           {marks.slice(0, MOST).map((mark, index) => (
             <i className={MARK[mark ?? 'episode']} key={index} />
           ))}
-          {more > 0 ? (
-            <b className="text-[10px] leading-[10px] font-semibold text-white/70 tabular-nums">
-              +{more}
-            </b>
-          ) : null}
+          {more > 0 ? <b className={MORE}>+{more}</b> : null}
         </span>
       ) : null}
     </span>

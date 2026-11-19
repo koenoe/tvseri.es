@@ -1,3 +1,5 @@
+import { MONTH_NAMES } from '@/lib/format/months';
+
 /**
  * Calendar days as `YYYY-MM-DD` and months as `YYYY-MM`, counted in UTC:
  * the API's air dates and its `today` are plain days, so no time zone may
@@ -44,24 +46,9 @@ export function shiftMonth(iso: string, count: number): string {
   return day > last ? last : day;
 }
 
-const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-] as const;
-
 /** "December" */
 export const monthName = (month: string) =>
-  MONTHS[Number(month.slice(5, 7)) - 1] as string;
+  MONTH_NAMES[Number(month.slice(5, 7)) - 1] as string;
 
 export const dayNumber = (iso: string) => Number(iso.slice(8));
 

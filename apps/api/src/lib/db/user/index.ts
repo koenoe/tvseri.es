@@ -8,11 +8,16 @@ import {
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import type { User, WatchProvider } from '@tvseri.es/schemas';
+import {
+  MAX_WATCH_PROVIDERS,
+  type User,
+  type WatchProvider,
+  type WatchProviderInput,
+} from '@tvseri.es/schemas';
 import { DAY_MS, handleClaimKey, userKey, usernameKey } from '@tvseri.es/utils';
 import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
-import { readWatchProviders } from '@/lib/watchProviders';
+import { readWatchProviders, toWatchProvider } from '@/lib/watchProviders';
 import client from '../client';
 
 /**
@@ -247,6 +252,46 @@ export const releaseHandleClaim = async (username: string, userId: string) => {
       throw error;
     }
   }
+};
+
+const sameService = (
+  a: Readonly<{ id: number; name: string }>,
+  b: Readonly<{ id: number; name: string }>,
+) => a.id === b.id || a.name.toLowerCase() === b.name.toLowerCase();
+
+/**
+ * Adds a service to the end of the user's list, unless it's in it already
+ * (by id or name) or the list is full. True when added. Like a save from
+ * Settings, the latest write wins.
+ */
+export const addWatchProvider = async (
+  userId: string,
+  provider: WatchProviderInput,
+): Promise<boolean> => {
+  const user = await findUser({ userId });
+  const current = user?.watchProviders ?? [];
+  if (
+    !user ||
+    current.length >= MAX_WATCH_PROVIDERS ||
+    current.some((service) => sameService(service, provider))
+  ) {
+    return false;
+  }
+  await client.send(
+    new UpdateItemCommand({
+      ConditionExpression: 'attribute_exists(pk)',
+      ExpressionAttributeValues: marshall({
+        ':added': [toWatchProvider(provider)],
+        ':none': [],
+        ':now': new Date().toISOString(),
+      }),
+      Key: marshall({ pk: userKey(userId) }),
+      TableName: Resource.Users.name,
+      UpdateExpression:
+        'SET watchProviders = list_append(if_not_exists(watchProviders, :none), :added), updatedAt = :now',
+    }),
+  );
+  return true;
 };
 
 export const updateUser = async (

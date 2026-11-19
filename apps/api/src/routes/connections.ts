@@ -14,7 +14,7 @@ import { READERS } from '@/lib/connections/readers';
 import { saveConnection } from '@/lib/db/connections';
 import { reserveLinkAttempt } from '@/lib/db/connections/linkAttempts';
 import { consumeLinkCode, peekLinkCode } from '@/lib/db/connections/linkCode';
-import { findUser } from '@/lib/db/user';
+import { addWatchProvider, findUser } from '@/lib/db/user';
 import type { Variables } from '@/middleware/auth';
 import { SERVICE_PARAM, serviceParam } from '@/routes/serviceParam';
 
@@ -143,6 +143,9 @@ app.post(
       userId,
       via: 'extension',
     });
+    // A linked service is one the viewer has: Where to watch should know it.
+    // Only now, so one they remove later stays removed
+    await addWatchProvider(userId, READERS[service].watchProvider);
     return c.json({ ok: true, profile: read.profileName } as const, 201);
   },
 );

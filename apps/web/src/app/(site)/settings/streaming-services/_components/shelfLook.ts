@@ -5,7 +5,7 @@ export const SHELF_CARD_CLASS =
 export const SHELF_HEAD_CLASS = 'flex items-center gap-3';
 /** The line under the title: what the order does, and how to change it */
 export const SHELF_HINT_CLASS =
-  '-mt-2.5 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-meta text-white/60';
+  '-mt-2.5 flex flex-wrap items-center gap-x-3.5 gap-y-2 text-meta text-white/60';
 /** The ranked list */
 export const SHELF_LIST_CLASS = 'flex select-none flex-col gap-1.5';
 /** One row: handle, place, logo, name, remove (phones: 44px targets) */

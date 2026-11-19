@@ -366,6 +366,50 @@ describe('POST /connections/netflix/link', () => {
     );
   });
 
+  const servicesOf = () =>
+    (
+      db.dump('Users').find((item) => item.id === USER_ID)?.watchProviders as
+        | Array<{ id: number; name: string }>
+        | undefined
+    )?.map((provider) => provider.name);
+
+  it('adds the service to the end of Your services, once', async () => {
+    seedUser({
+      watchProviders: [
+        { id: 350, logo: '', logoPath: '/apple.jpg', name: 'Apple TV+' },
+      ],
+    });
+    for (const _ of [1, 2]) {
+      const { code } = await mintLinkCode(USER_ID, 'netflix');
+      browseOk();
+      activityOk();
+      const response = await request('/connections/netflix/link', {
+        body: { code, cookies: [NETFLIX_ID] },
+        method: 'POST',
+      });
+      expect(response.status).toBe(201);
+    }
+    expect(servicesOf()).toEqual(['Apple TV+', 'Netflix']);
+  });
+
+  it('leaves Your services alone when the service is in it already', async () => {
+    seedUser({
+      watchProviders: [
+        { id: 8, logo: '', logoPath: '/n.jpg', name: 'Netflix' },
+        { id: 350, logo: '', logoPath: '/apple.jpg', name: 'Apple TV+' },
+      ],
+    });
+    const { code } = await mintLinkCode(USER_ID, 'netflix');
+    browseOk();
+    activityOk();
+    const response = await request('/connections/netflix/link', {
+      body: { code, cookies: [NETFLIX_ID] },
+      method: 'POST',
+    });
+    expect(response.status).toBe(201);
+    expect(servicesOf()).toEqual(['Netflix', 'Apple TV+']);
+  });
+
   it('burns the code, test-reads, and stores the session encrypted', async () => {
     const { code } = await mintLinkCode(USER_ID, 'netflix');
     browseOk();

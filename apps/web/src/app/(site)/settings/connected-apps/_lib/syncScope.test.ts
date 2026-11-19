@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   defaultSince,
+  formatSinceButton,
   formatSinceDay,
   sinceChoices,
   sinceLine,
@@ -25,11 +26,11 @@ describe('defaultSince', () => {
 });
 
 describe('sinceChoices', () => {
-  it('offers three months, six months, a year and the year’s start', () => {
+  it('offers a week, a month, three months and the year’s start', () => {
     expect(sinceChoices(NOW, null)).toEqual([
+      { day: day(2026, 10, 12), key: '1w', label: '1 week ago' },
+      { day: day(2026, 9, 19), key: '1m', label: '1 month ago' },
       { day: day(2026, 7, 19), key: '3m', label: '3 months ago' },
-      { day: day(2026, 4, 19), key: '6m', label: '6 months ago' },
-      { day: day(2025, 10, 19), key: '1y', label: 'A year ago' },
       { day: day(2026, 0, 1), key: 'year', label: 'Start of the year' },
     ]);
   });
@@ -41,13 +42,18 @@ describe('sinceChoices', () => {
       key: 'last',
       label: 'Last sync',
     });
-    expect(rest.map((choice) => choice.key)).toEqual(['3m', '6m', '1y']);
+    expect(rest.map((choice) => choice.key)).toEqual(['1m', '3m', 'year']);
   });
 });
 
 describe('the words', () => {
   it('writes a day out in full', () => {
     expect(formatSinceDay(day(2026, 7, 19))).toBe('19 August 2026');
+  });
+
+  it('keeps the button short: the year only when it isn’t this one', () => {
+    expect(formatSinceButton(day(2026, 7, 19), NOW)).toBe('19 Aug');
+    expect(formatSinceButton(day(2025, 10, 19), NOW)).toBe('19 Nov 2025');
   });
 
   it('says what each choice reads', () => {

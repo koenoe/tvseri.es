@@ -27,6 +27,7 @@ const render = (ui: ReactElement) =>
   });
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh }) }));
 
+import { formatSinceButton } from '../_lib/syncScope';
 import { ServiceProvider } from './ServiceContext';
 import ServiceSyncRow from './ServiceSyncRow';
 
@@ -134,9 +135,9 @@ describe('ServiceSyncRow', () => {
     });
     const [, body] = syncConnection.mock.calls[0]!;
     const since = new Date(body.since);
-    // The field's day is the one sent: its start, local time
+    // The button's day is the one sent: its start, local time
     expect(since.getHours()).toBe(0);
-    expect(shown).toContain(String(since.getFullYear()));
+    expect(shown).toBe(formatSinceButton(since.getTime(), Date.now()));
   });
 
   it('sends Everything as no day', async () => {

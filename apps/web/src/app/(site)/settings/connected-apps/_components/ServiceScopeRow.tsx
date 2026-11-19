@@ -1,6 +1,5 @@
 'use client';
 
-import { format } from 'date-fns';
 import { lazy, type MouseEvent, Suspense, useCallback, useState } from 'react';
 
 import Button from '@/components/ui/button/Button';
@@ -13,6 +12,7 @@ import { useLoadedNow } from '../../_components/useLoadedNow';
 import { MD_BUTTON } from '../../_lib/appButtons';
 import {
   defaultSince,
+  formatSinceButton,
   formatSinceDay,
   type SyncScopeChoice,
   sinceLine,
@@ -26,10 +26,11 @@ const SinceDialog = lazy(loadSinceDialog);
 
 /**
  * The switch and the day button, each as wide as its words: side by side on
- * desktop; on phones the row's full width, the button at the right edge
+ * desktop; on phones the row's full width, the button at the right edge, or
+ * on its own line when a narrow screen has no room for both
  */
 const CONTROLS =
-  'flex items-center gap-2 md:gap-3 max-md:w-full max-md:justify-between';
+  'flex flex-wrap items-center gap-2 md:gap-3 max-md:w-full max-md:justify-between';
 /** Sync now's pill, with the day, at the switch's height */
 const DAY_BUTTON = cn(MD_BUTTON, 'h-9 tabular-nums');
 
@@ -56,7 +57,7 @@ const pickerSpot = (button: DOMRect): Point => {
 };
 
 /** Until the browser knows its own day, a day-sized placeholder */
-const PLACEHOLDER_DAY = '19 Aug 2026';
+const PLACEHOLDER_DAY = '19 Aug';
 
 /**
  * The first sync's "How far back": Since a day (three months back, or where
@@ -124,7 +125,7 @@ export default function ServiceScopeRow({
         {PLACEHOLDER_DAY}
       </span>
     ) : (
-      format(since, 'd MMM yyyy')
+      formatSinceButton(since, now ?? since)
     );
   const buttonLabel =
     since === null

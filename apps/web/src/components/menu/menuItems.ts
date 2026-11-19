@@ -2,6 +2,7 @@ import profilePath from '@/lib/routing/profilePath';
 import statsPath from '@/lib/routing/statsPath';
 
 type MenuId =
+  | 'calendar'
   | 'discover'
   | 'history'
   | 'home'
@@ -48,7 +49,7 @@ const within = (path: string, base: string) =>
 
 /**
  * The viewer's own profile page the path is on: '' (the overview),
- * `library`, `history`, `stats`, … or null when it is not their profile.
+ * `calendar`, `library`, `history`, `stats`, … or null when it is not their profile.
  */
 function ownProfileSegment(pathname: string, handle: string): string | null {
   const match = /^\/u\/([^/]+)\/?(?:([^/]+).*)?$/.exec(pathname);
@@ -149,6 +150,12 @@ export function menuModel({
       handle,
       items: [
         page('overview', 'Overview', '', profilePath(handle)),
+        page(
+          'calendar',
+          'Calendar',
+          'calendar',
+          profilePath(handle, 'calendar'),
+        ),
         page('library', 'Library', 'library', profilePath(handle, 'library')),
         page('history', 'History', 'history', profilePath(handle, 'history')),
         page('stats', 'Stats', 'stats', statsPath(handle, year)),

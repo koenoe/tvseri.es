@@ -261,6 +261,7 @@ export function menuSuite(
           'Home',
           'Discover',
           'Overview',
+          'Calendar',
           'Library',
           'History',
           'Stats',
@@ -328,6 +329,7 @@ export function menuSuite(
         expect(order).toEqual([
           'Discover',
           'Overview',
+          'Calendar',
           'Library',
           'History',
           'Stats',

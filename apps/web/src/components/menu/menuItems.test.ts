@@ -31,7 +31,7 @@ describe('menuModel: content per viewer', () => {
     });
   });
 
-  it('signed in: Watch, You · @handle (four pages), the account line', () => {
+  it('signed in: Watch, You · @handle (five pages), the account line', () => {
     const model = viewer('/');
     expect(labels(model.watch)).toEqual(['Home', 'Discover']);
     expect(model.you?.handle).toBe('margaux');
@@ -42,6 +42,13 @@ describe('menuModel: content per viewer', () => {
         id: 'overview',
         kind: 'link',
         label: 'Overview',
+      },
+      {
+        current: false,
+        href: '/u/margaux/calendar',
+        id: 'calendar',
+        kind: 'link',
+        label: 'Calendar',
       },
       {
         current: false,
@@ -99,6 +106,7 @@ describe('menuModel: the current page', () => {
     ['/discover/new', ['Discover']],
     ['/u/margaux', ['Overview']],
     ['/u/margaux/', ['Overview']],
+    ['/u/margaux/calendar', ['Calendar']],
     ['/u/margaux/library', ['Library']],
     ['/u/margaux/library/watchlist', ['Library']],
     ['/u/margaux/history', ['History']],

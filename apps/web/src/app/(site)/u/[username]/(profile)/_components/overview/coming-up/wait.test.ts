@@ -6,7 +6,6 @@ import { waitProgress } from './wait';
 const base: WaitingForItem = {
   nextSeason: 3,
   posterImage: '',
-  resumingSoon: false,
   seriesId: 1,
   slug: 'x',
   state: 'dated',

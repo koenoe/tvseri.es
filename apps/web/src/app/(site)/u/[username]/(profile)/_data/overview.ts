@@ -22,8 +22,9 @@ export function loadOverview(profile: Profile): Promise<Overview> {
 }
 
 /**
- * Waiting for (your own profile): the full overview carries it, so the
- * profile's Waiting for and Coming up don't make the API compute it twice.
+ * The finished shows coming back (your own profile's Coming up: its Later
+ * and No date yet rows): the full overview carries them, so the API doesn't
+ * compute them twice.
  * An overview without it is a broken answer (only `?view=up-next` leaves it
  * out): the block's error boundary shows it.
  */

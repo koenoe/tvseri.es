@@ -21,9 +21,9 @@ export const TRACK_LOOK = {
   line: 'min-w-20 flex-1 bg-white/12',
   /** A Library poster: across the art's foot */
   poster: 'bg-white/12',
-  /** Waiting for, a dated return: the row's full width */
+  /** Coming up's Later row, a dated return: the row's full width */
   wait: 'bg-white/12',
-  /** Waiting for, no return date yet: the ground fades out */
+  /** A show under Coming up's No date yet: the ground fades out */
   waitUndated:
     'bg-[linear-gradient(90deg,rgb(255_255_255/0.12)_40%,rgb(255_255_255/0)_100%)]',
 } as const;

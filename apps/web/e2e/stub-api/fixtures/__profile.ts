@@ -201,7 +201,7 @@ const waitingForOf = (name: Name) =>
       ? heavyWaitingFor()
       : name === 'mira'
         ? miraWaitingFor()
-        : { endedCount: 0, items: [] };
+        : { items: [] };
 
 const ledgerOf = (name: Name) =>
   name === 'alex' || name === 'rae'

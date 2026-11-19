@@ -8,7 +8,7 @@ export type SeriesFactsEpisode = Readonly<{
 }>;
 
 /**
- * The facts about a show that the profile overview, premieres, Waiting for,
+ * The facts about a show that the profile overview, premieres, Coming up,
  * the season ledger and the duration rows need, from one TMDB details call,
  * shared by every user (Cache table, 24 h). Aired counts are derived at read
  * time from `lastEpisodeToAir` / `nextEpisodeToAir` (`airedEpisodesAt`), so

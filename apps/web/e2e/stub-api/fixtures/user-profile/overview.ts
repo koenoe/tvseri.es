@@ -240,7 +240,6 @@ export const alexOverview = (): Overview => {
 };
 
 export const alexWaitingFor = (): WaitingFor => ({
-  endedCount: 4,
   items: [
     {
       ...identity('pitt'),
@@ -249,7 +248,6 @@ export const alexWaitingFor = (): WaitingFor => ({
       nextDate: day(59),
       nextEpisode: 1,
       nextSeason: 3,
-      resumingSoon: false,
       state: 'dated',
     },
     {
@@ -259,14 +257,12 @@ export const alexWaitingFor = (): WaitingFor => ({
       nextDate: day(67),
       nextEpisode: 1,
       nextSeason: 3,
-      resumingSoon: false,
       state: 'dated',
     },
     {
       ...identity('wednesday'),
       finishedAt: daysAgo(10),
       nextSeason: 3,
-      resumingSoon: false,
       state: 'renewed',
     },
   ],

@@ -61,7 +61,7 @@ export default function Ticket({
   );
   const labelClass = cn(
     'truncate text-caption font-medium',
-    text.kind === 'finale' ? 'text-cyan' : 'text-pink',
+    text.kind === 'finale' ? 'text-cyan' : 'text-pink-light',
   );
   const metaClass = cn(
     'mt-0.5 justify-between gap-2',

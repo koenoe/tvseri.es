@@ -16,14 +16,14 @@ const OWNER = {
   viewer: 'owner',
 } as never;
 
-const WAITING = { endedCount: 1, items: [] };
+const WAITING = { items: [] };
 
 beforeEach(() => {
   apiFetch.mockReset();
 });
 
 describe('loadWaitingFor', () => {
-  it('takes Waiting for from the overview: no second computation', async () => {
+  it('takes the waiting shows from the overview: no second computation', async () => {
     apiFetch.mockResolvedValue({ upNext: [], waitingFor: WAITING });
 
     expect(await loadWaitingFor(OWNER)).toEqual(WAITING);

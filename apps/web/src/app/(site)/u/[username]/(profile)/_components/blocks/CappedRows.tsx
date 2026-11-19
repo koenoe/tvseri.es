@@ -7,6 +7,46 @@ import { useHiddenShows } from '@/lib/marking/hooks';
 import { SHOW_ALL } from './laneCaps';
 
 /**
+ * A list of `total` rows capped at `cap`: how many show (`limit`), the
+ * list's id for the foot's `aria-controls`, and the foot's toggle. For a
+ * lane that arranges its rows itself (Coming up's tickets and Later rows).
+ */
+export function useCap(total: number, cap: number) {
+  const [open, setOpen] = useState(false);
+  const id = useId();
+  const capped = total > cap;
+  const limit = open || !capped ? total : cap;
+  const toggle = () => setOpen((value) => !value);
+  return { capped, id, limit, open, toggle } as const;
+}
+
+/** A capped lane's foot: "Show all 22" / "Show fewer" */
+export function ShowAll({
+  controls,
+  open,
+  toggle,
+  total,
+}: Readonly<{
+  /** the list's id */
+  controls: string;
+  open: boolean;
+  toggle: () => void;
+  total: number;
+}>) {
+  const label = `Show all ${total}`;
+  return (
+    <ExpandButton
+      aria-controls={controls}
+      data-show-all=""
+      label={label}
+      layout={SHOW_ALL}
+      onClick={toggle}
+      open={open}
+    />
+  );
+}
+
+/**
  * A lane's rows, capped at `cap`; the rest open in place with "Show all N"
  * at the lane's foot, so a busy profile keeps its two lanes comparable in
  * length and nothing is a dead end. The rows are rendered on the server and
@@ -33,12 +73,8 @@ export default function CappedRows({
   const rows = ids
     ? allRows.filter((_, index) => hidden[ids[index] ?? 0] !== true)
     : allRows;
-  const [open, setOpen] = useState(false);
-  const id = useId();
-  const capped = rows.length > cap;
-  const shown = open || !capped ? rows : rows.slice(0, cap);
-  const toggle = () => setOpen((value) => !value);
-  const showAll = `Show all ${rows.length}`;
+  const { capped, id, limit, open, toggle } = useCap(rows.length, cap);
+  const shown = rows.slice(0, limit);
   return (
     <>
       <List
@@ -49,13 +85,11 @@ export default function CappedRows({
         {shown}
       </List>
       {capped ? (
-        <ExpandButton
-          aria-controls={id}
-          data-show-all=""
-          label={showAll}
-          layout={SHOW_ALL}
-          onClick={toggle}
+        <ShowAll
+          controls={id}
           open={open}
+          toggle={toggle}
+          total={rows.length}
         />
       ) : null}
     </>

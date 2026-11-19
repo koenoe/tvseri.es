@@ -2,7 +2,7 @@
 
 import type { ListItem } from './list';
 
-/** One finished show that is coming back ("Waiting for") */
+/** One finished show that is coming back (Coming up's Later and No date yet rows) */
 export type WaitingForItem = Readonly<{
   seriesId: number;
   title: string;
@@ -23,16 +23,12 @@ export type WaitingForItem = Readonly<{
   daysToGo?: number;
   nextEpisode?: number;
   nextKind?: 'season-premiere' | 'season-finale' | 'episode';
-  /** In the viewer's RESUMING_SOON list (new episodes within 2 weeks) */
-  resumingSoon: boolean;
 }>;
 
 /** The full overview's finished shows that are coming back */
 export type WaitingFor = Readonly<{
   /** Dated first (soonest), then renewed (latest finished first) */
   items: ReadonlyArray<WaitingForItem>;
-  /** Finished shows that ended or were cancelled: "Nothing more to wait for" */
-  endedCount: number;
 }>;
 
 export type TasteLevel =
@@ -382,6 +378,8 @@ export type ComingUpItem = Readonly<{
   onWatchlist: boolean;
   /** Where to watch in the viewer's country, when known */
   provider: Readonly<{ name: string; logoImage: string }> | null;
+  /** A finished show's return: when the viewer finished it (ms), for "Back after 9 months" */
+  finishedAt?: number;
 }>;
 
 /** In-progress shows not watched for over 3 months: "Still watching?" */
@@ -410,6 +408,6 @@ export type Overview = Readonly<{
   comingUp: ReadonlyArray<ComingUpItem>;
   /** Most recently watched first */
   paused: ReadonlyArray<PausedItem>;
-  /** Waiting for (computed once per profile view). Not in `?view=up-next`. */
+  /** The finished shows coming back more than 30 days out or undated (computed once per profile view). Not in `?view=up-next`. */
   waitingFor?: WaitingFor;
 }>;

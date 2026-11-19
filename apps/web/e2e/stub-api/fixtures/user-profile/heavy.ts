@@ -232,7 +232,6 @@ export const heavyOverview = (): Overview => ({
 });
 
 export const heavyWaitingFor = (): WaitingFor => ({
-  endedCount: 12,
   items: Array.from({ length: 15 }, (_, index): WaitingForItem => {
     const dated = index % 3 !== 2;
     const daysToGo = 31 + index * 23;
@@ -243,7 +242,6 @@ export const heavyWaitingFor = (): WaitingFor => ({
       nextDate: dated ? day(daysToGo) : undefined,
       nextEpisode: dated ? 1 : undefined,
       nextSeason: 2 + index * 3,
-      resumingSoon: false,
       state: dated ? 'dated' : 'renewed',
     };
   }),
@@ -304,7 +302,6 @@ export const miraOverview = (): Overview => {
 };
 
 export const miraWaitingFor = (): WaitingFor => ({
-  endedCount: 2,
   items: heavyWaitingFor().items.slice(0, 4),
 });
 

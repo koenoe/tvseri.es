@@ -54,9 +54,9 @@ const awaited = (item: WaitingForItem) => {
   return seasonCode(item.nextSeason);
 };
 
-/** The row's text column and title line (the ghost row takes the same) */
-export const WAIT_TEXT = 'flex min-w-0 flex-1 flex-col gap-2.5';
-export const WAIT_TITLE_LINE = 'flex items-baseline justify-between gap-2.5';
+/** The row's text column and title line */
+const WAIT_TEXT = 'flex min-w-0 flex-1 flex-col gap-2.5';
+const WAIT_TITLE_LINE = 'flex items-baseline justify-between gap-2.5';
 
 const WAIT_LINK = cn(LANE_ROW, 'transition-colors hover:bg-white/6');
 
@@ -87,7 +87,7 @@ export default function WaitRow({
     : `${finished ?? 'Finished'}, no return date yet`;
   const whatClass = cn(
     'max-w-full truncate',
-    dated ? 'font-medium text-pink' : 'text-white/60',
+    dated ? 'font-medium text-pink-light' : 'text-white/60',
   );
   const href = showPath(item.seriesId, item.slug);
   return (

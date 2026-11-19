@@ -13,7 +13,7 @@ beforeEach(() => {
 
 // The owner (OTHER_USER_ID) is halfway through show 1, has show 4 on the
 // watchlist (back in 3 days) and finished show 5 (back in 20 days): what the
-// owner page's Coming up and Waiting for would draw
+// owner page's Coming up would draw
 const setup = () => {
   seedUser();
   seedUser({ country: 'NL', id: OTHER_USER_ID });
@@ -64,7 +64,7 @@ describe("GET /user/:id/overview: a profile owner's overview (visitor page)", ()
     });
   });
 
-  it('skips what the visitor page does not draw: watchlist, Waiting for, tickets', async () => {
+  it('skips what the visitor page does not draw: watchlist, finished shows, tickets', async () => {
     setup();
 
     await overviewOf(OTHER_USER_ID, USER_ID);

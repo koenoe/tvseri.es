@@ -30,7 +30,7 @@ const ALMOST_DONE_MAX = 2;
 const SEASON_COMPLETE_DAYS = 14;
 const WINDOW_DAYS = 30;
 
-/** A finished show back within Coming up's window: a ticket there, not a Waiting for row */
+/** A finished show back within Coming up's window: a ticket, not a Later row */
 export const returnsSoon = (
   item: WaitingForItem,
 ): item is WaitingForItem & { nextDate: string; daysToGo: number } =>
@@ -39,7 +39,7 @@ export const returnsSoon = (
   item.daysToGo !== undefined &&
   item.daysToGo <= WINDOW_DAYS;
 
-/** Waiting for without the returns that moved to Coming up, so no show is in both */
+/** The waiting shows without the returns that became tickets, so no show is in both */
 export const waitingForLater = (waiting: WaitingFor): WaitingFor => ({
   ...waiting,
   items: waiting.items.filter((item) => !returnsSoon(item)),

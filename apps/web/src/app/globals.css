@@ -71,6 +71,10 @@
   /* accents: cyan = next up, progress, positive delta; pink = upcoming, premieres */
   --color-cyan: #00ffff;
   --color-pink: #ff0080;
+  /* pink for small text (12px captions) on a lane's rows: #ff0080 is about
+     4.1:1 there; this step is the nearest that keeps 4.5:1 (WCAG AA) on a
+     ticket's hover (white/8 over the lane) */
+  --color-pink-light: #ff4da6;
   /* the IMDb star */
   --color-imdb: #f5c518;
   /* destructive: Delete account's dot and its refusal line */

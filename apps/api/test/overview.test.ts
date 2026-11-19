@@ -262,7 +262,7 @@ describe('profile overview', () => {
       outNow: [],
       paused: [],
       upNext: [],
-      waitingFor: { endedCount: 0, items: [] },
+      waitingFor: { items: [] },
     });
   });
 
@@ -292,13 +292,13 @@ describe('Up next only (Home: ?view=up-next)', () => {
     });
   });
 
-  it('makes no watchlist, Waiting for or ticket lookups', async () => {
+  it('makes no watchlist, finished-show or ticket lookups', async () => {
     setup();
 
     await request('/me/overview?view=up-next', { as: USER_ID });
 
     const paths = requestedUrls().map((url) => url.pathname);
-    // show 4 is only on the watchlist, show 5 only in Waiting for
+    // show 4 is only on the watchlist, show 5 only finished and coming back
     expect(paths.some((path) => path.startsWith('/3/tv/4'))).toBe(false);
     expect(paths.some((path) => path.startsWith('/3/tv/5'))).toBe(false);
     expect(paths.some((path) => path.includes('/watch/providers'))).toBe(false);

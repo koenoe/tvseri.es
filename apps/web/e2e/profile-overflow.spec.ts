@@ -298,10 +298,11 @@ for (const width of [390] as const) {
   });
 }
 
-// Phones: a lane card's header link sits under
-// the title, on the title's left edge, in every lane card. A row's title has the
+// Phones: a lane card's header link or action sits at the head's right
+// edge, beside the title when it fits and under it when not, in every lane
+// card. A row's title has the
 // row's width before its secondary facts (Almost done's "1 to go", Paused's
-// Keep and Hide, Coming up's service logo, Waiting for's "31 days to go");
+// Keep and Hide, Coming up's service logo and "31 days to go");
 // the circle switcher's names stay readable. A Library
 // tile's fact drops whole or ends with an ellipsis, never cut mid-word.
 for (const width of [360] as const) {
@@ -330,25 +331,24 @@ for (const width of [360] as const) {
           ) {
             return [];
           }
-          const t = title.getBoundingClientRect();
+          const h = head.getBoundingClientRect();
           const l = link.getBoundingClientRect();
           if (l.width === 0 || !link.textContent?.trim()) return [];
+          const end = (
+            link.querySelector('a, button, span') ?? link
+          ).getBoundingClientRect().right;
           return [
             {
-              below: l.top >= t.bottom - 1,
-              dx: Math.round(
-                (
-                  link.querySelector('a, button, span') ?? link
-                ).getBoundingClientRect().left - t.left,
-              ),
+              // the head's own padding (px-0.5) is all that is left
+              dx: Math.round(h.right - end),
               name: title.textContent,
             },
           ];
         }),
     );
-    expect(heads.length).toBeGreaterThan(3);
+    expect(heads.length).toBeGreaterThan(2);
     for (const head of heads) {
-      expect(head, `${head.name}`).toMatchObject({ below: true, dx: 0 });
+      expect(head, `${head.name}`).toMatchObject({ dx: 2 });
     }
     // titles: whole, or cut only after most of the row
     const cut = await page.evaluate(() =>
@@ -358,7 +358,6 @@ for (const width of [360] as const) {
             'section[aria-labelledby="almost-done"] a.truncate',
             'section[aria-labelledby="paused"] a.truncate',
             'section[aria-labelledby="v3-cu"] span.truncate.font-semibold',
-            'section[aria-labelledby="b-wf"] span.truncate.font-semibold',
           ].join(', '),
         ),
       )

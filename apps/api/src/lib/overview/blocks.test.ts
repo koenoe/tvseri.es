@@ -557,7 +557,6 @@ describe('waitingForLater', () => {
   ): WaitingForItem => ({
     nextSeason: 2,
     posterImage: '',
-    resumingSoon: false,
     seriesId,
     slug: `s-${seriesId}`,
     title: `Show ${seriesId}`,
@@ -566,7 +565,6 @@ describe('waitingForLater', () => {
 
   it('drops returns within 30 days (they are Coming up tickets) and keeps the rest', () => {
     const waiting: WaitingFor = {
-      endedCount: 2,
       items: [
         item(1, { daysToGo: 10, nextDate: day(10), state: 'dated' }),
         item(2, { daysToGo: 30, nextDate: day(30), state: 'dated' }),
@@ -576,7 +574,6 @@ describe('waitingForLater', () => {
     };
     const later = waitingForLater(waiting);
     expect(later.items.map((entry) => entry.seriesId)).toEqual([3, 4]);
-    expect(later.endedCount).toBe(2);
   });
 });
 

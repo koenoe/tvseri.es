@@ -76,7 +76,7 @@ export const SHELVES: Readonly<Record<LibraryShelf, ShelfMeta>> = {
     },
     chip: 'Finished',
     description:
-      'Every series watched to its last aired episode. Returning ones also wait in Waiting for.',
+      'Every series watched to its last aired episode. Returning ones also wait in Coming up.',
     glyph: completeGlyph,
     label: 'Finished',
     visitorNoun: 'finished series',

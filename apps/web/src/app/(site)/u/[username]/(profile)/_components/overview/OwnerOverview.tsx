@@ -14,12 +14,11 @@ import Paused, { PausedSkeleton } from './Paused';
 import RecentlyWatched, { RecentlyWatchedSkeleton } from './RecentlyWatched';
 import SeasonLedger, { SeasonLedgerSkeleton } from './SeasonLedger';
 import UpNext, { UpNextSkeleton } from './UpNext';
-import WaitingFor, { WaitingForSkeleton } from './WaitingFor';
 
 /**
  * Your own profile (top to bottom): Get started while you
  * are new, Up next, two lanes (left: Almost done, Season ledger, Paused;
- * right: Out now, Catching up, Coming up, Waiting for), From your circle,
+ * right: Out now, Catching up, Coming up), From your circle,
  * Favourites, Recently watched. The overview is fetched once per render
  * (`loadOverview`); every block streams in its own hole.
  */
@@ -64,9 +63,6 @@ export default function OwnerOverview({
           </Hole>
           <Hole fallback={<ComingUpSkeleton />} title="Coming up">
             <ComingUp profile={profile} />
-          </Hole>
-          <Hole fallback={<WaitingForSkeleton />} title="Waiting for">
-            <WaitingFor profile={profile} />
           </Hole>
         </div>
       </div>

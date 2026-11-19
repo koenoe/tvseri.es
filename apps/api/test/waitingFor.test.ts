@@ -137,7 +137,7 @@ describe('waiting for', () => {
     ]);
   };
 
-  /** The full overview's Waiting for (computed once per profile view) */
+  /** The full overview's finished shows coming back (computed once per profile view) */
   const waitingFor = async () => {
     const overview = await request('/me/overview', { as: USER_ID });
     expect(overview.status).toBe(200);
@@ -158,7 +158,6 @@ describe('waiting for', () => {
 
     // Show 5 is back in 5 days: a Coming up ticket, so not here as well
     expect(await waitingFor()).toEqual({
-      endedCount: 2,
       items: [
         {
           daysToGo: 56,
@@ -168,7 +167,6 @@ describe('waiting for', () => {
           nextKind: 'season-premiere',
           nextSeason: 3,
           posterImage: expect.stringContaining('/p1.jpg'),
-          resumingSoon: false,
           seriesId: 1,
           slug: 'show-1',
           state: 'dated',
@@ -178,7 +176,6 @@ describe('waiting for', () => {
           finishedAt: OCT_30,
           nextSeason: 3,
           posterImage: expect.stringContaining('/p2.jpg'),
-          resumingSoon: false,
           seriesId: 2,
           slug: 'show-2',
           state: 'renewed',
@@ -188,13 +185,18 @@ describe('waiting for', () => {
     });
   });
 
-  it('hands a return within 30 days to Coming up instead', async () => {
+  it('hands a return within 30 days to Coming up instead, with when you finished it', async () => {
     setup();
     const overview = (await (
       await request('/me/overview', { as: USER_ID })
-    ).json()) as { comingUp: ReadonlyArray<{ seriesId: number }> };
+    ).json()) as {
+      comingUp: ReadonlyArray<{ finishedAt?: number; seriesId: number }>;
+    };
 
-    expect(overview.comingUp.map((ticket) => ticket.seriesId)).toContain(5);
+    // the ticket's "Back after N months" needs it
+    expect(
+      overview.comingUp.find((ticket) => ticket.seriesId === 5),
+    ).toMatchObject({ finishedAt: OCT_30 });
   });
 
   it('keeps a returning show’s premiere or finale on its Coming up ticket', async () => {
@@ -214,7 +216,7 @@ describe('waiting for', () => {
   it('is empty when nothing is finished', async () => {
     seedUser();
 
-    expect(await waitingFor()).toEqual({ endedCount: 0, items: [] });
+    expect(await waitingFor()).toEqual({ items: [] });
   });
 
   it('needs a signed-in viewer', async () => {

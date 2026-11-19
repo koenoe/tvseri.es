@@ -14,7 +14,6 @@ import { PausedSkeleton } from './Paused';
 import { RecentlyWatchedSkeleton } from './RecentlyWatched';
 import { SeasonLedgerSkeleton } from './SeasonLedger';
 import { UpNextSkeleton } from './UpNext';
-import { WaitingForSkeleton } from './WaitingFor';
 
 /**
  * The overview before the viewer is known: both variants' blocks in their
@@ -63,9 +62,6 @@ function OwnerSkeleton() {
           </Ph>
           <Ph name="coming-up">
             <ComingUpSkeleton />
-          </Ph>
-          <Ph name="waiting-for">
-            <WaitingForSkeleton />
           </Ph>
         </div>
       </div>

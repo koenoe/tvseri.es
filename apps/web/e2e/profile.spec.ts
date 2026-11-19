@@ -348,7 +348,6 @@ test.describe('profile signed in', () => {
         'out-now',
         'catching-up',
         'coming-up',
-        'waiting-for',
         'from-your-circle',
         'favourites',
         'recently-watched',

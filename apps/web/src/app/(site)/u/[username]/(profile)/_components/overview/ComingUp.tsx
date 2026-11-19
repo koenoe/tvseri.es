@@ -1,18 +1,18 @@
-import { seasonCode } from '@tvseri.es/schemas';
-
 import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
-import { calendarGlyph } from '@/components/ui/icon/glyphs';
 import MetaRow from '@/components/ui/meta/MetaRow';
-import { formatAirWeekdayDate } from '@/lib/format/airDate';
+import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
+import cn from '@/lib/cn';
+import { libraryPath } from '@/lib/routing/profilePath';
 
 import { loadOverview, loadWaitingFor } from '../../_data/overview';
 import type { Profile } from '../../_data/profile';
 import { isDayZero } from '../../_lib/dayZero';
-import CappedRows from '../blocks/CappedRows';
-import EmptyState from '../blocks/EmptyState';
+import HeadLink from '../blocks/HeadLink';
 import Lane from '../blocks/Lane';
 import LaneGhost, { GhostRows, ShowAllGhost } from '../blocks/LaneGhost';
 import { LANE_CAPS } from '../blocks/laneCaps';
+import ComingUpList from './coming-up/ComingUpList';
+import { NO_DATE_ROW } from './coming-up/noDateRow';
 import Ticket, {
   TICKET_BODY,
   TICKET_GRID,
@@ -20,10 +20,13 @@ import Ticket, {
   TICKET_TEXT,
 } from './coming-up/Ticket';
 import { monthsBetween, ticketText } from './coming-up/tickets';
+import WaitRow from './coming-up/WaitRow';
 
 /**
- * Coming up: tickets counting down the next 30 days, premieres
- * pink, finales cyan, how it airs and where. Owner only.
+ * Coming up: when your shows continue, near to far. Tickets count down
+ * the next 30 days (premieres pink, finales cyan, how it airs and where);
+ * the finished shows that return later follow under Later; the renewed
+ * ones with no date wait behind No date yet. Owner only.
  */
 export default async function ComingUp({
   profile,
@@ -33,46 +36,35 @@ export default async function ComingUp({
     loadWaitingFor(profile),
   ]);
   const now = Date.now();
-  const tickets = overview.comingUp;
-
-  if (tickets.length === 0) {
-    const nextReturn = waiting.items.find((item) => item.nextDate);
-    const dayZero = isDayZero(overview);
-    const emptySub = dayZero
-      ? 'Premieres and new episodes, 30 days ahead.'
-      : nextReturn?.nextDate
-        ? `Next: ${nextReturn.title} ${seasonCode(nextReturn.nextSeason)}, ${formatAirWeekdayDate(nextReturn.nextDate, now)}.`
-        : 'Nothing you follow airs in the next 30 days.';
-    const emptyTitle = dayZero
-      ? 'No dates yet'
-      : nextReturn
-        ? 'Nothing in the next 30 days'
-        : 'No dates announced';
-    return (
-      <Lane dot="pink" hollow id="v3-cu" title="Coming up">
-        <EmptyState glyph={calendarGlyph} sub={emptySub} title={emptyTitle} />
-      </Lane>
-    );
-  }
-
-  const finishedAt = new Map(
-    waiting.items.map((item) => [item.seriesId, item.finishedAt] as const),
-  );
-  const rows = tickets.map((item) => {
-    const finished = finishedAt.get(item.seriesId);
-    const text = ticketText(
-      item,
-      finished ? monthsBetween(finished, item.date) : null,
-    );
+  const tickets = overview.comingUp.map((item) => {
+    const back = item.finishedAt
+      ? monthsBetween(item.finishedAt, item.date)
+      : null;
+    const text = ticketText(item, back);
     const episodeId = `${item.seriesId}-${item.season}-${item.episode}`;
     return <Ticket item={item} key={episodeId} now={now} text={text} />;
   });
+  const later = waiting.items
+    .filter((item) => item.state === 'dated')
+    .map((item) => <WaitRow item={item} key={item.seriesId} now={now} />);
+  const noDate = waiting.items
+    .filter((item) => item.state === 'renewed')
+    .map((item) => <WaitRow item={item} key={item.seriesId} now={now} />);
+  // No dead ends: day one has no "All finished"
+  const finishedHref = libraryPath(profile.user.username, 'finished');
+  const finished = isDayZero(overview) ? null : (
+    <HeadLink className="px-0.5" href={finishedHref}>
+      All finished
+    </HeadLink>
+  );
+  const empty = tickets.length + later.length + noDate.length === 0;
   return (
-    <Lane dot="pink" id="v3-cu" title="Coming up">
-      <CappedRows
-        cap={LANE_CAPS.comingUp}
-        className="flex flex-col gap-3"
-        rows={rows}
+    <Lane dot="pink" hollow={empty} id="v3-cu" title="Coming up">
+      <ComingUpList
+        finished={finished}
+        later={later}
+        noDate={noDate}
+        tickets={tickets}
       />
     </Lane>
   );
@@ -101,7 +93,20 @@ function TicketGhost() {
   );
 }
 
-/** Coming up's placeholder: the capped lane (four tickets and Show all) */
+const NO_DATE_GHOST = cn(NO_DATE_ROW, GHOST_FILL);
+
+/** The No date yet row: its icon, its label and its count */
+function NoDateYetGhost() {
+  return (
+    <span className={NO_DATE_GHOST}>
+      <Ghost className="size-3.5 shrink-0 rounded-4" />
+      <TextLine className="text-body-sm" width="w-20" />
+      <Ghost className="h-5.5 w-5.5 shrink-0 rounded-full" />
+    </span>
+  );
+}
+
+/** Coming up's placeholder: a busy month (four tickets, Show all), then No date yet */
 export function ComingUpSkeleton() {
   return (
     <LaneGhost count={false} title="Coming up">
@@ -109,6 +114,7 @@ export function ComingUpSkeleton() {
         <TicketGhost />
       </GhostRows>
       <ShowAllGhost />
+      <NoDateYetGhost />
     </LaneGhost>
   );
 }

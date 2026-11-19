@@ -258,7 +258,7 @@ const claimRefreshes = async (ids: ReadonlyArray<number>) => {
 
 /**
  * The facts of many shows for the personal routes (profile overview,
- * Library, Home rows, Waiting for, ledger, Circle, match): what they have,
+ * Library, Home rows, Coming up, ledger, Circle, match): what they have,
  * a show without facts is absent. Bounded per read so one view never
  * becomes hundreds of TMDB calls:
  *

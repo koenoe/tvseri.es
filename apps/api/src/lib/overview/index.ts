@@ -143,7 +143,8 @@ const finishedTickets = (waiting: WaitingFor): ComingUpItem[] =>
     date: item.nextDate,
     daysToGo: item.daysToGo,
     episode: item.nextEpisode ?? 1,
-    // Waiting for already worked out premiere, finale or episode from TMDB's
+    ...(item.finishedAt && { finishedAt: item.finishedAt }),
+    // getWaitingFor already worked out premiere, finale or episode from TMDB's
     // season size; a finale guessed from the number alone came out "episode"
     kind:
       item.nextKind ?? (item.nextEpisode === 1 ? 'season-premiere' : 'episode'),
@@ -160,13 +161,13 @@ const finishedTickets = (waiting: WaitingFor): ComingUpItem[] =>
 type OverviewOptions = Readonly<{
   /**
    * Only Up next (the visitor page's Watching now and Also watching): skips
-   * the watchlist, Waiting for, Coming up and the ticket lookups; every other
+   * the watchlist, the finished shows, Coming up and the ticket lookups; every other
    * block comes back empty.
    */
   upNextOnly?: boolean;
 }>;
 
-const NOTHING_WAITING: WaitingFor = { endedCount: 0, items: [] };
+const NOTHING_WAITING: WaitingFor = { items: [] };
 
 /**
  * The profile overview, computed per request: the in-progress shows

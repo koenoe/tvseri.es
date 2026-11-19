@@ -28,7 +28,7 @@ const onWatchlist = v.boolean();
  *   `seasonWatched` of `seasonTotal` the progress in its season; the three
  *   are all there, or all absent when the show's facts couldn't be read
  * - `up-to-date`: everything aired is watched and the show is still coming
- *   (not Ended or Canceled, as Waiting for counts it); `nextAirDate` when
+ *   (not Ended or Canceled, as Coming up counts it); `nextAirDate` when
  *   TMDB has a date for the next episode
  * - `finished`: everything watched and nothing more expected (also a
  *   finished show whose facts couldn't be read)

@@ -16,7 +16,8 @@ export const WatchingNowSchema = v.object({
 
 export type WatchingNow = v.InferOutput<typeof WatchingNowSchema>;
 
-const TASTE_LEVELS = [
+/** The six compatibility levels, weakest first */
+export const TASTE_LEVELS = [
   'very-low',
   'low',
   'medium',
@@ -33,8 +34,6 @@ const SHARED_RELATIONS = [
 
 /** The same match as `/user/:id/match` (weights and levels), without the facts work */
 export const CircleMatchSchema = v.object({
-  /** Ring fill, 0 to 100 (0 when there is no level yet) */
-  arc: v.number(),
   /** null: "No level yet" (fewer than 5 shared) */
   level: v.nullable(v.picklist(TASTE_LEVELS)),
   sharedCount: v.number(),

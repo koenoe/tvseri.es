@@ -102,7 +102,6 @@ describe('GET /me/circle/people', () => {
       id: id('close'),
       match: {
         // 3 both-favourite × 3 + 5 both-finished × 2 = 19: low
-        arc: 30,
         level: 'low',
         sharedCount: 8,
         sharedShows: [
@@ -132,11 +131,10 @@ describe('GET /me/circle/people', () => {
     const people = await circle();
     const response = await request(`/user/${id('mid')}/match`, { as: ME });
     const { match } = (await response.json()) as {
-      match: { level: string | null; arc: number; sharedCount: number };
+      match: { level: string | null; sharedCount: number };
     };
     const row = people.following.find((entry) => entry.username === 'mid')!;
     expect(row.match).toMatchObject({
-      arc: match.arc,
       level: match.level,
       sharedCount: match.sharedCount,
     });

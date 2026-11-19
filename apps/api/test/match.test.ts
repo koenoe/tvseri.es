@@ -63,7 +63,6 @@ describe('match line', () => {
       following: false,
       followsYou: true,
       match: {
-        arc: 30,
         level: 'low',
         notEnough: false,
         sharedCount: 5,
@@ -115,7 +114,7 @@ describe('match line', () => {
     const response = await match(USER_ID, OTHER_USER_ID);
 
     expect(await response.json()).toMatchObject({
-      match: { arc: 0, level: null, notEnough: true, sharedCount: 2 },
+      match: { level: null, notEnough: true, sharedCount: 2 },
     });
   });
 

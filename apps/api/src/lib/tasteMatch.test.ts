@@ -23,27 +23,25 @@ const finishedBoth = (count: number) =>
 describe('computeTaste', () => {
   it('has no level under 5 shared shows', () => {
     expect(finishedBoth(4)).toMatchObject({
-      arc: 0,
       level: null,
       sharedCount: 4,
     });
   });
 
   it.each([
-    [5, 'low', 30],
-    [10, 'medium', 48],
-    [18, 'high', 64],
-    [28, 'very-high', 78],
-    [40, 'super', 92],
-  ])('%i shows both finished is %s', (count, level, arc) => {
-    expect(finishedBoth(count)).toMatchObject({ arc, level });
+    [5, 'low'],
+    [10, 'medium'],
+    [18, 'high'],
+    [28, 'very-high'],
+    [40, 'super'],
+  ])('%i shows both finished is %s', (count, level) => {
+    expect(finishedBoth(count)).toMatchObject({ level });
   });
 
   it('is very low when five shows are only shared as "watching"', () => {
     const watching = library({ inProgress: range(5) });
 
     expect(computeTaste(watching, watching)).toMatchObject({
-      arc: 14,
       level: 'very-low',
       score: 5,
     });

@@ -17,7 +17,6 @@ const edw1n: CircleRow = {
   followsYou: true,
   id: 'u-edw1n',
   match: {
-    arc: 92,
     level: 'super',
     sharedCount: 34,
     sharedShows: [
@@ -34,7 +33,7 @@ const juno: CircleRow = {
   following: false,
   followsYou: true,
   id: 'u-juno',
-  match: { arc: 0, level: null, sharedCount: 3, sharedShows: [] },
+  match: { level: null, sharedCount: 3, sharedShows: [] },
   username: 'juno',
   watching: null,
 };
@@ -47,18 +46,17 @@ const renderRow = (row: CircleRow) =>
   );
 
 describe('a row on your own Circle', () => {
-  it('shows the ring, the name, Follows you, the level with its reason, what they watch and Following', () => {
+  it('shows the name, Follows you, the shared count, the level with its reason, what they watch and Following', () => {
     renderRow(edw1n);
     const row = screen.getByRole('listitem');
-    expect(
-      within(row).getByRole('img', {
-        name: 'Compatibility: Super, 34 shared series',
-      }),
-    ).toBeTruthy();
+    // the count is words and the meter is a picture beside the level word
+    expect(within(row).queryByRole('img')).toBeNull();
+    expect(within(row).getByText('34 shared series')).toBeTruthy();
     expect(
       within(row).getByRole('link', { name: 'edw1n' }).getAttribute('href'),
     ).toBe('/u/edw1n');
-    expect(within(row).getByText('Follows you')).toBeTruthy();
+    // beside the name from md, at the end of the level line on a phone (one shows)
+    expect(within(row).getAllByText('Follows you')).toHaveLength(2);
     expect(within(row).getByText('Super match')).toBeTruthy();
     expect(
       within(row).getByText('You both love The Pitt and watch Severance'),
@@ -87,11 +85,20 @@ describe('a row on your own Circle', () => {
     expect(
       within(row).getByText('Not watching anything right now'),
     ).toBeTruthy();
-    expect(
-      within(row).getByRole('img', {
-        name: 'Compatibility not known yet, 3 shared series',
-      }),
-    ).toBeTruthy();
+    expect(within(row).getByText('3 shared series')).toBeTruthy();
+  });
+
+  it('moves Follows you to the end of the level line on a phone, so the name keeps its width', () => {
+    renderRow(edw1n);
+    const name = screen.getByRole('link', { name: 'edw1n' });
+    const [besideName, inLevelLine] = screen.getAllByText('Follows you');
+    expect(besideName?.parentElement).toBe(name.parentElement);
+    expect(besideName?.className).toContain('max-md:hidden');
+    const levelLine = screen.getByText('Super match').parentElement;
+    expect(inLevelLine?.parentElement).toBe(levelLine);
+    expect(levelLine?.lastElementChild).toBe(inLevelLine);
+    expect(inLevelLine?.className).toContain('md:hidden');
+    expect(inLevelLine?.className).not.toContain('max-md:hidden');
   });
 
   it('has no Follows you tag for someone who doesn’t follow you', () => {
@@ -119,7 +126,7 @@ const person = (overrides: Partial<FollowItem>): FollowItem => ({
 });
 
 describe('a row on someone else’s Circle', () => {
-  it('shows your relation, what they watch and Follow, with no ring', () => {
+  it('shows your relation, what they watch and Follow, with no match level', () => {
     render(
       <ul>
         <VisitorPersonRow person={person({})} />
@@ -130,6 +137,7 @@ describe('a row on someone else’s Circle', () => {
     expect(within(row).getByText('Follows you')).toBeTruthy();
     expect(row.textContent).toContain('WatchingBorgen');
     expect(within(row).getByRole('button').textContent).toBe('Following');
+    expect(row.textContent).not.toContain('shared series');
     expect(within(row).queryByRole('img')).toBeNull();
     expect(row.textContent).not.toContain('New to you');
   });

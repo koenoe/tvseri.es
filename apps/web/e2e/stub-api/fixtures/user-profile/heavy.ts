@@ -397,7 +397,6 @@ export const heavyMatch = (following: boolean): TasteMatchResponse => ({
   following,
   followsYou: true,
   match: {
-    arc: 78,
     level: 'very-high',
     notEnough: false,
     sharedCount: 1287,
@@ -472,9 +471,7 @@ export const heavyCircle = (): Circle => {
   const person = (
     name: 'juno' | 'wren' | 'ivo',
     level: 'super' | 'very-high' | 'medium',
-    arc: number,
   ) => ({
-    arc,
     id: PEOPLE[name].user.id,
     level,
     username: PEOPLE[name].user.username,
@@ -485,19 +482,19 @@ export const heavyCircle = (): Circle => {
       {
         doorGenre: null,
         kind: 'favourite',
-        people: [person('juno', 'super', 92)],
+        people: [person('juno', 'super')],
         show: taste(h(13)),
       },
       {
         doorGenre: null,
         kind: 'finished',
-        people: [person('juno', 'super', 92), person('wren', 'very-high', 78)],
+        people: [person('juno', 'super'), person('wren', 'very-high')],
         show: taste(h(8)),
       },
       {
         doorGenre: 'Animation',
         kind: 'favourite',
-        people: [person('ivo', 'medium', 48)],
+        people: [person('ivo', 'medium')],
         show: taste(h(10)),
       },
     ],

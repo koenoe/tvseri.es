@@ -19,21 +19,18 @@ const WEIGHTS: Readonly<Record<SharedRelation, number>> = {
   'both-watching': 1,
 };
 
-/** The product's six fixed thresholds: the score a level starts at, and its ring fill */
-const LEVELS: ReadonlyArray<
-  Readonly<{ level: TasteLevel; from: number; arc: number }>
-> = [
-  { arc: 92, from: 80, level: 'super' },
-  { arc: 78, from: 55, level: 'very-high' },
-  { arc: 64, from: 35, level: 'high' },
-  { arc: 48, from: 20, level: 'medium' },
-  { arc: 30, from: 10, level: 'low' },
-  { arc: 14, from: 0, level: 'very-low' },
+/** The product's six fixed thresholds: the score a level starts at */
+const LEVELS: ReadonlyArray<Readonly<{ level: TasteLevel; from: number }>> = [
+  { from: 80, level: 'super' },
+  { from: 55, level: 'very-high' },
+  { from: 35, level: 'high' },
+  { from: 20, level: 'medium' },
+  { from: 10, level: 'low' },
+  { from: 0, level: 'very-low' },
 ];
 
 type Taste = Readonly<{
   level: TasteLevel | null;
-  arc: number;
   score: number;
   sharedCount: number;
   /** Strongest first, then by id: the same for both sides of the pair */
@@ -78,7 +75,6 @@ export const computeTaste = (a: LibraryIds, b: LibraryIds): Taste => {
       : (LEVELS.find((candidate) => score >= candidate.from) ?? null);
 
   return {
-    arc: level?.arc ?? 0,
     level: level?.level ?? null,
     score,
     sharedCount: shared.length,

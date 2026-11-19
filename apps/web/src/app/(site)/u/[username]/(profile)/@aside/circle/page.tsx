@@ -5,8 +5,8 @@ import MatchKey from '../../circle/_components/MatchKey';
 
 /**
  * Circle's sidebar under the identity: a rule, then "How a match is made"
- * on your own Circle; nothing on someone else's (a ring is your match with
- * that person, and lives on their profile). Static copy, so the owner's key
+ * on your own Circle; nothing on someone else's (your match with each
+ * person lives on their profile). Static copy, so the owner's key
  * is in the shell. With the sidebar only (`lg`). Following nobody, the page
  * says so (`data-follows-nobody`) and the key goes.
  */

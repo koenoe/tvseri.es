@@ -21,7 +21,7 @@ const row = (
   following: true,
   followsYou: false,
   id: `u-${username}`,
-  match: { arc: 64, level: 'high', sharedCount: 19, sharedShows: [] },
+  match: { level: 'high', sharedCount: 19, sharedShows: [] },
   username,
   watching: null,
   ...overrides,
@@ -197,9 +197,10 @@ describe('the Circle while it loads', () => {
     expect(list?.children).toHaveLength(5);
   });
 
-  it('draws three lines for your own rows and two for a visitor’s', () => {
+  it('draws your own rows’ three lines and count, and a visitor’s two lines', () => {
     const owner = render(<CircleGhost owner />);
-    expect(bars(owner.container.querySelector('li') as Element)).toBe(3);
+    // the name and its shared count, the level line, the watching line
+    expect(bars(owner.container.querySelector('li') as Element)).toBe(4);
     cleanup();
     const visitor = render(<CircleGhost owner={false} />);
     expect(bars(visitor.container.querySelector('li') as Element)).toBe(2);

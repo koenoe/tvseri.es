@@ -1,38 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  arcDash,
-  levelLine,
-  proofParts,
-  ringLabel,
-  separatorBefore,
-} from './matchCopy';
-
-describe('arcDash', () => {
-  it('fills the ring to the arc, clamped', () => {
-    expect(arcDash(92, 'super')).toBe('92 100');
-    expect(arcDash(140, 'super')).toBe('100 100');
-    expect(arcDash(-3, 'low')).toBe('0 100');
-  });
-
-  it('is an empty ring without a level', () => {
-    expect(arcDash(60, null)).toBe('0 100');
-  });
-});
+import { compatibilityLead, proofParts, separatorBefore } from './matchCopy';
 
 describe('copy', () => {
-  it('names the ring', () => {
-    expect(ringLabel('super', 34)).toBe(
-      'Compatibility: Super, 34 shared series',
-    );
-    expect(ringLabel(null, 1)).toBe(
-      'Compatibility not known yet, 1 shared series',
-    );
-  });
-
   it('leads with the level or says there is not enough', () => {
-    expect(levelLine('juno', true)).toBe('Your compatibility');
-    expect(levelLine('noor', false)).toBe(
+    expect(compatibilityLead('juno', true)).toBe('Your compatibility');
+    expect(compatibilityLead('noor', false)).toBe(
       'Not enough shared yet to match you with noor.',
     );
   });

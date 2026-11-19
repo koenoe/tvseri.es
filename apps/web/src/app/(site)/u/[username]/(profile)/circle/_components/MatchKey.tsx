@@ -1,17 +1,10 @@
 import type { TasteLevel } from '@tvseri.es/schemas';
 
-import { LEVELS } from '../../_components/visitor/match/levels';
+import {
+  LEVELS,
+  STRONGEST_FIRST,
+} from '../../_components/visitor/match/levels';
 import { CIRCLE_COPY } from '../../_lib/circleCopy';
-
-/** Strongest first */
-const ORDER: ReadonlyArray<TasteLevel> = [
-  'super',
-  'very-high',
-  'high',
-  'medium',
-  'low',
-  'very-low',
-];
 
 function KeyRow({ level }: Readonly<{ level: TasteLevel }>) {
   const { hex, word } = LEVELS[level];
@@ -46,7 +39,7 @@ export default function MatchKey() {
         {CIRCLE_COPY.matchKeyText}
       </p>
       <ul className="m-0 mt-4 flex list-none flex-col gap-0.5 p-0">
-        {ORDER.map((level) => (
+        {STRONGEST_FIRST.map((level) => (
           <KeyRow key={level} level={level} />
         ))}
       </ul>

@@ -6,7 +6,6 @@ import {
   followNobodyLine,
   levelLabel,
   levelLine,
-  personLabel,
   pickReason,
   proofLine,
   relationTags,
@@ -19,7 +18,6 @@ const show = (
 ) => ({ id: title.length, relation, title });
 
 const match = (overrides: Partial<CircleMatch>): CircleMatch => ({
-  arc: 64,
   level: 'high',
   sharedCount: 19,
   sharedShows: [],
@@ -194,7 +192,7 @@ describe('followNobodyLine (you follow nobody)', () => {
 const person = (
   username: string,
   level: CirclePerson['level'],
-): CirclePerson => ({ arc: 80, id: username, level, username });
+): CirclePerson => ({ id: username, level, username });
 
 describe('pickReason', () => {
   it('a favourite of the closest match', () => {
@@ -263,8 +261,6 @@ describe('labels', () => {
     expect(levelLabel('very-high')).toBe('Very high');
     expect(levelLabel('very-low')).toBe('Very low');
     expect(levelLabel(null)).toBeNull();
-    expect(personLabel(person('juno', 'super'))).toBe('juno, Super match');
-    expect(personLabel(person('wren', null))).toBe('wren');
   });
 
   it('seasons and episodes, with whatever is known', () => {

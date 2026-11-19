@@ -211,9 +211,3 @@ export function seasonsAndEpisodes(
   ].filter((part): part is string => part !== null);
   return parts.length > 0 ? parts.join(', ') : null;
 }
-
-/** The match chip's accessible name: "juno, Super match" */
-export function personLabel(person: CirclePerson): string {
-  const level = levelLabel(person.level);
-  return level ? `${person.username}, ${level} match` : person.username;
-}

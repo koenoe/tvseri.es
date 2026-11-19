@@ -1,4 +1,5 @@
-import type { TasteLevel } from '@tvseri.es/schemas';
+import { TASTE_LEVELS, type TasteLevel } from '@tvseri.es/schemas';
+import { plural } from '@tvseri.es/utils';
 
 /**
  * The six compatibility levels: the word, the colour (hex and its rgb
@@ -79,3 +80,16 @@ const NO_LEVEL: LevelStyle = {
 
 export const levelStyle = (level: TasteLevel | null): LevelStyle =>
   level ? LEVELS[level] : NO_LEVEL;
+
+/** The six levels from Super down: the match key's order */
+export const STRONGEST_FIRST: ReadonlyArray<TasteLevel> = [
+  ...TASTE_LEVELS,
+].reverse();
+
+/** How many of the meter's six steps are lit: one per level, none without one */
+export const levelStep = (level: TasteLevel | null): number =>
+  level ? TASTE_LEVELS.indexOf(level) + 1 : 0;
+
+/** "59 shared series", beside the meter */
+export const sharedSeries = (count: number): string =>
+  plural(count, 'shared series', 'shared series');

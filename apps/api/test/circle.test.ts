@@ -53,8 +53,7 @@ const setup = async () => {
   }
 };
 
-const person = (id: string, level: string | null, arc: number) => ({
-  arc,
+const person = (id: string, level: string | null) => ({
   id,
   level,
   username: `user-${id.slice(-4).toLowerCase()}`,
@@ -82,21 +81,21 @@ describe('GET /me/circle: From your circle', () => {
         {
           doorGenre: null,
           kind: 'favourite',
-          people: [person(CLOSEST, 'low', 30)],
+          people: [person(CLOSEST, 'low')],
           show: tasteShow(50),
         },
         // Both your closest matches finished it
         {
           doorGenre: null,
           kind: 'finished',
-          people: [person(CLOSEST, 'low', 30), person(MIDDLE, null, 0)],
+          people: [person(CLOSEST, 'low'), person(MIDDLE, null)],
           show: tasteShow(60),
         },
         // The best of the rest: a door to a genre you have none of
         {
           doorGenre: 'Animation',
           kind: 'finished',
-          people: [person(MIDDLE, null, 0)],
+          people: [person(MIDDLE, null)],
           show: tasteShow(70),
         },
       ],

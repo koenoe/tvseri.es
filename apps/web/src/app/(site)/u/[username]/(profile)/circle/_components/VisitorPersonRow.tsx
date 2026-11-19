@@ -9,7 +9,7 @@ import { LEAD } from './rowBoxes';
 
 const LEAD_CIRCLE = `flex items-center justify-center bg-white/6 text-white/60 ${LEAD}`;
 
-/** No ring on someone else's Circle: your match with each person lives on their profile */
+/** No match on someone else's Circle (your match with each person lives on their profile): a plain user circle leads the row */
 const lead = (
   <span className={LEAD_CIRCLE}>
     <Icon glyph={userGlyph} size={20} />

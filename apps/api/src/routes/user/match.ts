@@ -99,7 +99,6 @@ app.get('/:id/match', user(), requireAuth(), async (c) => {
     following,
     followsYou,
     match: {
-      arc: taste.arc,
       level: taste.level,
       notEnough: taste.level === null,
       sharedCount: taste.sharedCount,

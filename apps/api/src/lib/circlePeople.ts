@@ -15,7 +15,7 @@ import { createLimiter } from '@/utils/limit';
  * The owner's Circle: everyone you follow, ranked by taste
  * match, then the people who follow you that you don't follow back. One
  * library read per person (two Queries of their Lists partition), nothing
- * from TMDB: the level, ring, shared count, the proof line's titles and
+ * from TMDB: the level, shared count, the proof line's titles and
  * what they are watching all come from the two libraries.
  */
 
@@ -55,7 +55,6 @@ const toRow = (
     followsYou: person.followsYou,
     id: person.user.id,
     match: {
-      arc: taste.arc,
       level: taste.level,
       sharedCount: taste.sharedCount,
       sharedShows: taste.sharedShows.slice(0, PROOF_SHOWS).map((show) => ({

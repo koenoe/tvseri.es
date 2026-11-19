@@ -1,26 +1,7 @@
-import type { TasteLevel, TasteMatchResponse } from '@tvseri.es/schemas';
-
-import { LEVELS } from './levels';
-
-/** The arc as a `stroke-dasharray` for `pathLength="100"`; 0 to 100, no level is an empty ring */
-export function arcDash(arc: number, level: TasteLevel | null): string {
-  const filled = level ? Math.min(100, Math.max(0, Math.round(arc))) : 0;
-  return `${filled} 100`;
-}
-
-/** The ring's accessible name */
-export function ringLabel(
-  level: TasteLevel | null,
-  sharedCount: number,
-): string {
-  const shows = `${sharedCount} shared series`;
-  return level
-    ? `Compatibility: ${LEVELS[level].word}, ${shows}`
-    : `Compatibility not known yet, ${shows}`;
-}
+import type { TasteMatchResponse } from '@tvseri.es/schemas';
 
 /** The card's top line without the level word */
-export function levelLine(username: string, hasLevel: boolean): string {
+export function compatibilityLead(username: string, hasLevel: boolean): string {
   return hasLevel
     ? 'Your compatibility'
     : `Not enough shared yet to match you with ${username}.`;

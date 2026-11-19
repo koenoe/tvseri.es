@@ -6,8 +6,8 @@ import VisitorList from './VisitorList';
 /**
  * Someone else's Circle under the page title: who they follow and who
  * follows them, as calm rows with your relation, what each is watching and
- * Follow. No rings: a ring is your match with that person, and it lives on
- * their profile.
+ * Follow. No match level: your match with that person lives on their
+ * profile.
  */
 export default function VisitorCircle({
   counts,

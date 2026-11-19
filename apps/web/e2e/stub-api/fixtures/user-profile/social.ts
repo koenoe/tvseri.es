@@ -128,7 +128,6 @@ const LEVEL_CARDS: Partial<
   Record<
     PersonName,
     Readonly<{
-      arc: number;
       level: Level;
       shared: number;
       proof: ReadonlyArray<ShowKey>;
@@ -137,7 +136,6 @@ const LEVEL_CARDS: Partial<
   >
 > = {
   bea: {
-    arc: 48,
     level: 'medium',
     picks: [
       ['frieren', 'favourite'],
@@ -148,7 +146,6 @@ const LEVEL_CARDS: Partial<
     shared: 12,
   },
   leo: {
-    arc: 30,
     level: 'low',
     picks: [
       ['theChosen', 'favourite'],
@@ -158,7 +155,6 @@ const LEVEL_CARDS: Partial<
     shared: 5,
   },
   oskar: {
-    arc: 64,
     level: 'high',
     picks: [
       ['wednesday', 'finished'],
@@ -168,7 +164,6 @@ const LEVEL_CARDS: Partial<
     shared: 19,
   },
   rumi: {
-    arc: 14,
     level: 'very-low',
     picks: [
       ['frieren', 'favourite'],
@@ -179,7 +174,6 @@ const LEVEL_CARDS: Partial<
     shared: 6,
   },
   tamsin: {
-    arc: 78,
     level: 'very-high',
     picks: [
       ['shogun', 'favourite'],
@@ -199,7 +193,6 @@ const levelMatch = (
   following: follows(viewer, owner),
   followsYou: follows(owner, viewer),
   match: {
-    arc: card.arc,
     level: card.level,
     notEnough: false,
     sharedCount: card.shared,
@@ -230,7 +223,6 @@ export const match = (
     followsYou: follows(owner, viewer),
     match: isJuno
       ? {
-          arc: 92,
           level: 'super',
           notEnough: false,
           sharedCount: 34,
@@ -266,7 +258,6 @@ export const match = (
           ],
         }
       : {
-          arc: 0,
           level: null,
           notEnough: true,
           sharedCount: 2,
@@ -315,9 +306,7 @@ export const circle = (viewer: PersonName): Circle => {
   const person = (
     name: PersonName,
     level: 'super' | 'very-high' | 'medium',
-    arc: number,
   ) => ({
-    arc,
     id: PEOPLE[name].user.id,
     level,
     username: PEOPLE[name].user.username,
@@ -328,19 +317,19 @@ export const circle = (viewer: PersonName): Circle => {
       {
         doorGenre: null,
         kind: 'favourite',
-        people: [person('juno', 'super', 92)],
+        people: [person('juno', 'super')],
         show: taste('dark'),
       },
       {
         doorGenre: null,
         kind: 'finished',
-        people: [person('juno', 'super', 92), person('wren', 'very-high', 78)],
+        people: [person('juno', 'super'), person('wren', 'very-high')],
         show: taste('mcmafia'),
       },
       {
         doorGenre: 'Animation',
         kind: 'favourite',
-        people: [person('ivo', 'medium', 48)],
+        people: [person('ivo', 'medium')],
         show: taste('frieren'),
       },
     ],

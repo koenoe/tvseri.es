@@ -161,7 +161,6 @@ export const getCircle = async (
         a.person.username.localeCompare(b.person.username),
     );
   const people: CirclePerson[] = ranked.map(({ person, taste }) => ({
-    arc: taste.arc,
     id: person.id,
     level: taste.level,
     username: person.username,

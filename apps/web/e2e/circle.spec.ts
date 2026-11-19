@@ -79,13 +79,11 @@ test.describe('your own Circle', () => {
       'wren',
     ]);
     const juno = person(page, 'juno');
-    await expect(
-      juno.getByRole('img', {
-        name: /^Compatibility: Super, \d+ shared series$/,
-      }),
-    ).toBeVisible();
+    await expect(juno.getByText(/^\d+ shared series$/)).toBeVisible();
     await expect(juno.getByText('Super match')).toBeVisible();
-    await expect(juno.getByText('Follows you')).toBeVisible();
+    await expect(
+      juno.getByText('Follows you').filter({ visible: true }),
+    ).toBeVisible();
     await expect(juno.getByText('Watching', { exact: true })).toBeVisible();
     await expect(juno.getByRole('button', { name: 'Following' })).toBeVisible();
     // no posters and no New to you on the rows
@@ -160,7 +158,7 @@ test.describe('someone else’s Circle', () => {
     await signInAs(page.context(), 'alex');
   });
 
-  test('lists who they follow and who follows them, without rings', async ({
+  test('lists who they follow and who follows them, without a match', async ({
     page,
   }) => {
     await page.goto('/u/juno/circle');
@@ -175,10 +173,8 @@ test.describe('someone else’s Circle', () => {
     ).toBeVisible();
     await expect(you.getByText('Dexter: Resurrection')).toBeVisible();
     await expect(you.getByRole('button')).toHaveCount(0);
-    // a ring is your match with that person: on their profile, not here
-    await expect(page.getByRole('img', { name: /^Compatibility/ })).toHaveCount(
-      0,
-    );
+    // your match with that person is on their profile, not here
+    await expect(page.getByText(/shared series$/)).toHaveCount(0);
     // no match key in someone else's sidebar
     await expect(
       page.getByRole('heading', { name: 'How a match is made' }),

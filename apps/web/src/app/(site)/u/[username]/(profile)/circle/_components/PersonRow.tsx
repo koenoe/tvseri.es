@@ -6,29 +6,25 @@ import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import profilePath from '@/lib/routing/profilePath';
 
-import { ACTION, FIRST_ROW, GO, LINE, ROW } from './rowBoxes';
+import { BARE_ROW, FIRST_ROW, LEAD_ROW, LINE, TAG } from './rowBoxes';
 import WatchingLine from './WatchingLine';
 
-const TAG =
-  'inline-flex h-[22px] shrink-0 items-center rounded-6 bg-white/10 px-2 text-[11px] leading-5 font-semibold whitespace-nowrap text-white/85';
-
-const PERSON_ROW = `group/person bg-white/[.035] ${ROW}`;
 const NAME_LINE = `flex min-w-0 items-center gap-2.5 text-[16px] leading-6 font-semibold md:text-[17px] ${LINE.name}`;
-const PHONE_TAGS = `h-8 gap-2 md:hidden ${ACTION}`;
-const GO_MARK = `bg-white/6 text-white/70 transition-colors group-hover/person:text-white ${GO}`;
 
 /**
- * One person on the Circle, owner's and visitor's: the lead (match ring or
- * the visitor's plain circle), the name with its tags, an optional line
- * under it, what they are watching, the Follow button and the chevron. The
- * whole row opens their profile: the name's link covers it, and the Follow
- * button sits above that. Desktop is one line of four columns; the phone
- * moves the button under the text. A row without a button (yourself, on
- * someone else's Circle) puts its tags there on a phone, so every row is
- * the height of its placeholder.
+ * One person on the Circle, owner's and visitor's: the visitor's plain
+ * circle as a lead (your own rows have none), the name with an optional
+ * fact and its tags, an optional line under it, what they are watching,
+ * the Follow button and the chevron. The whole row opens their profile:
+ * the name's link covers it, and the Follow button sits above that.
+ * Desktop is one line (lead, text, button, chevron); the phone moves the
+ * button under the text. A row without a button (yourself, on someone
+ * else's Circle) puts its tags there on a phone, so every row is the
+ * height of its placeholder.
  */
 export default function PersonRow({
   action,
+  fact,
   first = false,
   lead,
   line,
@@ -37,9 +33,11 @@ export default function PersonRow({
   watching,
 }: Readonly<{
   action?: ReactNode;
+  /** Beside the name: "59 shared series" */
+  fact?: ReactNode;
   /** The page's first row: the one the placeholder spec measures */
   first?: boolean;
-  lead: ReactNode;
+  lead?: ReactNode;
   line?: ReactNode;
   tags: ReadonlyArray<string>;
   username: string;
@@ -47,9 +45,13 @@ export default function PersonRow({
 }>) {
   const href = profilePath(username);
   const nameTag = action ? TAG : `${TAG} max-md:hidden`;
+  const boxes = lead ? LEAD_ROW : BARE_ROW;
+  const rowClass = `group/person bg-white/[.035] ${boxes.row}`;
+  const phoneTags = `h-8 gap-2 md:hidden ${boxes.action}`;
+  const goMark = `bg-white/6 text-white/70 transition-colors group-hover/person:text-white ${boxes.go}`;
   return (
     <li
-      className={PERSON_ROW}
+      className={rowClass}
       data-person={username}
       data-slot={first ? FIRST_ROW : undefined}
     >
@@ -62,6 +64,7 @@ export default function PersonRow({
           >
             {username}
           </Link>
+          {fact}
           {tags.map((tag) => (
             <span className={nameTag} key={tag}>
               {tag}
@@ -72,9 +75,9 @@ export default function PersonRow({
         <WatchingLine watching={watching} />
       </div>
       {action ? (
-        <div className={ACTION}>{action}</div>
+        <div className={boxes.action}>{action}</div>
       ) : (
-        <div className={PHONE_TAGS}>
+        <div className={phoneTags}>
           {tags.map((tag) => (
             <span className={TAG} key={tag}>
               {tag}
@@ -82,7 +85,7 @@ export default function PersonRow({
           ))}
         </div>
       )}
-      <span aria-hidden="true" className={GO_MARK}>
+      <span aria-hidden="true" className={goMark}>
         <Icon glyph={chevronRightGlyph} size={16} />
       </span>
     </li>

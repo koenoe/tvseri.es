@@ -43,7 +43,6 @@ const rowOf = (viewer: PersonName, name: PersonName): CircleRow => {
     followsYou: follows(name, viewer, CIRCLE),
     id: PEOPLE[name].user.id,
     match: {
-      arc: taste.arc,
       level: taste.level,
       sharedCount: taste.sharedCount,
       sharedShows: taste.sharedShows.slice(0, 3).map((show) => ({
@@ -57,11 +56,9 @@ const rowOf = (viewer: PersonName, name: PersonName): CircleRow => {
   };
 };
 
-/** The best match first (ring, then username); no level last */
+/** The best match first (level, then username); no level last */
 const byMatch = (a: CircleRow, b: CircleRow) =>
-  levelRank(a) - levelRank(b) ||
-  b.match.arc - a.match.arc ||
-  a.username.localeCompare(b.username);
+  levelRank(a) - levelRank(b) || a.username.localeCompare(b.username);
 
 const LEVELS = [...LEVEL_ORDER, null] as const;
 
@@ -76,7 +73,6 @@ const heavyPeople = (): CirclePeople => {
       followsYou,
       id: `01STUBCIRCLE${String(index).padStart(14, '0')}`,
       match: {
-        arc: level ? 92 - LEVEL_ORDER.indexOf(level) * 14 : 0,
         level,
         sharedCount: level ? 60 - (index % 50) : 3,
         sharedShows: shows.slice(index % 40, (index % 40) + 3).map((s) => ({

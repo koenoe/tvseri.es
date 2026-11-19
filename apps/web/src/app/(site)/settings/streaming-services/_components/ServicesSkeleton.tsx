@@ -26,15 +26,11 @@ import {
   SHELF_ROW_CLASS,
 } from './shelfLook';
 
-/** Ghost rows, each with its own name width; seven popular and "Show all" */
-const SELECTED = [
-  'w-24',
-  'w-[118px]',
-  'w-14',
-  'w-[150px]',
-  'w-[84px]',
-  'w-[74px]',
-];
+/**
+ * Ghost rows at the typical count (four services), each with its own name
+ * width; seven popular and "Show all"
+ */
+const SELECTED = ['w-24', 'w-[118px]', 'w-14', 'w-[150px]'];
 
 const REGION_GHOST = cn(REGION_CARD_CLASS, GHOST_PANEL);
 const SHELF_GHOST = cn(SHELF_CARD_CLASS, GHOST_PANEL);
@@ -65,11 +61,9 @@ const REMOVE_GHOST = cn(
   'mr-2.5 ml-auto size-3.5 shrink-0 rounded-4 max-md:mr-4',
   GHOST_FILL,
 );
-const HINT_GHOST = cn(
-  SHELF_HINT_CLASS,
-  'h-2.5 w-[360px] max-w-full rounded-4',
-  GHOST_FILL,
-);
+/** The hint's two parts (the sentence, "Drag to reorder") as bars in its line boxes */
+const HINT_SENTENCE = line('w-[374px] max-w-full');
+const HINT_DRAG = line('w-28');
 
 function RowGhost({ name }: Readonly<{ name: string }>) {
   const nameClass = cn(NAME_GHOST, name);
@@ -154,7 +148,10 @@ export default function ServicesSkeleton() {
           <span className={SHELF_DOT} />
           <h3 className="text-body">Your services</h3>
         </div>
-        <span className={HINT_GHOST} />
+        <p className={SHELF_HINT_CLASS}>
+          <span className={HINT_SENTENCE}>&nbsp;</span>
+          <span className={HINT_DRAG}>&nbsp;</span>
+        </p>
         <ol className={SHELF_LIST_CLASS}>
           {SELECTED.map((name) => (
             <RowGhost key={name} name={name} />

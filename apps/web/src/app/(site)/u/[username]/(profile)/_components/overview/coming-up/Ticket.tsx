@@ -21,16 +21,33 @@ export const TICKET_STUB =
   'flex flex-col items-center justify-center gap-1 rounded-l-12';
 export const TICKET_BODY =
   'relative flex min-w-0 items-start gap-3.5 px-4 py-3.5';
-export const TICKET_TEXT = 'flex min-w-0 flex-1 flex-col gap-2';
+/** The date line's watchlist tag follows the text column's width */
+export const TICKET_TEXT = 'flex min-w-0 flex-1 flex-col gap-2 @container';
+
+/**
+ * The date's line. "On your watchlist" sits at its end. Where the line is
+ * tight (a 416px lane) it follows the date and may run up to 12px into the
+ * ticket's padding, as on the board; where even that is too narrow it takes
+ * a line of its own, never cut
+ */
+export const ticketDateLine = (onWatchlist: boolean) =>
+  cn(
+    'mt-0.5',
+    onWatchlist &&
+      'flex-wrap justify-between gap-2 @max-[240px]:-mr-3 @max-[240px]:max-w-none @max-[240px]:justify-start',
+  );
+
+/** The watchlist tag's words and box, without its look (the ghost tag takes the same) */
+export const WATCHLIST_LABEL = 'On your watchlist';
+export const WATCHLIST_TAG =
+  'inline-flex min-w-0 max-w-full shrink-0 items-center gap-1 whitespace-normal rounded-[5px] px-[7px] py-0.5 text-caption';
+const WATCHLIST_TAG_CLASS = cn(WATCHLIST_TAG, 'bg-black/10 text-white/60');
 
 /** The punched notches either side of the tear and the hover */
 const TICKET_LOOK =
   'transition-colors hover:bg-white/8 before:absolute before:-top-[7px] before:left-[71px] before:size-3.5 before:rounded-full before:bg-ground-deep after:absolute after:-bottom-[7px] after:left-[71px] after:size-3.5 after:rounded-full after:bg-ground-deep';
 
 const TICKET_CLASS = cn(TICKET_GRID, TICKET_LOOK);
-
-/** The date line's watchlist tag follows the text column's width */
-const TEXT_CLASS = cn(TICKET_TEXT, '@container');
 
 /** Each place keeps its own look on purpose; don't unify them. */
 const PROVIDER: ServiceIconLayout = {
@@ -66,15 +83,7 @@ export default function Ticket({
     'truncate text-caption font-medium',
     text.kind === 'finale' ? 'text-cyan' : 'text-pink-light',
   );
-  // "On your watchlist" sits at the end of the date's line. Where the line
-  // is tight (a 416px lane) it follows the date and may run up to 12px into
-  // the ticket's padding, as on the board; where even that is too narrow it
-  // takes a line of its own, never cut
-  const metaClass = cn(
-    'mt-0.5',
-    item.onWatchlist &&
-      'flex-wrap justify-between gap-2 @max-[240px]:-mr-3 @max-[240px]:max-w-none @max-[240px]:justify-start',
-  );
+  const dateLine = ticketDateLine(item.onWatchlist);
   return (
     <TileLink className={TICKET_CLASS} href={href}>
       <span className={stub}>
@@ -85,7 +94,7 @@ export default function Ticket({
       </span>
       <span className={TICKET_BODY}>
         <LanePoster src={item.posterImage} width={36} />
-        <span className={TEXT_CLASS}>
+        <span className={TICKET_TEXT}>
           <span
             className="min-w-0 truncate pr-8 text-body-sm font-semibold max-md:pr-0"
             title={item.title}
@@ -104,14 +113,14 @@ export default function Ticket({
               </span>
             ) : null}
           </MetaRow>
-          <MetaRow className={metaClass}>
+          <MetaRow className={dateLine}>
             <MetaItem icon={calendarGlyph}>
               {formatAirWeekdayDate(item.date, now)}
             </MetaItem>
             {item.onWatchlist ? (
-              <span className="inline-flex min-w-0 max-w-full shrink-0 items-center gap-1 whitespace-normal rounded-[5px] bg-black/10 px-[7px] py-0.5 text-caption text-white/60">
+              <span className={WATCHLIST_TAG_CLASS}>
                 <Icon active glyph={bookmarkGlyph} size={12} />
-                On your watchlist
+                {WATCHLIST_LABEL}
               </span>
             ) : null}
           </MetaRow>

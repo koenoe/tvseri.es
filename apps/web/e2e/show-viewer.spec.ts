@@ -43,7 +43,7 @@ test('a signed-in show page loads without console or hydration errors', async ({
 }) => {
   const errors = collectErrors(page);
   await page.goto(SHOW);
-  await expect(progress(page)).toContainText('21 of 47');
+  await expect(progress(page)).toContainText('21 watched');
   await page.waitForLoadState('networkidle');
   expect(errors).toEqual([]);
 });
@@ -55,21 +55,21 @@ test('the viewer’s progress line is in the HTML, before any JS', async ({
   // so what shows is what the first paint shows (nothing fills in later).
   await page.route('**/_next/static/chunks/**', (route) => route.abort());
   await page.goto(SHOW);
-  await expect(progress(page)).toContainText('21 of 47');
+  await expect(progress(page)).toContainText('21 watched');
   await expect(page.locator('[data-placeholder="progress"]')).toBeHidden();
 });
 
 test('a mark survives going Home and pressing Back', async ({ page }) => {
   const errors = collectErrors(page);
   await page.goto(SHOW);
-  await expect(progress(page)).toContainText('21 of 47');
+  await expect(progress(page)).toContainText('21 watched');
 
   await page
     .getByRole('button', { name: 'More actions for The Bear' })
     .first()
     .click();
   await page.keyboard.press('n');
-  await expect(progress(page)).toContainText('22 of 47');
+  await expect(progress(page)).toContainText('22 watched');
   // The write has settled on the server before we leave.
   await page.waitForLoadState('networkidle');
 
@@ -78,10 +78,10 @@ test('a mark survives going Home and pressing Back', async ({ page }) => {
   await page.goBack();
   await page.waitForURL((url) => url.pathname === SHOW);
 
-  await expect(progress(page)).toContainText('22 of 47');
+  await expect(progress(page)).toContainText('22 watched');
   // And it stays: the effects the preserved page re-runs come after paint.
   await page.waitForLoadState('networkidle');
-  await expect(progress(page)).toContainText('22 of 47');
+  await expect(progress(page)).toContainText('22 watched');
   expect(errors).toEqual([]);
 });
 
@@ -93,7 +93,7 @@ const heroGaps = async (page: Page, width: number) => {
   await page.setViewportSize({ height: 844, width });
   await phoneScrollbars(page, width);
   await page.goto(SHOW);
-  await expect(progress(page)).toContainText('21 of 47');
+  await expect(progress(page)).toContainText('21 watched');
   const read = () =>
     progress(page).evaluate((line) => {
       const box = (node: Element | null | undefined) => {

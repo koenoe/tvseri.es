@@ -74,11 +74,14 @@ export default function Pager({
       <span aria-live={running ? 'off' : 'polite'} className="sr-only">
         Series {String(current + 1).padStart(2, '0')} of {count}
       </span>
-      {/* the play/pause control comes first in the tab order (APG carousel), drawn last */}
+      {/* the play/pause control comes first in the tab order (APG carousel),
+          drawn last. On a phone its 44px target reaches the last line's
+          (10px: the gap less the lines' -3px) and takes the rest from the
+          gutter, so the two targets never overlap */}
       <button
         aria-label={toggleLabel}
         // contrast-exempt: the pause icon on phones
-        className="relative order-last inline-flex size-[13px] cursor-pointer items-center justify-center rounded-full text-white/55 after:absolute after:-inset-[15.5px] after:content-[''] md:size-8 md:text-white/60 md:after:hidden md:hover:bg-white/8 md:hover:text-white"
+        className="relative order-last inline-flex size-[13px] cursor-pointer items-center justify-center rounded-full text-white/55 after:absolute after:-inset-y-[15.5px] after:-right-[21px] after:-left-2.5 after:content-[''] md:size-8 md:text-white/60 md:after:hidden md:hover:bg-white/8 md:hover:text-white"
         onClick={onTogglePlay}
         type="button"
       >

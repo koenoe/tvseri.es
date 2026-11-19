@@ -4,9 +4,9 @@ import { signInAs, stubFault } from './helpers/session';
 import { progress } from './helpers/showPage';
 
 /**
- * When the viewer's progress read fails, the show page says so
- * (never "0 of 47 watched"), its toggles are off with the reason, a press
- * writes nothing, and a retry brings the real state back.
+ * When the viewer's progress read fails, the show page says so (never
+ * "0 of 47 watched" or "0 watched"), its toggles are off with the reason, a
+ * press writes nothing, and a retry brings the real state back.
  */
 
 const SHOW = '/136315/the-bear';
@@ -28,6 +28,11 @@ test('a failed progress read shows an unavailable state and writes nothing', asy
   // the automatic retry fails too: still unavailable, with Try again
   await expect(status.getByRole('button', { name: 'Try again' })).toBeVisible();
   await expect(page.getByText(/\d+ of 47 watched/)).toHaveCount(0);
+  await expect(
+    page
+      .locator('[data-slot="progress"]')
+      .filter({ hasText: /\b\d+ (of 47 )?watched\b/ }),
+  ).toHaveCount(0);
   await expect(
     page.getByRole('button', {
       exact: true,
@@ -53,7 +58,7 @@ test('the retry brings the real progress back', async ({ page }) => {
   // Only the server's first read fails; the page's own retry answers.
   await stubFault('alex', { includes: PROGRESS, mode: '500', times: 1 });
   await page.goto(SHOW);
-  await expect(progress(page)).toContainText('of 47');
+  await expect(progress(page)).toContainText('21 watched');
   await expect(
     page.locator('[data-slot="progress"][data-state="unavailable"]'),
   ).toHaveCount(0);

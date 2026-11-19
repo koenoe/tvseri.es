@@ -412,8 +412,9 @@ test('the pre-paint hint script does a bounded amount of work, even with a 5000-
 /**
  * The season's facts while its episodes load (a season switch) are ghosts of
  * the words they will be (`seasonFactsEstimate`), in the facts' own row: on a
- * small phone Season 2's facts take two lines ("Jun 22, 2023 · 9 of 10
- * watched" / "1 skipped"), and so does their placeholder: the header keeps
+ * small phone Season 2's facts (done through a skip: "Jun 22, 2023 ·
+ * 10 episodes · Watched" / "1 skipped") take two lines, and so does their
+ * placeholder: the header keeps
  * its height when they land.
  */
 for (const width of [360]) {
@@ -451,7 +452,7 @@ for (const width of [360]) {
     const before = (await header.boundingBox())?.height ?? 0;
     release();
     await expect(ghost).toHaveCount(0);
-    await expect(header).toContainText('9 of 10 watched');
+    await expect(header).toContainText('10 episodes, Watched, 1 skipped');
     const after = (await header.boundingBox())?.height ?? -1;
     expect(Math.abs(after - before)).toBeLessThanOrEqual(1);
   });

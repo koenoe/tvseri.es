@@ -138,7 +138,7 @@ test.describe('viewer', () => {
     const progress = page
       .getByRole('button', { name: /open watch history/ })
       .first();
-    await expect(progress).toContainText('21 of 47');
+    await expect(progress).toContainText('21 watched');
 
     const more = page
       .getByRole('button', { name: 'More actions for The Bear' })
@@ -148,7 +148,7 @@ test.describe('viewer', () => {
       page.getByRole('menu', { name: 'Actions for The Bear' }),
     ).toBeVisible();
     await page.keyboard.press('n');
-    await expect(progress).toContainText('22 of 47');
+    await expect(progress).toContainText('22 watched');
     await expect(
       page.getByRole('menu', { name: 'Actions for The Bear' }),
     ).toHaveCount(0);
@@ -277,11 +277,13 @@ test.describe('viewer', () => {
       await phoneScrollbars(page, width);
       await page.goto('/136315/the-bear');
       const line = page.getByRole('button', { name: /^Watch history: / });
-      await expect(line).toHaveText('47 episodes · 26h 51m in all');
+      // the dots are drawn between the facts, without spaces in the text
+      await expect(line).toHaveText(/^47 episodes\s*·\s*26h 51m in all$/);
       await expect(line).not.toContainText('%');
-      // the same box as a signed-in viewer's line
+      // the same box as a signed-in viewer's line: on a phone the bar's row,
+      // then the facts' (`ProgressLineLayout`)
       const box = await line.boundingBox();
-      expect(box?.height).toBe(width < 500 ? 44 : 40);
+      expect(box?.height).toBe(width < 500 ? 70 : 40);
       await line.click();
       await expect(
         page.getByText('Please sign in to use this feature'),

@@ -215,7 +215,7 @@ test.describe('session refresh', () => {
     const progress = page
       .getByRole('button', { name: /open watch history/ })
       .first();
-    await expect(progress).toContainText('21 of 47');
+    await expect(progress).toContainText('21 watched');
     await libraryRead;
     expect((await session.stats()).calls).toBe(0);
 

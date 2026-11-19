@@ -174,6 +174,8 @@ describe('waiting for', () => {
         },
         {
           finishedAt: OCT_30,
+          // Season 2's last, a week apart from Apr 1
+          lastAired: '2025-05-20',
           nextSeason: 3,
           posterImage: expect.stringContaining('/p2.jpg'),
           seriesId: 2,

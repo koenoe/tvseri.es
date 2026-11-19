@@ -23,6 +23,13 @@ export type WaitingForItem = Readonly<{
   daysToGo?: number;
   nextEpisode?: number;
   nextKind?: 'season-premiere' | 'season-finale' | 'episode';
+  /** `renewed` only: YYYY-MM-DD of the last regular episode to air ("Last aired Sep 2025") */
+  lastAired?: string;
+  /**
+   * `renewed` only: the coming season's episode count when TMDB lists it
+   * without a date ("S03 · 8 episodes listed"); absent when nothing is listed
+   */
+  listedEpisodes?: number;
 }>;
 
 /** The full overview's finished shows that are coming back */

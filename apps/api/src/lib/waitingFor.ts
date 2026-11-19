@@ -78,12 +78,20 @@ const buildWaitingFor = (
         state: 'dated',
       });
     } else {
+      const nextSeason = nextSeasonOf(showFacts);
+      // The facts list only seasons with episodes: a listed one has them
+      const listedEpisodes = showFacts.seasons.find(
+        (season) => season.seasonNumber === nextSeason,
+      )?.episodeCount;
+      const lastAired = showFacts.lastEpisodeToAir?.airDate;
       renewed.push({
         favourite: favourites.has(show.id),
         finishedAt: show.createdAt,
         item: {
           ...base,
-          nextSeason: nextSeasonOf(showFacts),
+          ...(lastAired && { lastAired }),
+          ...(listedEpisodes && { listedEpisodes }),
+          nextSeason,
           state: 'renewed',
         },
         seasons: showFacts.seasons,
@@ -105,8 +113,15 @@ const buildWaitingFor = (
 // call each on a cold cache); RESUMING_SOON shows are always included
 const MAX_FINISHED = 150;
 
-/** The viewer's finished shows that come back (Coming up's returns) */
-export const getWaitingFor = async (userId: string) => {
+/**
+ * The viewer's finished shows that come back (Coming up's returns), with
+ * the facts read for them (the calendar's season reads)
+ */
+export const readWaitingFor = async (
+  userId: string,
+): Promise<
+  Readonly<{ facts: ReadonlyMap<number, SeriesFacts>; waitingFor: WaitingFor }>
+> => {
   // Favourites break ties in No date yet: read beside the others, so no
   // extra round trip (a curated list, short next to Finished)
   const [watched, resuming, favourites] = await Promise.all([
@@ -128,10 +143,17 @@ export const getWaitingFor = async (userId: string) => {
 
   const facts = await getSeriesFacts(finished.map((item) => item.id));
 
-  return buildWaitingFor(
-    finished.map((item) => byId.get(item.id) ?? item),
+  return {
     facts,
-    new Set(favourites.map((item) => item.id)),
-    Date.now(),
-  );
+    waitingFor: buildWaitingFor(
+      finished.map((item) => byId.get(item.id) ?? item),
+      facts,
+      new Set(favourites.map((item) => item.id)),
+      Date.now(),
+    ),
+  };
 };
+
+/** The viewer's finished shows that come back (Coming up's returns) */
+export const getWaitingFor = async (userId: string) =>
+  (await readWaitingFor(userId)).waitingFor;

@@ -1,4 +1,4 @@
-import { idListSchema } from '@tvseri.es/schemas';
+import { CountryCodeSchema, idListSchema } from '@tvseri.es/schemas';
 import * as v from 'valibot';
 
 /** A positive integer id in a path segment (TMDB ids), as a number */
@@ -107,6 +107,15 @@ export const RegionQuerySchema = v.object({
   region: v.optional(
     v.pipe(v.string(), v.trim(), v.toUpperCase(), v.regex(/^(?:[A-Z]{2})?$/)),
   ),
+});
+
+/**
+ * `?region=` on the overview and calendar: the web's region for the viewer
+ * (the saved country, else where they are), for the tickets' services when
+ * the viewer saved no country; the API only sees the web server's location
+ */
+export const ViewerRegionQuerySchema = v.object({
+  region: v.optional(CountryCodeSchema),
 });
 
 export const WatchProvidersQuerySchema = v.object({

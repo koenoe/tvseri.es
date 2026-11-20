@@ -1,7 +1,6 @@
 import { vValidator } from '@hono/valibot-validator';
 import { SCROBBLE_PROVIDERS } from '@tvseri.es/constants';
 import {
-  CountryCodeSchema,
   DeleteAccountSchema,
   SeriesStatesQuerySchema,
   UpdateUserSchema,
@@ -28,6 +27,7 @@ import { readStartedIds } from '@/lib/rollups';
 import { getSeriesStates } from '@/lib/seriesStates';
 import { toWatchProvider } from '@/lib/watchProviders';
 import { requireAuth, type Variables } from '@/middleware/auth';
+import { ViewerRegionQuerySchema } from '@/utils/params';
 import connections from './connections';
 import exportRoutes from './export';
 import home from './home';
@@ -70,23 +70,14 @@ app.get(
   },
 );
 
-// `?region=`: the web's region (the saved country, else where the viewer
-// is), for the tickets' services when no country is saved; the API only
-// sees the web server's location
-const CalendarQuerySchema = v.object({
-  region: v.optional(CountryCodeSchema),
-});
-
 const OverviewQuerySchema = v.object({
-  ...CalendarQuerySchema.entries,
+  ...ViewerRegionQuerySchema.entries,
   view: v.optional(v.picklist(['up-next'])),
 });
 
 // The profile page's trackers and calendar blocks. `?view=up-next`:
 // Up next only (Home's Continue watching), without the watchlist, Waiting
-// for and the tickets' TMDB lookups. `?region=`: the web's region (the
-// saved country, else where the viewer is), for the tickets' services when
-// no country is saved; the API only sees the web server's location
+// for and the tickets' TMDB lookups. `?region=`: `ViewerRegionQuerySchema`
 app.get('/overview', vValidator('query', OverviewQuerySchema), async (c) => {
   const { user } = c.get('auth')!;
   const { region, view } = c.req.valid('query');
@@ -99,11 +90,17 @@ app.get('/overview', vValidator('query', OverviewQuerySchema), async (c) => {
 
 // The profile calendar: every dated episode of the viewer's shows for
 // 12 months, and No date yet. `?region=` as the overview's
-app.get('/calendar', vValidator('query', CalendarQuerySchema), async (c) => {
-  const { user } = c.get('auth')!;
-  const { region } = c.req.valid('query');
-  return c.json(await getCalendar(user.id, user.country || region, Date.now()));
-});
+app.get(
+  '/calendar',
+  vValidator('query', ViewerRegionQuerySchema),
+  async (c) => {
+    const { user } = c.get('auth')!;
+    const { region } = c.req.valid('query');
+    return c.json(
+      await getCalendar(user.id, user.country || region, Date.now()),
+    );
+  },
+);
 
 // From your circle: unseen shows from the people you follow
 app.get('/circle', async (c) => {

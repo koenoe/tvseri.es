@@ -69,6 +69,7 @@ import {
   UsernameParamSchema,
 } from '@/utils/params';
 import { parseDate, parseLimit } from '@/utils/query';
+import calendar from './calendar';
 import library from './library';
 import match from './match';
 import { requireIsMe, type UserVariables, user } from './middleware';
@@ -94,6 +95,7 @@ app.route('/', stats);
 app.route('/', match);
 app.route('/', library);
 app.route('/', overview);
+app.route('/', calendar);
 
 const parseWatchProviderFromBody = async (
   body: CreateWatchedItem,

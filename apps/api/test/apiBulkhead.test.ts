@@ -113,6 +113,7 @@ const ROUTES: Readonly<Record<string, Target>> = {
   'GET /series/*': 'catalogue',
   'GET /series/romanized-titles': 'catalogue',
   'GET /series/summaries': 'catalogue',
+  'GET /user/:id/calendar': 'catalogue',
   'GET /user/:id/followers': 'catalogue',
   'GET /user/:id/followers/count': 'catalogue',
   'GET /user/:id/following': 'catalogue',

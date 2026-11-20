@@ -1,7 +1,8 @@
 'use client';
 
-import { useLayoutEffect, useRef, useState } from 'react';
+import { type MouseEvent, useLayoutEffect, useRef, useState } from 'react';
 
+import { growFromBox } from '@/components/motion/growFromBox';
 import { LATE_FADE } from '@/components/motion/lateFade';
 import cn from '@/lib/cn';
 import type { ControlState } from '@/lib/marking/controlState';
@@ -23,6 +24,11 @@ type Props = Readonly<{
 
 const FOCUSABLE = 'a, button';
 
+/** How long a press may wait for its state (a seed read) and still open */
+const PRESS_WINDOW_MS = 3000;
+
+type Press = Readonly<{ at: number; box: DOMRect }>;
+
 type Drawn = Readonly<{ id: number; state: SingleState }>;
 
 /**
@@ -30,7 +36,9 @@ type Drawn = Readonly<{ id: number; state: SingleState }>;
  * same grid cell. The pair is always laid out (it sizes the row), shown
  * while the series is new to you; any other state shows the one button over
  * it at the row's full width. A change crossfades the two in place (150ms,
- * opacity only); the last one button stays drawn while it fades out. Focus
+ * opacity only); after a press on the pair, the one button also opens out
+ * of the button pressed (`growFromBox`), so the result reads as that
+ * press's (an Undo, a sync or another tab just crossfades); the last one button stays drawn while it fades out. Focus
  * follows a press to the layer that takes its place. Streamed in over the
  * ghost, the row fades in (`LATE_FADE`, on insertion only).
  */
@@ -52,6 +60,32 @@ export default function MarkControlRow({
   const drawn = last?.id === show.id ? last.state : null;
   const pairShown = single === null;
   const row = useRef<HTMLSpanElement>(null);
+  // the pair button pressed: the one button opens out of it
+  const press = useRef<Press | null>(null);
+  const notePress = (event: MouseEvent<HTMLSpanElement>) => {
+    const button =
+      event.target instanceof Element
+        ? event.target.closest('[data-layer="pair"] button')
+        : null;
+    press.current = button
+      ? { at: performance.now(), box: button.getBoundingClientRect() }
+      : press.current;
+  };
+  useLayoutEffect(() => {
+    const pressed = press.current;
+    press.current = null;
+    const single = row.current?.querySelector<HTMLElement>(
+      '[data-layer="single"]',
+    );
+    if (
+      !pairShown &&
+      single &&
+      pressed &&
+      performance.now() - pressed.at < PRESS_WINDOW_MS
+    ) {
+      growFromBox(single, pressed.box);
+    }
+  }, [pairShown]);
   useLayoutEffect(() => {
     const focused = document.activeElement;
     const leaving = row.current?.querySelector(
@@ -73,7 +107,12 @@ export default function MarkControlRow({
   const pairLayerId = `pair-${show.id}`;
   const singleLayerId = `single-${show.id}`;
   return (
-    <span className={classes} data-mark-control={state.kind} ref={row}>
+    <span
+      className={classes}
+      data-mark-control={state.kind}
+      onClickCapture={notePress}
+      ref={row}
+    >
       {/* keyed by the series: another series (the decade card's next
           tile) swaps at once, a press on this one crossfades */}
       <span

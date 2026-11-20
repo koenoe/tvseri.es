@@ -48,18 +48,18 @@ describe('sinceChoices', () => {
 
 describe('the words', () => {
   it('writes a day out in full', () => {
-    expect(formatSinceDay(day(2026, 7, 19))).toBe('19 August 2026');
+    expect(formatSinceDay(day(2026, 7, 19))).toBe('August 19, 2026');
   });
 
   it('keeps the button short: the year only when it isn’t this one', () => {
-    expect(formatSinceButton(day(2026, 7, 19), NOW)).toBe('19 Aug');
-    expect(formatSinceButton(day(2025, 10, 19), NOW)).toBe('19 Nov 2025');
+    expect(formatSinceButton(day(2026, 7, 19), NOW)).toBe('Aug 19');
+    expect(formatSinceButton(day(2025, 10, 19), NOW)).toBe('Nov 19, 2025');
   });
 
   it('says what each choice reads', () => {
     expect(
       sinceLine({ kind: 'since', since: day(2026, 7, 19) }, null, 2542),
-    ).toBe('From 19 August 2026 to today.');
+    ).toBe('From August 19, 2026 to today.');
     expect(
       sinceLine(
         { kind: 'since', since: day(2026, 10, 2) },

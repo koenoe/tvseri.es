@@ -131,6 +131,7 @@ export function dateFormats(order: DateOrder) {
         ? `${sameMonth ? from.day : dayMonth(from)} – ${dayMonth(to)}`
         : `${dayMonth(from)} – ${sameMonth ? to.day : dayMonth(to)}`;
     },
+    longDayMonthYearPattern: dayFirst ? 'd MMMM yyyy' : 'MMMM d, yyyy',
     longWeekdayMonthDay: (
       parts: Pick<DayParts, 'day' | 'month'>,
       weekday: number,
@@ -171,6 +172,8 @@ export const yearSuffix = formats.yearSuffix;
 /** The date-fns style patterns for places that format with a pattern */
 export const DAY_MONTH_PATTERN = formats.dayMonthPattern;
 export const DAY_MONTH_YEAR_PATTERN = formats.dayMonthYearPattern;
+/** "August 19, 2026" (UK: "19 August 2026") */
+export const LONG_DAY_MONTH_YEAR_PATTERN = formats.longDayMonthYearPattern;
 export const WEEKDAY_PATTERN = formats.weekdayPattern;
 
 /** A UTC day as numbers */

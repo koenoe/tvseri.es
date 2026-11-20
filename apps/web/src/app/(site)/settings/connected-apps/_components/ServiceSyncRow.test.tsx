@@ -183,7 +183,7 @@ describe('ServiceSyncRow', () => {
     );
     expect(
       screen.getByRole('button', {
-        name: 'Sync since 2 November 2026, change day',
+        name: 'Sync since November 2, 2026, change day',
       }),
     ).toBeTruthy();
     expect(

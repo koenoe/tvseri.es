@@ -1,4 +1,9 @@
 import { format, startOfDay, startOfYear, subMonths, subWeeks } from 'date-fns';
+import {
+  DAY_MONTH_PATTERN,
+  DAY_MONTH_YEAR_PATTERN,
+  LONG_DAY_MONTH_YEAR_PATTERN,
+} from '@/lib/format/date';
 
 /**
  * A first sync's "How far back": from a day's start (local time), or the
@@ -53,16 +58,17 @@ export const sinceChoices = (
   ];
 };
 
-/** "19 August 2026" */
-export const formatSinceDay = (day: number) => format(day, 'd MMMM yyyy');
+/** "August 19, 2026" */
+export const formatSinceDay = (day: number) =>
+  format(day, LONG_DAY_MONTH_YEAR_PATTERN);
 
-/** The day button's words: "19 Aug", with the year only when it isn't this one */
+/** The day button's words: "Aug 19", with the year only when it isn't this one */
 export const formatSinceButton = (day: number, now: number) =>
   format(
     day,
     new Date(day).getFullYear() === new Date(now).getFullYear()
-      ? 'd MMM'
-      : 'd MMM yyyy',
+      ? DAY_MONTH_PATTERN
+      : DAY_MONTH_YEAR_PATTERN,
   );
 
 const COUNT = new Intl.NumberFormat('en-GB');

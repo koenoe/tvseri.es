@@ -57,7 +57,7 @@ const pickerSpot = (button: DOMRect): Point => {
 };
 
 /** Until the browser knows its own day, a day-sized placeholder */
-const PLACEHOLDER_DAY = '19 Aug';
+const PLACEHOLDER_DAY = 'Aug 19';
 
 /**
  * The first sync's "How far back": Since a day (three months back, or where
@@ -114,7 +114,7 @@ export default function ServiceScopeRow({
   const line =
     shown === null ? (
       <span aria-hidden="true" className="invisible">
-        From 19 August 2026 to today.
+        From August 19, 2026 to today.
       </span>
     ) : (
       sinceLine(shown, resumeFrom, total)

@@ -894,6 +894,11 @@ describe('primeReader.link', () => {
     });
   });
 
+  it('opens no season pages: progress is the sync’s, and the link’s read has seconds', async () => {
+    await primeReader.link(JAR);
+    expect(urls().filter((url) => url.includes('/detail/'))).toEqual([]);
+  });
+
   it('names a film as the latest without an episode', async () => {
     answers.set(PAGE_URL, json(historyPage([item('movie', 'Heat', 1, T)])));
     expect(await primeReader.link(JAR)).toMatchObject({

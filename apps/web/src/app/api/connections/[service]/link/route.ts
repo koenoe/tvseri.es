@@ -8,6 +8,12 @@ import { ApiError, apiFetch } from '@/lib/api/client';
 
 import { codeRefusal, linkForward, refuse } from './linkForward';
 
+/**
+ * The API's test read has 11 seconds, its function 15: past the read's
+ * budget its refusal still arrives, before the function's end
+ */
+const LINK_TIMEOUT_MS = 14_000;
+
 /** A 422 carries its own reason; the rest read as any code's refusal */
 function refusalOf(error: unknown): Response {
   if (error instanceof ApiError && error.status === 422) {
@@ -37,6 +43,7 @@ export const POST = linkForward(
         method: 'POST',
         params: { service },
         schema: ConnectionLinkReplySchema,
+        timeoutMs: LINK_TIMEOUT_MS,
       });
       return Response.json(reply);
     } catch (error) {

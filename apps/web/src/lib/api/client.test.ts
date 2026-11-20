@@ -195,6 +195,17 @@ describe('apiFetch', () => {
       await expectApiError(apiFetch('/series/1'), 0, 'ApiNetworkError');
     });
 
+    it('gives a write its own timeout, a read the default', async () => {
+      const timeout = vi.spyOn(AbortSignal, 'timeout');
+      const { apiFetch } = setup(json(200, {}), json(200, {}));
+
+      await apiFetch('/link', { method: 'POST', timeoutMs: 14_000 });
+      await apiFetch('/series/1');
+
+      expect(timeout.mock.calls).toEqual([[14_000], [10_000]]);
+      timeout.mockRestore();
+    });
+
     it('maps a timeout to ApiError(0)', async () => {
       const { apiFetch } = setup(
         new DOMException('The operation timed out.', 'TimeoutError'),

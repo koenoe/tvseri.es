@@ -67,6 +67,11 @@ export type ApiFetchOptions = AuthContext &
     params?: Readonly<Record<string, string | number>>;
     /** `undefined` and `null` values are left out; keys are sorted. */
     query?: Readonly<Record<string, QueryValue>>;
+    /**
+     * A write the API gives longer than `FETCH_TIMEOUT` (its own budget plus
+     * a margin), so its answer arrives instead of the web's timeout
+     */
+    timeoutMs?: number;
   }>;
 
 type ApiConfig = Readonly<{ apiKey: string; baseUrl: string }>;
@@ -238,10 +243,10 @@ export function createApiClient(transport: ApiTransport) {
     }
   }
 
-  async function send(request: Request): Promise<Reply> {
+  async function send(request: Request, raw: RawOptions = {}): Promise<Reply> {
     const { method, path } = request;
     const startedAt = performance.now();
-    const response = await open(request);
+    const response = await open(request, raw);
     let text: string;
     try {
       text = await response.text();
@@ -305,7 +310,14 @@ export function createApiClient(transport: ApiTransport) {
     path: string,
     options: ApiFetchOptions & Readonly<{ schema?: ApiSchema }> = {},
   ): Promise<unknown> {
-    const { accessToken, body, method = 'GET', notFound, schema } = options;
+    const {
+      accessToken,
+      body,
+      method = 'GET',
+      notFound,
+      schema,
+      timeoutMs,
+    } = options;
     const fullPath = buildPath(path, options);
 
     let reply: Reply;
@@ -313,12 +325,15 @@ export function createApiClient(transport: ApiTransport) {
       reply =
         method === 'GET'
           ? await dedupedGet(fullPath, accessToken ?? null)
-          : await send({
-              accessToken,
-              body: body === undefined ? undefined : JSON.stringify(body),
-              method,
-              path: fullPath,
-            });
+          : await send(
+              {
+                accessToken,
+                body: body === undefined ? undefined : JSON.stringify(body),
+                method,
+                path: fullPath,
+              },
+              { timeoutMs },
+            );
     } catch (error) {
       if (
         notFound === 'null' &&

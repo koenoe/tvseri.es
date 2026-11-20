@@ -252,8 +252,19 @@ const latestOf = (played: ReadonlyArray<Played>): ConnectionLatest | null => {
 
 type Answered = Readonly<{ ok: true; answer: HistoryAnswer | null }>;
 
+type HistoryOptions = Readonly<{
+  /**
+   * False for the link's one read: it names the newest title and needs no
+   * progress, and every season page costs a paced request of its budget
+   */
+  seasonPages: boolean;
+}>;
+
 /** Each page and season is fetched once per run */
-const createHistory = (jar: CookieJar) => {
+const createHistory = (
+  jar: CookieJar,
+  { seasonPages }: HistoryOptions = { seasonPages: true },
+) => {
   // Pages and season lookups alike, so a walk to a page never goes back to back
   const pace = createPacer();
   /** Page n's cursor; `null` for the first, absent once past the last */
@@ -342,7 +353,7 @@ const createHistory = (jar: CookieJar) => {
       named.season !== null && named.show !== null
         ? { part: named.part, season: named.season, show: named.show }
         : null;
-    const id = detailId(entry.href);
+    const id = seasonPages ? detailId(entry.href) : null;
     if (!id) {
       return { ok: true, progress: null, season: fromTitle };
     }
@@ -414,7 +425,7 @@ export const primeReader: ServiceReader = {
   label: LABEL,
   link: async (cookies) => {
     const jar = cookieJar(cookies, SITE);
-    const history = createHistory(jar);
+    const history = createHistory(jar, { seasonPages: false });
     const read = await history.flattenedPage(0);
     if (!read.ok || 'walking' in read) {
       return read.ok ? readFailure('read-failed') : read;

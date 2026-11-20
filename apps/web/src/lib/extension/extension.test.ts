@@ -71,6 +71,20 @@ describe('pingExtension', () => {
     });
   });
 
+  it('finds the store’s install as well as the hand-loaded one', async () => {
+    const STORE_ID = 'gnejijlljabmdidklojkipaflnpameok';
+    const runtime = runtimeOf((id, message) =>
+      id === STORE_ID && (message as { type: string }).type === 'ping'
+        ? { installed: true, services: ['netflix'], version: '0.3.1' }
+        : null,
+    );
+    expect(await pingExtension(runtime)).toEqual({
+      id: STORE_ID,
+      services: ['netflix'],
+      version: '0.3.1',
+    });
+  });
+
   it('is missing without chrome.runtime', async () => {
     expect(await pingExtension(null)).toBeNull();
   });

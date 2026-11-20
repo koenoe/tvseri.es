@@ -12,9 +12,14 @@ import * as v from 'valibot';
  * confirms there, and the card's poll sees the link land.
  */
 
-/** The unpacked build's stable dev id until there is a store listing */
+/**
+ * The ids the site asks, in turn: the hand-loaded build's (its manifest's
+ * key fixes it), then the Chrome Web Store's, which gives a listed
+ * extension its own
+ */
 export const EXTENSION_IDS: ReadonlyArray<string> = [
   'midgpplaihphccejepaigffjjlbcjkmc',
+  'gnejijlljabmdidklojkipaflnpameok',
 ];
 
 /**

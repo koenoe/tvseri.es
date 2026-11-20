@@ -80,7 +80,7 @@ export const itemLabel = (item: UpNextItem) =>
     ? `${item.title}, ${item.code} ${item.episodeTitle}`
     : `${item.title}, ${item.code}`;
 
-/** "Last watched S02E01 yesterday" / "… Fri 26 Oct"; a visitor reads "today", not hours */
+/** "Last watched S02E01 yesterday" / "… Oct 26"; a visitor reads "today", not hours */
 export function lastWatchedLabel(
   item: Pick<UpNextItem, 'lastWatchedAt' | 'lastWatchedCode'>,
   now: number,
@@ -93,7 +93,7 @@ export function lastWatchedLabel(
 }
 
 /**
- * What is next for the season: "Next Sun 15 Nov" for its next episode still
+ * What is next for the season: "Next Sun Nov 15" for its next episode still
  * to air (as the progress bar's tick: another season's date, or one that
  * has aired, is no next of this one), else "Next season TBA"
  */

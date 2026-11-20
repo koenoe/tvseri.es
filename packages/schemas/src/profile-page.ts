@@ -62,14 +62,14 @@ export type TasteShow = Readonly<{
 /** What is next for a shared show, from the show's facts ("You both watch") */
 export type SharedShowNext = Readonly<
   | {
-      /** "S03 · Thu 7 Jan": a later season has a premiere date */
+      /** "S03 · Thu Jan 7": a later season has a premiere date */
       kind: 'season-premiere';
       season: number;
       /** YYYY-MM-DD */
       date: string;
     }
   | {
-      /** "S02E03 · Sun 15 Nov": the next episode of the airing season */
+      /** "S02E03 · Sun Nov 15": the next episode of the airing season */
       kind: 'episode';
       season: number;
       episode: number;
@@ -288,7 +288,7 @@ export type UpNextItem = Readonly<{
   seasonRuntimes?: ReadonlyArray<number>;
   /** The next episode is the season's last and all aired: "Season finale" */
   seasonFinale: boolean;
-  /** The next episode still to air: "Next Sun 15 Nov", else "Next season TBA" when `nextSeasonTba` */
+  /** The next episode still to air: "Next Sun Nov 15", else "Next season TBA" when `nextSeasonTba` */
   nextToAir: Readonly<{
     season: number;
     episode: number;
@@ -342,7 +342,7 @@ export type OutNowItem = Readonly<{
   runtimeMinutes: number | null;
 }>;
 
-/** "S06 premieres Sun 15 Nov" under a Catching up show */
+/** "S06 premieres Sun Nov 15" under a Catching up show */
 export type PremiereRunway = Readonly<{
   season: number;
   date: string;

@@ -46,5 +46,5 @@ export const layer = (shown: boolean) =>
 /** "On watchlist": the outlined button with a faint fill */
 export const ON_FILL = 'bg-white/6';
 
-/** The one button's second fact at its end ("3 of 15", "Thu 19 Nov") */
+/** The one button's second fact at its end ("3 of 15", "Thu Nov 19") */
 export const FACT = 'shrink-0 text-meta font-normal text-white/60';

@@ -10,7 +10,7 @@ import type { EpisodeRef, ListStatus, NextToAir, RemoteEpisode } from './types';
  * page knows about the episodes.
  */
 
-/** “Season 3 has no date yet” / “S03E06 airs Fri 2 Jul 2027”. */
+/** “Season 3 has no date yet” / “S03E06 airs Jul 2, 2027”. */
 function airNote(next: NextToAir): string {
   if (!next.airDate) {
     return `Season ${next.seasonNumber} has no date yet`;

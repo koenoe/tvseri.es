@@ -216,7 +216,7 @@ export function progressLine(
  * regular episodes and their runtime; just the count when no runtime is
  * known). Before anything airs it counts every episode and, as the
  * signed-in line does, says when the next one is: "8 episodes · next Fri
- * 13 Nov".
+ * Nov 13".
  */
 export function sizeLine(
   series: Pick<SeriesBase, 'seasons'>,

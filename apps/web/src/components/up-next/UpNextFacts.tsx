@@ -27,7 +27,7 @@ const GLYPHS: Readonly<Record<UpNextFact['kind'], Glyph>> = {
   trending: onAirGlyph,
 };
 
-/** What the phone leaves out ("58m · Next Sun 15 Nov") */
+/** What the phone leaves out ("58m · Next Sun Nov 15") */
 const DESKTOP_ONLY: ReadonlySet<UpNextFact['kind']> = new Set([
   'latest',
   'finale',

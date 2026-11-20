@@ -28,7 +28,7 @@ type Props = Readonly<{
   items: ReadonlyArray<UpNextItem>;
   /** every show in it, drawn or not */
   count: number;
-  /** the clock for "yesterday" and "Next Sun 15 Nov" (the server's, or the preview's) */
+  /** the clock for "yesterday" and "Next Sun Nov 15" (the server's, or the preview's) */
   now: number;
   username: string;
 }>;

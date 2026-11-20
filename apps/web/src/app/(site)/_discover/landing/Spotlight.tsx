@@ -22,7 +22,7 @@ type SpotlightShow = Readonly<{
 }>;
 
 type Props = Readonly<{
-  /** the overline: "Start here", "Returning Tue 17 Nov" (a pink one for a premiere) */
+  /** the overline: "Start here", "Returning Tue Nov 17" (a pink one for a premiere) */
   kicker: ReactNode;
   /** a `MetaRow` (year, seasons, genre); desktop only, phones drop it */
   meta?: ReactNode;

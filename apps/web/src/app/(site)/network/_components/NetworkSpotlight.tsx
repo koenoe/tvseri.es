@@ -13,7 +13,7 @@ import { getNetworkSpotlight } from '../_data/spotlight';
 
 /**
  * The network's recommendation tile: its most popular returning
- * show, "Returning Tue 17 Nov", year · seasons · genre, a short overview and
+ * show, "Returning Tue Nov 17", year · seasons · genre, a short overview and
  * the Watchlist + Seen it control, in the viewer's state (its own read,
  * streamed). Nothing when the network has no shows.
  */

@@ -122,7 +122,7 @@ export function nightLine(
 }
 
 /**
- * "Also big: Adolescence, all 4 on Sat 15 Mar": "all N" when the night covered
+ * "Also big: Adolescence, all 4 on Sat Mar 15": "all N" when the night covered
  * every episode of the show, else "N episodes".
  */
 export function alsoBigText(
@@ -141,7 +141,7 @@ export function alsoBigText(
   return `Also big: ${series.title}, ${amount} on ${shortDay(dateMs(date))}`;
 }
 
-/** "Saturday 27 December" (the card's accessible name) */
+/** "Saturday December 27" (the card's accessible name) */
 export function longDay(date: string): string {
   const ms = dateMs(date);
   const at = new Date(ms);

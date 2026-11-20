@@ -6,8 +6,8 @@ import type { ChipState } from './chips';
 
 /**
  * What one episode's chip says about it:
- * "Today, 21:40", "Mon 9 Nov, 21:40", "Don’t remember when", "Skipped",
- * "Airs Fri 13 Nov" or "Not watched".
+ * "Today, 21:40", "Nov 9, 21:40", "Don’t remember when", "Skipped",
+ * "Airs Fri Nov 13" or "Not watched".
  */
 export function chipStatus(
   state: ChipState,

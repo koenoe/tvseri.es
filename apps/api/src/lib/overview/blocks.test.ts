@@ -584,6 +584,15 @@ describe('Paused', () => {
     expect(needsNextAirDate(afterBreak(11), NOW)).toBe(true);
     // The next episode is the latest: its date is in the facts
     expect(needsNextAirDate(afterBreak(9), NOW)).toBe(false);
+    // Hidden, or kept since the last watch: never asked about anyway
+    const hidden = {
+      ...afterBreak(11),
+      paused: 'hide',
+      pausedAt: NOW,
+    } as const;
+    expect(needsNextAirDate(hidden, NOW)).toBe(false);
+    const kept = { ...afterBreak(11), paused: 'keep', pausedAt: NOW } as const;
+    expect(needsNextAirDate(kept, NOW)).toBe(false);
     // Watched recently: not Paused anyway
     expect(needsNextAirDate(state(), NOW)).toBe(false);
     // Nothing aired in 3 months: no next episode can be recent

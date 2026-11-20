@@ -181,12 +181,15 @@ const olderStates = async (
     .filter((item) => isStale(item.createdAt ?? 0, now))
     .map((item) => item.id);
   if (ids.length === 0) return [];
-  const [facts, prefs, watched] = await Promise.all([
-    withTmdbCap(MAX_PAUSED_TMDB_CALLS, () => getSeriesFacts(ids)),
-    getSeriesPrefsMany(userId, ids),
-    readShowItems(userId, ids),
+  const prefs = await getSeriesPrefsMany(userId, ids);
+  // A hidden show is never asked about: no facts or items read for it
+  const shown = ids.filter((id) => prefs.get(id)?.paused !== 'hide');
+  if (shown.length === 0) return [];
+  const [facts, watched] = await Promise.all([
+    withTmdbCap(MAX_PAUSED_TMDB_CALLS, () => getSeriesFacts(shown)),
+    readShowItems(userId, shown),
   ]);
-  return ids.flatMap((id) => {
+  return shown.flatMap((id) => {
     const showFacts = facts.get(id);
     return showFacts
       ? [

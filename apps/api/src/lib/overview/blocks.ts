@@ -445,13 +445,26 @@ const activeSinceOf = (
 };
 
 /**
+ * Whether Paused may ask about the show: never once hidden; Keep asks again
+ * only once the show was watched after Keep and went stale again
+ */
+const mayAsk = (
+  state: Pick<ShowState, 'lastWatchedAt' | 'paused' | 'pausedAt'>,
+) =>
+  state.paused !== 'hide' &&
+  (state.paused !== 'keep' ||
+    (state.pausedAt ?? 0) < (state.lastWatchedAt ?? 0));
+
+/**
  * Whether reading the next episode's air date (its season, cached) can take
  * the show out of Paused: stale by what the facts know, the next episode's
  * date not in them, and something aired within the 3 months (else no
  * next episode can be recent).
  */
 export const needsNextAirDate = (state: ShowState, now: number) => {
-  if (state.lastWatchedAt === null || !state.nextUp) return false;
+  if (state.lastWatchedAt === null || !state.nextUp || !mayAsk(state)) {
+    return false;
+  }
   if (!isStale(activeSinceOf(state, state.lastWatchedAt, NO_DATES), now)) {
     return false;
   }
@@ -478,11 +491,7 @@ export const buildPaused = (
         nextAirDates,
       );
       if (!isStale(activeSince, now)) return false;
-      if (state.paused === 'hide') return false;
-      // Keep asks again only once the show was watched after Keep and went stale again
-      return (
-        state.paused !== 'keep' || (state.pausedAt ?? 0) < state.lastWatchedAt
-      );
+      return mayAsk(state);
     })
     .sort(byRecent)
     .map((state) => ({

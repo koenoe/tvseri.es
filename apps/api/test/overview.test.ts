@@ -372,6 +372,44 @@ describe('profile overview', () => {
     ]);
   });
 
+  it('reads the stale shows past the first 60 in batches, with at most 10 TMDB calls', async () => {
+    seedUser();
+    // 60 recent shows, then 30 stale ones: none has facts stored yet
+    const recent = Array.from({ length: 60 }, (_, index) => 300 + index);
+    const stale = Array.from({ length: 30 }, (_, index) => 400 + index);
+    for (const id of [...recent, ...stale]) {
+      fakeShow({ id, seasons: [{ airDate: '2026-01-01', episodes: 10 }] });
+    }
+    for (const id of recent) watched(id, range(1, 1, 3));
+    for (const id of stale) {
+      watched(id, range(1, 1, 3), '2026-06-01T20:00:00Z');
+    }
+    db.seed('Lists', [
+      ...recent.map((id, index) =>
+        listItem('IN_PROGRESS', id, Date.parse('2026-11-10') - index),
+      ),
+      ...stale.map((id, index) =>
+        listItem('IN_PROGRESS', id, Date.parse('2026-06-01') - index),
+      ),
+    ]);
+    const staleFacts = () =>
+      requestedUrls().filter((url) =>
+        stale.some((id) => new URL(url).pathname === `/3/tv/${id}`),
+      ).length;
+
+    resetRequests();
+    const cold = (await (
+      await request('/me/overview', { as: USER_ID })
+    ).json()) as { paused: Array<Record<string, unknown>> };
+    expect(staleFacts()).toBe(10);
+    expect(cold.paused).toHaveLength(10);
+
+    // Later views fill the rest in, 10 at a time
+    resetRequests();
+    await request('/me/overview', { as: USER_ID });
+    expect(staleFacts()).toBe(10);
+  });
+
   it('does not call a show back from a mid-season break Paused', async () => {
     setup();
     // E1–E8 watched in July; after a break E9 aired 20 days ago, E11 yesterday

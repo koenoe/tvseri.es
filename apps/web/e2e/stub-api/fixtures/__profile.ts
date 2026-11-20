@@ -639,6 +639,12 @@ export const routes: readonly StubRoute[] = [
     path: '/user/:id/stats/:year/summary',
   },
   {
+    // the Stats page's Totals read it beside the summary (no favourites dated in a year here)
+    handle: (request) =>
+      withOwner(request, () => ok({ current: 0, previous: 0 })),
+    path: '/user/:id/stats/:year/favorites-count',
+  },
+  {
     handle: (request) => withOwner(request, (owner) => ok(statsWeekly(owner))),
     path: '/user/:id/stats/:year/weekly',
   },

@@ -47,13 +47,15 @@ export default async function PhoneHead({
     pill: <Pill row={row} username={user.username} />,
     year: row.year,
   }));
+  const headClass = rows.length > 0 ? undefined : 'pb-[30px]';
   const more = (
     <YearsSheet>
       <YearsList rows={rows} username={user.username} />
     </YearsSheet>
   );
   return (
-    <div data-slot="stats-phone-head">
+    // without the pill row, the head keeps the row's space before the year
+    <div className={headClass} data-slot="stats-phone-head">
       <section aria-label={aboutLabel} className="flex flex-col gap-3 pt-0.5">
         {/* a container, so the handle fits its size to the column */}
         <div className="@container flex flex-col gap-2">
@@ -73,9 +75,12 @@ export default async function PhoneHead({
           </MetaRow>
         </div>
       </section>
-      <nav aria-label="Years" className={YEARS_CLASSES}>
-        <YearPills more={more} pills={pills} />
-      </nav>
+      {/* No dated year yet: no empty pill row */}
+      {rows.length > 0 ? (
+        <nav aria-label="Years" className={YEARS_CLASSES}>
+          <YearPills more={more} pills={pills} />
+        </nav>
+      ) : null}
     </div>
   );
 }

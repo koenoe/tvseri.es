@@ -286,7 +286,8 @@ export const statsWeekly = (name: PersonName): StatsWeeklyItem[] =>
 const metrics = (episodeCount: number, totalRuntime: number) => ({
   avgPerDay: episodeCount / 316,
   episodeCount,
-  longestStreak: 6,
+  // no streak without an episode, as the API counts it
+  longestStreak: episodeCount > 0 ? 6 : 0,
   seriesCount: Math.ceil(episodeCount / 8),
   totalRuntime,
 });

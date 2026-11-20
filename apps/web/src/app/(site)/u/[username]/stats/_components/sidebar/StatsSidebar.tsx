@@ -52,14 +52,19 @@ export default async function StatsSidebar({
   return (
     <div className={COLUMN} data-slot="stats-aside">
       <Profile counts={counts} user={user} />
-      <Divider />
-      <section
-        aria-labelledby="stats-side-years"
-        className="flex flex-col gap-3"
-      >
-        <SectionHead id="stats-side-years" size="side" title="Years" />
-        <YearsList fold rows={rows} username={user.username} />
-      </section>
+      {/* No dated year yet: no Years heading over an empty list */}
+      {rows.length > 0 ? (
+        <>
+          <Divider />
+          <section
+            aria-labelledby="stats-side-years"
+            className="flex flex-col gap-3"
+          >
+            <SectionHead id="stats-side-years" size="side" title="Years" />
+            <YearsList fold rows={rows} username={user.username} />
+          </section>
+        </>
+      ) : null}
     </div>
   );
 }

@@ -1,6 +1,11 @@
 import { MAX_EPISODES_PER_MARK_ACTION } from '@tvseri.es/schemas';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+vi.mock('next/navigation', () => ({
+  unstable_isUnrecognizedActionError: (error: unknown) =>
+    error instanceof Error && error.name === 'UnrecognizedActionError',
+}));
+
 import { createMarkingCommands } from './commands';
 import {
   airedInSeason,
@@ -254,6 +259,22 @@ describe('toggleEpisode', () => {
     expect(t.view().watched.S03E05).toBeUndefined();
     expect(t.toasts.at(-1)).toMatchObject({
       action: { label: 'Try again' },
+      tone: 'error',
+    });
+  });
+
+  it('a tab older than the site offers a reload, not a Try again that fails the same way', async () => {
+    // what Next throws when a newer deployment no longer has this action
+    const gone = Object.assign(new Error('Server Action was not found'), {
+      name: 'UnrecognizedActionError',
+    });
+    t.actions.markEpisodes.mockImplementationOnce(() => Promise.reject(gone));
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 5, seasonNumber: 3 });
+    await flush();
+    expect(t.view().watched.S03E05).toBeUndefined();
+    expect(t.toasts.at(-1)).toMatchObject({
+      action: { label: 'Reload' },
+      title: 'tvseri.es has been updated. Reload to save this.',
       tone: 'error',
     });
   });

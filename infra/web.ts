@@ -28,6 +28,10 @@ const projectName = isProduction ? 'tvseries' : `tvseries-${$app.stage}`;
 // environment variables. Raise it on purpose, after a preview deploy works.
 const VERCEL_CLI = 'vercel@66.5.0';
 
+/** One id per deploy (the commit, made unique by the time), for `NEXT_DEPLOYMENT_ID` */
+const deploymentId = () =>
+  `${(process.env.GITHUB_SHA ?? 'local').slice(0, 12)}-${Date.now().toString(36)}`;
+
 function runVercel(
   command: string,
   projectId: string,
@@ -176,6 +180,10 @@ export const web = $dev
             API_KEY: apiKey,
             API_URL: apiUrl,
             AUTH_URL: authUrl,
+            // A prebuilt build has no Vercel deployment id, so without one
+            // of ours Skew Protection does nothing: a tab open across a
+            // deploy calls Server Actions the new build no longer has
+            NEXT_DEPLOYMENT_ID: deploymentId(),
             SECRET_KEY: secretKey,
             SITE_URL: siteUrl,
           },

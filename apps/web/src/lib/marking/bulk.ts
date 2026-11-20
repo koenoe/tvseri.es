@@ -5,6 +5,7 @@ import type {
   LibraryList,
 } from '@tvseri.es/schemas';
 import type { ActionResult } from '@/lib/actions/result';
+import { settled } from './chain';
 import { withMembership } from './state';
 import type { MarkingStoreApi } from './store';
 import { reportFailure, type ToastInput } from './toasts';
@@ -105,17 +106,17 @@ export function createBulk(deps: BulkDeps) {
     }
     const ids = items.map((item) => item.id);
     applyIds(op, ids);
-    const result = await deps
-      .bulkLibrary({
+    const result = await settled(() =>
+      deps.bulkLibrary({
         items: items.map(({ addedAt, id }) =>
           addedAt === undefined ? { id } : { addedAt, id },
         ),
         op,
-      })
-      .catch(() => null);
-    if (!result?.ok) {
+      }),
+    );
+    if (!result.ok) {
       applyIds(INVERSE[op], ids);
-      reportFailure(deps, result?.error);
+      reportFailure(deps, result.error);
       return none;
     }
     const { done, failed } = result.data;

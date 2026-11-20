@@ -68,6 +68,7 @@ import type { MarkingStoreApi } from './store';
 import {
   createMergeRun,
   markToast,
+  OUTDATED_TOAST,
   reportFailure,
   runToast,
   type ToastInput,
@@ -286,6 +287,8 @@ export function createMarkingCommands(deps: MarkingDeps) {
     merge.end();
     if (result.error === 'unauthenticated') {
       deps.promptSignIn();
+    } else if (result.error === 'outdated') {
+      deps.toast(OUTDATED_TOAST);
     } else {
       deps.toast({
         action: {

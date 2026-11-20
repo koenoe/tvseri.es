@@ -9,7 +9,10 @@ export type ActionError =
   | 'unauthenticated'
   | 'invalid'
   | 'not-found'
-  | 'failed';
+  | 'failed'
+  /** client-side only: the site was deployed since this tab loaded and no
+   * longer has the action it called (`settled`) */
+  | 'outdated';
 
 /**
  * What a failed multi-request write did save before it failed (the server

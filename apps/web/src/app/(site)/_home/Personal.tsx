@@ -54,6 +54,7 @@ export async function ContinueOrGetStarted() {
   const now = Date.now();
   return (
     <ContinueWatching
+      count={data.count}
       first={data.first}
       items={data.items}
       now={now}

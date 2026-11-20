@@ -27,6 +27,7 @@ export default function PersonalPreview() {
     <>
       <div id="personal-continue-watching">
         <ContinueWatching
+          count={ITEMS.length}
           first={DEXTER_RESURRECTION}
           items={ITEMS}
           now={NOW}

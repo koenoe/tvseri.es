@@ -23,11 +23,16 @@ const DOT = <Dot tone="cyan" />;
  * progress" button instead.
  */
 export default function InProgressLane({
+  count,
   items,
   profileHref,
-}: Readonly<{ items: ReadonlyArray<UpNextItem>; profileHref: string }>) {
+}: Readonly<{
+  /** every show in progress, the ones not drawn too */
+  count: number;
+  items: ReadonlyArray<UpNextItem>;
+  profileHref: string;
+}>) {
   const rows = items.slice(1, 1 + LANE_ROWS);
-  const count = items.length;
   return (
     <Lane
       count={count}

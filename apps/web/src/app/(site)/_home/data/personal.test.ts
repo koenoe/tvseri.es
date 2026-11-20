@@ -9,8 +9,13 @@ vi.mock('server-only', () => ({}));
 vi.mock('next/cache', () => ({ cacheLife: vi.fn(), cacheTag: vi.fn() }));
 vi.mock('@/auth', () => ({ default: auth }));
 vi.mock('@/auth/viewer', () => ({ getViewer: tokenViewer }));
+vi.mock('@/components/up-next/loadUpNextArt', () => ({
+  loadUpNextArt: vi.fn(async () => null),
+}));
 
-const { getGetStarted, readAsViewer } = await import('./personal');
+const { getContinueWatching, getGetStarted, readAsViewer } = await import(
+  './personal'
+);
 
 const SESSION = { accessToken: 'token', user: { id: 'user-1' } };
 
@@ -84,5 +89,27 @@ describe('getGetStarted', () => {
       code: 'ApiInvalidResponse',
       name: 'ApiError',
     });
+  });
+});
+
+describe('getContinueWatching', () => {
+  beforeEach(() => {
+    vi.stubEnv('API_URL', 'https://api.test');
+    vi.stubEnv('API_KEY', 'key');
+  });
+
+  it('draws the first 8 shows and counts every one in progress', async () => {
+    const upNext = Array.from({ length: 11 }, (_, index) => ({
+      seriesId: index + 1,
+    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => Response.json({ upNext })),
+    );
+
+    const data = await getContinueWatching('token');
+
+    expect(data?.items).toHaveLength(8);
+    expect(data?.count).toBe(11);
   });
 });

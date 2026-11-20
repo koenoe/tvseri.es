@@ -26,6 +26,8 @@ type Props = Readonly<{
   second?: UpNextArt | null;
   /** the viewer's Up next, most recent first (at most 8) */
   items: ReadonlyArray<UpNextItem>;
+  /** every show in it, drawn or not */
+  count: number;
   /** the clock for "yesterday" and "Next Sun 15 Nov" (the server's, or the preview's) */
   now: number;
   username: string;
@@ -44,6 +46,7 @@ type Props = Readonly<{
  * as the next load would draw it).
  */
 export default function ContinueWatching({
+  count: serverCount,
   first,
   items: serverItems,
   now,
@@ -61,6 +64,8 @@ export default function ContinueWatching({
       : head.seriesId === serverItems[1]?.seriesId
         ? second
         : null;
+  // the shows that left here (caught up, hidden) leave the count too
+  const count = serverCount - (serverItems.length - items.length);
   const profileHref = profilePath(username);
   const hasLane = items.length > 1;
   const grid = continueGrid(hasLane);
@@ -86,7 +91,11 @@ export default function ContinueWatching({
       <div className={grid}>
         <UpNextTile item={head} now={now} show={art} />
         {hasLane ? (
-          <InProgressLane items={items} profileHref={profileHref} />
+          <InProgressLane
+            count={count}
+            items={items}
+            profileHref={profileHref}
+          />
         ) : (
           <ButtonLink
             className={PROFILE_BUTTON_PHONE}

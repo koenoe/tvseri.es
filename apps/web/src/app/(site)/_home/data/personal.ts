@@ -93,6 +93,8 @@ export type ContinueWatchingData = Readonly<{
   /** the second show's, for when the first leaves after a mark */
   second: UpNextArt | null;
   items: ReadonlyArray<UpNextItem>;
+  /** Every show in the viewer's Up next, not only the ones drawn */
+  count: number;
 }>;
 
 /**
@@ -119,7 +121,7 @@ export async function getContinueWatching(
     loadUpNextArt(head.seriesId),
     loadUpNextArt(items[1]?.seriesId),
   ]);
-  return { first, items, second };
+  return { count: overview.upNext.length, first, items, second };
 }
 
 /**

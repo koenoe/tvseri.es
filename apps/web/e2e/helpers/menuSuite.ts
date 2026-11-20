@@ -13,6 +13,23 @@ import { open } from '../helpers';
 import { signInAs } from './session';
 import { nextFrames } from './viewport';
 
+/** Tab from Home through the signed-in menu, the header, and round to Home */
+const KEYBOARD_ORDER = [
+  'Discover',
+  'Overview',
+  'Calendar',
+  'Library',
+  'History',
+  'Stats',
+  'Settings',
+  'Sign out',
+  'tvseri.es home',
+  'alex',
+  'Search',
+  'Close menu',
+  'Home',
+];
+
 /**
  * The menu and the sticky header, at one viewport width: the phone
  * menu below 768px, the side panel from 768. Run by `menu.spec.ts`
@@ -315,7 +332,7 @@ export function menuSuite(
         await expect(home).toBeFocused();
 
         const order: string[] = [];
-        for (let i = 0; i < 12; i += 1) {
+        for (let i = 0; i < KEYBOARD_ORDER.length; i += 1) {
           await page.keyboard.press(tab);
           order.push(
             await page.evaluate(
@@ -326,21 +343,7 @@ export function menuSuite(
             ),
           );
         }
-        expect(order).toEqual([
-          'Discover',
-          'Overview',
-          'Calendar',
-          'Library',
-          'History',
-          'Stats',
-          'Settings',
-          'Sign out',
-          'tvseri.es home',
-          'alex',
-          'Search',
-          'Close menu',
-          'Home',
-        ]);
+        expect(order).toEqual(KEYBOARD_ORDER);
       },
     );
 

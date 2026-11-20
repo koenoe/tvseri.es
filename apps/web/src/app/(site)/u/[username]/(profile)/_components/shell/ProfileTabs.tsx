@@ -43,6 +43,5 @@ async function profileTabs(profile: Profile) {
     followers: known?.followers ?? null,
     following: known?.following ?? null,
     hasStats: hasStatsFromEpisodes(known?.episodes ?? null),
-    owner: profile.viewer === 'owner',
   });
 }

@@ -41,15 +41,13 @@ type TabFacts = Readonly<{
   following: number | null;
   /** Any stored episode, undated included (`hasStatsFromEpisodes`) */
   hasStats: boolean | null;
-  /** Your own profile: only you see your Calendar, for now */
-  owner: boolean;
 }>;
 
 /**
  * The tabs a profile shows, never a link to an empty page (no dead
  * ends): Circle goes while the owner follows nobody and nobody follows
- * them, Stats while they have no episode at all. Calendar is on your own
- * profile only (someone else's comes later). On day 0 that is
+ * them, Stats while they have no episode at all. Calendar always stays:
+ * an empty one says how it fills. On day 0 that is
  * Overview · Calendar · Library · History. A count that didn't load keeps
  * its tab.
  */
@@ -57,12 +55,8 @@ export function visibleTabs({
   followers,
   following,
   hasStats,
-  owner,
 }: TabFacts): ReadonlyArray<ProfileTab> {
   return PROFILE_TABS.filter((tab) => {
-    if (tab.segment === 'calendar') {
-      return owner;
-    }
     if (tab.segment === 'circle') {
       return followers !== 0 || following !== 0;
     }

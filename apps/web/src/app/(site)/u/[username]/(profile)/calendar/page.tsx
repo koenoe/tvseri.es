@@ -1,8 +1,5 @@
 import { formatGrouped, plural } from '@tvseri.es/utils';
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-
-import profilePath from '@/lib/routing/profilePath';
 
 import Hole from '../_components/blocks/Hole';
 import SubpageHeader, {
@@ -28,9 +25,9 @@ export function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /**
- * Calendar: when your shows continue, a month at a time, and the renewed
- * shows that have no date yet under it. Yours only for now: on someone
- * else's profile it goes to their overview. The page streams in one hole
+ * Calendar: when the owner's shows continue, a month at a time, and the
+ * renewed shows that have no date yet under it. Any signed-in viewer sees
+ * it (profiles are open to members). The page streams in one hole
  * over its skeleton; `?month=` and `?day=` (the client's) open a month and
  * a day. The phone frame draws no header.
  */
@@ -55,9 +52,7 @@ function countLine(showsThisMonth: number, noDate: number): string {
 
 async function Calendar({ params }: Props) {
   const profile = await getProfile(params, 'calendar');
-  if (profile.viewer !== 'owner') {
-    redirect(profilePath(profile.user.username));
-  }
+  const owner = profile.viewer === 'owner';
   const { grid, noDateYet } = await loadCalendar(profile);
   const { noDate, nothing, showsThisMonth } = calendarCounts(grid, noDateYet);
   const count = nothing ? 'Nothing yet' : countLine(showsThisMonth, noDate);
@@ -65,7 +60,7 @@ async function Calendar({ params }: Props) {
     <div className={CALENDAR_PAGE} data-slot="calendar">
       <SubpageHeader className="max-md:hidden" count={count} title="Calendar" />
       {nothing ? (
-        <CalendarEmpty username={profile.user.username} />
+        <CalendarEmpty owner={owner} username={profile.user.username} />
       ) : (
         <>
           <CalendarView data={grid} noDateYet={noDate} now={Date.now()} />

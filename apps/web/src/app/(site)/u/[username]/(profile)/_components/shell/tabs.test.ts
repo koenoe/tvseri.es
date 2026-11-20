@@ -8,20 +8,10 @@ const labels = (facts: Parameters<typeof visibleTabs>[0]) =>
 const ESTABLISHED = { followers: 6, following: 8, hasStats: true };
 
 describe('visibleTabs', () => {
-  it('shows all six tabs on your own established profile', () => {
-    expect(labels({ ...ESTABLISHED, owner: true })).toEqual([
+  it('shows all six tabs on an established profile, yours or someone else’s', () => {
+    expect(labels({ ...ESTABLISHED })).toEqual([
       'Overview',
       'Calendar',
-      'Library',
-      'History',
-      'Circle',
-      'Stats',
-    ]);
-  });
-
-  it('keeps the Calendar to your own profile', () => {
-    expect(labels({ ...ESTABLISHED, owner: false })).toEqual([
-      'Overview',
       'Library',
       'History',
       'Circle',
@@ -30,29 +20,32 @@ describe('visibleTabs', () => {
   });
 
   it('is Overview · Calendar · Library · History on day 0', () => {
-    expect(
-      labels({ followers: 0, following: 0, hasStats: false, owner: true }),
-    ).toEqual(['Overview', 'Calendar', 'Library', 'History']);
+    expect(labels({ followers: 0, following: 0, hasStats: false })).toEqual([
+      'Overview',
+      'Calendar',
+      'Library',
+      'History',
+    ]);
   });
 
   it('keeps Circle while either follow count is above 0', () => {
-    expect(
-      labels({ followers: 2, following: 0, hasStats: true, owner: false }),
-    ).toContain('Circle');
-    expect(
-      labels({ followers: 0, following: 1, hasStats: true, owner: false }),
-    ).toContain('Circle');
+    expect(labels({ followers: 2, following: 0, hasStats: true })).toContain(
+      'Circle',
+    );
+    expect(labels({ followers: 0, following: 1, hasStats: true })).toContain(
+      'Circle',
+    );
   });
 
   it('drops Stats without any stored episode', () => {
     expect(
-      labels({ followers: 3, following: 3, hasStats: false, owner: false }),
+      labels({ followers: 3, following: 3, hasStats: false }),
     ).not.toContain('Stats');
   });
 
   it('keeps a tab whose count did not load', () => {
     expect(
-      labels({ followers: null, following: null, hasStats: null, owner: true }),
+      labels({ followers: null, following: null, hasStats: null }),
     ).toEqual([
       'Overview',
       'Calendar',
@@ -61,9 +54,9 @@ describe('visibleTabs', () => {
       'Circle',
       'Stats',
     ]);
-    expect(
-      labels({ followers: 0, following: null, hasStats: true, owner: false }),
-    ).toContain('Circle');
+    expect(labels({ followers: 0, following: null, hasStats: true })).toContain(
+      'Circle',
+    );
   });
 });
 

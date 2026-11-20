@@ -9,7 +9,7 @@ import { PROFILE_TABS, TAB } from './tabs';
 const TAB_GHOST = cn(TAB, FLAT, 'animate-ghost');
 
 /**
- * The tab bar before the profile resolves: the same box, the five tabs as
+ * The tab bar before the profile resolves: the same box, the six tabs as
  * flat pills (Circle and Stats show for most profiles; one without them
  * changes only the pills, not the bar)
  */

@@ -219,7 +219,9 @@ const AIRED = {
 
 /**
  * Calendar days the overview doesn't carry: alex has an episode today, and
- * both calendars a day that has passed
+ * both calendars a day that has passed. juno's calendar (a visitor's, as
+ * alex reads it) is these days only: a premiere today of a show on her
+ * watchlist, so its open day shows how a visitor's ticket reads.
  */
 const extraDaysOf = (name: Name) =>
   name === 'alex'
@@ -239,7 +241,24 @@ const extraDaysOf = (name: Name) =>
       ]
     : name === 'marathonwatcher-2026'
       ? [AIRED]
-      : [];
+      : name === 'juno'
+        ? [
+            {
+              ...identity('witchHat'),
+              date: day(0),
+              daysToGo: 0,
+              episode: 1,
+              kind: 'season-premiere' as const,
+              onWatchlist: true,
+              provider: null,
+              release: 'weekly' as const,
+              season: 2,
+            },
+          ]
+        : [];
+
+const calendarFor = (name: Name) =>
+  calendarOf(overviewOf(name), waitingForOf(name), extraDaysOf(name));
 
 const ledgerOf = (name: Name) =>
   name === 'alex' || name === 'rae'
@@ -376,15 +395,7 @@ export const routes: readonly StubRoute[] = [
   },
   {
     handle: (request) =>
-      withViewer(request, (viewer) =>
-        ok(
-          calendarOf(
-            overviewOf(viewer),
-            waitingForOf(viewer),
-            extraDaysOf(viewer),
-          ),
-        ),
-      ),
+      withViewer(request, (viewer) => ok(calendarFor(viewer))),
     path: '/me/calendar',
   },
   // kit's home (Continue watching e2e): the other personal rows are empty
@@ -519,6 +530,11 @@ export const routes: readonly StubRoute[] = [
         { auth: true },
       ),
     path: '/user/:id/watched',
+  },
+  {
+    handle: (request) =>
+      withOwner(request, (owner) => ok(calendarFor(owner)), { auth: true }),
+    path: '/user/:id/calendar',
   },
   {
     handle: (request) =>

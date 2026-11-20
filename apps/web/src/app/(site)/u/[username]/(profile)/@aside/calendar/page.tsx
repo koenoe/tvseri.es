@@ -56,10 +56,6 @@ export default function CalendarAside({ params }: Props) {
 
 async function Months({ params }: Props) {
   const profile = await getProfile(params);
-  // a visitor's page goes to the overview; the calendar is yours only
-  if (profile.viewer !== 'owner') {
-    return null;
-  }
   const { grid, noDateYet } = await loadCalendar(profile);
   const months = datedMonths(grid);
   const { noDate } = calendarCounts(grid, noDateYet);

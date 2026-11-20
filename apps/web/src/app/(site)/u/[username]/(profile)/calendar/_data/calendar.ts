@@ -17,12 +17,15 @@ export type LoadedCalendar = Readonly<{
 /**
  * The grid's part: an episode's number and code only. Its titles are never
  * drawn, and every month goes to the client (instant month switching), so
- * they would only weigh down the page's props.
+ * they would only weigh down the page's props. A visitor's tickets carry no
+ * watchlist tag: it reads "On your watchlist", and with the owner's name in
+ * it a long handle wraps the tag over three lines on a phone (30 characters
+ * are allowed), so a visitor's shows go without it.
  */
-const gridOf = ({
-  days,
-  ...rest
-}: Omit<Calendar, 'noDateYet'>): CalendarData => ({
+const gridOf = (
+  { days, shows, ...rest }: Omit<Calendar, 'noDateYet'>,
+  owner: boolean,
+): CalendarData => ({
   ...rest,
   days: days.map((day) => ({
     ...day,
@@ -31,24 +34,36 @@ const gridOf = ({
       episodes: ticket.episodes.map(({ code, episode }) => ({ code, episode })),
     })),
   })),
+  shows: owner ? shows : shows.map((show) => ({ ...show, onWatchlist: false })),
 });
 
 /**
- * Your calendar: `GET /me/calendar`, every dated episode of your shows for
- * twelve months and the renewed shows with no date, with your region for
- * the tickets' services (as the overview). It is the viewer's own data, so
- * only your own profile may read it: the callers check `viewer` first.
- * Private and computed per request, so never `use cache`; the API client
- * memoises the GET, so the page and its sidebar share one read.
+ * The profile owner's calendar: every dated episode of their shows for
+ * twelve months and the renewed shows with no date. Yours is
+ * `GET /me/calendar`, someone else's `GET /user/{id}/calendar`, keyed by
+ * that owner's id. The tickets' services are the viewer's: the API takes
+ * their saved country first, and `region` (where they are) without one; so
+ * a visitor's page sends only the geo region and no `GET /me` waits in
+ * front of the read. Private and computed per request, so never
+ * `use cache`; the API client memoises the GET, so the page and its sidebar
+ * share one read.
  */
 export async function loadCalendar(profile: Profile): Promise<LoadedCalendar> {
+  const { noDateYet, ...calendar } = await readCalendar(profile);
+  return { grid: gridOf(calendar, profile.viewer === 'owner'), noDateYet };
+}
+
+async function readCalendar(profile: Profile): Promise<Calendar> {
   if (profile.viewer !== 'owner') {
-    throw new Error('The calendar is the owner’s own');
+    return apiFetch<Calendar>('/user/:id/calendar', {
+      ...withToken(profile),
+      params: { id: profile.user.id },
+      query: { region: await resolveRegion() },
+    });
   }
   const region = await resolveRegion((await auth()).user);
-  const { noDateYet, ...calendar } = await apiFetch<Calendar>('/me/calendar', {
+  return apiFetch<Calendar>('/me/calendar', {
     ...withToken(profile),
     query: { region },
   });
-  return { grid: gridOf(calendar), noDateYet };
 }

@@ -2,6 +2,7 @@
 
 import { getBackgroundImageProps } from '@/components/background/BackgroundImage';
 import { useBackground } from '@/components/background/BackgroundProvider';
+import { heroShade } from '@/components/background/heroShade';
 import hexToRgb from '@/components/background/hexToRgb';
 import { PROGRESSIVE_BLUR } from '@/components/background/progressiveBlur';
 
@@ -11,12 +12,15 @@ import { PROGRESSIVE_BLUR } from '@/components/background/progressiveBlur';
  * to the page colour from the bottom that is already deep where the hero's
  * text starts, so it reads on busy art and the art meets the page with no
  * edge. In pixels from each end, so they hold where the header and the
- * title are whatever the art's height.
+ * title are whatever the art's height. Under both, the heroes' own shade
+ * (`heroShade`: the vignette and the side fade every hero under the header
+ * has, the desktop backdrop and the Spotlight too), so the phone's art
+ * meets the page as softly as theirs.
  */
 export const phoneHeroShade = (color: string) => {
   const rgb = hexToRgb(color).join(',');
   return {
-    background: `linear-gradient(180deg, rgba(20,17,13,0.65) 0px, rgba(20,17,13,0.5) 82px, rgba(20,17,13,0) 245px), linear-gradient(0deg, rgb(${rgb}) 0px, rgba(${rgb},0.85) 326px, rgba(${rgb},0.45) 490px, rgba(${rgb},0) 632px)`,
+    background: `linear-gradient(180deg, rgba(20,17,13,0.65) 0px, rgba(20,17,13,0.5) 82px, rgba(20,17,13,0) 245px), linear-gradient(0deg, rgb(${rgb}) 0px, rgba(${rgb},0.85) 326px, rgba(${rgb},0.45) 490px, rgba(${rgb},0) 632px), ${heroShade(color)}`,
   };
 };
 

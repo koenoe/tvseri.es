@@ -85,7 +85,7 @@ function DiaryRow({
   const bump = useDiaryLayoutBump();
   const layout = useDiaryLayout();
   const listId = useId();
-  const poster = useRef<HTMLImageElement>(null);
+  const glow = useRef<HTMLCanvasElement>(null);
   const toggle = useCallback(() => {
     bump();
     setOpen((current) => !current);
@@ -111,7 +111,7 @@ function DiaryRow({
   return (
     <m.div className={DIARY_ROW} data-diary-row {...layout}>
       <div className={gridClasses}>
-        <DiaryPoster imageRef={poster} src={row.poster} />
+        <DiaryPoster glowRef={glow} src={row.poster} />
         <span className={DIARY_ROW_TEXT}>
           <span className={TITLE}>
             {href ? (
@@ -156,7 +156,7 @@ function DiaryRow({
         {slot}
       </div>
       {/* after the grid: the row's first child stays its grid (the e2e reads it) */}
-      {row.poster ? <DiaryGlow poster={poster} /> : null}
+      {row.poster ? <DiaryGlow ref={glow} /> : null}
       {open ? <DiaryEpisodes id={listId} row={row} /> : null}
     </m.div>
   );

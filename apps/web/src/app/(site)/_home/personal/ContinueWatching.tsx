@@ -53,7 +53,7 @@ export default function ContinueWatching({
   second = null,
   username,
 }: Props) {
-  const items = useLiveUpNext(serverItems);
+  const items = useLiveUpNext(serverItems, now);
   const [head] = items;
   if (!head) {
     return null;

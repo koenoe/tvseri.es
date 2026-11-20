@@ -25,7 +25,7 @@ type Props = Readonly<{
  * next one, as the next load would.
  */
 export default function LiveOwnerHero({ art, empty, items, now }: Props) {
-  const live = useLiveUpNext(items);
+  const live = useLiveUpNext(items, now);
   const item = useUpNextTitle(live[0]);
   if (!item) {
     return empty;

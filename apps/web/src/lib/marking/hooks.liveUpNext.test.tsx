@@ -52,7 +52,10 @@ describe('useLiveUpNext: only its own shows re-render it', () => {
     const { result } = renderHook(
       () => {
         renders += 1;
-        return { live: useLiveUpNext(ITEMS), store: useMarkingStoreApi() };
+        return {
+          live: useLiveUpNext(ITEMS, Date.UTC(2026, 10, 12)),
+          store: useMarkingStoreApi(),
+        };
       },
       { wrapper },
     );
@@ -76,7 +79,10 @@ describe('useLiveUpNext: only its own shows re-render it', () => {
 
   it('moves on when its own show is marked', () => {
     const { result } = renderHook(
-      () => ({ live: useLiveUpNext(ITEMS), store: useMarkingStoreApi() }),
+      () => ({
+        live: useLiveUpNext(ITEMS, Date.UTC(2026, 10, 12)),
+        store: useMarkingStoreApi(),
+      }),
       { wrapper },
     );
     act(() => {

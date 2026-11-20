@@ -100,6 +100,11 @@ export const web = $dev
           functionDefaultRegions: ['lhr1'],
         },
         rootDirectory: 'apps/web',
+        // Previews are opened on phones that aren't signed in to Vercel; left
+        // unset, the provider's default (Vercel Authentication) came back
+        // on whenever the project was updated and the preview asked for a
+        // Vercel login. Production has none either.
+        vercelAuthentication: { deploymentType: 'none' },
       });
 
       // Firewall/bot protection (BotID, JA3/JA4, OWASP sqli/xss/rce/gen, AI bots, custom "Scrobble" allow rule for

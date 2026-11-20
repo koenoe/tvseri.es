@@ -214,17 +214,31 @@ describe('ownerFacts: the facts line on Home and the profile', () => {
     expect(texts(item)).toEqual(['58m', 'Season finale', 'Next season TBA']);
   });
 
-  it('a new season announced while the old one is out: Aired, runtime, Next', () => {
+  it('a new season announced while the old one is out: no Next, it is another season’s', () => {
     const item = {
       ...finished,
       nextToAir: { airDate: '2026-12-03', episode: 1, season: 3 },
     };
-    expect(texts(item)).toEqual([
-      'Aired May 2019',
-      '33m',
-      'Next Thu Dec 3',
-      '5 left · 2h 29m',
-    ]);
+    expect(texts(item)).toEqual(['Aired May 2019', '33m', '5 left · 2h 29m']);
+  });
+
+  it('a card moved on into the next season keeps no Next of the season before', () => {
+    const moved = {
+      ...base,
+      code: 'S03E01',
+      episode: 1,
+      isLatest: false,
+      season: 3,
+    };
+    expect(texts(moved)).toEqual(['Aired Nov 2026', '58m']);
+  });
+
+  it('no Next for an episode of the season that has aired already', () => {
+    const today = {
+      ...base,
+      nextToAir: { airDate: '2026-11-12', episode: 3, season: 2 },
+    };
+    expect(texts(today)).toEqual(['58m', 'Latest episode']);
   });
 
   it('highlights only the latest episode or the finale', () => {

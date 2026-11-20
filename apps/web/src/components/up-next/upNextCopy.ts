@@ -1,5 +1,5 @@
 import type { UpNextItem } from '@tvseri.es/schemas';
-import { formatRuntime } from '@tvseri.es/utils';
+import { formatRuntime, hasAiredAt } from '@tvseri.es/utils';
 
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
 import { formatMonthYear } from '@/lib/format/date';
@@ -92,13 +92,20 @@ export function lastWatchedLabel(
   return `Last watched ${item.lastWatchedCode} ${when}`;
 }
 
-/** What is next for the show: "Next Sun 15 Nov", else "Next season TBA" */
+/**
+ * What is next for the season: "Next Sun 15 Nov" for its next episode still
+ * to air (as the progress bar's tick: another season's date, or one that
+ * has aired, is no next of this one), else "Next season TBA"
+ */
 function nextFact(item: UpNextItem, now: number): UpNextFact | null {
-  if (item.nextToAir) {
-    return {
-      kind: 'next',
-      text: `Next ${formatAirWeekdayDate(item.nextToAir.airDate, now)}`,
-    };
+  const upcoming = item.nextToAir;
+  if (upcoming) {
+    return upcoming.season === item.season && !hasAiredAt(upcoming.airDate, now)
+      ? {
+          kind: 'next',
+          text: `Next ${formatAirWeekdayDate(upcoming.airDate, now)}`,
+        }
+      : null;
   }
   return item.nextSeasonTba ? { kind: 'next', text: 'Next season TBA' } : null;
 }

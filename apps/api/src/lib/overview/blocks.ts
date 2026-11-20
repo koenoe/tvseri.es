@@ -193,7 +193,10 @@ export const buildAlmostDone = (
       };
     });
 
-  const closest = candidates.find(({ toGo }) => toGo > ALMOST_DONE_MAX);
+  // The same rule as the items: a season still airing has no finish in sight
+  const closest = candidates.find(
+    ({ done, toGo }) => done && toGo > ALMOST_DONE_MAX,
+  );
   return {
     closest:
       items.length === 0 && closest

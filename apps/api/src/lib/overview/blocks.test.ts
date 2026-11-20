@@ -235,6 +235,16 @@ describe('Almost done', () => {
     });
   });
 
+  it('never names a season still airing as the closest', () => {
+    // Season 2 has 3 of its 8 episodes out: the finish isn't in sight yet
+    const airing = state({
+      facts: facts({ lastEpisodeToAir: ep(2, 3, day(-1)) }),
+      watched: watched(range(1, 1, 8)),
+    });
+
+    expect(buildAlmostDone([airing])).toEqual({ closest: null, items: [] });
+  });
+
   it('names the episodes left, wherever they sit in the season', () => {
     // E01 skipped, E02–E08 watched: 7 of 8, the one to go is the first
     const gap = state({

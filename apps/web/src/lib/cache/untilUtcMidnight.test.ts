@@ -37,7 +37,7 @@ describe('untilUtcMidnight', () => {
     return Math.max(0, pageEnds - midnight) / 1000;
   };
 
-  it('Sat 14 Nov never shows Fri 13 for more than 15 minutes', () => {
+  it('Sat Nov 14 never shows Fri Nov 13 for more than 15 minutes', () => {
     let worst = 0;
     for (let minute = 0; minute < 24 * 60; minute++) {
       const made = new Date(Date.UTC(2026, 10, 13, 0, minute));

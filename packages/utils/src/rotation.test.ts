@@ -112,7 +112,7 @@ describe('home moments of the day', () => {
     }
   });
 
-  it('plans Versus on Thu 12 Nov (signed out) and Sun 15 Nov (everyone)', () => {
+  it('plans Versus on Thu Nov 12 (signed out) and Sun Nov 15 (everyone)', () => {
     expect(toyKindOfDay('2026-11-12')).toBe('versus');
     expect(toyKindOfDay('2026-11-15')).toBe('versus');
     expect(isIfYouLikedDay('2026-11-15')).toBe(false);

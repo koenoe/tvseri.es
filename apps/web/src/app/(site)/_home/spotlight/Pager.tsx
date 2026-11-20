@@ -4,6 +4,8 @@ import {
   type FocusEvent,
   type MouseEvent,
   type PointerEvent,
+  type Ref,
+  useImperativeHandle,
   useRef,
 } from 'react';
 
@@ -15,6 +17,9 @@ import cn from '@/lib/cn';
 import styles from './spotlight.module.css';
 import usePagerSweep from './usePagerSweep';
 
+/** What a swipe asks of the pager: sweep its lines to the slide it moves to, as a press would */
+export type PagerHandle = Readonly<{ sweepTo: (index: number) => void }>;
+
 type Props = Readonly<{
   countdownKey: string;
   current: number;
@@ -25,6 +30,8 @@ type Props = Readonly<{
   onIntent: (index: number) => void;
   onSelect: (index: number) => void;
   onTogglePlay: () => void;
+  /** a swipe's way in to the sweep (`PagerHandle`) */
+  ref?: Ref<PagerHandle>;
   /** the pressed slide's backdrop is still decoding: its line holds still */
   pending: boolean;
   running: boolean;
@@ -42,8 +49,8 @@ type Props = Readonly<{
  * neighbours, so a tap lands on the nearest line; pause ends the row. The current
  * line fills over 8s (longer than the usual 5 to 7s for a hero slide: each
  * carries a title and a few facts); earlier lines are full, later ones
- * empty. A press sweeps the lines between the old slide and the pressed
- * one (`usePagerSweep`); the pressed line's countdown starts once its slide
+ * empty. A press or a swipe sweeps the lines between the old slide and the
+ * new one (`usePagerSweep`); the pressed line's countdown starts once its slide
  * shows. The markup is the same for every viewer (the pause button always
  * there).
  * Until the reader presses it, the button draws play for a reader who asked
@@ -60,6 +67,7 @@ export default function Pager({
   onSelect,
   onTogglePlay,
   pending,
+  ref,
   running,
   titles,
   userChose,
@@ -72,6 +80,7 @@ export default function Pager({
   const counting = hydrated && !pending;
   const lines = useRef<HTMLDivElement>(null);
   const press = usePagerSweep(lines, current);
+  useImperativeHandle(ref, () => ({ sweepTo: press }), [press]);
   const countdownClasses = cn(
     'absolute inset-0 block rounded-2 bg-white',
     styles.countdown,

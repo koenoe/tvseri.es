@@ -4,7 +4,14 @@
  * and blur only; a spring with no bounce)
  */
 export const HIDDEN = { filter: 'blur(4px)', opacity: 0, scale: 0.25 } as const;
-export const SHOWN = { filter: 'blur(0px)', opacity: 1, scale: 1 } as const;
+// The settled icon drops its filter: a resting `blur(0px)` still costs a
+// filter layer per icon, on every page that shows one
+export const SHOWN = {
+  filter: 'blur(0px)',
+  opacity: 1,
+  scale: 1,
+  transitionEnd: { filter: 'none' },
+} as const;
 export const ENTER = { bounce: 0, duration: 0.3, type: 'spring' } as const;
 // Half the enter: the arriving icon waits for it
 export const EXIT = {

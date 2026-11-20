@@ -1,7 +1,7 @@
 'use client';
 
 import * as m from 'motion/react-m';
-import type { ComponentProps } from 'react';
+import { type ComponentProps, useRef } from 'react';
 import MaxMotion from '@/components/motion/MaxMotion';
 import TileLink from '@/components/ui/tile/TileLink';
 import type { ControlStatesRead } from '@/lib/marking/controlState';
@@ -11,7 +11,7 @@ import {
   useSpotlightLines,
 } from '../marking/spotlightLines';
 import Artwork from './Artwork';
-import Pager from './Pager';
+import Pager, { type PagerHandle } from './Pager';
 import SlideBody from './SlideBody';
 import {
   type SpotlightPreview,
@@ -134,8 +134,11 @@ export default function SpotlightCarousel({
   // replaces the hook once it arrives
   const lines = useSpotlightLines();
 
+  const pager = useRef<PagerHandle>(null);
+  const sweepTo = (index: number) => pager.current?.sweepTo(index);
   const slideshow = useSlideshow({
     count: slides.length,
+    onSwipe: sweepTo,
     prepare,
     ready,
     startAt: preview?.startAt,
@@ -214,6 +217,7 @@ export default function SpotlightCarousel({
               onSelect={slideshow.goTo}
               onTogglePlay={slideshow.togglePlay}
               pending={slideshow.pending}
+              ref={pager}
               running={slideshow.running}
               titles={titles}
               userChose={slideshow.userChose}

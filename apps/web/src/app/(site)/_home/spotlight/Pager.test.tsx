@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { createRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import Pager from './Pager';
+import Pager, { type PagerHandle } from './Pager';
 
 const TITLES = ['A', 'B', 'C', 'D', 'E', 'F'];
 
@@ -53,7 +54,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function pager(current: number, pending = false) {
+function pager(current: number, pending = false, ref?: React.Ref<PagerHandle>) {
   return (
     <Pager
       countdownKey={`${current}-0`}
@@ -65,6 +66,7 @@ function pager(current: number, pending = false) {
       onSelect={noop}
       onTogglePlay={noop}
       pending={pending}
+      ref={ref}
       running
       titles={TITLES}
       userChose={false}
@@ -93,6 +95,21 @@ function sweeps() {
 }
 
 describe('Pager', () => {
+  it('a swipe sweeps the lines like a press', () => {
+    countdownAt = 0.5;
+    const handle = createRef<PagerHandle>();
+    const { rerender } = render(pager(1, false, handle));
+    act(() => handle.current?.sweepTo(2));
+    rerender(pager(2, false, handle));
+    // the old line fills from where its countdown had drawn
+    expect(sweeps().get(1)?.keyframes).toEqual([
+      '0 scaleX(0.5)',
+      '0 scaleX(0.5)',
+      '1 scaleX(1)',
+      '1 scaleX(1)',
+    ]);
+  });
+
   it('draws the lines in place on the first render', () => {
     render(pager(1));
     expect(animate).not.toHaveBeenCalled();

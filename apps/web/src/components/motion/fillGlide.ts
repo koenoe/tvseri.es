@@ -2,7 +2,7 @@ import { type MouseEvent, useEffect, useLayoutEffect, useRef } from 'react';
 import { REDUCED_MOTION } from '@/lib/media/breakpoints';
 import { matchesNow } from '@/lib/media/useMediaQuery';
 import { isPlainClick } from '@/lib/navigation/isPlainClick';
-import { boxAt, GLIDE, type GlideBox, sidewaysGlide } from './glide';
+import { boxAt, type GlideBox, glideTiming, sidewaysGlide } from './glide';
 
 /** A glide under way in a group: its animation and the boxes it runs between */
 type Glide = Readonly<{ animation: Animation; from: GlideBox; to: GlideBox }>;
@@ -41,7 +41,8 @@ function cornerOf(item: HTMLElement): number {
 /**
  * A row of choices whose selected one is filled (a `Segmented`, the
  * profile's tabs): the fill, the item's `::before`, glides sideways from
- * the item selected before to the new one (`sidewaysGlide`, 240ms), without
+ * the item selected before to the new one (`sidewaysGlide`; `glideTiming`: 240ms
+ * to a neighbour, longer for a longer jump), without
  * moving either item's words. A change mid-glide glides on from where the
  * fill is drawn. Items share their offset parent (`group`). Nothing moves
  * without Web Animations (jsdom) or with reduced motion: the fill is simply
@@ -70,7 +71,7 @@ export function glideFill(
   const to = boxOf(item);
   const frames = sidewaysGlide(from, to, cornerOf(item));
   const animation = item.animate(frames, {
-    ...GLIDE,
+    ...glideTiming(from.left - to.left, to.width),
     pseudoElement: '::before',
   });
   glidingIn.set(group, { animation, from, to });

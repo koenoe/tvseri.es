@@ -6,7 +6,7 @@ import {
   useRef,
 } from 'react';
 
-import { GLIDE } from '@/components/motion/glide';
+import { glideTiming } from '@/components/motion/glide';
 import { REDUCED_MOTION } from '@/lib/media/breakpoints';
 import { matchesNow } from '@/lib/media/useMediaQuery';
 
@@ -82,7 +82,7 @@ export function usePillGlide(
     }
     const animation = pill.animate(
       [{ transform: `translateY(${offset}px)` }, { transform: 'none' }],
-      GLIDE,
+      glideTiming(offset, pill.offsetHeight),
     );
     current.current = { animation, offset };
   }, [active]);

@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 
-import { FILL_BEFORE } from '@/components/motion/glide';
+import { FILL_BEFORE } from '@/components/motion/fillBefore';
 import Badge from '@/components/ui/button/Badge';
 import ChoiceButton from '@/components/ui/button/ChoiceButton';
 import cn from '@/lib/cn';

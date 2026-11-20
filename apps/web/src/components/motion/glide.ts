@@ -1,3 +1,5 @@
+import { SHEET_EASE } from './ease';
+
 /**
  * The pill glide: a selection's fill moves from the old choice to the new
  * one (FLIP) in 240ms. The profile's navs (the Library's shelves, the
@@ -11,16 +13,28 @@ export const GLIDE: KeyframeAnimationOptions = {
   fill: 'backwards',
 };
 
-export type GlideBox = Readonly<{ left: number; width: number }>;
-
 /**
- * A choice whose chosen fill is its `::before`, under its words, so the
- * fill glides (`glideFill`) without moving them. The caller paints the
- * fill on its chosen state (`aria-pressed:before:bg-white/15`). A plain
- * module (no React), so server-drawn class lists can use it.
+ * A glide's timing by how far it goes: a hop to a neighbour keeps the
+ * shared pace (`GLIDE`); a longer jump gets 40ms more per extra step, up to
+ * 360ms, on the sheet curve, so the fill is seen travelling instead of
+ * arriving in a frame or two. `step` is one choice's size along the glide.
  */
-export const FILL_BEFORE =
-  'relative isolate before:absolute before:inset-0 before:-z-1 before:rounded-[inherit]';
+export function glideTiming(
+  distance: number,
+  step: number,
+): KeyframeAnimationOptions {
+  const steps = step > 0 ? Math.abs(distance) / step : 1;
+  if (steps <= 1.5) {
+    return GLIDE;
+  }
+  return {
+    ...GLIDE,
+    duration: Math.min(360, Math.round(240 + (steps - 1) * 40)),
+    easing: `cubic-bezier(${SHEET_EASE.join(', ')})`,
+  };
+}
+
+export type GlideBox = Readonly<{ left: number; width: number }>;
 
 /**
  * A row of choices of different widths: the new pill starts on the old

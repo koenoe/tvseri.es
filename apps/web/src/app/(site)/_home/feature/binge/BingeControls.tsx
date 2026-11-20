@@ -1,6 +1,6 @@
 import type { MouseEvent, ReactNode } from 'react';
 
-import { FILL_BEFORE } from '@/components/motion/glide';
+import { FILL_BEFORE } from '@/components/motion/fillBefore';
 import ChoiceButton from '@/components/ui/button/ChoiceButton';
 
 import { BINGE_CONTROLS, EACH_NIGHT_LABEL, NIGHTS_LABEL } from './layout';

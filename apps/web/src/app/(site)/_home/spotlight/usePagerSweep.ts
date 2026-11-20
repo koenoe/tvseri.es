@@ -50,12 +50,12 @@ function sweep(changes: ReadonlyArray<Change>): Animation[] {
 }
 
 /**
- * The spotlight pager's lines on a press: the lines between the old slide
- * and the pressed one fill (forward) or empty (back) as one sweep, starting
+ * The spotlight pager's lines on a press or a swipe: the lines between the
+ * old slide and the new one fill (forward) or empty (back) as one sweep, starting
  * from what was drawn at the press (the old line's partial countdown, or a
  * sweep under way). The current line's countdown is never animated: it
- * owns its transform. Autoplay, a swipe, Back's restore and reduced motion
- * leave the lines as they are drawn. `press` goes before the press's
+ * owns its transform. Autoplay, Back's restore and reduced motion leave
+ * the lines as they are drawn. `press` goes before the press's
  * state change; `current` is the pager's current line.
  */
 export default function usePagerSweep(

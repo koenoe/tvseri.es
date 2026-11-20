@@ -1,7 +1,7 @@
 'use client';
 
 import { type KeyboardEvent, useCallback } from 'react';
-import { FILL_BEFORE } from '@/components/motion/glide';
+import { FILL_BEFORE } from '@/components/motion/fillBefore';
 import ChoiceButton from '@/components/ui/button/ChoiceButton';
 import {
   calendarGlyph,

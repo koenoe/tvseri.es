@@ -184,20 +184,26 @@ export default function ShowsList({
   const fold = foldOf(rows - PREVIEW);
   const phoneOnly = fold === 'phone' ? 'lg:hidden' : undefined;
   const pills = SHOW_FILTERS.filter((id) => id === 'all' || counts[id] > 0);
+  // Only "as herself" credits (a reality star): the fold is the section, not
+  // something behind Show all, with no filter and no "0" over an empty list
+  const selfOnly = counts.all === 0;
+  const count = selfOnly ? undefined : rows;
 
   return (
     <>
-      <SectionHead count={rows} id={titleId} title="Series" />
-      <div
-        aria-label="Filter series"
-        className="-mx-gutter flex gap-1 overflow-x-auto px-gutter scrollbar-none max-lg:-my-1.5 max-lg:py-1.5 lg:mx-0 lg:self-start lg:rounded-12 lg:bg-black/22 lg:p-1.5"
-        role="group"
-      >
-        {pills.map((id) => {
-          const on = id === filter;
-          return <FilterPill id={id} key={id} on={on} onPick={onPick} />;
-        })}
-      </div>
+      <SectionHead count={count} id={titleId} title="Series" />
+      {selfOnly ? null : (
+        <div
+          aria-label="Filter series"
+          className="-mx-gutter flex gap-1 overflow-x-auto px-gutter scrollbar-none max-lg:-my-1.5 max-lg:py-1.5 lg:mx-0 lg:self-start lg:rounded-12 lg:bg-black/22 lg:p-1.5"
+          role="group"
+        >
+          {pills.map((id) => {
+            const on = id === filter;
+            return <FilterPill id={id} key={id} on={on} onPick={onPick} />;
+          })}
+        </div>
+      )}
       <div
         className={LIST_BOX}
         data-filter={filter}
@@ -205,7 +211,7 @@ export default function ShowsList({
       >
         {children}
       </div>
-      {open && self.count > 0 ? (
+      {(open || selfOnly) && self.count > 0 ? (
         <SelfFold count={self.count} label={self.label} personId={personId} />
       ) : null}
       {fold === 'none' ? null : (

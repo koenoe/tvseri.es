@@ -36,6 +36,8 @@ type Options = Readonly<{
   startAt?: number;
   /** preview: never runs, never restores */
   still?: boolean;
+  /** a swipe is about to move to this slide (the pager sweeps, as for a press) */
+  onSwipe?: (index: number) => void;
 }>;
 
 /**
@@ -52,6 +54,7 @@ type Options = Readonly<{
  */
 export default function useSlideshow({
   count,
+  onSwipe,
   prepare,
   ready,
   startAt = 0,
@@ -144,7 +147,9 @@ export default function useSlideshow({
       }
       const step = swipeStep(info.offset.x, info.offset.y);
       if (step !== 0) {
-        goTo(slide.index + step);
+        const next = wrapIndex(slide.index + step, count);
+        onSwipe?.(next);
+        goTo(next);
       }
     },
     onPointerCancel: () => pause('touch', false),

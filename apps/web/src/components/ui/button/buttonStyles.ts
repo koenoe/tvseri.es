@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 
-import { FILL_BEFORE } from '@/components/motion/glide';
+import { FILL_BEFORE } from '@/components/motion/fillBefore';
 import type { IconSize } from '@/components/ui/icon/types';
 import cn from '@/lib/cn';
 

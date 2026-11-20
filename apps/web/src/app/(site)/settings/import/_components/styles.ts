@@ -1,4 +1,4 @@
-import { FILL_BEFORE } from '@/components/motion/glide';
+import { FILL_BEFORE } from '@/components/motion/fillBefore';
 import { HIT_Y } from '@/components/ui/button/hitArea';
 
 /**

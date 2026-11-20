@@ -95,6 +95,23 @@ describe('the Shows heading’s one count', () => {
 });
 
 describe('the self credits fold', () => {
+  it('is the whole section for someone who only appears as themselves', () => {
+    render(
+      <ShowsList
+        counts={{ all: 0, crew: 0, guest: 0, series: 0 }}
+        personId={4}
+        self={{ count: 2, label: 'As herself' }}
+        titleId="t"
+      >
+        <ul />
+      </ShowsList>,
+    );
+    // no list to open first, no filter with nothing to filter, no "0"
+    expect(screen.getByRole('button', { name: /As herself/ })).toBeTruthy();
+    expect(screen.queryByRole('group', { name: 'Filter series' })).toBeNull();
+    expect(screen.getByRole('heading').textContent).toBe('Series');
+  });
+
   it('stays closed and keeps the list when its read fails', async () => {
     fetchJson.mockRejectedValueOnce(new Error('down'));
     const errors = vi.spyOn(console, 'error').mockImplementation(() => {});

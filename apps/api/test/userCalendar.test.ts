@@ -45,6 +45,7 @@ const setup = () => {
       results: {
         GB: provider('GB service', '/gb.png'),
         NL: provider('NL service', '/nl.png'),
+        US: provider('US service', '/us.png'),
       },
     });
   }
@@ -92,9 +93,9 @@ describe("GET /user/:id/calendar: a profile owner's calendar for any signed-in v
     // without a saved country, the web's region for the viewer
     seedUser({ country: '' });
     const unsaved = (await (
-      await calendarOf(OTHER_USER_ID, USER_ID, '?region=NL')
+      await calendarOf(OTHER_USER_ID, USER_ID, '?region=US')
     ).json()) as Calendar;
-    expect(unsaved.shows[0]?.provider?.name).toBe('NL service');
+    expect(unsaved.shows[0]?.provider?.name).toBe('US service');
   });
 
   it('gives the same calendar as /me/calendar on your own profile', async () => {

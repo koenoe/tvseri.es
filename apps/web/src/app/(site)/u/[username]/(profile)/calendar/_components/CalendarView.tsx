@@ -101,7 +101,6 @@ export default function CalendarView({
           onClose={nav.close}
           onPick={nav.onPick}
           openIso={openIso}
-          phone={phone}
           stage={stage}
         />
       </div>

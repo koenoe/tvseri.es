@@ -4,9 +4,9 @@ import { useIsPresent } from 'motion/react';
 import type { ReactNode } from 'react';
 
 /**
- * The Remote's keys while it fades out: `inert`, so a click meant
- * for the row under a closing Remote reaches that row instead of pressing a
- * key that is going away (a fast click after Escape would mark an episode).
+ * A popover's content while it fades out: `inert`, so a click meant for
+ * what is under it reaches that instead of pressing a control that is
+ * going away (a fast click after Escape on the Remote would mark an episode).
  * `display: contents`, so it adds no box.
  */
 export default function ExitGuard({

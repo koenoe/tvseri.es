@@ -1,11 +1,10 @@
-type Rect = Readonly<{
-  bottom: number;
-  left: number;
-  right: number;
-  top: number;
-}>;
-
-type Size = Readonly<{ height: number; width: number }>;
+import {
+  clamp,
+  clampLeft,
+  MARGIN,
+  type Rect,
+  type Size,
+} from '@/components/ui/popover/place';
 
 /**
  * - `side`: the show page. The remote grows sideways from the ⋯, 12px to its
@@ -30,10 +29,6 @@ const SIDE_GAP = 12;
 const BELOW_GAP = 8;
 /** The panel's padding: the first key sits level with the ⋯. */
 const PANEL_PADDING = 8;
-const MARGIN = 16;
-
-const clamp = (value: number, min: number, max: number) =>
-  Math.max(min, Math.min(value, max));
 
 /** Where the desktop remote goes (viewport px), kept 16px inside the viewport. */
 export function placeRemote({
@@ -68,7 +63,7 @@ export function placeRemote({
       top = above;
     }
   }
-  left = clamp(left, MARGIN, Math.max(MARGIN, maxLeft));
+  left = clampLeft(left, panel.width, viewport.width);
   return {
     left,
     originX: (trigger.left + trigger.right) / 2 - left,

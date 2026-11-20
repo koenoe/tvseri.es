@@ -1,8 +1,9 @@
 'use client';
 
 import { firstEpisodeOf } from '@tvseri.es/utils';
-import { memo } from 'react';
+import { type MouseEvent, memo, useCallback } from 'react';
 
+import SwapIn from '@/components/motion/SwapIn';
 import { PULSE, TextLine } from '@/components/ui/ghost/ghosts';
 import type { ShowSeason } from '../../_lib/show';
 import BeforeAsk from './BeforeAsk';
@@ -15,6 +16,9 @@ import SeasonToggles from './SeasonToggles';
 import useSeasonSection from './useSeasonSection';
 
 const COUNT_GHOST = `mr-auto ${PULSE}`;
+
+/** Nothing to say (or an ask that hides itself) leaves no gap */
+const FOOT = 'empty:hidden';
 
 /**
  * `&season=N`: scrolls the sheet's body (only it, only vertically) to this
@@ -30,6 +34,26 @@ const scrollToSection = (node: HTMLElement | null) => {
     scroller.scrollTop +=
       node.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
   }
+};
+
+/**
+ * Every answer to "before too?" takes the ask away with the button pressed,
+ * so focus moves back to the chip it asked about rather than falling to the
+ * page. Run on the answer's click, while the button is still there to say
+ * focus was in the ask.
+ */
+const focusChipPastAsk = (
+  event: MouseEvent<HTMLElement>,
+  chipIndex: number,
+) => {
+  const slot = event.currentTarget;
+  if (chipIndex < 0 || !slot.contains(document.activeElement)) {
+    return;
+  }
+  slot
+    .closest('section')
+    ?.querySelector<HTMLElement>(`[data-chip="${chipIndex}"]`)
+    ?.focus({ preventScroll: true });
 };
 
 /**
@@ -65,6 +89,14 @@ function SeasonSection({
   const lastEpisode = last ? episodes.get(last.episodeNumber) : undefined;
   const calendarLabel = `When did you watch ${label}?`;
   const nothingAired = count.aired === 0;
+  const detail = last && lastChip && !ask;
+  const askChip = ask
+    ? chips.findIndex((chip) => chip.ref.episodeNumber === ask.episodeNumber)
+    : -1;
+  const handOverFocus = useCallback(
+    (event: MouseEvent<HTMLElement>) => focusChipPastAsk(event, askChip),
+    [askChip],
+  );
 
   return (
     <section
@@ -115,15 +147,23 @@ function SeasonSection({
         minutesOf={minutesOf}
         seasonNumber={seasonNumber}
       />
-      {ask ? <BeforeAsk target={ask} /> : null}
-      {last && lastChip && !ask ? (
-        <DetailLine
-          airDate={lastEpisode?.airDate}
-          episode={last}
-          state={lastChip.state}
-          title={lastEpisode?.title}
-        />
-      ) : null}
+      {/* the ask swaps in for the detail line (or for nothing) and back;
+          a tap that only changes the detail plays nothing. A box-less
+          wrapper, so an answer's click reaches the focus hand-over */}
+      <div className="contents" onClick={handOverFocus}>
+        <SwapIn className={FOOT} swapKey={ask ? 'ask' : 'detail'}>
+          {ask ? (
+            <BeforeAsk target={ask} />
+          ) : detail ? (
+            <DetailLine
+              airDate={lastEpisode?.airDate}
+              episode={last}
+              state={lastChip.state}
+              title={lastEpisode?.title}
+            />
+          ) : null}
+        </SwapIn>
+      </div>
     </section>
   );
 }

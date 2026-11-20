@@ -1,9 +1,10 @@
 'use client';
 
 import type { ConnectionUnresolvedPage } from '@tvseri.es/schemas';
-import { formatGrouped, plural } from '@tvseri.es/utils';
+import { formatGrouped } from '@tvseri.es/utils';
 import { useId, useMemo, useRef } from 'react';
 
+import RollingCount from '@/components/motion/RollingCount';
 import Button from '@/components/ui/button/Button';
 
 import {
@@ -98,10 +99,7 @@ export default function ServiceReview({
     review.sweep(items);
   };
 
-  const line =
-    remaining > 0
-      ? `${plural(remaining, 'entry', 'entries')} the sync couldn’t match · fix them here, or skip`
-      : null;
+  const noun = remaining === 1 ? 'entry' : 'entries';
   return (
     <section
       aria-labelledby={headingId}
@@ -117,7 +115,12 @@ export default function ServiceReview({
         >
           To review
         </h3>
-        {line ? <p className={OPTION_LINE_CLASS}>{line}</p> : null}
+        {remaining > 0 ? (
+          <p className={OPTION_LINE_CLASS}>
+            <RollingCount value={remaining} /> {noun} the sync couldn’t match ·
+            fix them here, or skip
+          </p>
+        ) : null}
         {overflow > 0 ? (
           <p className={OPTION_LINE_CLASS}>{overflowLine(overflow)}</p>
         ) : null}

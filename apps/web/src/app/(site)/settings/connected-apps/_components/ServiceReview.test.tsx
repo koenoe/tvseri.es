@@ -107,12 +107,23 @@ describe('ServiceReview', () => {
     expect(container.innerHTML).toBe('');
   });
 
+  /** The count line as read out: its drawn digits roll beside, hidden (`RollingCount`) */
+  const countLine = () => {
+    const line = screen
+      .getByText(/the sync couldn’t match/)
+      .cloneNode(true) as HTMLElement;
+    for (const hidden of line.querySelectorAll('[aria-hidden="true"]')) {
+      hidden.remove();
+    }
+    return line.textContent;
+  };
+
   it('lists the entries in the importer’s groups with the count', () => {
     render(
       <ServiceReview count={2} overflow={0} page={page([TOP_BOY, LOST])} />,
     );
     expect(screen.getByText('To review')).toBeTruthy();
-    expect(screen.getByText(/^2 entries/)).toBeTruthy();
+    expect(countLine()).toMatch(/^2 entries the sync/);
     expect(screen.getByText('Which series?')).toBeTruthy();
     expect(
       screen.getByRole('button', { name: '2011 · Channel 4' }),
@@ -136,7 +147,7 @@ describe('ServiceReview', () => {
     });
     // Optimistic: gone, and counted out, before the action answers
     expect(screen.queryByText('Which series?')).toBeNull();
-    expect(screen.getByText(/^1 entry the sync/)).toBeTruthy();
+    expect(countLine()).toMatch(/^1 entry the sync/);
 
     await act(async () => {
       answer.release({
@@ -413,7 +424,7 @@ describe('ServiceReview', () => {
     // The entry is back, now asking for its episode
     expect(screen.queryByText('Which series?')).toBeNull();
     expect(screen.getByText('Not found')).toBeTruthy();
-    expect(screen.getByText(/^1 entry the sync/)).toBeTruthy();
+    expect(countLine()).toMatch(/^1 entry the sync/);
   });
 });
 

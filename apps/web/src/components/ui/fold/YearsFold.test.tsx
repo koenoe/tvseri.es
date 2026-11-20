@@ -10,12 +10,20 @@ const rowsOf = (count: number) =>
   Array.from({ length: count }, (_, index) => {
     const year = 2026 - index;
     const row = (
-      <li key={year}>
-        <a href={`#${year}`}>{year}</a>
-      </li>
+      <a href={`#${year}`} key={year}>
+        {year}
+      </a>
     );
     return { row, year };
   });
+
+it('draws each year as one list item of its own', () => {
+  render(<YearsFold className="" rows={rowsOf(3)} selected={2026} />);
+  const items = screen.getAllByRole('listitem');
+  expect(items).toHaveLength(3);
+  expect(items.every((item) => item.querySelector('li') === null)).toBe(true);
+  cleanup();
+});
 
 const years = () =>
   screen.getAllByRole('link').map((link) => Number(link.textContent));

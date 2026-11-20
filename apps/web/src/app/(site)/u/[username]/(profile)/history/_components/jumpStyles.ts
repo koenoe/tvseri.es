@@ -10,6 +10,9 @@ export const JUMP_WEEK =
 /** The years' list (no `-mx-3`: the rows sit on the column's edges) */
 export const JUMP_YEARS = 'flex flex-col gap-0.5';
 
+/** The same list folded (`YearsFold`): its rows carry their own 2px */
+export const JUMP_YEARS_FOLD = 'flex flex-col';
+
 /** A year's row: the chevron, the year, the count */
 export const JUMP_YEAR = 'flex h-9 w-full items-center gap-2.5 rounded-8 px-3';
 

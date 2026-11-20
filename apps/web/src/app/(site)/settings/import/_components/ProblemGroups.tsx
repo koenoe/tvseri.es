@@ -1,7 +1,7 @@
 'use client';
 
-import { plural } from '@tvseri.es/utils';
 import { useMemo, useState } from 'react';
+import RollingCount from '@/components/motion/RollingCount';
 import ProblemGroup, {
   ProblemItemFrame,
 } from '../../_components/problems/ProblemGroup';
@@ -62,7 +62,7 @@ export default function ProblemGroups({
   const showAmbiguous = () =>
     setExpanded((was) => ({ ...was, ambiguous: true }));
   const showNotFound = () => setExpanded((was) => ({ ...was, notFound: true }));
-  const totalLine = `${plural(total, 'row')} · fix them here, or skip`;
+  const rows = total === 1 ? 'row' : 'rows';
   const filmRows = rowCount(films);
 
   return (
@@ -70,7 +70,9 @@ export default function ProblemGroups({
       <div className={HEAD}>
         <span className="size-2 shrink-0 rounded-full shadow-[inset_0_0_0_1.5px_white]" />
         <h3 className={CARD_TITLE}>Not imported</h3>
-        <span className={CARD_COUNT}>{totalLine}</span>
+        <span className={CARD_COUNT}>
+          <RollingCount value={total} /> {rows} · fix them here, or skip
+        </span>
       </div>
       {groups.ambiguous.length > 0 ? (
         <AmbiguousGroup

@@ -3,6 +3,7 @@
 import { format } from 'date-fns';
 import { useCallback, useMemo, useState } from 'react';
 
+import SwapIn from '@/components/motion/SwapIn';
 import Button from '@/components/ui/button/Button';
 import { AT_POINT, atPointVars } from '@/components/ui/dialog/atPoint';
 import {
@@ -113,13 +114,17 @@ function UpToBody({
   return (
     <>
       <UpToTabs onPick={pickTab} seasons={tabs} tab={choice.tab} />
-      <UpToChips
-        chips={chips}
-        onPick={pickTarget}
-        plan={plan}
-        target={choice.target}
-        titleOf={titleOf}
-      />
+      {/* a season tab's chips rise in; one per opening (`now`), so the
+          season it opens on is drawn still */}
+      <SwapIn key={choice.now} swapKey={choice.tab}>
+        <UpToChips
+          chips={chips}
+          onPick={pickTarget}
+          plan={plan}
+          target={choice.target}
+          titleOf={titleOf}
+        />
+      </SwapIn>
       <p aria-live="polite" className="min-h-5 text-meta text-white/80">
         {hint}
       </p>

@@ -1,4 +1,6 @@
 import Image from 'next/image';
+import type { CSSProperties } from 'react';
+import { showMorphClass } from '@/components/ui/tile/showMorphNames';
 
 /** The common fit: the logo contained, on its box's bottom left */
 export const TITLE_LOGO_FIT = 'object-contain object-left-bottom';
@@ -43,9 +45,22 @@ type LogoProps = Readonly<{
    * (`showMorph.ts`): marks the drawn box, the element that glides
    */
   morph?: boolean;
+  /**
+   * The page's half of a hand-off (`showMorph.ts`): the drawn box's
+   * view-transition name, there from the first render so the browser's
+   * snapshot of the new page has it
+   */
+  morphName?: string;
   src: string;
   title: string;
 }>;
+
+/** The logo's part in a hand-off: its name and the hand-off's class */
+const namedStyle = (name: string) =>
+  ({
+    viewTransitionClass: showMorphClass('logo'),
+    viewTransitionName: name,
+  }) as CSSProperties;
 
 /**
  * The show's logo as one place draws it (`look`), its alt the title. For a
@@ -59,9 +74,11 @@ export function TitleTreatmentLogo({
   loading,
   look,
   morph = false,
+  morphName,
   src,
   title,
 }: LogoProps) {
+  const named = morphName === undefined ? undefined : namedStyle(morphName);
   const logoAlt = alt ?? title;
   const part = morph ? 'logo' : undefined;
   // the box glides where there is one, else the image itself
@@ -77,6 +94,7 @@ export function TitleTreatmentLogo({
         loading={loading}
         sizes={look.sizes}
         src={src}
+        style={look.box === undefined ? named : undefined}
       />
     ) : (
       <Image
@@ -88,13 +106,14 @@ export function TitleTreatmentLogo({
         loading={loading}
         sizes={look.sizes}
         src={src}
+        style={look.box === undefined ? named : undefined}
         width={look.width}
       />
     );
   return look.box === undefined ? (
     image
   ) : (
-    <Box className={look.box} data-show-morph={part}>
+    <Box className={look.box} data-show-morph={part} style={named}>
       {image}
     </Box>
   );

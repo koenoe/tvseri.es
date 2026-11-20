@@ -1,5 +1,9 @@
 'use client';
 
+import { AnimatePresence, useIsPresent } from 'motion/react';
+import * as m from 'motion/react-m';
+import { useRef } from 'react';
+import { appearFrom } from '@/components/motion/appear';
 import { historyGlyph, infoGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import Dot from '@/components/ui/lane/Dot';
@@ -10,6 +14,11 @@ import FieldRow, { type ColumnsProps } from './FieldRow';
 import { CARD_COUNT, CARD_HEAD, CARD_TITLE } from './styles';
 
 type Props = ColumnsProps;
+
+/** Slides in from the end of the line as the first change lands, as Profile's Cancel */
+const RESET = appearFrom({ x: 8 });
+
+const TITLE = `${CARD_TITLE} outline-none`;
 
 const sameMapping = (a: ColumnMapping, b: ColumnMapping) =>
   JSON.stringify(a) === JSON.stringify(b);
@@ -22,22 +31,24 @@ const sameMapping = (a: ColumnMapping, b: ColumnMapping) =>
 export default function ColumnsPanel(props: Props) {
   const { mapping, onMapping, source } = props;
   const changed = !sameMapping(mapping, source.mapping);
-  const reset = () => onMapping(source.mapping);
+  const heading = useRef<HTMLHeadingElement>(null);
+  // The button leaves with the change it undid: the heading holds the focus
+  const reset = () => {
+    heading.current?.focus();
+    onMapping(source.mapping);
+  };
 
   return (
     <div className="flex flex-col gap-4 rounded-18 bg-white/4 p-6 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.07)]">
       <div className={CARD_HEAD}>
         <Dot colour="bg-white/75" />
-        <h3 className={CARD_TITLE}>Columns</h3>
+        <h3 className={TITLE} ref={heading} tabIndex={-1}>
+          Columns
+        </h3>
         <span className={CARD_COUNT}>tvseri.es field ← your CSV column</span>
-        {changed ? (
-          <span className="ml-auto flex items-center gap-2">
-            <button className={LINK} onClick={reset} type="button">
-              <Icon glyph={historyGlyph} size={13} />
-              Back to what we filled in
-            </button>
-          </span>
-        ) : null}
+        <AnimatePresence initial={false}>
+          {changed ? <ResetLink key="reset" onReset={reset} /> : null}
+        </AnimatePresence>
       </div>
       <div className="flex flex-col">
         {FIELDS.map((field) => (
@@ -50,5 +61,22 @@ export default function ColumnsPanel(props: Props) {
         episode all in Title.
       </p>
     </div>
+  );
+}
+
+/** "Back to what we filled in"; leaving, it can't be pressed */
+function ResetLink({ onReset }: Readonly<{ onReset: () => void }>) {
+  const leaving = !useIsPresent();
+  return (
+    <m.span
+      className="ml-auto flex items-center gap-2"
+      inert={leaving}
+      {...RESET}
+    >
+      <button className={LINK} onClick={onReset} type="button">
+        <Icon glyph={historyGlyph} size={13} />
+        Back to what we filled in
+      </button>
+    </m.span>
   );
 }

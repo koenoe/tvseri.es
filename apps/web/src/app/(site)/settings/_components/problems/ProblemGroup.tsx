@@ -1,8 +1,8 @@
-import { formatGrouped } from '@tvseri.es/utils';
 import { AnimatePresence } from 'motion/react';
 import type { ReactNode } from 'react';
 
 import FoldPresence from '@/components/motion/FoldPresence';
+import RollingCount from '@/components/motion/RollingCount';
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import { ignoreKeyRepeat } from '@/lib/a11y/ignoreKeyRepeat';
@@ -13,7 +13,7 @@ import cn from '@/lib/cn';
  * items fold open and shut (the shared fold, as Connected apps' review
  * groups) while the chevron turns: a shut that cut at once read as a
  * different control from the open. A group open on the first paint stays
- * still.
+ * still. Its count rolls as items are fixed or skipped.
  */
 export default function ProblemGroup({
   action,
@@ -58,7 +58,7 @@ export default function ProblemGroup({
           <Icon className={chevronClass} glyph={chevronRightGlyph} size={16} />
           <b className="whitespace-nowrap text-body-sm font-semibold">{name}</b>
           <span className="inline-flex h-5.5 items-center justify-self-start rounded-full bg-white/10 px-2 text-caption font-medium tabular-nums max-md:justify-self-end">
-            {formatGrouped(count)}
+            <RollingCount value={count} />
           </span>
           <span className="justify-self-end truncate text-meta leading-5 text-white/60 max-md:col-start-2 max-md:col-end-[-1] max-md:justify-self-start max-md:whitespace-normal">
             {what}

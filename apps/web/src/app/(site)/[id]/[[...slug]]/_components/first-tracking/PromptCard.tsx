@@ -159,12 +159,11 @@ export function PromptGhost() {
 /**
  * The prompt's frame: hidden before the first paint when this browser knows
  * it isn't for this viewer (`data-show-prompt="no"`, `lib/viewer/htmlHints`),
- * unless the viewer's own marks say ask (`data-ask`). Leaving, it fades and
- * its row collapses (grid rows 1fr → 0fr), so what is below glides up.
+ * unless the viewer's own marks say ask (`data-ask`). Leaving, it folds
+ * shut (`PromptFold`).
  */
 export const PROMPT_FRAME =
-  'grid grid-cols-[minmax(0,1fr)] grid-rows-[1fr] transition-[grid-template-rows,opacity] duration-[220ms] ease-[cubic-bezier(0.32,0.72,0,1)] [html[data-show-prompt=no]_&:not([data-ask])]:hidden data-[leaving]:pointer-events-none data-[leaving]:grid-rows-[0fr] data-[leaving]:opacity-0';
+  'grid grid-cols-[minmax(0,1fr)] grid-rows-[1fr] [html[data-show-prompt=no]_&:not([data-ask])]:hidden';
 
-/** The frame's one cell: shrinks with the row; clips only while leaving. */
-export const PROMPT_CELL =
-  'min-h-0 min-w-0 group-data-[leaving]/prompt:overflow-y-clip';
+/** The frame's one cell */
+export const PROMPT_CELL = 'min-h-0 min-w-0';

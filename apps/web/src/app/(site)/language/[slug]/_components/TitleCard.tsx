@@ -1,6 +1,7 @@
 'use client';
 
 import { type CSSProperties, memo } from 'react';
+import CrossFade from '@/components/motion/CrossFade';
 import { LATE_FADE } from '@/components/motion/lateFade';
 import {
   calendarGlyph,
@@ -16,6 +17,9 @@ import showPath from '@/lib/routing/showPath';
 
 import { cardTitles, type Script, type TitleCard } from '../_data/language';
 
+/** The other title's place under the title */
+const OTHER_PLACE = 'mt-1 md:mt-2';
+
 /** The Watched label's corner (it arrives after the first paint: fades in) */
 const LABEL_CORNER = cn('absolute top-4 right-4', LATE_FADE);
 
@@ -30,7 +34,8 @@ type Props = Readonly<{
  * A card of the title wall: the
  * coloured top rule, the title in the chosen script (title-2, two lines at
  * most), the other title below (always), then
- * year · Animation/Live action (the phone keeps the year).
+ * year · Animation/Live action (the phone keeps the year). A script switch
+ * cross-fades both titles in place.
  */
 function TitleWallCard({ card, lang, script }: Props) {
   const watched = useIsWatched(card.id);
@@ -49,18 +54,22 @@ function TitleWallCard({ card, lang, script }: Props) {
           className="absolute inset-x-0 top-0 h-1"
           style={rule}
         />
-        <span
-          className="line-clamp-2 text-title-2 text-white"
-          lang={titles.lang}
-        >
-          {titles.title}
-        </span>
-        <span
-          className="mt-1 truncate text-meta text-white/60 md:mt-2"
-          lang={titles.otherLang}
-        >
-          {titles.other}
-        </span>
+        <CrossFade swapKey={titles.title}>
+          <span
+            className="line-clamp-2 text-title-2 text-white"
+            lang={titles.lang}
+          >
+            {titles.title}
+          </span>
+        </CrossFade>
+        <CrossFade frame={OTHER_PLACE} swapKey={titles.other}>
+          <span
+            className="block truncate text-meta text-white/60"
+            lang={titles.otherLang}
+          >
+            {titles.other}
+          </span>
+        </CrossFade>
         {/* a narrow card drops the kind whole rather than cut it */}
         <div className="mt-auto pt-3 md:pt-4">
           <MetaRow fit="drop">

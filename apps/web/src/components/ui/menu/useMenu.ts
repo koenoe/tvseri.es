@@ -9,11 +9,11 @@ import {
   useState,
 } from 'react';
 
+import { PANEL_DROP } from '@/components/motion/panelDrop';
 import { moveSelection } from '@/lib/grid/moveSelection';
 
-/** The menu's panel: a dark panel under its trigger */
-export const MENU_PANEL =
-  'absolute top-full left-0 z-30 mt-2 flex min-w-[200px] flex-col gap-0.5 rounded-12 bg-[#0f1314] p-1.5 shadow-[0_16px_40px_-12px_rgb(0_0_0/0.8),inset_0_0_0_1px_rgb(255_255_255/0.1)]';
+/** The menu's panel: a dark panel under its trigger, dropping in as it opens */
+export const MENU_PANEL = `absolute top-full left-0 z-30 mt-2 flex min-w-[200px] flex-col gap-0.5 rounded-12 bg-[#0f1314] p-1.5 shadow-[0_16px_40px_-12px_rgb(0_0_0/0.8),inset_0_0_0_1px_rgb(255_255_255/0.1)] ${PANEL_DROP}`;
 
 /** One row of the panel; add the text colour */
 export const MENU_ITEM =

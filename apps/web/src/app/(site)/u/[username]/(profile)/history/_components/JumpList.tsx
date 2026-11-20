@@ -21,7 +21,7 @@ import Icon from '@/components/ui/icon/Icon';
 import type { MonthKey, JumpYear as Year } from '@/lib/profile/diary';
 import { useDiaryJump } from '../_lib/useDiaryJump';
 import JumpYear from './JumpYear';
-import { JUMP_WEEK, JUMP_YEARS } from './jumpStyles';
+import { JUMP_WEEK, JUMP_YEARS, JUMP_YEARS_FOLD } from './jumpStyles';
 
 type Week = Readonly<{ episodes: number; last: string | null }>;
 
@@ -126,13 +126,17 @@ export default function JumpList({
         <LayoutGroup id={group}>
           {fold ? (
             <YearsFold
-              className={JUMP_YEARS}
+              className={JUMP_YEARS_FOLD}
               reveal={activeYear ?? null}
               rows={rows}
               selected={fold.opened}
             />
           ) : (
-            <ul className={JUMP_YEARS}>{rows.map((item) => item.row)}</ul>
+            <ul className={JUMP_YEARS}>
+              {rows.map((item) => (
+                <li key={item.year}>{item.row}</li>
+              ))}
+            </ul>
           )}
         </LayoutGroup>
       </div>

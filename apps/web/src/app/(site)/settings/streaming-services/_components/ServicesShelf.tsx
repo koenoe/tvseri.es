@@ -3,6 +3,7 @@
 import type { WatchProvider } from '@tvseri.es/schemas';
 import { useState } from 'react';
 
+import RollingCount from '@/components/motion/RollingCount';
 import { arrowDownGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import ServicesList from './ServicesList';
@@ -37,7 +38,9 @@ export default function ServicesShelf({
         <h3 className="text-body outline-none" id={HEADING} tabIndex={-1}>
           Your services
         </h3>
-        <span className="text-meta text-white/60 tabular-nums">{count}</span>
+        <span className="text-meta text-white/60 tabular-nums">
+          <RollingCount value={count} />
+        </span>
       </div>
       {count > 0 ? (
         <ServicesList

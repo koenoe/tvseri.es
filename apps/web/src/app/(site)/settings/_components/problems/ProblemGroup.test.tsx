@@ -77,7 +77,8 @@ describe('ProblemGroup', () => {
     );
     expect(header.getAttribute('aria-expanded')).toBe('true');
     expect(screen.getByText('items')).toBeTruthy();
-    expect(screen.getByText('13')).toBeTruthy();
+    // the number read out; the drawn digits roll beside it (`RollingCount`)
+    expect(screen.getByText('13', { selector: '.sr-only' })).toBeTruthy();
 
     // Shutting plays the shared fold, so the items leave once it has
     rerender(

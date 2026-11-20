@@ -111,6 +111,18 @@ describe('useShelfTiles: leave, come back, Undo', () => {
     expect(result.current.shelf.list).toBe(list + 1);
   });
 
+  it('a new first page mid-exit ends the move: the old exits never finish', () => {
+    const { rerender, result } = setup('ines');
+    act(() => result.current.shelf.leave([1], 'watchlist-remove'));
+    rerender({
+      first: {},
+      hidden: {},
+      items: [tile(2)],
+      shelf: 'watchlist',
+    });
+    expect(result.current.shelf.moving).toBe(false);
+  });
+
   it('the move ends when the exits are done', () => {
     const { result } = setup('sol');
     act(() => result.current.shelf.leave([1], 'watchlist-remove'));

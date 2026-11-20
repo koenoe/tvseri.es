@@ -1,10 +1,10 @@
 'use client';
 
 import { useLayoutEffect, useRef, useState } from 'react';
-
 import { motionWelcome } from '@/lib/media/motionWelcome';
 import { isPlainClick } from '@/lib/navigation/isPlainClick';
 import { showIdOf } from '@/lib/routing/showPath';
+import { showMorphClass, showMorphName } from './showMorphNames';
 
 /**
  * Opening a show from a big card keeps what you were looking at: the card's
@@ -24,19 +24,11 @@ import { showIdOf } from '@/lib/routing/showPath';
  * click's own navigation (`useShowMorphTarget`): after an intent prefetch
  * (`TileLink`) the show commits whole; without one the skeleton commits
  * first and the show arrives later, by when the card is hidden, so nothing
- * morphs. React starts the browser's view transition for that commit (the
- * title's `<ViewTransition>`), and the names on the card make the pair.
+ * morphs. The show page's route boundary (`page.tsx`) starts the browser's
+ * view transition for that commit, and the title carries the logo's name
+ * from its first render (`morphName`), so the card's names make the pair.
  * Back never morphs: Next runs history traversal outside a transition.
  */
-
-export type ShowMorphPart = 'art' | 'logo';
-
-/** The two parts' view-transition names, the same on the card and the page */
-export const showMorphName = (part: ShowMorphPart, seriesId: number) =>
-  `show-${part}-${seriesId}`;
-
-/** The parts' view-transition classes (globals.css, "Opening a show") */
-export const showMorphClass = (part: ShowMorphPart) => `show-${part}`;
 
 /**
  * The type a show link's navigation carries (`<Link transitionTypes>`), so

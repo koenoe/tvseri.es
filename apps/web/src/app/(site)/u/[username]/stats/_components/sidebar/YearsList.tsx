@@ -21,6 +21,8 @@ const PILL = (
 );
 
 const ROWS = 'flex flex-col gap-0.5';
+/** The folded list's: its rows carry their own 2px (`YearsFold`) */
+const FOLD_ROWS = 'flex flex-col';
 /** on the rows' edges, past the column's */
 const EDGES = '-mx-3';
 const LIST = cn(EDGES, ROWS);
@@ -42,11 +44,7 @@ export default function YearsList({
   username: string;
 }>) {
   const links = rows.map((row) => ({
-    row: (
-      <li key={row.year}>
-        <YearRowLink row={row} username={username} />
-      </li>
-    ),
+    row: <YearRowLink row={row} username={username} />,
     year: row.year,
   }));
   return (
@@ -54,10 +52,14 @@ export default function YearsList({
       {fold ? (
         // the fold's button shares the rows' edges
         <div className={EDGES}>
-          <PageYearsFold className={ROWS} rows={links} />
+          <PageYearsFold className={FOLD_ROWS} rows={links} />
         </div>
       ) : (
-        <ul className={LIST}>{links.map((item) => item.row)}</ul>
+        <ul className={LIST}>
+          {links.map((item) => (
+            <li key={item.year}>{item.row}</li>
+          ))}
+        </ul>
       )}
     </YearsNav>
   );

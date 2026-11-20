@@ -1,6 +1,7 @@
 'use client';
 
 import { type KeyboardEvent, useId, useRef } from 'react';
+import CrossFade from '@/components/motion/CrossFade';
 import ChoiceButton from '@/components/ui/button/ChoiceButton';
 import cn from '@/lib/cn';
 import NumberedSteps, {
@@ -41,7 +42,8 @@ const NEXT_KEY: Readonly<Record<string, number>> = {
 /**
  * "Where do I get my file?": Netflix / Prime Video /
  * Other CSV as ARIA tabs (arrow keys move and select, Home/End jump), three
- * short lines each. Without `onTab` it is the static loading frame.
+ * short lines each, swapped in place as the tab changes (the tabs' fill
+ * glides). Without `onTab` it is the static loading frame.
  */
 export default function HelpCard({
   onTab,
@@ -110,7 +112,9 @@ export default function HelpCard({
         </div>
       </div>
       <div aria-labelledby={tabLabelId} id={panelId} role="tabpanel">
-        <NumberedSteps layout={HELP_STEPS} lines={HELP[tab]} />
+        <CrossFade swapKey={tab}>
+          <NumberedSteps layout={HELP_STEPS} lines={HELP[tab]} />
+        </CrossFade>
       </div>
     </div>
   );

@@ -1,8 +1,10 @@
 'use client';
 
 import { formatGrouped } from '@tvseri.es/utils';
+import { AnimatePresence } from 'motion/react';
 import { startTransition, useCallback, useId, useState } from 'react';
 
+import FoldPresence from '@/components/motion/FoldPresence';
 import { SURFACE } from '@/components/ui/dialog/dialogStyles';
 import Face, { type FaceLook } from '@/components/ui/faces/Face';
 import ExpandButton, {
@@ -79,24 +81,41 @@ const SHEET_FACE: FaceLook = {
 /** A row's link name: "… as Character" for the cast, "…, Director" for the crew */
 type RowLabel = (person: CastCrewPerson) => string;
 
-function PersonRow({
-  labelOf,
-  person,
-}: Readonly<{ labelOf: RowLabel; person: CastCrewPerson }>) {
+type RowProps = Readonly<{ labelOf: RowLabel; person: CastCrewPerson }>;
+
+function PersonFace({ labelOf, person }: RowProps) {
   const href = personPath(person.id, person.slug);
   const label = labelOf(person);
   return (
+    <Face
+      alt=""
+      href={href}
+      image={person.image}
+      label={label}
+      look={SHEET_FACE}
+      name={person.name}
+      role={person.role}
+    />
+  );
+}
+
+function PersonRow(props: RowProps) {
+  return (
     <li className={ROW}>
-      <Face
-        alt=""
-        href={href}
-        image={person.image}
-        label={label}
-        look={SHEET_FACE}
-        name={person.name}
-        role={person.role}
-      />
+      <PersonFace {...props} />
     </li>
+  );
+}
+
+/**
+ * A row "Show all" opens, folding in and out (`FoldPresence`); its
+ * containment keeps the face's margins inside it, as in the other rows
+ */
+function FoldingRow(props: RowProps) {
+  return (
+    <FoldPresence as="li" className={ROW}>
+      <PersonFace {...props} />
+    </FoldPresence>
   );
 }
 
@@ -142,10 +161,13 @@ function RowsSkeleton({ count }: Readonly<{ count: number }>) {
  * Anatomy's cast is over 2,600), and a short first view keeps the sheet
  * scannable and its slide-in smooth. The regulars come first (billing order,
  * then most episodes); the rest open with "Show all N" in a transition, so
- * the press never blocks.
+ * the press never blocks. Up to `FOLD_MOST` of them fold in and out; past
+ * that they open and shut at once, rather than move thousands of heights
+ * (a few folding while the rest stood under them would pull those apart).
  */
 const CAST_CAP = 20;
 const CREW_CAP = 6;
+const FOLD_MOST = 50;
 
 /** The person page's full-width bar under its lists, here under a section */
 const SHOW_ALL: ExpandLayout = {
@@ -177,7 +199,11 @@ function Section({
     return null;
   }
   const capped = people.length > cap;
-  const shown = open || !capped ? people : people.slice(0, cap);
+  const first = capped ? people.slice(0, cap) : people;
+  const opened = open ? people.slice(cap) : [];
+  const folds = opened.length <= FOLD_MOST;
+  const folding = folds ? opened : [];
+  const atOnce = folds ? [] : opened;
   const showAll = `Show all ${formatGrouped(people.length)}`;
   return (
     <section aria-labelledby={titleId}>
@@ -185,7 +211,15 @@ function Section({
         {title}
       </h3>
       <ul className={LIST} id={listId}>
-        {shown.map((person) => (
+        {first.map((person) => (
+          <PersonRow key={person.id} labelOf={labelOf} person={person} />
+        ))}
+        <AnimatePresence initial={false}>
+          {folding.map((person) => (
+            <FoldingRow key={person.id} labelOf={labelOf} person={person} />
+          ))}
+        </AnimatePresence>
+        {atOnce.map((person) => (
           <PersonRow key={person.id} labelOf={labelOf} person={person} />
         ))}
       </ul>

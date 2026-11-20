@@ -2,13 +2,15 @@
 
 import { useState } from 'react';
 import { HEAD_LINK } from '@/app/(site)/u/[username]/_lib/headLink';
+import CrossFade from '@/components/motion/CrossFade';
+import SwapIn from '@/components/motion/SwapIn';
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 import { useHiddenShows } from '@/lib/marking/hooks';
 import useIntentSeed from '@/lib/marking/useIntentSeed';
 import useMarking from '@/lib/marking/useMarking';
-import Lane from '../../blocks/Lane';
+import Lane, { LANE_BODY } from '../../blocks/Lane';
 import LedgerRow from './LedgerRow';
 import LedgerShowRow from './LedgerShowRow';
 import {
@@ -32,7 +34,9 @@ const NEXT_LINK = cn(HEAD_LINK, 'min-w-0 cursor-pointer');
  * rest in the show's history. Watched marks the episode on its release day,
  * Skipped closes the hole for good; both are the marking core's (toast with
  * Undo, rolls back on an error), and the row answers at once with its own
- * Undo.
+ * Undo. On Next the show line cross-fades (`CrossFade`: it keeps its
+ * height) and the chart and rows swap in (`SwapIn`: one to three rows, so
+ * the height changes at once rather than holding the card open).
  */
 export default function LedgerLane({
   shows: allShows,
@@ -102,22 +106,26 @@ export default function LedgerLane({
       link={link}
       title="Season ledger"
     >
-      <LedgerShowRow more={more} open={open} view={view} />
-      <SeasonChart states={viewStates} view={view} />
-      <div className="flex flex-col gap-2" data-equal-rows="">
-        {view.episodes.slice(0, LEDGER_ROWS).map((episode) => {
-          const state = stateOf(episode);
-          return (
-            <LedgerRow
-              episode={episode}
-              key={episode.code}
-              onChoose={choose}
-              onIntent={intent}
-              state={state}
-            />
-          );
-        })}
-      </div>
+      <CrossFade swapKey={view.seriesId}>
+        <LedgerShowRow more={more} open={open} view={view} />
+      </CrossFade>
+      <SwapIn className={LANE_BODY} swapKey={view.seriesId}>
+        <SeasonChart states={viewStates} view={view} />
+        <div className="flex flex-col gap-2" data-equal-rows="">
+          {view.episodes.slice(0, LEDGER_ROWS).map((episode) => {
+            const state = stateOf(episode);
+            return (
+              <LedgerRow
+                episode={episode}
+                key={episode.code}
+                onChoose={choose}
+                onIntent={intent}
+                state={state}
+              />
+            );
+          })}
+        </div>
+      </SwapIn>
     </Lane>
   );
 }

@@ -18,7 +18,7 @@ import useShelfSelect from '../_lib/useShelfSelect';
 import useShelfTiles from '../_lib/useShelfTiles';
 import ActionBar, { SelectionStatus } from './ActionBar';
 import AzRail from './AzRail';
-import ShelfGrid from './ShelfGrid';
+import ShelfBody from './ShelfBody';
 import ShelfGridEmpty from './ShelfGridEmpty';
 import ShelfToolbar from './ShelfToolbar';
 import { TileContext } from './tileContext';
@@ -105,6 +105,14 @@ export default function LibraryView({
   const empty = tiles.length === 0;
   const canSelect = owner && meta.action !== null && !empty;
   const busy = pending || undefined;
+  const emptyState = (
+    <ShelfGridEmpty
+      owner={owner}
+      query={query}
+      shelf={shelf}
+      username={username}
+    />
+  );
 
   return (
     <TileContext value={context}>
@@ -145,26 +153,19 @@ export default function LibraryView({
                 : earlierLabel(first.letters, tiles[0]?.initial, above)}
             </LoadAbove>
           ) : null}
-          {empty ? (
-            <ShelfGridEmpty
-              owner={owner}
-              query={query}
-              shelf={shelf}
-              username={username}
-            />
-          ) : (
-            <ShelfGrid
-              hasMore={paged.canLoadMore}
-              list={list}
-              listRef={listRef}
-              loadMore={paged.loadMore}
-              moving={moving}
-              settled={settled}
-              shelf={shelf}
-              status={paged.status}
-              tiles={tiles}
-            />
-          )}
+          <ShelfBody
+            empty={emptyState}
+            hasMore={paged.canLoadMore}
+            key={list}
+            list={list}
+            listRef={listRef}
+            loadMore={paged.loadMore}
+            moving={moving}
+            settled={settled}
+            shelf={shelf}
+            status={paged.status}
+            tiles={tiles}
+          />
           <PaginationNotice onRetry={paged.loadMore} status={paged.status} />
         </div>
         {owner && meta.action ? (

@@ -1,5 +1,6 @@
 'use client';
 
+import { LATE_FADE } from '@/components/motion/lateFade';
 import SignedInOnly from '@/components/ui/viewer/SignedInOnly';
 import cn from '@/lib/cn';
 
@@ -12,6 +13,9 @@ const UNWATCHED_SAMPLE = cn(SAMPLE, OUTLINE);
 const THICK = ['h-0.5 rounded-[1px]', 'h-1 rounded-2', 'h-1.5 rounded-[3px]'];
 
 const KEY = 'flex items-center gap-4 text-meta whitespace-nowrap text-white/60';
+const SAMPLE_ITEM = 'inline-flex items-center gap-1.5';
+/** Watched and Not watched arrive with the viewer's marks: they fade in */
+const MARK_ITEM = cn(SAMPLE_ITEM, LATE_FADE);
 
 /**
  * The Career key: only marks on screen, each a real
@@ -29,17 +33,17 @@ function Key({
     <span className={keyClass}>
       {marks ? (
         <>
-          <span className="inline-flex items-center gap-1.5">
+          <span className={MARK_ITEM}>
             <i className={WATCHED_SAMPLE} />
             Watched
           </span>
-          <span className="inline-flex items-center gap-1.5">
+          <span className={MARK_ITEM}>
             <i className={UNWATCHED_SAMPLE} />
             Not watched
           </span>
         </>
       ) : null}
-      <span className="inline-flex items-center gap-1.5">
+      <span className={SAMPLE_ITEM}>
         <span aria-hidden="true" className="inline-flex items-center gap-0.75">
           {THICK.map((size) => {
             const barClass = cn('block w-2.5', size, thick);

@@ -39,6 +39,9 @@ test('a Spotlight slide opens its show with the morph', async ({ page }) => {
   // the intent prefetch (150ms of rest), then its request
   await page.waitForTimeout(400);
   await page.waitForLoadState('networkidle');
+  // whether the card drew its logo (a logo that fails to load falls back to
+  // the written title, which has no logo to hand over)
+  const cardLogo = await slide.locator('img[data-show-morph="logo"]').count();
   await title.first().click();
   await expect(page).toHaveURL(new RegExp(`${href}$`));
   const seen = await page.evaluate(() => ({
@@ -51,4 +54,9 @@ test('a Spotlight slide opens its show with the morph', async ({ page }) => {
   expect(seen.calls.some((types) => types.includes('show-open'))).toBe(true);
   // the card's art grows into the page's backdrop
   expect(seen.parts).toContain(`::view-transition-group(show-art-${id})`);
+  if (cardLogo > 0) {
+    // and its logo glides into the hero's: a pair, both snapshots
+    expect(seen.parts).toContain(`::view-transition-old(show-logo-${id})`);
+    expect(seen.parts).toContain(`::view-transition-new(show-logo-${id})`);
+  }
 });

@@ -1,12 +1,9 @@
 'use client';
 
-import { type ReactNode, useLayoutEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 
-import {
-  showMorphClass,
-  showMorphName,
-  useShowMorphTarget,
-} from '@/components/ui/tile/showMorph';
+import { useShowMorphTarget } from '@/components/ui/tile/showMorph';
+import { showMorphName } from '@/components/ui/tile/showMorphNames';
 import TitleTreatment, {
   type TitleTreatmentLook,
 } from '@/components/ui/title/TitleTreatment';
@@ -39,7 +36,7 @@ const HERO_TITLE: TitleTreatmentLook = {
 /**
  * The hero's title; while an admin picks images, their live pick. Opened
  * from a card that hands over (`showMorph.ts`), the card's logo glides into
- * it (`MorphTarget`); the transition itself is started by the show page's
+ * it (named from its first render); the transition itself is started by the show page's
  * route boundary (`page.tsx`).
  */
 export default function HeroTitle({
@@ -50,54 +47,28 @@ export default function HeroTitle({
   const draft = useHeroTitleDraft(seriesId, logo);
   const morph = useShowMorphTarget(seriesId);
   const src = draft ? (draft.kind === 'logo' ? draft.url : undefined) : logo;
-  const treatment = (
+  // the card's logo glides into this one: named from the first render, so
+  // the browser's snapshot of the new page has it, then unnamed so no later
+  // transition on the page picks it up
+  const [handOff, setHandOff] = useState(morph);
+  useEffect(() => {
+    if (!handOff) {
+      return;
+    }
+    const done = window.setTimeout(() => setHandOff(false), MORPH_NAME_MS);
+    return () => window.clearTimeout(done);
+  }, [handOff]);
+  const morphName =
+    handOff && src ? showMorphName('logo', seriesId) : undefined;
+  return (
     <TitleTreatment
       as="h1"
       draggable={false}
       loading="eager"
       look={HERO_TITLE}
+      morphName={morphName}
       src={src}
       title={title}
     />
-  );
-  return morph && src ? (
-    <MorphTarget seriesId={seriesId}>{treatment}</MorphTarget>
-  ) : (
-    treatment
-  );
-}
-
-/**
- * The logo's half of the hand-off: the card's logo (named at the click) and
- * this one share a name, so the browser glides one into the other. Named in
- * a layout effect, inside React's view-transition update, before the new
- * page is captured; the wrapper has no box, so the layout is the page's.
- */
-function MorphTarget({
-  children,
-  seriesId,
-}: Readonly<{ children: ReactNode; seriesId: number }>) {
-  const box = useRef<HTMLSpanElement>(null);
-  useLayoutEffect(() => {
-    const logo = box.current?.firstElementChild;
-    if (!(logo instanceof HTMLElement)) {
-      return;
-    }
-    logo.style.setProperty(
-      'view-transition-name',
-      showMorphName('logo', seriesId),
-    );
-    logo.style.setProperty('view-transition-class', showMorphClass('logo'));
-    // named for the hand-off only: never for a later transition on the page
-    const unname = window.setTimeout(() => {
-      logo.style.removeProperty('view-transition-name');
-      logo.style.removeProperty('view-transition-class');
-    }, MORPH_NAME_MS);
-    return () => window.clearTimeout(unname);
-  }, [seriesId]);
-  return (
-    <span className="contents" ref={box}>
-      {children}
-    </span>
   );
 }

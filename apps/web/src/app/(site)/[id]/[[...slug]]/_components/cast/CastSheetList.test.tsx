@@ -2,6 +2,8 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import MotionProvider from '@/components/motion/MotionProvider';
+
 import CastSheetList from './CastSheetList';
 
 let showId = 0;
@@ -140,6 +142,40 @@ describe('CastSheetList', () => {
       await within(section).findByRole('button', { expanded: true }),
     ).toBeTruthy();
     expect(within(section).getAllByRole('listitem')).toHaveLength(1200);
+  });
+
+  const castOf = (count: number) =>
+    Array.from({ length: count }, (_, index) => ({
+      ...WHITE,
+      id: 1000 + index,
+      name: `Actor ${index}`,
+    }));
+
+  /** Opens the cast, then shuts it again: the rows still in the list */
+  const openAndShut = async (count: number) => {
+    showId = 200 + count;
+    vi.stubGlobal('fetch', answer({ cast: castOf(count), crew: [] }));
+    render(
+      <MotionProvider>
+        <CastSheetList total={count} />
+      </MotionProvider>,
+    );
+    const section = await screen.findByRole('region', { name: 'Cast' });
+    fireEvent.click(within(section).getByRole('button', { name: /Show all/ }));
+    await within(section).findByRole('button', { expanded: true });
+    fireEvent.click(within(section).getByRole('button', { name: /Show/ }));
+    await within(section).findByRole('button', { expanded: false });
+    return within(section).getAllByRole('listitem');
+  };
+
+  it('folds a short rest away, out of reach while it goes', async () => {
+    const rows = await openAndShut(30);
+    expect(rows).toHaveLength(30);
+    expect(rows.slice(20).every((row) => row.hasAttribute('inert'))).toBe(true);
+  });
+
+  it('shuts a long rest at once rather than fold hundreds of rows', async () => {
+    expect(await openAndShut(400)).toHaveLength(20);
   });
 
   it('says the list didn’t load, and Try again loads it', async () => {

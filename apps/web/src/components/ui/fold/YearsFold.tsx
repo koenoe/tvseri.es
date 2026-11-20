@@ -1,6 +1,7 @@
 'use client';
 
 import { formatGrouped } from '@tvseri.es/utils';
+import { AnimatePresence } from 'motion/react';
 import {
   type ReactNode,
   startTransition,
@@ -9,6 +10,7 @@ import {
   useState,
 } from 'react';
 
+import FoldPresence from '@/components/motion/FoldPresence';
 import { HIT_Y } from '@/components/ui/button/hitArea';
 import { visibleYears } from '@/lib/fold';
 
@@ -16,6 +18,12 @@ import ExpandButton, { type ExpandLayout } from './ExpandButton';
 
 /** Rows before "Show all": a long-time member has twenty years and more */
 const NEWEST = 5;
+
+/**
+ * The rows' 2px apart, inside each row rather than the list's gap, so a
+ * revealed row's space folds with it instead of snapping
+ */
+const ROW = 'pt-0.5 first:pt-0';
 
 /**
  * The quiet foot of a capped list (the profile lanes' "Show all"), on the
@@ -30,9 +38,11 @@ const SHOW_ALL: ExpandLayout = {
 /**
  * A sidebar's years (Stats, History), folded to the newest five and the
  * `selected` year (`visibleYears`). The server or the parent drew every row,
- * so "Show all" opens them at once, with no request. When `reveal` moves to
- * a year the fold hides, the whole list opens and stays open: only the
- * button folds it again.
+ * so "Show all" opens them with no request; the rows it reveals fold open
+ * (and shut again on Show fewer), as History's months do under each year.
+ * When `reveal` moves to a year the fold hides (History's scroll), the
+ * whole list opens at once and stays open: only the button folds it again.
+ * Each row's content is the caller's; the list item is this list's.
  */
 export default function YearsFold({
   className,
@@ -40,11 +50,11 @@ export default function YearsFold({
   rows,
   selected,
 }: Readonly<{
-  /** the list's classes */
+  /** the list's classes (no gap: the rows carry their own 2px) */
   className: string;
   /** a year that must come into view when it changes (History's scroll) */
   reveal?: number | null;
-  /** each year's list item (keyed), newest first */
+  /** each year's row content, newest first */
   rows: ReadonlyArray<Readonly<{ year: number; row: ReactNode }>>;
   /** the year kept in view while folded */
   selected: number | null;
@@ -52,7 +62,10 @@ export default function YearsFold({
   const listId = useId();
   const [open, setOpen] = useState(false);
   const [revealed, setRevealed] = useState<number | null>(null);
+  // only the button's press folds; a reveal opens the list at once
+  const [asked, setAsked] = useState(false);
   const toggle = useCallback(() => {
+    setAsked(true);
     startTransition(() => setOpen((value) => !value));
   }, []);
   const all = rows.map((item) => item.year);
@@ -60,6 +73,7 @@ export default function YearsFold({
   if (reveal !== revealed) {
     setRevealed(reveal);
     if (reveal !== null && folded.hidden && !folded.years.includes(reveal)) {
+      setAsked(false);
       setOpen(true);
     }
   }
@@ -71,7 +85,26 @@ export default function YearsFold({
   return (
     <>
       <ul className={className} id={listId}>
-        {shown.map((item) => item.row)}
+        <AnimatePresence custom={asked} initial={false}>
+          {shown.map((item) =>
+            !folded.hidden || folded.years.includes(item.year) ? (
+              <li className={ROW} key={item.year}>
+                {item.row}
+              </li>
+            ) : (
+              <FoldPresence
+                appear={asked}
+                as="li"
+                className={ROW}
+                key={item.year}
+                spacing
+                whenAsked
+              >
+                {item.row}
+              </FoldPresence>
+            ),
+          )}
+        </AnimatePresence>
       </ul>
       {folded.hidden ? (
         <ExpandButton

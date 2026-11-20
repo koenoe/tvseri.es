@@ -4,9 +4,9 @@
  * title group (title, facts, progress line), the first-tracking prompt, the
  * synopsis, then the rating and actions.
  * The spacer has a set height, so what streams into the title group never
- * moves the page below. Desktop: rows 1 and 2 share it (at least 560px),
- * and on a tall window it grows with it (75% of its height), so the
- * backdrop has most of the first screen above the title. Phones: row 1
+ * moves the page below. Desktop: rows 1 and 2 share it (at least 550px),
+ * and on a tall window it grows with it (72% of its height): the title's
+ * foot lands where the site before the redesign had it (65vh less 128px). Phones: row 1
  * alone (590px), which puts a treatment's top about 450px under the header,
  * where the backdrop's fade and blur begin (`PhoneBackdrop`);
  * the prompt and synopsis follow it, so a hidden or leaving prompt never
@@ -15,7 +15,7 @@
  * spacer after the content.
  */
 export const HERO_SPACER =
-  'pointer-events-none col-start-1 row-start-1 min-h-[590px] md:row-span-2 md:row-start-1 md:h-[max(560px,calc(75svh-80px))] md:min-h-0 md:group-data-docked/hero:h-[calc(100svh-var(--admin-tray-height,240px)-63px)]';
+  'pointer-events-none col-start-1 row-start-1 min-h-[590px] md:row-span-2 md:row-start-1 md:h-[max(550px,calc(72svh-80px))] md:min-h-0 md:group-data-docked/hero:h-[calc(100svh-var(--admin-tray-height,240px)-63px)]';
 
 /**
  * The phone hero's rhythm: 16px from the title to the facts and from the

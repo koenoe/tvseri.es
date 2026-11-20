@@ -74,8 +74,8 @@ const reverse = (change: Partial<Record<LibraryShelf, number>>) =>
  * brings the tile and its counts back. A new first page (`first`, another
  * object) is a new list (`list`): nothing has left it.
  *
- * `moving` is true from a leave until the exits are done (`settled`): the
- * grid's layout animation runs only then.
+ * `moving` is true from a leave until the exits are done (`settled`) or a
+ * new list replaces them: the grid's layout animation runs only then.
  */
 export default function useShelfTiles({
   first,
@@ -95,12 +95,14 @@ export default function useShelfTiles({
   const [left, setLeft] = useState<ReadonlyMap<number, LeaveReason>>(
     () => new Map(),
   );
+  const [moving, setMoving] = useState(false);
   const [seed, setSeed] = useState({ first, list: 0 });
   if (seed.first !== first) {
     setSeed({ first, list: seed.list + 1 });
     setLeft(new Map());
+    // the old list's exits are cut with it: their `settled` never comes
+    setMoving(false);
   }
-  const [moving, setMoving] = useState(false);
 
   const tiles = useMemo(
     () =>

@@ -178,9 +178,9 @@ describe('JumpList (Jump to)', () => {
       expect(shownYears()).toHaveLength(10);
       rerender(list('2025-01'));
       expect(shownYears()).toHaveLength(10);
-      // only the button folds it again
+      // only the button folds it again (the revealed years fold shut)
       await user.click(screen.getByRole('button', { name: /Show fewer/ }));
-      expect(shownYears()).toHaveLength(5);
+      await waitFor(() => expect(shownYears()).toHaveLength(5));
     });
 
     it('the phone sheet lists every year', () => {

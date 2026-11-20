@@ -20,6 +20,7 @@ import {
 } from '@/components/motion/fold';
 import holdInPlace from '@/components/motion/holdInPlace';
 import Button from '@/components/ui/button/Button';
+import FoldLabel from '@/components/ui/fold/FoldLabel';
 import cn from '@/lib/cn';
 import type { AppBrand } from '../../_lib/services';
 
@@ -29,7 +30,6 @@ import {
   APP_TOGGLE_REACH_CLASS,
 } from './layout';
 import { NeedsYouFlashContext } from './motion/NeedsYouFlash';
-import ToggleLabel from './motion/ToggleLabel';
 
 type Accordion = Readonly<{
   /** The viewer's own pick; null until they press a toggle */
@@ -116,7 +116,7 @@ export function AppToggle({
       onClick={onClick}
       variant="tonal"
     >
-      <ToggleLabel open={isOpen} />
+      <FoldLabel label="Open" open={isOpen} openLabel="Hide" size={13} />
     </Button>
   );
 }

@@ -48,8 +48,9 @@ function JumpYear({
   const folds = animate && live;
   const toggle = useCallback(() => onToggle(year.year), [onToggle, year.year]);
   const yearLabel = `${year.year}, ${plural(year.episodes, 'episode')}`;
+  // the list item is the list's (`YearsFold`, or `JumpList`'s own list)
   return (
-    <li>
+    <>
       <button
         aria-controls={hasMonths ? monthsId : undefined}
         aria-expanded={hasMonths ? open : undefined}
@@ -89,7 +90,7 @@ function JumpYear({
           </FoldPresence>
         ) : null}
       </AnimatePresence>
-    </li>
+    </>
   );
 }
 

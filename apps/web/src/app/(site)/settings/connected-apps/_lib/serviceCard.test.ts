@@ -113,6 +113,7 @@ describe('serviceCardPlan', () => {
       'status',
       'sync',
       'total',
+      'unresolvedCount',
     ]);
     expect(status).not.toHaveProperty('recent');
     expect(status).not.toHaveProperty('week');

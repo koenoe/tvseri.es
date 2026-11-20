@@ -28,6 +28,7 @@ const render = (ui: ReactElement) =>
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh }) }));
 
 import { formatSinceButton } from '../_lib/syncScope';
+import { usePublishReviewCount } from './reviewCount';
 import { ServiceProvider } from './ServiceContext';
 import ServiceSyncRow from './ServiceSyncRow';
 
@@ -100,6 +101,66 @@ describe('ServiceSyncRow', () => {
   it('shows the last sync’s counts in a status region', () => {
     render(<ServiceSyncRow lastSyncedAt={1} sync={DONE} syncNow={false} />);
     expect(screen.getByRole('status').textContent).toBe('3 new episodes');
+  });
+
+  it('counts the review list as it stands, not as the run left it', () => {
+    render(
+      <ServiceSyncRow
+        lastSyncedAt={1}
+        sync={{ ...DONE, unresolved: 3 }}
+        syncNow={false}
+        toReview={1}
+      />,
+    );
+    expect(screen.getByRole('status').textContent).toBe(
+      '3 new episodes · 1 to review',
+    );
+  });
+
+  it('follows the review list’s own count while it is on the page', () => {
+    function Live({ count }: Readonly<{ count: number }>) {
+      usePublishReviewCount('netflix', count);
+      return null;
+    }
+    const { rerender } = render(
+      <>
+        <Live count={2} />
+        <ServiceSyncRow
+          lastSyncedAt={1}
+          sync={{ ...DONE, unresolved: 3 }}
+          syncNow={false}
+          toReview={3}
+        />
+      </>,
+    );
+    expect(screen.getByRole('status').textContent).toBe(
+      '3 new episodes · 2 to review',
+    );
+    rerender(
+      <>
+        <Live count={0} />
+        <ServiceSyncRow
+          lastSyncedAt={1}
+          sync={{ ...DONE, unresolved: 3 }}
+          syncNow={false}
+          toReview={3}
+        />
+      </>,
+    );
+    expect(screen.getByRole('status').textContent).toBe('3 new episodes');
+  });
+
+  it('keeps a running sync’s counts out of the status region', () => {
+    render(
+      <ServiceSyncRow
+        lastSyncedAt={null}
+        sync={{ ...RUNNING, written: 5 }}
+        syncNow={false}
+      />,
+    );
+    expect(screen.getByRole('status').textContent).toBe(
+      'Syncing your Netflix history now…',
+    );
   });
 
   it('offers Sync now only when the plan allows it', () => {

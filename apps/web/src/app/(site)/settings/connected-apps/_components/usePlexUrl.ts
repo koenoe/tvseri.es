@@ -54,17 +54,20 @@ export default function usePlexUrl() {
 
   const toggle = () => (revealed ? setRevealed(false) : show(false));
 
-  const copy = async () => {
+  /** Whether the URL is on the clipboard now (the button then says so) */
+  const copy = async (): Promise<boolean> => {
     try {
       const text = url ?? (await fetchUrl());
       if (!text) {
-        return;
+        return false;
       }
       await navigator.clipboard.writeText(text);
       showToast({ title: 'Copied your Plex webhook URL' });
+      return true;
     } catch (error) {
       const reason = error instanceof Error ? error.message : 'unknown error';
       showToast({ title: `Failed to copy URL: ${reason}`, tone: 'error' });
+      return false;
     }
   };
 

@@ -18,7 +18,6 @@ import {
   FOLD_SNAP,
 } from '@/components/motion/fold';
 import Button from '@/components/ui/button/Button';
-import FoldLabel from '@/components/ui/fold/FoldLabel';
 import cn from '@/lib/cn';
 import type { AppBrand } from '../../_lib/services';
 
@@ -27,6 +26,8 @@ import {
   APP_TOGGLE_CLASS,
   APP_TOGGLE_REACH_CLASS,
 } from './layout';
+import { NeedsYouFlashContext } from './motion/NeedsYouFlash';
+import ToggleLabel from './motion/ToggleLabel';
 
 type Accordion = Readonly<{
   /** The viewer's own pick; null until they press a toggle */
@@ -49,12 +50,14 @@ const useAccordion = (): Accordion => {
 /** The open card: the viewer's pick, else the one that needs them */
 const useOpen = (): Readonly<{
   choose: Accordion['choose'];
+  /** Nobody has pressed a toggle: the server's pick still holds */
+  untouched: boolean;
   open: AppBrand | '';
 }> => {
   const { choose, chosen, needsYou } = useAccordion();
   // Read inside each card's own boundary, which streams after the
   // statuses this waits on are read anyway
-  return { choose, open: chosen ?? use(needsYou) };
+  return { choose, open: chosen ?? use(needsYou), untouched: chosen === null };
 };
 
 /**
@@ -79,7 +82,7 @@ const TOGGLE = cn(APP_TOGGLE_CLASS, APP_TOGGLE_REACH_CLASS);
 /** The toggle's id: where focus goes when the card's own content leaves */
 export const appToggleId = (app: AppBrand) => `${app}-toggle`;
 
-/** "Open" while closed, "Hide" while open, in one width; the chevron turns */
+/** "Open" while closed, "Hide" while open, cross-fading in one width; the chevron turns */
 export function AppToggle({
   app,
   name,
@@ -101,7 +104,7 @@ export function AppToggle({
       onClick={onClick}
       variant="tonal"
     >
-      <FoldLabel label="Open" open={isOpen} openLabel="Hide" size={13} />
+      <ToggleLabel open={isOpen} />
     </Button>
   );
 }
@@ -115,28 +118,46 @@ const BODY_SHUT = {
 
 /**
  * The card's body, kept mounted: it folds open and shut as the calendar's No
- * date yet does (`components/motion/fold`), and a shut one is inert. A card
- * open on arrival (one that needs the viewer) is drawn open, not played.
+ * date yet does (`components/motion/fold`), and a shut one is inert. Every
+ * card arrives shut, as its header-only placeholder, so nothing below jumps;
+ * the one that needs the viewer then plays its fold open and, once it has
+ * ended, flashes round its primary action (`FlashTarget`). A press on any
+ * toggle first calls that off.
  */
 export function AppBody({
   app,
   children,
 }: Readonly<{ app: AppBrand; children: ReactNode }>) {
-  const { open } = useOpen();
+  const { open, untouched } = useOpen();
   const reduced = useReducedMotion();
   const opened = open === app;
+  // Opened by the server's pick, not a press: its fold is the arrival
+  const [arrivedOpen] = useState(opened && untouched);
+  const [flash, setFlash] = useState<'due' | 'done' | 'none'>('none');
   const shutTiming = reduced ? FOLD_SNAP : FOLD_SHUT_TIMING;
   const openTiming = reduced ? FOLD_SNAP : FOLD_OPEN_TIMING;
   const transition = opened ? openTiming : shutTiming;
+  const settled = useCallback(() => {
+    if (arrivedOpen && opened && untouched) {
+      setFlash((now) => (now === 'none' ? 'due' : now));
+    }
+  }, [arrivedOpen, opened, untouched]);
+  const flashValue = useMemo(
+    () => ({ due: flash === 'due' && untouched, end: () => setFlash('done') }),
+    [flash, untouched],
+  );
   return (
     <m.div
       animate={opened ? BODY_OPEN : BODY_SHUT}
       className="overflow-hidden"
       inert={!opened}
-      initial={false}
+      initial={BODY_SHUT}
+      onAnimationComplete={settled}
       transition={transition}
     >
-      <div className={APP_BODY_CLASS}>{children}</div>
+      <NeedsYouFlashContext value={flashValue}>
+        <div className={APP_BODY_CLASS}>{children}</div>
+      </NeedsYouFlashContext>
     </m.div>
   );
 }

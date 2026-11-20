@@ -188,11 +188,18 @@ export function segmentedStyles({ className }: WithClassName = {}) {
   );
 }
 
+/**
+ * The pressed fill is the item's `::before`, under its words, so it can
+ * glide from the item pressed before (`SegmentedItem`) without moving them.
+ * It has no fade of its own: the old fill goes as the new one sets off.
+ * A caller's fill colour goes on `aria-pressed:before:`.
+ */
 export function segmentedItemStyles({ className }: WithClassName = {}) {
   return cn(
-    'inline-flex h-7.5 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full px-3 text-body-sm font-medium text-white/60',
-    'transition-[background-color,color] duration-200 hover:text-white',
-    'aria-pressed:bg-white/15 aria-pressed:text-white',
+    'relative isolate inline-flex h-7.5 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full px-3 text-body-sm font-medium text-white/60',
+    'transition-colors duration-200 hover:text-white',
+    'before:absolute before:inset-0 before:-z-1 before:origin-left before:rounded-[inherit]',
+    'aria-pressed:text-white aria-pressed:before:bg-white/15',
     className,
   );
 }

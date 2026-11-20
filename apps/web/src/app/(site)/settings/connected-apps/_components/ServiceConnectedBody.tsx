@@ -82,6 +82,7 @@ export default function ServiceConnectedBody({
           resumeFrom={status.resumeFrom}
           sync={status.sync}
           syncNow={syncNow}
+          toReview={status.unresolvedCount}
           total={status.total}
         />
       </div>

@@ -4,7 +4,10 @@ import cn from '@/lib/cn';
 
 import { SWITCH_BOX_CLASS } from './layout';
 
-/** A controlled switch; the thumb moves by transform only */
+/**
+ * A controlled switch; the thumb moves by transform only, on the sheet
+ * curve (`SHEET_EASE`)
+ */
 export default function Switch({
   checked,
   className,
@@ -14,7 +17,7 @@ export default function Switch({
   const classes = cn(
     SWITCH_BOX_CLASS,
     'cursor-pointer bg-white/16 transition-[background-color,color] duration-200',
-    'after:absolute after:top-0.75 after:left-0.75 after:size-5 after:rounded-full after:bg-white after:transition-transform after:duration-200',
+    'after:absolute after:top-0.75 after:left-0.75 after:size-5 after:rounded-full after:bg-white after:transition-transform after:duration-200 after:ease-[cubic-bezier(0.32,0.72,0,1)]',
     'aria-checked:bg-white aria-checked:after:translate-x-4.5 aria-checked:after:bg-[#171717]',
     className,
   );

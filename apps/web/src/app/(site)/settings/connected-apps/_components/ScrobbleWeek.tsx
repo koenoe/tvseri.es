@@ -85,6 +85,12 @@ export function ScrobbleWeek({
 export function WeekMarks() {
   const { app, days, selected } = useScrobbleWeek();
   const { latest, marks } = use(ScrobbleWeekMarks);
+  // Once a day has been pressed, each list after it rises in (adjusted
+  // while rendering, no effect); the first paint stays still
+  const [pressed, setPressed] = useState(false);
+  if (!pressed && selected !== null) {
+    setPressed(true);
+  }
   const day = selected ? days?.find(({ key }) => key === selected) : undefined;
   const shown = useMemo(
     () =>
@@ -98,5 +104,14 @@ export function WeekMarks() {
   }
   const { name } = brandOf(app);
   const label = day ? `${name} marks on ${day.label}` : `Latest ${name} marks`;
-  return <RecentList brand={app} label={label} recent={shown} />;
+  // A new list for each choice, so its rows rise in anew
+  return (
+    <RecentList
+      brand={app}
+      key={selected ?? 'latest'}
+      label={label}
+      recent={shown}
+      rise={pressed}
+    />
+  );
 }

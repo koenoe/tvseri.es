@@ -14,11 +14,15 @@ import AppHeader from './AppHeader';
 import { PILL_GHOST } from './AppHeaderGhost';
 import AppPill from './AppPill';
 import { AppBody, AppToggle } from './AppsAccordion';
+import Swap from './motion/Swap';
 import ServiceBody from './ServiceBody';
 import { ServiceProvider } from './ServiceContext';
 import ServicePairingBody from './ServicePairingBody';
 import ServiceStatusLine from './ServiceStatusLine';
 import usePairing from './usePairing';
+
+/** A stage's parts, spaced as the body spaces them */
+const BODY_STAGE = 'flex flex-col gap-4';
 
 /**
  * A streaming service card's client half. Colour means data is flowing, so
@@ -114,6 +118,14 @@ export default function ServicePanel({
     />
   );
   const tile = <AppTile app={id} muted={unavailable} />;
+  // Connect, the code, the link: each replaces the last in place (Disconnect
+  // swaps back to Connect, the card staying open)
+  let stage = 'idle';
+  if (pairing.code) {
+    stage = 'pairing';
+  } else if (status) {
+    stage = 'linked';
+  }
 
   return (
     <ServiceProvider service={id}>
@@ -126,7 +138,11 @@ export default function ServicePanel({
         >
           <AppToggle app={id} name={service.name} />
         </AppHeader>
-        <AppBody app={id}>{body}</AppBody>
+        <AppBody app={id}>
+          <Swap className={BODY_STAGE} swapKey={stage}>
+            {body}
+          </Swap>
+        </AppBody>
       </AppCard>
     </ServiceProvider>
   );

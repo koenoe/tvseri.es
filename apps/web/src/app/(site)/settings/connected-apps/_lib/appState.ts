@@ -27,6 +27,14 @@ export const STATE_DOT: Readonly<Record<AppState, StatusDot>> = {
 export const isLive = (state: AppState): boolean =>
   state === 'on' || state === 'paused';
 
+/**
+ * Plex's look (surface, pill, the placeholder's hint) from its state: a
+ * pause before the first scrobble looks like waiting, since nothing has
+ * arrived to colour the card. Its status line still says Paused.
+ */
+export const plexLook = (state: PlexState, received: boolean): PlexState =>
+  state === 'paused' && !received ? 'wait' : state;
+
 /** A card's surface, and its state pill's look */
 export type AppSurface = 'available' | 'connected' | 'unavailable';
 

@@ -14,6 +14,7 @@ import { SMALL_BUTTON } from '../../_components/problems/styles';
 import { focusTargetAfter, reviewProblems } from '../_lib/serviceReview';
 import { appToggleId } from './AppsAccordion';
 import { OPTION_LINE_CLASS, OPTION_TITLE_CLASS } from './layout';
+import { usePublishReviewCount } from './reviewCount';
 import { useConnectedService } from './ServiceContext';
 import ServiceReviewGroups from './ServiceReviewGroups';
 import useServiceReview from './useServiceReview';
@@ -53,6 +54,8 @@ export default function ServiceReview({
     () => problemGroups(reviewProblems(entries, closed)),
     [closed, entries],
   );
+  // The sync row above says "N to review" from this, as it changes
+  usePublishReviewCount(service.id, remaining + overflow);
   if (remaining === 0 && overflow === 0) {
     return null;
   }
@@ -87,6 +90,13 @@ export default function ServiceReview({
     leave(item);
     review.skip(item);
   };
+  const skippedAll = (
+    closedCount: number,
+    items: ReadonlyArray<ProblemItem>,
+  ) => {
+    leaveAfter(closedCount);
+    review.sweep(items);
+  };
 
   const line =
     remaining > 0
@@ -115,7 +125,7 @@ export default function ServiceReview({
       <ServiceReviewGroups
         fix={fix}
         groups={groups}
-        onSkippedAll={leaveAfter}
+        onSkippedAll={skippedAll}
         skip={skip}
       />
       {remaining > 0 && review.hasMore ? (

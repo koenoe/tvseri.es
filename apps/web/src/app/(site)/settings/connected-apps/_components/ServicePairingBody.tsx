@@ -7,8 +7,17 @@ import { closeGlyph, historyGlyph } from '@/components/ui/icon/glyphs';
 import { MD_BUTTON } from '../../_lib/appButtons';
 import ConfirmInExtension from './ConfirmInExtension';
 import LinkCodeField from './LinkCodeField';
+import Swap from './motion/Swap';
 import { useConnectedService } from './ServiceContext';
 import SetupSteps from './SetupSteps';
+import type { Countdown } from './usePairing';
+
+/**
+ * The code (and why it couldn't link) stands 24px clear of the steps: the
+ * body's 16px gap and 8px more; the confirm block keeps the gap alone
+ */
+const CODE_GROUP = 'flex flex-col gap-4';
+const CODE_GROUP_BEFORE_STEPS = `${CODE_GROUP} mb-2`;
 
 /**
  * Pairing: the code above the steps, then Cancel. With the extension
@@ -29,7 +38,7 @@ export default function ServicePairingBody({
   code: string;
   /** The extension's popup is asking the viewer to confirm */
   confirming: boolean;
-  countdown: string;
+  countdown: Countdown;
   expired: boolean;
   /** The extension's reason it couldn't link, in the popup's words */
   notice: string | null;
@@ -44,16 +53,26 @@ export default function ServicePairingBody({
   const spoken =
     notice ??
     (confirming ? 'Confirm in the extension, top right of Chrome' : null);
+  const group = confirming ? CODE_GROUP : CODE_GROUP_BEFORE_STEPS;
   return (
     <>
-      {confirming ? (
-        <ConfirmInExtension code={code} />
-      ) : (
-        <LinkCodeField code={code} countdown={countdown} expired={expired} />
-      )}
-      <p aria-live="polite" className={noticeClass}>
-        {spoken}
-      </p>
+      <div className={group}>
+        {/* the confirm block rises into the code's place */}
+        <Swap swapKey={confirming ? 'confirm' : 'code'}>
+          {confirming ? (
+            <ConfirmInExtension code={code} />
+          ) : (
+            <LinkCodeField
+              code={code}
+              countdown={countdown}
+              expired={expired}
+            />
+          )}
+        </Swap>
+        <p aria-live="polite" className={noticeClass}>
+          {spoken}
+        </p>
+      </div>
       {confirming ? null : <SetupSteps lines={copy.steps} />}
       <div className="flex flex-wrap items-center gap-2">
         {expired ? (

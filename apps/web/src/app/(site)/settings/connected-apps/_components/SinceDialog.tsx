@@ -1,7 +1,7 @@
 'use client';
 
 import { format } from 'date-fns';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import DayCalendar from '@/components/ui/calendar/DayCalendar';
 import {
@@ -13,13 +13,14 @@ import {
 } from '@/components/ui/calendar/pickerStyles';
 import {
   AT_POINT,
+  atPointMotion,
   atPointVars,
-  type Point,
 } from '@/components/ui/dialog/atPoint';
 import { Dialog } from '@/components/ui/dialog/Dialog';
 
 import { type SinceChoice, sinceChoices } from '../_lib/syncScope';
 import { useConnectedService } from './ServiceContext';
+import type { PickerPlacement } from './ServiceScopeRow';
 
 function Choice({
   choice,
@@ -47,36 +48,42 @@ function Choice({
 /**
  * "Sync since": the marking picker's shape, its quick days and month grid,
  * for the first sync's day. Future days are off; a tap applies. On desktop
- * it opens under its button (`spot`); phones keep the bottom sheet.
+ * it opens under its button (`placement`), growing from it; phones keep the
+ * bottom sheet.
  */
 export default function SinceDialog({
   now,
   onOpenChange,
   onPick,
   open,
+  placement,
   resumeFrom,
   selected,
-  spot,
 }: Readonly<{
   now: number;
   onOpenChange: (open: boolean) => void;
   onPick: (day: number) => void;
   open: boolean;
+  placement: PickerPlacement;
   resumeFrom: number | null;
   selected: number;
-  spot: Point;
 }>) {
   const { name } = useConnectedService();
   const pickDay = useCallback((day: Date) => onPick(day.getTime()), [onPick]);
   const choices = sinceChoices(now, resumeFrom);
   const selectedDay = new Date(selected);
   const description = `Your ${name} history from this day on.`;
-  const vars = atPointVars(spot);
+  const vars = atPointVars(placement.spot);
+  const motion = useMemo(
+    () => atPointMotion(placement.origin),
+    [placement.origin],
+  );
   return (
     <div className="contents" style={vars}>
       <Dialog
         className={AT_POINT}
         description={description}
+        motion={motion}
         onOpenChange={onOpenChange}
         open={open}
         title="Sync since"

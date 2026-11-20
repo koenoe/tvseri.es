@@ -6,7 +6,12 @@ import { readDisplayUsername } from '@/auth/displayUsername';
 import AppTile from '@/components/brand/AppTile';
 import { PLEX_BRAND } from '../../_lib/plexBrand';
 import { plexStateFrom } from '../../_lib/plexState';
-import { appSurface, isLive as isLiveState, statePill } from '../_lib/appState';
+import {
+  appSurface,
+  isLive as isLiveState,
+  plexLook,
+  statePill,
+} from '../_lib/appState';
 import type { PlexPanelStatus } from '../_lib/plexCard';
 import { plexSteps } from '../_lib/plexCopy';
 import { persistPlexHint } from '../_lib/plexHint';
@@ -53,19 +58,22 @@ export default function PlexPanel({
     lastReceivedAt !== null,
     urlWorks,
   );
-  const isLive = isLiveState(state);
-  const surface = appSurface(state);
+  // The card's colour, pill and placeholder: a pause before anything
+  // arrived looks like waiting (the status line still says Paused)
+  const look = plexLook(state, lastReceivedAt !== null);
+  const isLive = isLiveState(look);
+  const surface = appSurface(look);
 
   // The next hard load's placeholder takes this shape; it's a browser
   // store, so an effect writes it
   useEffect(() => {
-    persistPlexHint(readDisplayUsername(document.cookie), state);
-  }, [state]);
+    persistPlexHint(readDisplayUsername(document.cookie), look);
+  }, [look]);
 
   const pills = (
     <>
       <AppPill brand="plex" variant={surface}>
-        {statePill(state)}
+        {statePill(look)}
       </AppPill>
       {PLEX_BRAND.facts.map((fact) => (
         <AppPill brand="plex" key={fact}>
@@ -107,7 +115,7 @@ export default function PlexPanel({
                 url={url.shown}
               />
             ) : null}
-            {state === 'wait' || state === 'broken' ? (
+            {look === 'wait' || look === 'broken' ? (
               <SetupSteps lines={plexSteps(true)} />
             ) : null}
             <PlexOptions

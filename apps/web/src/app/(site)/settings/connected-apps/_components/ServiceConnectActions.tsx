@@ -9,6 +9,7 @@ import { ButtonFace } from '@/components/ui/ghost/ghosts';
 import { plugGlyph, updateGlyph } from '@/components/ui/icon/glyphs';
 import type { ExtensionCheck } from '@/lib/extension/extension';
 
+import FlashTarget from './motion/NeedsYouFlash';
 import { useConnectedService } from './ServiceContext';
 
 const PRIMARY = 'px-6 font-semibold';
@@ -18,7 +19,8 @@ const ROW = 'flex flex-wrap items-center gap-2';
  * Connect, once the extension is installed. Without it (or with one too old
  * for this service), Add to Chrome leads and Connect waits, disabled, with
  * the reason. While the browser is checked, only Connect's box, so nothing
- * jumps. `children` close the row.
+ * jumps. `children` close the row. On a card that opened because the
+ * service signed it out, the primary action gets its one flash.
  */
 export default function ServiceConnectActions({
   children,
@@ -59,15 +61,17 @@ export default function ServiceConnectActions({
   if (extension === 'present') {
     return (
       <div className={ROW}>
-        <Button
-          className={PRIMARY}
-          icon={plugGlyph}
-          onClick={onConnect}
-          pending={pending}
-          variant="primary"
-        >
-          {label}
-        </Button>
+        <FlashTarget>
+          <Button
+            className={PRIMARY}
+            icon={plugGlyph}
+            onClick={onConnect}
+            pending={pending}
+            variant="primary"
+          >
+            {label}
+          </Button>
+        </FlashTarget>
         {children}
       </div>
     );
@@ -79,18 +83,20 @@ export default function ServiceConnectActions({
   return (
     <div className="flex flex-col gap-3">
       <div className={ROW}>
-        {extension === 'outdated' ? (
-          <ButtonLink
-            className={PRIMARY}
-            href="/extension"
-            icon={updateGlyph}
-            variant="primary"
-          >
-            Update the extension
-          </ButtonLink>
-        ) : (
-          <AddToChrome className={PRIMARY} />
-        )}
+        <FlashTarget>
+          {extension === 'outdated' ? (
+            <ButtonLink
+              className={PRIMARY}
+              href="/extension"
+              icon={updateGlyph}
+              variant="primary"
+            >
+              Update the extension
+            </ButtonLink>
+          ) : (
+            <AddToChrome className={PRIMARY} />
+          )}
+        </FlashTarget>
         <Button
           aria-describedby={reasonId}
           disabled

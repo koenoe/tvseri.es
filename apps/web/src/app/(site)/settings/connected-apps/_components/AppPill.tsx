@@ -8,6 +8,13 @@ import type { AppSurface } from '../_lib/appState';
 export const APP_PILL_CLASS =
   'inline-flex h-6 items-center whitespace-nowrap rounded-full px-2.5 text-caption font-medium';
 
+/**
+ * A state pill's fill and words fade to the new state's (200ms); the words
+ * fade in on their own (`@starting-style`), keyed by the state
+ */
+const CHANGES = 'transition-[background-color,color,box-shadow] duration-200';
+const WORDS = 'transition-opacity duration-200 ease-out starting:opacity-0';
+
 /** A plain fact */
 const QUIET = 'text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.2)]';
 
@@ -35,7 +42,14 @@ export default function AppPill({
 }>) {
   const classes = cn(
     APP_PILL_CLASS,
+    CHANGES,
     variant === 'connected' ? brandOf(brand).pill : VARIANT[variant],
   );
-  return <span className={classes}>{children}</span>;
+  return (
+    <span className={classes}>
+      <span className={WORDS} key={variant}>
+        {children}
+      </span>
+    </span>
+  );
 }

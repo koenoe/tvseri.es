@@ -2,7 +2,7 @@ import type { ConnectionStatus } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 import { BBC_IPLAYER } from '../../_lib/services/bbc';
 import { NETFLIX } from '../../_lib/services/netflix';
-import { isSyncing, pollDelay, syncResultLine } from './serviceSync';
+import { isSyncing, pollDelay, syncLine, syncResultLine } from './serviceSync';
 
 type Sync = NonNullable<ConnectionStatus['sync']>;
 
@@ -135,5 +135,52 @@ describe('syncResultLine', () => {
         state: 'failed',
       }),
     ).toBe('The last sync didn’t finish.');
+  });
+});
+
+describe('syncResultLine’s to review', () => {
+  it('counts the review list as it stands, not as the run left it', () => {
+    const sync = { ...DONE, unresolved: 3, written: 2 };
+    expect(syncResultLine(NETFLIX, sync, false, 1)).toBe(
+      '2 new episodes · 1 to review',
+    );
+    expect(syncResultLine(NETFLIX, sync, false, 0)).toBe('2 new episodes');
+  });
+});
+
+describe('syncLine', () => {
+  it('splits a finished sync into counts the card can roll', () => {
+    expect(syncLine(NETFLIX, { ...DONE, skipped: 1203, written: 37 })).toEqual({
+      counts: [
+        { count: 37, key: 'written', words: 'new episodes' },
+        { count: 1203, key: 'skipped', words: 'already watched' },
+      ],
+      lead: null,
+    });
+  });
+
+  it('says No new episodes without a number', () => {
+    expect(syncLine(NETFLIX, DONE).counts).toEqual([
+      { count: null, key: 'written', words: 'No new episodes' },
+    ]);
+  });
+
+  it('shows a running sync’s counts so far after its line', () => {
+    expect(
+      syncLine(NETFLIX, { ...DONE, skipped: 4, state: 'running', written: 1 }),
+    ).toEqual({
+      counts: [
+        { count: 1, key: 'written', words: 'new episode' },
+        { count: 4, key: 'skipped', words: 'already watched' },
+      ],
+      lead: NETFLIX.copy.syncRunning,
+    });
+  });
+
+  it('shows a running sync’s line alone until it has counted anything', () => {
+    expect(syncLine(NETFLIX, { ...DONE, state: 'running' })).toEqual({
+      counts: [],
+      lead: NETFLIX.copy.syncRunning,
+    });
   });
 });

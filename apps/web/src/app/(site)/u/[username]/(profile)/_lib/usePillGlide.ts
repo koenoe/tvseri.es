@@ -1,18 +1,8 @@
 import { type RefObject, useEffect, useLayoutEffect, useRef } from 'react';
 
+import { GLIDE } from '@/components/motion/glide';
 import { REDUCED_MOTION } from '@/lib/media/breakpoints';
 import { matchesNow } from '@/lib/media/useMediaQuery';
-
-/**
- * The pill's glide to the new row. `backwards`: the animation can start a
- * fraction after the frame it was made in, which would otherwise show the
- * pill on the new row for that frame before it glides there.
- */
-const GLIDE: KeyframeAnimationOptions = {
-  duration: 240,
-  easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
-  fill: 'backwards',
-};
 
 /** The active row's pill (`[data-pill]`, inside its row) */
 const PILL = '[data-pill]';

@@ -21,6 +21,12 @@ const LINK =
 const INSTALL = extensionInstall();
 
 /**
+ * Each answer fades in over the bar or the answer before it (200ms); the
+ * bar itself doesn't, as the placeholder already drew it
+ */
+const ANSWER = 'transition-opacity duration-200 ease-out starting:opacity-0';
+
+/**
  * The extension's own state, once, above the cards: its version, the way to
  * add it, or why it can't run here. Asked again when the tab shows, so an
  * install in another tab is seen.
@@ -30,12 +36,16 @@ export default function ExtensionStatusLine({
 }: Readonly<{ browser: BrowserSupport }>) {
   const ping = useExtensionPing(true, browser);
   let state: ReactNode;
+  let answer = 'missing';
   if (ping.state === 'checking') {
     state = <LineSkeleton className="w-40" />;
+    answer = 'checking';
   } else if (ping.state === 'unsupported') {
     state = 'Needs Chrome on a computer';
+    answer = 'unsupported';
   } else if (ping.found) {
     state = `Installed · ${ping.found.version}`;
+    answer = 'installed';
   } else {
     state = (
       <>
@@ -53,6 +63,7 @@ export default function ExtensionStatusLine({
       </>
     );
   }
+  const answerClass = answer === 'checking' ? undefined : ANSWER;
   return (
     <p className={LINE} role="status">
       <Icon glyph={extensionGlyph} size={14} />
@@ -60,7 +71,10 @@ export default function ExtensionStatusLine({
         <Link className={LINK} href="/extension">
           Chrome extension
         </Link>{' '}
-        · {state}
+        ·{' '}
+        <span className={answerClass} key={answer}>
+          {state}
+        </span>
       </span>
     </p>
   );

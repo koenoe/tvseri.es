@@ -18,6 +18,7 @@ import {
   sendLinkCode,
 } from '@/lib/extension/extension';
 import { connectedService } from '../../_lib/services';
+import { codeLifeLeft } from '../_lib/codeLife';
 import { type ServiceCardStatus, toCardStatus } from '../_lib/serviceCard';
 import { readAs, readStatus } from './readStatus';
 
@@ -56,6 +57,9 @@ const countdownOf = (remaining: number): string => {
   return `${minutes}:${String(seconds).padStart(2, '0')}`;
 };
 
+/** A code's time left: in words, and as the share of its life (the bar) */
+export type Countdown = Readonly<{ left: number; text: string }>;
+
 /**
  * The card's pairing: Connect mints a code and hands it to the extension,
  * which asks the viewer to confirm in its popup. The poll is the source of
@@ -79,6 +83,8 @@ export default function usePairing(
   // The extension has the code and waits for the viewer in its popup
   const [confirming, setConfirming] = useState(false);
   const [now, setNow] = useState(() => Date.now());
+  // When the code on screen was minted: its life runs from here
+  const [mintedAt, setMintedAt] = useState(0);
   const [minting, startMinting] = useTransition();
   // The code the extension's answer belongs to: a stale answer is dropped
   const handedOver = useRef<string | null>(null);
@@ -166,7 +172,9 @@ export default function usePairing(
         showToast({ title: 'Couldn’t get a code. Try again.', tone: 'error' });
         return;
       }
-      setNow(Date.now());
+      const at = Date.now();
+      setNow(at);
+      setMintedAt(at);
       setNotice(null);
       setConfirming(false);
       setCode(minted);
@@ -192,7 +200,12 @@ export default function usePairing(
   /** After Disconnect: the link the poll saw is gone. */
   const forget = () => setLinked(null);
 
-  const countdown = code ? countdownOf(Math.max(0, code.expiresAt - now)) : '';
+  const countdown: Countdown = code
+    ? {
+        left: codeLifeLeft(now, mintedAt, code.expiresAt),
+        text: countdownOf(Math.max(0, code.expiresAt - now)),
+      }
+    : { left: 0, text: '' };
   return {
     cancel,
     code: code?.code ?? null,

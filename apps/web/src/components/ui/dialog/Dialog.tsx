@@ -5,7 +5,7 @@ import { type ReactNode, useId } from 'react';
 import cn from '@/lib/cn';
 
 import { DialogClose, DialogCloseCircle } from './DialogClose';
-import { CENTER_MOTION } from './dialogMotion';
+import { CENTER_MOTION, type PanelMotion } from './dialogMotion';
 import { BACKDROP, SHADOW, SURFACE } from './dialogStyles';
 import ModalShell from './ModalShell';
 import SheetHandle from './SheetHandle';
@@ -63,6 +63,7 @@ export function Dialog({
   children,
   className,
   description,
+  motion = CENTER_MOTION,
   onOpenChange,
   open,
   restoreFocus,
@@ -72,6 +73,8 @@ export function Dialog({
   children?: ReactNode;
   className?: string;
   description?: ReactNode;
+  /** Desktop motion (default: a fade and an 8px rise); phones slide up */
+  motion?: PanelMotion;
   onOpenChange: (open: boolean) => void;
   open: boolean;
   /** Where focus goes on close when nothing opened it (a deep link) */
@@ -93,7 +96,7 @@ export function Dialog({
       backdropClassName={BACKDROP.dialog}
       describedBy={description ? descriptionId : undefined}
       labelledBy={titleId}
-      motion={CENTER_MOTION}
+      motion={motion}
       onOpenChange={onOpenChange}
       open={open}
       panelClassName={panel}

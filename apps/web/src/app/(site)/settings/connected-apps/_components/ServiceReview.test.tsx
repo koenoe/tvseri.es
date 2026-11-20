@@ -4,6 +4,7 @@ import {
   fireEvent,
   render as renderRaw,
   screen,
+  waitFor,
 } from '@testing-library/react';
 import type {
   ConnectionUnresolved,
@@ -228,6 +229,29 @@ describe('ServiceReview', () => {
     });
     expect(skipAll).toHaveBeenCalledWith('netflix', 'not-found');
     expect(showToast).toHaveBeenCalledWith({ title: 'Skipped 140 entries' });
+  });
+
+  it('takes a Skip all’s loaded entries off the list, leaving the other group', async () => {
+    skipAll.mockResolvedValue({ data: { closed: 2 }, ok: true });
+    render(
+      <ServiceReview
+        count={3}
+        overflow={0}
+        page={page([
+          LOST,
+          { ...LOST, key: '203', row: { ...LOST.row, title: 'Elsewhere' } },
+          TOP_BOY,
+        ])}
+      />,
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Skip all in Not found' }),
+    );
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Skip all' }));
+    });
+    await waitFor(() => expect(screen.queryByText('Not found')).toBeNull());
+    expect(screen.getByText('Which series?')).toBeTruthy();
   });
 
   it('loads the next page on Show more', async () => {

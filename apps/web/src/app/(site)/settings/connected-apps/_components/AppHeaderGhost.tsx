@@ -41,7 +41,13 @@ export default function AppHeaderGhost({
   ));
   const tile = <Ghost className={APP_TILE_CLASS} />;
   return (
-    <AppHeader name={name} pills={pillGhosts} status={status} tile={tile}>
+    <AppHeader
+      arrive={false}
+      name={name}
+      pills={pillGhosts}
+      status={status}
+      tile={tile}
+    >
       {/* Every card loads shut: the toggle's face reads Open, in its one width */}
       <ButtonFace className={APP_TOGGLE_CLASS} size="md" variant="tonal">
         <FoldLabel label="Open" open={false} openLabel="Hide" size={13} />

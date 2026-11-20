@@ -1,5 +1,5 @@
 import type { ConnectionStatus, ConnectionSyncError } from '@tvseri.es/schemas';
-import { formatGrouped, plural } from '@tvseri.es/utils';
+import { formatGrouped } from '@tvseri.es/utils';
 
 import type { ConnectedService } from '../../_lib/services/types';
 
@@ -53,50 +53,121 @@ const failedLine = (
 ): string =>
   error === 'failed' ? FAILED : (service.copy.syncFailed[error] ?? FAILED);
 
-const counted = (count: number, what: string) =>
-  `${formatGrouped(count)} ${what}`;
+/**
+ * One count in the line: its number (null for "No new episodes") and the
+ * words after it, so the card can roll the number on its own.
+ */
+export type SyncCount = Readonly<{
+  count: number | null;
+  key: 'films' | 'review' | 'skipped' | 'written';
+  words: string;
+}>;
 
-/** "37 new episodes · 1,203 already watched · 4 films skipped · 2 to review" */
-function counts(sync: NonNullable<Sync>): string {
-  const toReview = sync.unresolved + sync.unresolvedOverflow;
-  return [
+/** A sync's line: its words (a run's state), then its counts */
+export type SyncLine = Readonly<{
+  counts: ReadonlyArray<SyncCount>;
+  lead: string | null;
+}>;
+
+const wordsFor = (count: number, one: string, many: string) =>
+  count === 1 ? one : many;
+
+/**
+ * "37 new episodes · 1,203 already watched · 4 films skipped · 2 to
+ * review", leaving out what didn't happen. `toReview` is the review list as
+ * it stands; without it, what the run added.
+ */
+function countsOf(
+  sync: NonNullable<Sync>,
+  toReview: number,
+): ReadonlyArray<SyncCount> {
+  const counts: SyncCount[] = [
     sync.written === 0
-      ? 'No new episodes'
-      : plural(sync.written, 'new episode'),
-    sync.skipped > 0 ? counted(sync.skipped, 'already watched') : null,
-    sync.films > 0 ? `${plural(sync.films, 'film')} skipped` : null,
-    toReview > 0 ? counted(toReview, 'to review') : null,
-  ]
-    .filter(Boolean)
-    .join(' · ');
+      ? { count: null, key: 'written', words: 'No new episodes' }
+      : {
+          count: sync.written,
+          key: 'written',
+          words: wordsFor(sync.written, 'new episode', 'new episodes'),
+        },
+  ];
+  if (sync.skipped > 0) {
+    counts.push({
+      count: sync.skipped,
+      key: 'skipped',
+      words: 'already watched',
+    });
+  }
+  if (sync.films > 0) {
+    counts.push({
+      count: sync.films,
+      key: 'films',
+      words: wordsFor(sync.films, 'film skipped', 'films skipped'),
+    });
+  }
+  if (toReview > 0) {
+    counts.push({ count: toReview, key: 'review', words: 'to review' });
+  }
+  return counts;
 }
+
+/** A running sync's counts so far: only once it has counted something */
+const runningCounts = (sync: NonNullable<Sync>): ReadonlyArray<SyncCount> =>
+  sync.written > 0 || sync.skipped > 0
+    ? countsOf({ ...sync, films: 0 }, 0)
+    : [];
+
+const lineOf = (lead: string): SyncLine => ({ counts: [], lead });
 
 /**
  * The sync row's line; `reconnecting` while the card's reconnect block says
  * the service signed the link out, so the row doesn't say it again.
  */
+export function syncLine(
+  service: ConnectedService,
+  sync: Sync,
+  reconnecting = false,
+  toReview?: number,
+): SyncLine {
+  if (!sync) {
+    return lineOf('No sync has run yet.');
+  }
+  if (sync.stalled) {
+    return lineOf(
+      'The last sync stopped before it finished. The next one picks up where it stopped.',
+    );
+  }
+  switch (sync.state) {
+    case 'queued':
+      return lineOf('Sync queued. It starts in a moment.');
+    case 'running':
+      return { counts: runningCounts(sync), lead: service.copy.syncRunning };
+    case 'failed':
+      if (reconnecting && sync.error === 'signed-out') {
+        return lineOf('');
+      }
+      return lineOf(failedLine(service, sync.error ?? 'failed'));
+    case 'ok':
+      return {
+        counts: countsOf(
+          sync,
+          toReview ?? sync.unresolved + sync.unresolvedOverflow,
+        ),
+        lead: null,
+      };
+  }
+}
+
+/** A count in words: "1,203 already watched" */
+const countText = ({ count, words }: SyncCount): string =>
+  count === null ? words : `${formatGrouped(count)} ${words}`;
+
+/** The sync line as one string (what a screen reader hears) */
 export function syncResultLine(
   service: ConnectedService,
   sync: Sync,
   reconnecting = false,
+  toReview?: number,
 ): string {
-  if (!sync) {
-    return 'No sync has run yet.';
-  }
-  if (sync.stalled) {
-    return 'The last sync stopped before it finished. The next one picks up where it stopped.';
-  }
-  switch (sync.state) {
-    case 'queued':
-      return 'Sync queued. It starts in a moment.';
-    case 'running':
-      return service.copy.syncRunning;
-    case 'failed':
-      if (reconnecting && sync.error === 'signed-out') {
-        return '';
-      }
-      return failedLine(service, sync.error ?? 'failed');
-    case 'ok':
-      return counts(sync);
-  }
+  const { counts, lead } = syncLine(service, sync, reconnecting, toReview);
+  return [lead, ...counts.map(countText)].filter(Boolean).join(' · ');
 }

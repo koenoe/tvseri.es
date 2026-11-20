@@ -38,15 +38,19 @@ const DAY_BUTTON = cn(MD_BUTTON, 'h-9 tabular-nums');
 const PICKER_BOX = { height: 446, width: 560 } as const;
 const GAP = 8;
 
+/** Where the picker opens, and the button's corner it grows from */
+export type PickerPlacement = Readonly<{ origin: Point; spot: Point }>;
+
 /**
  * Under the button, right edges lined up; above it when the window has no
- * room below; kept inside the window either way.
+ * room below; kept inside the window either way. It grows from the
+ * button's near corner, wherever the window pushed the box.
  */
-const pickerSpot = (button: DOMRect): Point => {
+const pickerPlacement = (button: DOMRect): PickerPlacement => {
   const viewport = { height: window.innerHeight, width: window.innerWidth };
   const below = button.bottom + GAP;
   const fitsBelow = below + PICKER_BOX.height <= viewport.height - 16;
-  return clampToViewport(
+  const spot = clampToViewport(
     {
       left: button.right - PICKER_BOX.width,
       top: fitsBelow ? below : button.top - GAP - PICKER_BOX.height,
@@ -54,6 +58,11 @@ const pickerSpot = (button: DOMRect): Point => {
     PICKER_BOX,
     viewport,
   );
+  const corner = fitsBelow ? button.bottom : button.top;
+  return {
+    origin: { left: button.right - spot.left, top: corner - spot.top },
+    spot,
+  };
 };
 
 /** Until the browser knows its own day, a day-sized placeholder */
@@ -78,7 +87,7 @@ export default function ServiceScopeRow({
 }>) {
   const now = useLoadedNow();
   const [open, setOpen] = useState(false);
-  const [spot, setSpot] = useState<Point | null>(null);
+  const [placement, setPlacement] = useState<PickerPlacement | null>(null);
   const since =
     scope?.kind === 'since'
       ? scope.since
@@ -96,7 +105,7 @@ export default function ServiceScopeRow({
     [setScope],
   );
   const openPicker = useCallback((event: MouseEvent<HTMLButtonElement>) => {
-    setSpot(pickerSpot(event.currentTarget.getBoundingClientRect()));
+    setPlacement(pickerPlacement(event.currentTarget.getBoundingClientRect()));
     setOpen(true);
   }, []);
   const pickDay = useCallback(
@@ -166,16 +175,16 @@ export default function ServiceScopeRow({
           </Button>
         )}
       </div>
-      {spot && now !== null && since !== null ? (
+      {placement && now !== null && since !== null ? (
         <Suspense fallback={null}>
           <SinceDialog
             now={now}
             onOpenChange={setOpen}
             onPick={pickDay}
             open={open}
+            placement={placement}
             resumeFrom={resumeFrom}
             selected={since}
-            spot={spot}
           />
         </Suspense>
       ) : null}

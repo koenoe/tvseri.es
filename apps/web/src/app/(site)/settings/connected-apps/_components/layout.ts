@@ -37,7 +37,8 @@ export const OPTION_LINE_CLASS = 'text-meta text-white/60';
 export const SWITCH_BOX_CLASS = 'relative h-6.5 w-11 shrink-0 rounded-full';
 export const SEGMENTED_CLASS =
   'gap-0.5 rounded-10 bg-black/28 p-0.75 md:self-start';
-export const SEGMENT_CLASS = 'h-7.5 rounded-[7px] aria-pressed:bg-white/16';
+export const SEGMENT_CLASS =
+  'h-7.5 rounded-[7px] aria-pressed:before:bg-white/16';
 
 /** The pause row's description: the same for everyone */
 export const PAUSE_LINE =

@@ -27,6 +27,7 @@ export type ServiceCardStatus = Readonly<
     | 'status'
     | 'sync'
     | 'total'
+    | 'unresolvedCount'
   >
 >;
 
@@ -60,6 +61,7 @@ export const toCardStatus = (status: ConnectionStatus): ServiceCardStatus => ({
   status: status.status,
   sync: status.sync,
   total: status.total,
+  unresolvedCount: status.unresolvedCount,
 });
 
 /**

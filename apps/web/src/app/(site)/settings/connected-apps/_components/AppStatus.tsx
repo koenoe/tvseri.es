@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import cn from '@/lib/cn';
 import { type AppBrand, brandOf } from '../../_lib/services';
 import type { StatusDot } from '../_lib/appState';
+import PopDot from './motion/PopDot';
 
 const DOT: Readonly<Record<Exclude<StatusDot, 'receiving'>, string>> = {
   // a short bar, centred in the dot's box: can't connect here
@@ -17,7 +18,8 @@ const DOT: Readonly<Record<Exclude<StatusDot, 'receiving'>, string>> = {
 
 /**
  * The status line under a card's name: a small mark and one line of text.
- * The mark is decoration; the text carries the meaning.
+ * The mark is decoration; the text carries the meaning. Inside a `Swap`
+ * the mark pops in with a new state.
  */
 export default function AppStatus({
   brand = 'plex',
@@ -41,7 +43,7 @@ export default function AppStatus({
   );
   return (
     <span className={classes}>
-      <span aria-hidden="true" className={dotClasses} />
+      <PopDot className={dotClasses} />
       <span>{children}</span>
     </span>
   );

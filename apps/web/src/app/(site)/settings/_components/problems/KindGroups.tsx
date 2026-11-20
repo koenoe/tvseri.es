@@ -1,11 +1,13 @@
 'use client';
 
 import { plural } from '@tvseri.es/utils';
+import { AnimatePresence } from 'motion/react';
 import type { ReactNode } from 'react';
 
 import type { SeriesCandidate } from '@/lib/import/contract';
 import AmbiguousItem from './AmbiguousItem';
 import type { Fix } from './fix';
+import LeavingItem from './LeavingItem';
 import NotFoundItem, { type NotFoundHandlers } from './NotFoundItem';
 import ProblemGroup from './ProblemGroup';
 import { type ProblemItem, rowCount } from './problems';
@@ -34,6 +36,10 @@ type GroupProps = Readonly<{
   fixes?: Readonly<Record<string, Fix>>;
   items: ReadonlyArray<ProblemItem>;
   onToggle: () => void;
+  /** Its items have all just been skipped (a sync's Skip all): they leave in turn */
+  sweeping?: boolean;
+  /** The swept items have left */
+  onSwept?: () => void;
   open: boolean;
   unit: ProblemUnit;
 }>;
@@ -48,9 +54,11 @@ export function AmbiguousProblems({
   items,
   onPick,
   onSkip,
+  onSwept,
   onToggle,
   onUndo,
   open,
+  sweeping = false,
   unit,
 }: GroupProps &
   Readonly<{
@@ -68,20 +76,27 @@ export function AmbiguousProblems({
       open={open}
       what={PICK_LINE[unit]}
     >
-      {items.map((item) => {
-        const itemCount = ITEM_COUNT[unit](item.indexes.length);
-        return (
-          <AmbiguousItem
-            count={itemCount}
-            fix={fixes?.[item.key]}
-            item={item}
-            key={item.key}
-            onPick={onPick}
-            onSkip={onSkip}
-            onUndo={onUndo}
-          />
-        );
-      })}
+      <AnimatePresence
+        custom={sweeping}
+        initial={false}
+        onExitComplete={onSwept}
+      >
+        {items.map((item, index) => {
+          const itemCount = ITEM_COUNT[unit](item.indexes.length);
+          return (
+            <LeavingItem index={index} key={item.key}>
+              <AmbiguousItem
+                count={itemCount}
+                fix={fixes?.[item.key]}
+                item={item}
+                onPick={onPick}
+                onSkip={onSkip}
+                onUndo={onUndo}
+              />
+            </LeavingItem>
+          );
+        })}
+      </AnimatePresence>
       {children}
     </ProblemGroup>
   );
@@ -96,8 +111,10 @@ export function NotFoundProblems({
   fixes,
   handlers,
   items,
+  onSwept,
   onToggle,
   open,
+  sweeping = false,
   unit,
 }: GroupProps & Readonly<{ handlers: NotFoundHandlers }>) {
   return (
@@ -110,18 +127,25 @@ export function NotFoundProblems({
       open={open}
       what="No series or episode by that name on TMDB"
     >
-      {items.map((item) => {
-        const itemCount = ITEM_COUNT[unit](item.indexes.length);
-        return (
-          <NotFoundItem
-            count={itemCount}
-            fix={fixes?.[item.key]}
-            handlers={handlers}
-            item={item}
-            key={item.key}
-          />
-        );
-      })}
+      <AnimatePresence
+        custom={sweeping}
+        initial={false}
+        onExitComplete={onSwept}
+      >
+        {items.map((item, index) => {
+          const itemCount = ITEM_COUNT[unit](item.indexes.length);
+          return (
+            <LeavingItem index={index} key={item.key}>
+              <NotFoundItem
+                count={itemCount}
+                fix={fixes?.[item.key]}
+                handlers={handlers}
+                item={item}
+              />
+            </LeavingItem>
+          );
+        })}
+      </AnimatePresence>
       {children}
     </ProblemGroup>
   );

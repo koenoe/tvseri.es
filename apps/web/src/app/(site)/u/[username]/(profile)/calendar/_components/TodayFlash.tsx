@@ -2,19 +2,11 @@
 
 import * as m from 'motion/react-m';
 
+import { FLASH_TIMING } from '@/components/motion/flash';
+
 import cn from '@/lib/cn';
 
 import { TODAY_RING } from './calendarStyles';
-
-/**
- * Today pressed on this month: one brief white ring where focus went,
- * opacity and scale only (a spring without bounce); reduced motion keeps
- * the fade (MotionProvider drops the scale)
- */
-const TIMING = {
-  opacity: { duration: 0.6, ease: 'easeOut' },
-  scale: { bounce: 0, duration: 0.6, type: 'spring' },
-} as const;
 
 const FROM = {
   cell: { opacity: 0.9, scale: 1 },
@@ -27,6 +19,11 @@ const TO = {
   date: { opacity: 0, scale: 1.6 },
 } as const;
 
+/**
+ * Today pressed on this month: one brief white ring where focus went
+ * (`FLASH_TIMING`); reduced motion keeps the fade (MotionProvider drops the
+ * scale)
+ */
 export default function TodayFlash({
   className,
   flash,
@@ -48,7 +45,7 @@ export default function TodayFlash({
       className={ring}
       initial={FROM[on]}
       key={flash}
-      transition={TIMING}
+      transition={FLASH_TIMING}
     />
   );
 }

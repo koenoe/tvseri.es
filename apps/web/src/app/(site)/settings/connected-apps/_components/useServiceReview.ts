@@ -5,7 +5,7 @@ import type {
   ConnectionUnresolvedPage,
 } from '@tvseri.es/schemas';
 import { plural } from '@tvseri.es/utils';
-import { useOptimistic, useState, useTransition } from 'react';
+import { useMemo, useOptimistic, useState, useTransition } from 'react';
 import { showToast } from '@/components/ui/toast/showToast';
 import type { ActionError } from '@/lib/actions/result';
 
@@ -58,6 +58,13 @@ export default function useServiceReview(
   const [seed, setSeed] = useState(page);
   const [closed, setClosed] = useState<ReadonlySet<string>>(new Set());
   const [shown, closeNow] = useOptimistic(closed, addKeys);
+  // A Skip all's loaded entries: off the list, but already out of the
+  // server's count when it arrives, so never counted against it
+  const [swept, setSwept] = useState<ReadonlySet<string>>(new Set());
+  const hidden = useMemo(
+    () => (swept.size === 0 ? shown : addKeys(shown, [...swept])),
+    [shown, swept],
+  );
   const [loading, startLoading] = useTransition();
   const [, startFix] = useTransition();
 
@@ -157,10 +164,18 @@ export default function useServiceReview(
   // looked one short for a moment and showed Show more
   const uncounted = shown.size - counted.closed;
   const remaining = Math.max(0, count - uncounted);
-  const loadedOpen = entries.filter(({ key }) => !shown.has(key)).length;
+  const loadedOpen = entries.filter(({ key }) => !hidden.has(key)).length;
+
+  /** After a Skip all: its group's loaded items leave the list */
+  const sweep = (items: ReadonlyArray<ProblemItem>) => {
+    const keys = items.flatMap((item) =>
+      entriesOf(item, entries).map(({ key }) => key),
+    );
+    setSwept((was) => addKeys(was, keys));
+  };
 
   return {
-    closed: shown,
+    closed: hidden,
     entries,
     fix,
     hasMore: cursor !== null || loadedOpen < remaining,
@@ -168,5 +183,6 @@ export default function useServiceReview(
     more,
     remaining,
     skip,
+    sweep,
   };
 }

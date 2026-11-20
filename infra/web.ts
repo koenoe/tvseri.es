@@ -100,6 +100,10 @@ export const web = $dev
           functionDefaultRegions: ['lhr1'],
         },
         rootDirectory: 'apps/web',
+        // A tab open across a deploy keeps reaching its own deployment's
+        // Server Actions (with NEXT_DEPLOYMENT_ID below). Stated, not left to
+        // the provider: a project update otherwise turned it off
+        skewProtection: '12 hours',
         // Previews are opened on phones that aren't signed in to Vercel; left
         // unset, the provider's default (Vercel Authentication) came back
         // on whenever the project was updated and the preview asked for a

@@ -13,6 +13,7 @@ import {
 } from 'react';
 
 import MaxMotion from '@/components/motion/MaxMotion';
+import { usePillGlide } from '@/components/motion/usePillGlide';
 import YearsFold from '@/components/ui/fold/YearsFold';
 import { calendarGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
@@ -70,9 +71,15 @@ export default function JumpList({
   // A new active month (a scroll, a jump) reopens the list at its year
   const open = choice.base === active ? choice.open : (activeYear ?? null);
   const jump = useDiaryJump();
+  // the months' pill glides to a month pressed; a scroll moves it at once
+  const years = useRef<HTMLDivElement>(null);
+  const glide = usePillGlide(years, active ?? '');
   const pick = useCallback(
-    (event: MouseEvent<HTMLAnchorElement>) => jump(event, onPick),
-    [jump, onPick],
+    (event: MouseEvent<HTMLAnchorElement>) => {
+      glide();
+      jump(event, onPick);
+    },
+    [glide, jump, onPick],
   );
   // stable for the memoised years: a scroll moves `active` many times a second
   const latest = useRef({ active, open });
@@ -114,18 +121,21 @@ export default function JumpList({
           </span>
         </Link>
       ) : null}
-      <LayoutGroup id={group}>
-        {fold ? (
-          <YearsFold
-            className={JUMP_YEARS}
-            reveal={activeYear ?? null}
-            rows={rows}
-            selected={fold.opened}
-          />
-        ) : (
-          <ul className={JUMP_YEARS}>{rows.map((item) => item.row)}</ul>
-        )}
-      </LayoutGroup>
+      {/* one offset parent for every month's row (`usePillGlide`) */}
+      <div className="relative" ref={years}>
+        <LayoutGroup id={group}>
+          {fold ? (
+            <YearsFold
+              className={JUMP_YEARS}
+              reveal={activeYear ?? null}
+              rows={rows}
+              selected={fold.opened}
+            />
+          ) : (
+            <ul className={JUMP_YEARS}>{rows.map((item) => item.row)}</ul>
+          )}
+        </LayoutGroup>
+      </div>
     </MaxMotion>
   );
 }

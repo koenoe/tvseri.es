@@ -11,6 +11,8 @@ import {
 } from 'react';
 
 import FoldPresence from '@/components/motion/FoldPresence';
+import { FILL_BEFORE } from '@/components/motion/fillBefore';
+import ChoiceButton from '@/components/ui/button/ChoiceButton';
 import ExpandButton, {
   type ExpandLayout,
 } from '@/components/ui/fold/ExpandButton';
@@ -68,17 +70,20 @@ const FilterPill = memo(function FilterPill({
   onPick: (filter: ShowFilter) => void;
 }>) {
   const pick = useCallback(() => onPick(id), [id, onPick]);
+  // the picked fill is the `::before`, so it glides from the filter before
+  // (`ChoiceButton`); a phone's unpicked pills keep their own dark ground
   const classes = cn(
+    FILL_BEFORE,
     // 5px above and below (44px on a phone), half the 4px gap at the sides
-    'relative flex h-[34px] shrink-0 after:absolute after:-inset-x-0.5 after:-inset-y-[5px] cursor-pointer items-center gap-2 rounded-full px-3.5 text-body-sm font-medium whitespace-nowrap transition-colors hover:text-white lg:h-8 lg:rounded-8',
+    'flex h-[34px] shrink-0 after:absolute after:-inset-x-0.5 after:-inset-y-[5px] cursor-pointer items-center gap-2 rounded-full px-3.5 text-body-sm font-medium whitespace-nowrap transition-colors hover:text-white lg:h-8 lg:rounded-8',
     on
-      ? 'bg-white/15 text-white'
+      ? 'text-white before:bg-white/15'
       : 'bg-black/22 text-white/60 lg:bg-transparent',
   );
   return (
-    <button aria-pressed={on} className={classes} onClick={pick} type="button">
+    <ChoiceButton aria-pressed={on} className={classes} on={on} onClick={pick}>
       {FILTER_LABELS[id]}
-    </button>
+    </ChoiceButton>
   );
 });
 

@@ -1,7 +1,6 @@
 'use client';
 
 import { plural } from '@tvseri.es/utils';
-import * as m from 'motion/react-m';
 import Link from 'next/link';
 import { type MouseEvent, memo } from 'react';
 
@@ -10,12 +9,12 @@ import cn from '@/lib/cn';
 import type { JumpMonth } from '@/lib/profile/diary';
 import { JUMP_MONTH } from './jumpStyles';
 
-const TRANSITION = { duration: 0.2, ease: [0.2, 0.8, 0.2, 1] } as const;
-
 /**
  * A month in Jump to: a link to the diary from that month down (its year
- * folds the months open, `JumpYear`); the white fill glides to the month
- * you're reading (200ms; one `layoutId` per list).
+ * folds the months open, `JumpYear`); the month you're reading draws the
+ * white pill, which glides to a month you press (`usePillGlide` in
+ * `JumpList`, as the Library's shelves and the settings menu do); reading on
+ * by scrolling moves it at once.
  */
 function JumpMonthLink({
   basePath,
@@ -49,11 +48,10 @@ function JumpMonthLink({
         onClick={onPick}
       >
         {on ? (
-          <m.span
+          <span
             aria-hidden="true"
             className="absolute inset-0 rounded-8 bg-white"
-            layoutId="jump-active-month"
-            transition={TRANSITION}
+            data-pill=""
           />
         ) : null}
         <span className="relative">{month.label}</span>

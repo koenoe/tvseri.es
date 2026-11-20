@@ -90,6 +90,17 @@ describe('your own Circle', () => {
     ]);
   });
 
+  it('following nobody: the card offers Find people, as From your circle does', () => {
+    render(
+      <OwnerCircle people={people({ followerCount: 0, followingCount: 0 })} />,
+    );
+    const following = screen.getByRole('region', { name: 'You follow' });
+    expect(
+      within(following).getByRole('button', { name: 'Find people' }),
+    ).toBeTruthy();
+    expect(screen.queryByRole('region', { name: 'Follows you' })).toBeNull();
+  });
+
   it('drops Follows you when everyone who follows you is followed back', () => {
     render(<OwnerCircle people={people({ following: [row('edw1n')] })} />);
     expect(screen.queryByRole('region', { name: 'Follows you' })).toBeNull();

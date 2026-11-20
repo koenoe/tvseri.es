@@ -201,6 +201,9 @@ test.describe('a Circle with no follows either way', () => {
     await expect(
       page.getByText('Follow someone from their profile.', { exact: true }),
     ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Find people' }),
+    ).toBeVisible();
     await expect(page.getByRole('region', { name: 'Follows you' })).toHaveCount(
       0,
     );

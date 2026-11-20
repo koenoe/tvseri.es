@@ -2,6 +2,7 @@ import type { CirclePeople } from '@tvseri.es/schemas';
 
 import { usersGlyph } from '@/components/ui/icon/glyphs';
 import EmptyState from '../../_components/blocks/EmptyState';
+import FindPeople from '../../_components/overview/circle/FindPeople';
 import { CIRCLE_COPY, followNobodyLine } from '../../_lib/circleCopy';
 import CircleSection from './CircleSection';
 import OwnerPersonRow from './OwnerPersonRow';
@@ -13,8 +14,8 @@ const FOLLOWERS_LIST = `${LIST} mt-4`;
 /**
  * Your own Circle under the page title: the people you follow, closest
  * taste first, then those who follow you that you don't follow back.
- * Following nobody is one calm card; with nobody to follow back that
- * section goes (no dead ends).
+ * Following nobody is one calm card with Find people, as on From your
+ * circle; with nobody to follow back that section goes (no dead ends).
  */
 export default function OwnerCircle({
   people,
@@ -31,6 +32,7 @@ export default function OwnerCircle({
         {following.length === 0 ? (
           <div className="mt-4">
             <EmptyState
+              action={<FindPeople />}
               glyph={usersGlyph}
               sub={followNobodySub}
               title={CIRCLE_COPY.followNobody}

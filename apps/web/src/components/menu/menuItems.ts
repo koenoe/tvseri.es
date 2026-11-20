@@ -149,13 +149,8 @@ export function menuModel({
     you: {
       handle,
       items: [
+        // the calendar and Circle stay the profile's own tabs
         page('overview', 'Overview', '', profilePath(handle)),
-        page(
-          'calendar',
-          'Calendar',
-          'calendar',
-          profilePath(handle, 'calendar'),
-        ),
         page('library', 'Library', 'library', profilePath(handle, 'library')),
         page('history', 'History', 'history', profilePath(handle, 'history')),
         page('stats', 'Stats', 'stats', statsPath(handle, year)),

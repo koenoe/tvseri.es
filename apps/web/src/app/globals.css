@@ -602,6 +602,11 @@ html[data-signing-out] body > * {
   }
 }
 
+/* The marker that starts the hand-off (the show page's route boundary): empty */
+::view-transition-group(*.show-start) {
+  animation: none;
+}
+
 ::view-transition-group(*.show-art) {
   animation: show-art-open 360ms var(--ease-sheet) both;
 }

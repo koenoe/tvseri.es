@@ -1,6 +1,6 @@
 'use client';
 
-import { ViewTransition } from 'react';
+import { type ReactNode, useLayoutEffect, useRef } from 'react';
 
 import {
   showMorphClass,
@@ -23,6 +23,9 @@ import { HERO_TITLE_SPACE } from './heroLayout';
  * honours the width (the API's w500 is what a 500px box loads at 1×), and
  * srcset still follows `sizes`.
  */
+/** Longer than the hand-off (360ms) and its start */
+const MORPH_NAME_MS = 1000;
+
 // Each place keeps its own look on purpose; don't unify them.
 const HERO_TITLE: TitleTreatmentLook = {
   box: cn(HERO_TITLE_SPACE, 'relative h-20 w-[300px] md:h-40 md:w-[500px]'),
@@ -36,9 +39,8 @@ const HERO_TITLE: TitleTreatmentLook = {
 /**
  * The hero's title; while an admin picks images, their live pick. Opened
  * from a card that hands over (`showMorph.ts`), the card's logo glides into
- * it: its `<ViewTransition>` is what makes React run the browser's view
- * transition for the navigation, so it is there (unnamed) even for a show
- * without a logo, for the card's art to grow and dissolve.
+ * it (`MorphTarget`); the transition itself is started by the show page's
+ * route boundary (`page.tsx`).
  */
 export default function HeroTitle({
   logo,
@@ -58,14 +60,44 @@ export default function HeroTitle({
       title={title}
     />
   );
-  if (!morph) {
-    return treatment;
-  }
-  const name = src ? showMorphName('logo', seriesId) : undefined;
-  const enter = src ? showMorphClass('logo') : 'none';
+  return morph && src ? (
+    <MorphTarget seriesId={seriesId}>{treatment}</MorphTarget>
+  ) : (
+    treatment
+  );
+}
+
+/**
+ * The logo's half of the hand-off: the card's logo (named at the click) and
+ * this one share a name, so the browser glides one into the other. Named in
+ * a layout effect, inside React's view-transition update, before the new
+ * page is captured; the wrapper has no box, so the layout is the page's.
+ */
+function MorphTarget({
+  children,
+  seriesId,
+}: Readonly<{ children: ReactNode; seriesId: number }>) {
+  const box = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    const logo = box.current?.firstElementChild;
+    if (!(logo instanceof HTMLElement)) {
+      return;
+    }
+    logo.style.setProperty(
+      'view-transition-name',
+      showMorphName('logo', seriesId),
+    );
+    logo.style.setProperty('view-transition-class', showMorphClass('logo'));
+    // named for the hand-off only: never for a later transition on the page
+    const unname = window.setTimeout(() => {
+      logo.style.removeProperty('view-transition-name');
+      logo.style.removeProperty('view-transition-class');
+    }, MORPH_NAME_MS);
+    return () => window.clearTimeout(unname);
+  }, [seriesId]);
   return (
-    <ViewTransition default="none" enter={enter} name={name}>
-      {treatment}
-    </ViewTransition>
+    <span className="contents" ref={box}>
+      {children}
+    </span>
   );
 }

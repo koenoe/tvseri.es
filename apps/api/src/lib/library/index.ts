@@ -191,12 +191,6 @@ const toProgress = (
   now: number,
 ): LibraryProgress => {
   const state = analyzeShow({ facts, prefs, watched }, now);
-  const regular = watched.filter((episode) => episode.seasonNumber > 0);
-  const latest = regular.reduce<WatchedEpisode | null>(
-    (newest, episode) =>
-      !newest || episode.watchedAt > newest.watchedAt ? episode : newest,
-    null,
-  );
   const next = facts.nextEpisodeToAir;
   return {
     aired: state.progress.aired.length,
@@ -205,7 +199,7 @@ const toProgress = (
         !hasAiredAt(next.airDate, now) &&
         !isSeasonPremiere(next, facts.seasons),
     ),
-    lastSeason: latest?.seasonNumber ?? null,
+    lastSeason: state.lastWatched?.season ?? null,
     lastWatched: state.lastWatched
       ? episodeCode({
           episodeNumber: state.lastWatched.episode,

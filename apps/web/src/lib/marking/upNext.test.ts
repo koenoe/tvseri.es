@@ -84,6 +84,22 @@ describe('liveUpNext', () => {
     });
   });
 
+  it('says Last watched from the newest dated regular watch, never a special', () => {
+    const marked = view({
+      watched: {
+        ...view().watched,
+        S00E01: { runtime: 60, watchedAt: NOW },
+        S02E02: { runtime: 0, watchedAt: NOW - DAY / 2 },
+        S02E03: { dateUnknown: true, runtime: 0, watchedAt: NOW },
+      },
+    });
+    expect(liveUpNext(item, marked, NOW)).toMatchObject({
+      code: 'S02E04',
+      lastWatchedAt: NOW - DAY / 2,
+      lastWatchedCode: 'S02E02',
+    });
+  });
+
   it('says nothing about time when the season’s runtimes are not known', () => {
     const marked = view({
       watched: { ...view().watched, S02E02: { runtime: 0, watchedAt: NOW } },

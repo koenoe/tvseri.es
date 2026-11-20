@@ -7,6 +7,7 @@ import {
 import {
   hasAiredAt,
   isSeasonFullyAired,
+  lastWatchOf,
   type ShowProgress,
 } from '@tvseri.es/utils';
 
@@ -56,15 +57,12 @@ export type ShowState = Readonly<{
    * or one stuck in an earlier season), as the facts hold no other date
    */
   latest: (EpisodeRef & Readonly<{ airDate: string }>) | null;
+  /** The last watch's episode and date (`lastWatchOf`, the one rule) */
   lastWatched: EpisodeRef | null;
-  /** Max `watchedAt` of the dated items: undated ones are no date */
   lastWatchedAt: number | null;
   paused: SeriesPrefs['paused'];
   pausedAt: number | null;
 }>;
-
-const compare = (a: EpisodeRef, b: EpisodeRef) =>
-  a.season - b.season || a.episode - b.episode;
 
 export const analyzeShow = (input: ShowInput, now: number): ShowState => {
   const { facts, prefs } = input;
@@ -84,14 +82,7 @@ export const analyzeShow = (input: ShowInput, now: number): ShowState => {
     season: ref.seasonNumber,
   }));
 
-  const lastWatched =
-    regular
-      .map((item) => ({
-        episode: item.episodeNumber,
-        season: item.seasonNumber,
-      }))
-      .sort(compare)
-      .at(-1) ?? null;
+  const lastWatch = lastWatchOf(input.watched);
   const nextUp = unwatched[0] ?? null;
 
   const watchedPerSeason = new Map(
@@ -109,7 +100,6 @@ export const analyzeShow = (input: ShowInput, now: number): ShowState => {
     latestSource.episodeNumber === latestAired.episodeNumber
       ? latestSource
       : null;
-  const dated = input.watched.filter((item) => !item.dateUnknown);
 
   const airedInFull = new Set(
     facts.seasons
@@ -130,10 +120,11 @@ export const analyzeShow = (input: ShowInput, now: number): ShowState => {
     aired,
     airedInFull,
     facts,
-    lastWatched,
-    lastWatchedAt: dated.length
-      ? Math.max(...dated.map((item) => item.watchedAt))
-      : null,
+    lastWatched: lastWatch && {
+      episode: lastWatch.episodeNumber,
+      season: lastWatch.seasonNumber,
+    },
+    lastWatchedAt: lastWatch?.watchedAt ?? null,
     latest: latestDated
       ? {
           airDate: latestDated.airDate,

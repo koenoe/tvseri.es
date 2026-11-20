@@ -17,6 +17,7 @@ import {
 } from './blocks';
 
 const NOW = Date.parse('2026-11-12T12:00:00Z');
+const DAY = 86_400_000;
 const day = (offset: number) =>
   new Date(NOW + offset * 86_400_000).toISOString().slice(0, 10);
 
@@ -184,6 +185,38 @@ describe('Up next', () => {
       airDate: day(3),
       episode: 9,
       season: 2,
+    });
+  });
+
+  it('says Last watched from the newest dated regular watch, never a special', () => {
+    // S2 E5 a month ago, then the Christmas special today
+    const [item] = buildUpNext([
+      state({
+        watched: [
+          ...watched([...range(1, 1, 8), ...range(2, 1, 5)], NOW - 30 * DAY),
+          { episodeNumber: 1, seasonNumber: 0, watchedAt: NOW },
+        ],
+      }),
+    ]);
+    expect(item).toMatchObject({
+      lastWatchedAt: NOW - 30 * DAY,
+      lastWatchedCode: 'S02E05',
+    });
+  });
+
+  it('says Last watched with the episode of that watch, not the highest one', () => {
+    // A rewatch of S1 E2 yesterday, after S2 E5 a month ago
+    const [item] = buildUpNext([
+      state({
+        watched: [
+          ...watched([[1, 1], ...range(2, 1, 5)], NOW - 30 * DAY),
+          ...watched([[1, 2]], NOW - DAY),
+        ],
+      }),
+    ]);
+    expect(item).toMatchObject({
+      lastWatchedAt: NOW - DAY,
+      lastWatchedCode: 'S01E02',
     });
   });
 
@@ -517,6 +550,22 @@ describe('Paused', () => {
 
     expect(buildPaused([newSeason(day(-10))], NOW)).toEqual([]);
     expect(buildPaused([newSeason(day(-120))], NOW)).toHaveLength(1);
+  });
+
+  it('ignores a special watched since: it says nothing about the show', () => {
+    const special = stale({
+      watched: [
+        ...watched(range(1, 1, 3), NOW - 100 * DAY),
+        { episodeNumber: 1, seasonNumber: 0, watchedAt: NOW - DAY },
+      ],
+    });
+
+    expect(buildPaused([special], NOW)).toEqual([
+      expect.objectContaining({
+        lastWatchedAt: NOW - 100 * DAY,
+        lastWatchedCode: 'S01E03',
+      }),
+    ]);
   });
 
   it('ignores undated watches for the last date', () => {

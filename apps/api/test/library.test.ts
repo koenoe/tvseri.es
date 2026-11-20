@@ -369,6 +369,34 @@ describe('GET /user/:id/library/:shelf', () => {
     });
   });
 
+  it('says Last watched from the newest dated watch, with its own episode', async () => {
+    setup();
+    fakeShow({
+      id: 3,
+      seasons: [
+        { airDate: '2025-01-01', episodes: 4 },
+        { airDate: '2025-06-01', episodes: 4 },
+      ],
+      specials: { airDate: '2024-12-01', episodes: 2 },
+      status: 'Ended',
+    });
+    // S2 E1 on the 1st, a rewatch of S1 E2 on the 5th, a special on the 10th
+    seedWatched(
+      OWNER,
+      3,
+      [...episodes(1, 1, 4), [2, 1]],
+      '2026-11-01T20:00:00Z',
+    );
+    seedWatched(OWNER, 3, [[1, 2]], '2026-11-05T20:00:00Z');
+    seedWatched(OWNER, 3, [[0, 1]], '2026-11-10T20:00:00Z');
+
+    const result = await page('watching?limit=1');
+    expect(result.items[0]).toMatchObject({
+      id: 3,
+      progress: { lastSeason: 1, lastWatched: 'S01E02' },
+    });
+  });
+
   it('counts progress by the real episode numbers where TMDB numbers on across seasons', async () => {
     setup();
     // Naruto Shippuden: S1 = E1…E32, S2 = E33…E53

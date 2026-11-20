@@ -3,6 +3,7 @@ import {
   episodeMinutes,
   firstEpisodeOf,
   isSeasonFullyAired,
+  lastWatchOf,
   minutesFor,
 } from '@tvseri.es/utils';
 
@@ -24,25 +25,18 @@ const sameRef = (
   a.seasonNumber === b.seasonNumber &&
   a.episodeNumber === b.episodeNumber;
 
-/** The latest regular episode watched (by number, the overview's rule) and the latest dated watch */
+/** "Last watched" by the one rule (`lastWatchOf`): the newest dated regular watch */
 function lastWatched(view: SeriesBase) {
-  let code: string | null = null;
-  let best = -1;
-  let at: number | null = null;
-  for (const [key, record] of Object.entries(view.watched)) {
-    const ref = parseCode(key);
-    if (ref && ref.seasonNumber > 0) {
-      const rank = ref.seasonNumber * 10_000 + ref.episodeNumber;
-      if (rank > best) {
-        best = rank;
-        code = key;
-      }
-    }
-    if (!record.dateUnknown && (at === null || record.watchedAt > at)) {
-      at = record.watchedAt;
-    }
-  }
-  return { at, code };
+  const last = lastWatchOf(
+    Object.entries(view.watched).flatMap(([key, record]) => {
+      const ref = parseCode(key);
+      return ref ? [{ ...ref, ...record }] : [];
+    }),
+  );
+  return {
+    at: last?.watchedAt ?? null,
+    code: last ? episodeCode(last) : null,
+  };
 }
 
 /**

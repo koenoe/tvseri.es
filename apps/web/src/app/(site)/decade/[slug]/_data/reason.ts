@@ -4,7 +4,7 @@
  * ended. Plain template sentences, never an invented fact.
  */
 
-import { isOver } from '@tvseri.es/utils';
+import { hasEndedStatus } from '@tvseri.es/utils';
 
 const WORDS = [
   'zero',
@@ -79,7 +79,7 @@ function length({ episodes, seasons }: ReasonFacts): string | null {
 
 /** "finished in 2019", "still running", null when it says nothing */
 function state({ lastAirYear, status }: ReasonFacts): string | null {
-  if (status !== null && isOver(status) && lastAirYear) {
+  if (status !== null && hasEndedStatus(status) && lastAirYear) {
     return `finished in ${lastAirYear}`;
   }
   return status === 'Returning Series' ? 'still running' : null;

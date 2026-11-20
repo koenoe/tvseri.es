@@ -38,6 +38,8 @@ const SPECIAL_ONLY = 108;
 /** Finished, renewed without a date */
 const RENEWED = 109;
 const CANCELED = 110;
+/** Finished at S03E05: Canceled, but E06 airs tomorrow */
+const CANCELED_AIRING = 111;
 /** In progress, every episode watched, and the show has ended */
 const IN_PROGRESS_ENDED = 113;
 
@@ -103,6 +105,16 @@ const setup = () => {
     status: 'Canceled',
   });
   fakeShow({
+    extra: { next_episode_to_air: tmdbEpisode(3, 6, '2026-11-13') },
+    id: CANCELED_AIRING,
+    seasons: [
+      { airDate: '2020-01-01', episodes: 8 },
+      { airDate: '2022-01-01', episodes: 10 },
+      { airDate: '2026-10-09', aired: 5, episodes: 8 },
+    ],
+    status: 'Canceled',
+  });
+  fakeShow({
     id: IN_PROGRESS_ENDED,
     seasons: [{ airDate: '2020-01-01', episodes: 4 }],
     status: 'Ended',
@@ -115,7 +127,7 @@ const setup = () => {
       WATCHLIST_AND_WATCHING,
       IN_PROGRESS_ENDED,
     ],
-    WATCHED: [BETWEEN_SEASONS, ENDED, RENEWED, CANCELED],
+    WATCHED: [BETWEEN_SEASONS, ENDED, RENEWED, CANCELED, CANCELED_AIRING],
     WATCHLIST: [WATCHLIST, WATCHLIST_AND_WATCHING],
   });
   seedWatched(USER_ID, WATCHING, [
@@ -128,6 +140,11 @@ const setup = () => {
   skip(USER_ID, WATCHLIST_AND_WATCHING, ['S01E03']);
   seedWatched(USER_ID, IN_PROGRESS_ENDED, episodes(1, 1, 4));
   seedWatched(USER_ID, SPECIAL_ONLY, [[0, 1]]);
+  seedWatched(USER_ID, CANCELED_AIRING, [
+    ...episodes(1, 1, 8),
+    ...episodes(2, 1, 10),
+    ...episodes(3, 1, 5),
+  ]);
 
   // Someone else's library: none of it may reach the viewer's answer
   seedLibrary(OTHER_USER_ID, {
@@ -150,6 +167,7 @@ const ALL = [
   SPECIAL_ONLY,
   RENEWED,
   CANCELED,
+  CANCELED_AIRING,
   IN_PROGRESS_ENDED,
 ];
 
@@ -184,6 +202,12 @@ describe('GET /me/series-states', () => {
         state: 'up-to-date',
       },
       [CANCELED]: { onWatchlist: false, state: 'finished' },
+      // Cancelled, but its last episodes still air: not over yet
+      [CANCELED_AIRING]: {
+        nextAirDate: '2026-11-13',
+        onWatchlist: false,
+        state: 'up-to-date',
+      },
       [CAUGHT_UP]: {
         nextAirDate: '2026-11-19',
         onWatchlist: false,

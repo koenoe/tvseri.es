@@ -15,7 +15,7 @@ import { logWarn } from '@/utils/logWarn';
 const NO_PREFS = { paused: null, pausedAt: null, skipped: [] } as const;
 
 /**
- * Everything aired is watched: still coming (not Ended or Canceled, Waiting
+ * Everything aired is watched: still coming (not over, `isOver`, Waiting
  * for's rule) is up to date, with the next episode's date when TMDB has one;
  * else finished, which is also the answer when the facts couldn't be read.
  */
@@ -23,7 +23,7 @@ const caughtUp = (
   facts: SeriesFacts | undefined,
   onWatchlist: boolean,
 ): SeriesViewerState => {
-  if (!facts || isOver(facts.status)) {
+  if (!facts || isOver(facts)) {
     return { onWatchlist, state: 'finished' };
   }
   const nextAirDate = facts.nextEpisodeToAir?.airDate;

@@ -1,5 +1,5 @@
 import type { SeriesRuntimes, TvSeries } from '@tvseri.es/schemas';
-import { isOver, plural } from '@tvseri.es/utils';
+import { hasEndedStatus, plural } from '@tvseri.es/utils';
 
 import { seriesSeasons } from '@/lib/format/status';
 
@@ -13,7 +13,7 @@ export function airedRange(
   if (!first) {
     return '';
   }
-  if (!isOver(series.status)) {
+  if (!hasEndedStatus(series.status)) {
     return `${first} – present`;
   }
   const last = formatAirDate(series.lastAirDate);

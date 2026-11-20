@@ -6,7 +6,7 @@ import {
   episodeCode,
   type SeriesFacts,
 } from '@tvseri.es/schemas';
-import { daysBetweenUtc, isOver } from '@tvseri.es/utils';
+import { daysBetweenUtc, hasEndedStatus } from '@tvseri.es/utils';
 
 import { episodeKindOf } from '@/lib/episodeKind';
 import { releaseOf, type SeasonEpisode } from '@/lib/seasonEpisodes';
@@ -46,7 +46,7 @@ const kindOf = (
   );
   if (base === 'season-premiere') return base;
   if (base === 'season-finale' || episode.episodeType === 'finale') {
-    return isOver(facts.status) && seasonNumber >= lastSeasonOf(facts)
+    return hasEndedStatus(facts.status) && seasonNumber >= lastSeasonOf(facts)
       ? 'series-finale'
       : 'season-finale';
   }

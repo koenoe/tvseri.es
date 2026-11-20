@@ -1,9 +1,5 @@
 import type { DidYouKnowFact } from '@tvseri.es/schemas';
-import {
-  formatGrouped,
-  isOver as isOverStatus,
-  plural,
-} from '@tvseri.es/utils';
+import { formatGrouped, hasEndedStatus, plural } from '@tvseri.es/utils';
 import { DAY_MONTH_YEAR_PATTERN } from '@/lib/format/date';
 
 import { formatDay } from '@/lib/format/datePattern';
@@ -34,7 +30,7 @@ const capital = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 const noun = (count: number, one: string, many = `${one}s`) =>
   count === 1 ? one : many;
 
-const isOver = (fact: DidYouKnowFact) => isOverStatus(fact.series.status);
+const isOver = (fact: DidYouKnowFact) => hasEndedStatus(fact.series.status);
 
 /** "last" once it has ended, "latest" while it runs */
 const lastOrLatest = (fact: DidYouKnowFact) =>

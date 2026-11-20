@@ -137,7 +137,7 @@ export const buildUpNext = (states: ReadonlyArray<ShowState>): UpNextItem[] =>
           latest.episodeNumber === next.episode,
         lastWatchedAt: state.lastWatchedAt,
         lastWatchedCode: state.lastWatched ? codeOf(state.lastWatched) : null,
-        nextSeasonTba: seasonFinale && !upcoming && !isOver(state.facts.status),
+        nextSeasonTba: seasonFinale && !upcoming && !isOver(state.facts),
         nextToAir: upcoming?.airDate
           ? {
               airDate: upcoming.airDate,

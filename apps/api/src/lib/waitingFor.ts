@@ -63,7 +63,7 @@ const buildWaitingFor = (
   for (const show of finished) {
     const showFacts = facts.get(show.id);
     if (!showFacts) continue;
-    if (isOver(showFacts.status)) continue;
+    if (isOver(showFacts)) continue;
 
     const next = showFacts.nextEpisodeToAir;
     const base = {

@@ -1,7 +1,7 @@
 import type { TvSeries } from '@tvseri.es/schemas';
 import {
   daysBetweenUtc,
-  isOver,
+  hasEndedStatus,
   isSeasonPremiere,
   plural,
 } from '@tvseri.es/utils';
@@ -44,7 +44,7 @@ const daysFrom = (from: string, to: string) =>
 
 const episodesLabel = (count: number) => plural(count, 'episode');
 
-const isEnded = (series: TvSeries) => isOver(series.status);
+const isEnded = (series: TvSeries) => hasEndedStatus(series.status);
 
 function premiereLine(series: TvSeries, today: string): string | null {
   const next = series.nextEpisodeToAir;

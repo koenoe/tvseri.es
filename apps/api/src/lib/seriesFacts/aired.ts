@@ -53,7 +53,7 @@ export const airedBySeason = (
     .filter((season) => hasAiredAt(season.airDate, now))
     .map((season) => season.seasonNumber);
   const latestStarted = started.length > 0 ? Math.max(...started) : 0;
-  const over = isOver(input.status);
+  const over = isOver({ nextEpisodeToAir: next, status: input.status });
 
   const bySeason: Record<number, number> = {};
   for (const season of input.seasons) {

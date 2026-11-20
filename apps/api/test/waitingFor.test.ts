@@ -215,6 +215,32 @@ describe('waiting for', () => {
     expect(kindOf(7)).toBe('season-finale');
   });
 
+  it('keeps a cancelled show whose last episodes still air: its next one is a Coming up ticket', async () => {
+    seedUser();
+    // Cancelled while season 2 airs: caught up at E5, E6 next week
+    fakeShow({
+      extra: {
+        last_episode_to_air: episode(2, 5, '2026-11-12'),
+        next_episode_to_air: episode(2, 6, '2026-11-19'),
+      },
+      id: 8,
+      seasons: [
+        { airDate: '2024-01-01', episodes: 8 },
+        { airDate: '2026-10-15', aired: 5, episodes: 8 },
+      ],
+      status: 'Canceled',
+    });
+    db.seed('Lists', [listItem(USER_ID, 'WATCHED', 8, OCT_30)]);
+
+    const overview = (await (
+      await request('/me/overview', { as: USER_ID })
+    ).json()) as {
+      comingUp: ReadonlyArray<{ seriesId: number }>;
+    };
+
+    expect(overview.comingUp.map((ticket) => ticket.seriesId)).toContain(8);
+  });
+
   it('is empty when nothing is finished', async () => {
     seedUser();
 

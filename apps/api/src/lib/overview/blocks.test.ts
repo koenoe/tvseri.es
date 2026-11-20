@@ -307,6 +307,20 @@ describe('Almost done', () => {
 });
 
 describe('Out now, Season complete, Catching up', () => {
+  it('leaves a show in Almost done out of Catching up', () => {
+    // Two to go in S1, all of S2 still to come: ten waiting in all
+    const both = state({
+      facts: facts({
+        lastEpisodeToAir: ep(2, 8, '2021-03-01'),
+        status: 'Ended',
+      }),
+      watched: watched(range(1, 1, 6)),
+    });
+
+    expect(buildAlmostDone([both]).items).toHaveLength(1);
+    expect(buildCatchingUp([both], NOW)).toEqual([]);
+  });
+
   it('has a row for the latest episode while one or two are waiting', () => {
     const rows = buildOutNow(
       [state({ watched: watched([...range(1, 1, 8), ...range(2, 1, 7)]) })],

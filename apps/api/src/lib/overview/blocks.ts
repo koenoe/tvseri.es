@@ -166,6 +166,18 @@ export const buildUpNext = (states: ReadonlyArray<ShowState>): UpNextItem[] =>
       };
     });
 
+const isAlmostDone = (done: boolean, toGo: number) =>
+  done && toGo >= 1 && toGo <= ALMOST_DONE_MAX;
+
+/** Its next season has aired in full and only one or two are left in it */
+const inAlmostDone = (state: ShowState) => {
+  const season = (state.nextUp as EpisodeRef).season;
+  return isAlmostDone(
+    state.airedInFull.has(season),
+    seasonToWatch(state, season),
+  );
+};
+
 export const buildAlmostDone = (
   states: ReadonlyArray<ShowState>,
 ): Overview['almostDone'] => {
@@ -184,7 +196,7 @@ export const buildAlmostDone = (
     .sort((a, b) => a.toGo - b.toGo || byRecent(a.state, b.state));
 
   const items: AlmostDoneItem[] = candidates
-    .filter(({ done, toGo }) => done && toGo >= 1 && toGo <= ALMOST_DONE_MAX)
+    .filter(({ done, toGo }) => isAlmostDone(done, toGo))
     .map(({ season, state, toGo }) => {
       const left = seasonUnwatched(state, season);
       const { first } = seasonBounds(state.facts.seasons, season);
@@ -330,6 +342,8 @@ export const buildCatchingUp = (
         !isHidden(state) &&
         state.nextUp &&
         state.unwatched.length >= CATCHING_UP_MIN &&
+        // Almost done says it first: one block per show
+        !inAlmostDone(state) &&
         !completeSeason(state, now),
     )
     .sort((a, b) => b.unwatched.length - a.unwatched.length || byRecent(a, b))

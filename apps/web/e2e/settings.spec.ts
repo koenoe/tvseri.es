@@ -322,6 +322,34 @@ for (const width of [360] as const) {
   }
 }
 
+// Every card starts closed: its whole header row is the toggle's to press
+test('Connected apps: a press anywhere on a card’s header opens and closes it', async ({
+  context,
+  page,
+}) => {
+  await signInAs(context, 'nina');
+  await page.goto('/settings/connected-apps');
+  const toggle = page.getByRole('button', { name: 'Open Prime Video' });
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  // A real press on the name, far from the button: the button's reach
+  // covers it (Playwright's own click would refuse a covered element)
+  const name = await page
+    .getByText('Prime Video', { exact: true })
+    .first()
+    .boundingBox();
+  expect(name).toBeTruthy();
+  const pressName = () =>
+    page.mouse.click(
+      (name?.x ?? 0) + (name?.width ?? 0) / 2,
+      (name?.y ?? 0) + (name?.height ?? 0) / 2,
+    );
+  await pressName();
+  const hide = page.getByRole('button', { name: 'Hide Prime Video' });
+  await expect(hide).toHaveAttribute('aria-expanded', 'true');
+  await pressName();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+});
+
 // The Last scrobble card's week (rae's stub week: a 12-episode binge, two
 // empty days): a day's bar filters the list under the card, pressed again
 // the latest marks come back, and the card stays inside a phone's width

@@ -6,6 +6,9 @@ import type { ReactNode } from 'react';
  * more than a card has there, and squeezed the status line becomes a
  * word-wide column. On a phone the toggle joins the pills' row too, so the
  * name and status get the card's full width.
+ *
+ * The row is the toggle's to press (`APP_TOGGLE_REACH_CLASS`): anything
+ * interactive added here needs its own `relative` to sit above that.
  */
 export default function AppHeader({
   children,
@@ -22,7 +25,7 @@ export default function AppHeader({
   tile: ReactNode;
 }>) {
   return (
-    <div className="grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-x-4 gap-y-3 p-6 xl:flex xl:gap-4">
+    <div className="relative grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-x-4 gap-y-3 p-6 xl:flex xl:gap-4">
       {tile}
       <span className="flex min-w-0 flex-col gap-2 max-md:col-span-2">
         <b className="text-title-3">{name}</b>

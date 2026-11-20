@@ -10,9 +10,14 @@ import {
 } from 'react';
 import Button from '@/components/ui/button/Button';
 import { chevronDownGlyph } from '@/components/ui/icon/glyphs';
-
+import cn from '@/lib/cn';
 import type { AppBrand } from '../../_lib/services';
-import { APP_BODY_CLASS, APP_TOGGLE_CLASS } from './layout';
+
+import {
+  APP_BODY_CLASS,
+  APP_TOGGLE_CLASS,
+  APP_TOGGLE_REACH_CLASS,
+} from './layout';
 
 type Accordion = Readonly<{
   /** The viewer's own pick; null until they press a toggle */
@@ -60,6 +65,8 @@ export function AppsAccordion({
   return <AccordionContext value={value}>{children}</AccordionContext>;
 }
 
+const TOGGLE = cn(APP_TOGGLE_CLASS, APP_TOGGLE_REACH_CLASS);
+
 /** The toggle's id: where focus goes when the card's own content leaves */
 export const appToggleId = (app: AppBrand) => `${app}-toggle`;
 
@@ -80,7 +87,7 @@ export function AppToggle({
     <Button
       aria-expanded={isOpen}
       aria-label={accessibleLabel}
-      className={APP_TOGGLE_CLASS}
+      className={TOGGLE}
       id={appToggleId(app)}
       onClick={onClick}
       trailingIcon={chevronDownGlyph}

@@ -7,6 +7,13 @@
 export const APP_TOGGLE_CLASS =
   'h-8 gap-1.5 px-3 max-xl:col-start-3 max-xl:row-start-1 max-md:row-start-2 max-md:self-start [&>svg]:size-[13px]';
 
+/**
+ * The live toggle's reach: its press covers the whole header row
+ * (`AppHeader` is its containing block), still one button for a keyboard
+ * or a screen reader. Never on the placeholder's toggle face
+ */
+export const APP_TOGGLE_REACH_CLASS = 'after:absolute after:inset-0';
+
 /** The open card's body (`AppBody`) */
 export const APP_BODY_CLASS = 'flex flex-col gap-4 px-6 pb-6';
 

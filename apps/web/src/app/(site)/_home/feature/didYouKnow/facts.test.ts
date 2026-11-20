@@ -130,6 +130,27 @@ describe('deckCopy: the phrasings', () => {
     expect(deckCopy([severance])[0]!.unit).toBe('episodes');
   });
 
+  it('episodes: a cancelled show with episodes still to air "has run" so far', () => {
+    const airingOut = fact('episodes', 19, {
+      nextEpisodeToAir: { airDate: '2026-11-27' } as Episode,
+      numberOfEpisodes: 19,
+      numberOfSeasons: 2,
+      status: 'Canceled',
+      title: 'Cut Short',
+    });
+    expect(allTexts(airingOut).sort()).toEqual([
+      '19 episodes across two seasons: Cut Short from start to now.',
+      'Cut Short averages 10 episodes a season over two seasons.',
+      'Cut Short has run two seasons and 19 episodes so far.',
+    ]);
+    expect(
+      allTexts({
+        ...airingOut,
+        series: { ...airingOut.series, nextEpisodeToAir: null },
+      }),
+    ).toContain('Cut Short ran two seasons and 19 episodes.');
+  });
+
   it('episodes: one season leaves only the first, in the singular', () => {
     expect(
       allTexts(

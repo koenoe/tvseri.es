@@ -1,7 +1,7 @@
 import 'server-only';
 
 import type { SeriesSummaries } from '@tvseri.es/schemas';
-import { chunk } from '@tvseri.es/utils';
+import { chunk, hasEndedStatus } from '@tvseri.es/utils';
 import { cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
@@ -24,6 +24,8 @@ export type ShowSummary = Readonly<{
   year: number | null;
   /** TMDB status: Returning Series, Ended, Canceled... */
   status: string;
+  /** Nothing is left to air: "finished in 2019" may be said */
+  over: boolean;
   /** The year it last aired ("finished in 2019"), null when unknown */
   lastAirYear: number | null;
 }>;
@@ -72,6 +74,8 @@ export async function getShowSummaries(
           // answers cached before the field existed lack it
           lastAirYear: summary.lastAirYear ?? null,
           network: summary.networks[0]?.name ?? null,
+          // answers cached before the field existed have the status alone
+          over: summary.over ?? hasEndedStatus(summary.status),
           seasons: summary.numberOfSeasons,
           status: summary.status,
           totalMinutes: summary.totalMinutes,

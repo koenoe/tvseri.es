@@ -53,12 +53,26 @@ describe('getShowSummaries', () => {
         episodes: 62,
         lastAirYear: 2013,
         network: 'AMC',
+        over: true,
         seasons: 5,
         status: 'Ended',
         totalMinutes: 2914,
         year: 2008,
       },
     });
+  });
+
+  it('takes the API’s word on whether a show is over, the status’s for older answers', async () => {
+    apiFetch.mockResolvedValueOnce({
+      '1': { ...summary(1), over: false, status: 'Canceled' },
+      '2': { ...summary(2), status: 'Canceled' },
+    });
+    const summaries = await getShowSummaries('1,2');
+    expect(
+      isUnavailable(summaries)
+        ? null
+        : [summaries[1]?.over, summaries[2]?.over],
+    ).toEqual([false, true]);
   });
 
   it('splits more than 50 ids into calls of 50 (the API limit)', async () => {

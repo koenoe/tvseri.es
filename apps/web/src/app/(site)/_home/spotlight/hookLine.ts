@@ -1,5 +1,5 @@
 import type { TvSeries } from '@tvseri.es/schemas';
-import { isSeasonPremiere, plural } from '@tvseri.es/utils';
+import { isOver, isSeasonPremiere, plural } from '@tvseri.es/utils';
 import { isValid, parseISO } from 'date-fns';
 import { DAY_MONTH_PATTERN } from '@/lib/format/date';
 
@@ -87,7 +87,7 @@ function creatorsLine(series: HookSource): string {
 }
 
 function endedLine(series: HookSource): string {
-  return series.status === 'Ended' &&
+  return isOver(series) &&
     series.numberOfSeasons > 0 &&
     series.numberOfEpisodes > 0
     ? `Ended: ${plural(series.numberOfSeasons, 'season')}, ${plural(series.numberOfEpisodes, 'episode')}`
@@ -102,7 +102,8 @@ function endedLine(series: HookSource): string {
  *    made another show with more TMDB votes): "From the creator of Breaking Bad"
  * 3. the creators, when one of them is in the top cast: "From Bill Hader and
  *    Alec Berg"
- * 4. an ended show's size: "Ended: 5 seasons, 42 episodes"
+ * 4. the size of a show that is over (ended or cancelled, nothing left to
+ *    air): "Ended: 5 seasons, 42 episodes"
  * 5. the top three cast: "With Tom Hardy, Helen Mirren and Pierce Brosnan"
  *
  * No simpler order fits the tested cases: Stranger Things has creators yet

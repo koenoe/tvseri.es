@@ -11,6 +11,11 @@ export type SeriesSummary = Readonly<{
   numberOfEpisodes: number;
   /** TMDB status: Returning Series, Ended, Canceled... */
   status: string;
+  /**
+   * Nothing is left to air (`isOver`): Ended or Canceled with no next
+   * episode. Absent from older answers.
+   */
+  over?: boolean;
   /** Typical episode length × episodes; null when TMDB has no runtime */
   totalMinutes: number | null;
   /** First air year, null when unknown */

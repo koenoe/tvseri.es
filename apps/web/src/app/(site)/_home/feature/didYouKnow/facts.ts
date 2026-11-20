@@ -1,5 +1,5 @@
 import type { DidYouKnowFact } from '@tvseri.es/schemas';
-import { formatGrouped, hasEndedStatus, plural } from '@tvseri.es/utils';
+import { formatGrouped, isOver, plural } from '@tvseri.es/utils';
 import { DAY_MONTH_YEAR_PATTERN } from '@/lib/format/date';
 
 import { formatDay } from '@/lib/format/datePattern';
@@ -30,11 +30,12 @@ const capital = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 const noun = (count: number, one: string, many = `${one}s`) =>
   count === 1 ? one : many;
 
-const isOver = (fact: DidYouKnowFact) => hasEndedStatus(fact.series.status);
+/** Past tense once nothing is left to air (a cancelled show may still air) */
+const hasFinished = (fact: DidYouKnowFact) => isOver(fact.series);
 
-/** "last" once it has ended, "latest" while it runs */
+/** "last" once it has finished, "latest" while it runs */
 const lastOrLatest = (fact: DidYouKnowFact) =>
-  isOver(fact) ? 'last' : 'latest';
+  hasFinished(fact) ? 'last' : 'latest';
 
 /** "Jan 10, 1999" */
 const day = (date: string) =>
@@ -140,7 +141,7 @@ const EPISODES: ReadonlyArray<Phrasing> = [
       const episodes = plural(fact.value, 'episode');
       const run =
         numberOfSeasons > 0 ? `${seasonsOf(fact)} and ${episodes}` : episodes;
-      return isOver(fact)
+      return hasFinished(fact)
         ? `${title} ran ${run}.`
         : `${title} has run ${run} so far.`;
     },
@@ -149,14 +150,14 @@ const EPISODES: ReadonlyArray<Phrasing> = [
     fits: hasSeasons,
     id: 'episodes-across',
     text: (fact) =>
-      `${capital(plural(fact.value, 'episode'))} across ${seasonsOf(fact)}: ${fact.series.title} from start to ${isOver(fact) ? 'finish' : 'now'}.`,
+      `${capital(plural(fact.value, 'episode'))} across ${seasonsOf(fact)}: ${fact.series.title} from start to ${hasFinished(fact) ? 'finish' : 'now'}.`,
   },
   {
     fits: hasSeasons,
     id: 'episodes-average',
     text: (fact) => {
       const average = Math.round(fact.value / fact.series.numberOfSeasons);
-      return `${fact.series.title} ${isOver(fact) ? 'averaged' : 'averages'} ${plural(average, 'episode')} a season over ${seasonsOf(fact)}.`;
+      return `${fact.series.title} ${hasFinished(fact) ? 'averaged' : 'averages'} ${plural(average, 'episode')} a season over ${seasonsOf(fact)}.`;
     },
   },
 ];

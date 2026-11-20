@@ -174,6 +174,7 @@ describe('GET /series/summaries', () => {
         ],
         numberOfEpisodes: 18,
         numberOfSeasons: 2,
+        over: true,
         status: 'Ended',
         totalMinutes: 900,
         year: 2019,
@@ -185,12 +186,32 @@ describe('GET /series/summaries', () => {
         networks: [],
         numberOfEpisodes: 18,
         numberOfSeasons: 2,
+        over: false,
         status: 'Returning Series',
         totalMinutes: 900,
         year: null,
       },
       '99': null,
     });
+  });
+
+  it('is not over while a cancelled show has an episode left to air', async () => {
+    tv(4, {
+      next_episode_to_air: {
+        air_date: '2099-01-01',
+        episode_number: 3,
+        episode_type: 'standard',
+        id: 2003,
+        name: 'Episode 3',
+        season_number: 2,
+      },
+      status: 'Canceled',
+    });
+    tv(5, { status: 'Canceled' });
+
+    const { body } = await get<SeriesSummaries>('/series/summaries?ids=4,5');
+
+    expect([body['4']?.over, body['5']?.over]).toEqual([false, true]);
   });
 
   it('has no total length when TMDB has no runtime', async () => {

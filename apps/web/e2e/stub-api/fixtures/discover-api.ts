@@ -8,6 +8,7 @@ import type {
 
 // The source file, not the package: Node strips types only outside node_modules.
 import { landingFilter } from '../../../../../packages/constants/src/landings';
+import { isOver } from '../../../../../packages/utils/src/series/status';
 import type { StubRoute } from '../types';
 import type { CatalogueShow } from './discover/catalogue';
 import { byId, networkId, SHOWS } from './discover/shows';
@@ -218,6 +219,7 @@ export const routes: ReadonlyArray<StubRoute> = [
                   ],
                   numberOfEpisodes: entry.show.episodes,
                   numberOfSeasons: entry.show.seasons,
+                  over: isOver(entry.series),
                   status: entry.series.status,
                   totalMinutes: minutes(entry.show),
                   year: entry.show.year,

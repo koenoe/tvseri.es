@@ -61,6 +61,7 @@ export function buildLandscape(
         reason: decadeReason({
           episodes: summary?.episodes ?? 0,
           lastAirYear: summary?.lastAirYear ?? null,
+          over: summary?.over ?? false,
           rank,
           seasons: summary?.seasons ?? 0,
           status: summary?.status ?? null,

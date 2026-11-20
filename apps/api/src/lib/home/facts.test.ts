@@ -40,6 +40,26 @@ describe('factDeck', () => {
     ]);
   });
 
+  it('a years fact needs the show over: cancelled counts, still airing doesn’t', () => {
+    const cancelled = show(3, { status: 'Canceled' });
+    const airingOut = show(3, {
+      nextEpisodeToAir: {
+        airDate: '2026-11-27',
+      } as TvSeries['nextEpisodeToAir'],
+      status: 'Canceled',
+    });
+    expect(types([show(1), show(2), cancelled])).toEqual([
+      'hours',
+      'episodes',
+      'years',
+    ]);
+    expect(types([show(1), show(2), airingOut])).toEqual([
+      'hours',
+      'episodes',
+      'hours',
+    ]);
+  });
+
   it('a years fact needs two years or more on air', () => {
     const short = show(1, { firstAirDate: '2012-01-01' });
     expect(types([show(1), show(2), short])).toEqual([

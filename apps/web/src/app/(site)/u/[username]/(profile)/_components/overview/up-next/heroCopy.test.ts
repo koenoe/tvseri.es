@@ -1,4 +1,4 @@
-import type { LibraryIds, Season } from '@tvseri.es/schemas';
+import type { Episode, LibraryIds, Season } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 import { isNewToViewer } from '@/lib/marking/librarySets';
 import { circleLine, seasonsLabel, visitorFacts } from './heroCopy';
@@ -29,9 +29,26 @@ describe('visitor and pick copy', () => {
     ]);
   });
 
+  it('calls a cancelled show complete only once nothing is left to air', () => {
+    const cancelled = { numberOfSeasons: 2, status: 'Canceled' as const };
+    expect(
+      seasonsLabel({
+        ...cancelled,
+        nextEpisodeToAir: { airDate: '2026-11-27' } as Episode,
+      }),
+    ).toBe('2 seasons');
+    expect(seasonsLabel({ ...cancelled, nextEpisodeToAir: null })).toBe(
+      '2 seasons, complete',
+    );
+  });
+
   it('labels seasons and the circle', () => {
-    expect(seasonsLabel(3, true)).toBe('3 seasons, complete');
-    expect(seasonsLabel(1, false)).toBe('1 season');
+    expect(seasonsLabel({ numberOfSeasons: 3, status: 'Ended' })).toBe(
+      '3 seasons, complete',
+    );
+    expect(
+      seasonsLabel({ numberOfSeasons: 1, status: 'Returning Series' }),
+    ).toBe('1 season');
     expect(circleLine('finished', 3)).toBe('Finished by 3 people you follow');
     expect(circleLine('favourite', 1)).toBe(
       'A favourite of 1 person you follow',

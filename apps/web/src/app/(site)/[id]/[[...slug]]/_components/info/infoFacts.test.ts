@@ -1,4 +1,4 @@
-import type { Season } from '@tvseri.es/schemas';
+import type { Episode, Season } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
 import { airedRange, episodesFact, runtimeRange } from './infoFacts';
@@ -18,6 +18,23 @@ describe('Information facts', () => {
     expect(
       airedRange({ firstAirDate: '', lastAirDate: '', status: 'Ended' }),
     ).toBe('');
+  });
+
+  it('keeps the range open while a cancelled show has episodes to air', () => {
+    const cancelled = {
+      firstAirDate: '2025-01-10T00:00:00.000Z',
+      lastAirDate: '2026-11-13T00:00:00.000Z',
+      status: 'Canceled' as const,
+    };
+    expect(
+      airedRange({
+        ...cancelled,
+        nextEpisodeToAir: { airDate: '2026-11-20' } as Episode,
+      }),
+    ).toBe('Jan 10, 2025 – present');
+    expect(airedRange({ ...cancelled, nextEpisodeToAir: null })).toBe(
+      'Jan 10, 2025 – Nov 13, 2026',
+    );
   });
 
   it('counts seasons and episodes, and the runtime range', () => {

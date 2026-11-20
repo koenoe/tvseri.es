@@ -2,6 +2,7 @@ import type { TvSeries } from '@tvseri.es/schemas';
 import {
   daysBetweenUtc,
   hasEndedStatus,
+  isOver,
   isSeasonPremiere,
   plural,
 } from '@tvseri.es/utils';
@@ -19,13 +20,15 @@ import { seasonsLabel, showSeasons } from '../showFacts';
  *    "Season 7 premieres tonight" / "tomorrow" / "Saturday".
  * 2. A running first season that started in the last twelve months:
  *    "New this year: 10 episodes".
- * 3. Ended (or cancelled) after one season: "Complete: 8 episodes".
- * 4. Ended after two or three seasons, rated 8.5 or more:
+ * 3. Over (ended or cancelled, nothing left to air) after one season:
+ *    "Complete: 8 episodes".
+ * 4. Over after two or three seasons, rated 8.5 or more:
  *    "Two perfect seasons, 12 episodes".
- * 5. Any other ended show: "Ended: 6 seasons, 36 episodes".
+ * 5. Any other show that is over: "Ended: 6 seasons, 36 episodes".
  * 6. Running, and the latest season finished in the last twelve months:
  *    "Season 3 is out: 11 episodes" (the latest aired episode is its last).
- * 7. Running for five seasons or more: "7 seasons and still going".
+ * 7. Running for five seasons or more: "7 seasons and still going" (not a
+ *    cancelled show airing its last episodes).
  * 8. Otherwise the size of it: "3 seasons, 24 episodes".
  *
  * `today` is `YYYY-MM-DD` (the cached home day), so the server and the
@@ -43,8 +46,6 @@ const daysFrom = (from: string, to: string) =>
   daysBetweenUtc(from.slice(0, 10), to.slice(0, 10));
 
 const episodesLabel = (count: number) => plural(count, 'episode');
-
-const isEnded = (series: TvSeries) => hasEndedStatus(series.status);
 
 function premiereLine(series: TvSeries, today: string): string | null {
   const next = series.nextEpisodeToAir;
@@ -87,13 +88,14 @@ export function pickWhy(series: TvSeries, today: string): string {
   if (premiere) {
     return premiere;
   }
-  if (!isEnded(series) && seasons === 1 && series.firstAirDate) {
+  const over = isOver(series);
+  if (!over && seasons === 1 && series.firstAirDate) {
     const age = daysFrom(series.firstAirDate, today);
     if (age >= 0 && age <= YEAR_DAYS) {
       return `New this year: ${episodesLabel(episodes)}`;
     }
   }
-  if (isEnded(series)) {
+  if (over) {
     if (seasons === 1) {
       return `Complete: ${episodesLabel(episodes)}`;
     }
@@ -107,7 +109,7 @@ export function pickWhy(series: TvSeries, today: string): string {
   if (latest) {
     return latest;
   }
-  if (seasons >= LONG_RUN) {
+  if (seasons >= LONG_RUN && !hasEndedStatus(series.status)) {
     return `${seasons} seasons and still going`;
   }
   return `${seasonsLabel(seasons)}, ${episodesLabel(episodes)}`;

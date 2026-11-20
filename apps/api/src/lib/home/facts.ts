@@ -1,4 +1,5 @@
 import type { DidYouKnowFact, TvSeries } from '@tvseri.es/schemas';
+import { isOver } from '@tvseri.es/utils';
 
 type FactType = DidYouKnowFact['type'];
 
@@ -11,9 +12,9 @@ const ORDER: ReadonlyArray<FactType> = ['hours', 'episodes', 'years'];
 export const runtimeOf = (series: TvSeries) =>
   series.lastEpisodeToAir?.runtime || DEFAULT_RUNTIME;
 
-/** Years from first to last air date: an ended show only */
+/** Years from first to last air date: only once nothing is left to air */
 const yearsOnAir = (series: TvSeries) =>
-  series.status === 'Ended' && series.lastAirDate && series.firstAirDate
+  isOver(series) && series.lastAirDate && series.firstAirDate
     ? new Date(series.lastAirDate).getUTCFullYear() -
       new Date(series.firstAirDate).getUTCFullYear()
     : 0;
@@ -37,8 +38,9 @@ const factOf = (series: TvSeries, type: FactType): DidYouKnowFact => {
  * Did you know's deck: one fact per show, in the shows' order, the types
  * alternating. Each show takes the type least used so far that its
  * neighbours don't have ("Another" wraps, so the last one's neighbour is the
- * first); years only for an ended show that ran two years or more. Hours and
- * episodes fit every show, so neighbours always differ from two shows up.
+ * first); years only for a show that is over (`isOver`) and ran two years or
+ * more. Hours and episodes fit every show, so neighbours always differ from
+ * two shows up.
  */
 export function factDeck(
   shows: ReadonlyArray<TvSeries>,

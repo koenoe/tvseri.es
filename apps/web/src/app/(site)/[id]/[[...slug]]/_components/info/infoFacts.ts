@@ -1,19 +1,23 @@
 import type { SeriesRuntimes, TvSeries } from '@tvseri.es/schemas';
-import { hasEndedStatus, plural } from '@tvseri.es/utils';
+import { isOver, plural } from '@tvseri.es/utils';
 
 import { seriesSeasons } from '@/lib/format/status';
 
 import { formatAirDate } from '../episodes/format';
 
-/** "Jun 23, 2022 – Jun 25, 2026", or "Jun 23, 2022 – present" while it runs. */
+/**
+ * "Jun 23, 2022 – Jun 25, 2026", or "Jun 23, 2022 – present" while episodes
+ * are still to air (a cancelled show's last ones too).
+ */
 export function airedRange(
-  series: Pick<TvSeries, 'firstAirDate' | 'lastAirDate' | 'status'>,
+  series: Pick<TvSeries, 'firstAirDate' | 'lastAirDate' | 'status'> &
+    Partial<Pick<TvSeries, 'nextEpisodeToAir'>>,
 ): string {
   const first = formatAirDate(series.firstAirDate);
   if (!first) {
     return '';
   }
-  if (!hasEndedStatus(series.status)) {
+  if (!isOver(series)) {
     return `${first} – present`;
   }
   const last = formatAirDate(series.lastAirDate);

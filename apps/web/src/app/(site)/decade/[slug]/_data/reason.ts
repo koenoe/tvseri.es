@@ -4,8 +4,6 @@
  * ended. Plain template sentences, never an invented fact.
  */
 
-import { hasEndedStatus } from '@tvseri.es/utils';
-
 const WORDS = [
   'zero',
   'one',
@@ -63,6 +61,8 @@ export type ReasonFacts = Readonly<{
   episodes: number;
   /** TMDB status, null when unknown */
   status: string | null;
+  /** Nothing is left to air (a cancelled show may still air its last episodes) */
+  over: boolean;
   lastAirYear: number | null;
 }>;
 
@@ -78,8 +78,8 @@ function length({ episodes, seasons }: ReasonFacts): string | null {
 }
 
 /** "finished in 2019", "still running", null when it says nothing */
-function state({ lastAirYear, status }: ReasonFacts): string | null {
-  if (status !== null && hasEndedStatus(status) && lastAirYear) {
+function state({ lastAirYear, over, status }: ReasonFacts): string | null {
+  if (over && lastAirYear) {
     return `finished in ${lastAirYear}`;
   }
   return status === 'Returning Series' ? 'still running' : null;

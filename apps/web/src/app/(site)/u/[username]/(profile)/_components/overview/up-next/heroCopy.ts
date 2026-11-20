@@ -1,5 +1,5 @@
 import type { TvSeries } from '@tvseri.es/schemas';
-import { formatRuntime, plural } from '@tvseri.es/utils';
+import { formatRuntime, isOver, plural } from '@tvseri.es/utils';
 
 import type { UpNextFact } from '@/components/up-next/upNextCopy';
 import { seriesSeasons, statusLabel } from '@/lib/format/status';
@@ -10,10 +10,16 @@ import { seriesSeasons, statusLabel } from '@/lib/format/status';
  * speaks the shared card's words (`components/up-next/upNextCopy.ts`).
  */
 
-/** What a seasons count reads like: "4 seasons", "3 seasons, complete" */
-export function seasonsLabel(seasons: number, ended: boolean): string {
-  const base = plural(seasons, 'season');
-  return ended ? `${base}, complete` : base;
+/**
+ * What a seasons count reads like: "4 seasons", "3 seasons, complete" once
+ * nothing is left to air (a cancelled show may still air its last episodes)
+ */
+export function seasonsLabel(
+  show: Pick<TvSeries, 'numberOfSeasons' | 'status'> &
+    Partial<Pick<TvSeries, 'nextEpisodeToAir'>>,
+): string {
+  const base = plural(show.numberOfSeasons, 'season');
+  return isOver(show) ? `${base}, complete` : base;
 }
 
 /** The visitor's facts line: what the show is, "4 seasons · Ended · 36h" */

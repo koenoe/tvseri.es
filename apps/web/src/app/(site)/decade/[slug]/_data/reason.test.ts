@@ -5,6 +5,7 @@ import { decadeKicker, decadeReason } from './reason';
 const got = {
   episodes: 73,
   lastAirYear: 2019,
+  over: true,
   rank: 1,
   seasons: 8,
   status: 'Ended',
@@ -44,7 +45,12 @@ describe('decadeReason', () => {
 
   it('says a running show runs and leaves out what it doesn’t know', () => {
     expect(
-      decadeReason({ ...got, lastAirYear: 2025, status: 'Returning Series' }),
+      decadeReason({
+        ...got,
+        lastAirYear: 2025,
+        over: false,
+        status: 'Returning Series',
+      }),
     ).toBe(
       'The most-rated series of the decade on TMDB: eight seasons, still running.',
     );
@@ -52,6 +58,7 @@ describe('decadeReason', () => {
       decadeReason({
         episodes: 0,
         lastAirYear: null,
+        over: false,
         rank: 1,
         seasons: 0,
         status: null,
@@ -60,5 +67,16 @@ describe('decadeReason', () => {
     expect(decadeReason({ ...got, lastAirYear: null, status: 'Ended' })).toBe(
       'The most-rated series of the decade on TMDB: eight seasons.',
     );
+  });
+
+  it('says nothing of the end while a cancelled show still airs', () => {
+    expect(
+      decadeReason({
+        ...got,
+        lastAirYear: 2026,
+        over: false,
+        status: 'Canceled',
+      }),
+    ).toBe('The most-rated series of the decade on TMDB: eight seasons.');
   });
 });

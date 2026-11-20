@@ -84,8 +84,8 @@ describe('pickWhy', () => {
       numberOfSeasons: 2,
       status: 'Ended',
     });
-    expect(pickWhy(later, TODAY)).toBe('Ended: 2 seasons, 8 episodes');
-    expect(pickWhy(midSeason, TODAY)).toBe('Ended: 2 seasons, 8 episodes');
+    expect(pickWhy(later, TODAY)).toBe('2 seasons, 8 episodes');
+    expect(pickWhy(midSeason, TODAY)).toBe('2 seasons, 8 episodes');
   });
 
   it('calls a first season from the last twelve months new', () => {
@@ -127,6 +127,28 @@ describe('pickWhy', () => {
       voteAverage: 8.2,
     });
     expect(pickWhy(lineOfDuty, TODAY)).toBe('Ended: 6 seasons, 36 episodes');
+  });
+
+  it('calls a cancelled show complete only once nothing is left to air', () => {
+    const airingOut = show({
+      nextEpisodeToAir: episode(1, 6, '2026-11-20'),
+      numberOfEpisodes: 8,
+      status: 'Canceled',
+    });
+    expect(pickWhy(airingOut, TODAY)).toBe('1 season, 8 episodes');
+    expect(pickWhy({ ...airingOut, nextEpisodeToAir: null }, TODAY)).toBe(
+      'Complete: 8 episodes',
+    );
+  });
+
+  it('never says a cancelled show still airing is still going', () => {
+    const lastSeason = show({
+      nextEpisodeToAir: episode(6, 4, '2026-11-20'),
+      numberOfEpisodes: 36,
+      numberOfSeasons: 6,
+      status: 'Canceled',
+    });
+    expect(pickWhy(lastSeason, TODAY)).toBe('6 seasons, 36 episodes');
   });
 
   it('names the latest season when it finished in the last twelve months', () => {

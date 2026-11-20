@@ -154,6 +154,21 @@ describe('hookLine', () => {
     ).toBe('Ended: 1 season, 1 episode');
   });
 
+  it('sums up a cancelled show only once nothing is left to air', () => {
+    const cancelled = show({
+      numberOfEpisodes: 18,
+      numberOfSeasons: 2,
+      status: 'Canceled',
+    });
+    expect(hookLine(cancelled)).toBe('Ended: 2 seasons, 18 episodes');
+    expect(
+      hookLine({
+        ...cancelled,
+        nextEpisodeToAir: upcoming('2026-11-27', 2, 9),
+      }),
+    ).toBe('');
+  });
+
   it('says nothing about an ended show without counts', () => {
     expect(hookLine(show({ status: 'Ended' }))).toBe('');
   });

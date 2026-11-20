@@ -78,7 +78,7 @@ async function toPick(candidate: Candidate): Promise<HeroPick | null> {
   }
   facts.push({
     kind: 'seasons',
-    text: seasonsLabel(series.numberOfSeasons, series.status === 'Ended'),
+    text: seasonsLabel(series),
   });
   facts.push({
     highlight: true,

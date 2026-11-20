@@ -94,6 +94,43 @@ describe('In progress, Finished and the watchlist are updated inside the mark', 
     ]);
   });
 
+  it('a special or an undated mark never moves a show’s place in its list', async () => {
+    seedUser();
+    nextShow += 1;
+    const show = nextShow;
+    fakeShow({
+      id: show,
+      seasons: [{ airDate: '2020-01-01', episodes: 3 }],
+      specials: { airDate: '2020-12-25', episodes: 1 },
+    });
+
+    await withStream(() => mark(show, 1));
+    await withStream(() =>
+      markEpisode({ dateUnknown: true, episode: 2, show }),
+    );
+    const inProgress = expect.objectContaining({
+      createdAt: Date.UTC(2025, 0, 1),
+      sk: `LIST#IN_PROGRESS#ITEM#${show}`,
+    });
+    expect(listItems(USER_ID)).toEqual([inProgress]);
+
+    await withStream(() => mark(show, 3));
+    await withStream(() =>
+      markEpisode({
+        episode: 1,
+        season: 0,
+        show,
+        watchedAt: Date.UTC(2025, 11, 25),
+      }),
+    );
+    expect(listItems(USER_ID)).toEqual([
+      expect.objectContaining({
+        createdAt: Date.UTC(2025, 0, 3),
+        sk: `LIST#WATCHED#ITEM#${show}`,
+      }),
+    ]);
+  });
+
   it('a batch mark places every show in it', async () => {
     seedUser();
     const a = newShow();

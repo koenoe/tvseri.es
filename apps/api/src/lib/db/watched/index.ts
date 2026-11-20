@@ -652,12 +652,6 @@ export type SeriesWatchSummary = Readonly<{
   regularCount: number;
   /** Their codes (`S01E02`), every row with or without a date */
   regularCodes: ReadonlyArray<string>;
-  /**
-   * The latest `watchedAt` of any watched episode of the show, specials and
-   * "I don't remember" ones included (theirs is when they were marked); null
-   * when nothing is watched
-   */
-  lastWatchedAt: number | null;
   /** Every watched item of the show, as the watch calendar counts them */
   items: ReadonlyArray<CalendarInput>;
 }>;
@@ -744,15 +738,14 @@ const toCalendarInput = (row: SummaryRow): CalendarInput | undefined =>
 
 /**
  * What the watched stream needs to place a show in the lists and in the
- * watch calendar: the regular episode count, when the user last watched
- * anything of it, and its items' dates and runtimes. One consistent Query
+ * watch calendar: the regular episode count and its items' dates and
+ * runtimes. One consistent Query
  * of the show's items (`readSummaryRows`): it runs right after a write.
  */
 export const getSeriesWatchSummary = async (
   input: SeriesInput,
 ): Promise<SeriesWatchSummary> => {
   const regularCodes: string[] = [];
-  let lastWatchedAt: number | null = null;
   const items: CalendarInput[] = [];
 
   for await (const row of readSummaryRows({
@@ -768,16 +761,12 @@ export const getSeriesWatchSummary = async (
     }
     const item = toCalendarInput(row);
     if (item) {
-      if (lastWatchedAt === null || item.watchedAt > lastWatchedAt) {
-        lastWatchedAt = item.watchedAt;
-      }
       items.push(item);
     }
   }
 
   return {
     items,
-    lastWatchedAt,
     regularCodes,
     regularCount: regularCodes.length,
   };

@@ -443,7 +443,7 @@ describe('In progress keeps its order on an unmark or Undo import', () => {
     expect(inProgressItem(show)).toMatchObject({ createdAt: day(1) });
   });
 
-  it('a special counts as watching the show', async () => {
+  it('a special never moves the show in its list (only a regular watch does)', async () => {
     seedUser();
     nextShow += 1;
     const show = nextShow;
@@ -462,7 +462,7 @@ describe('In progress keeps its order on an unmark or Undo import', () => {
       });
       expect(special.status).toBe(201);
     });
-    expect(inProgressItem(show)).toMatchObject({ createdAt: day(4) });
+    expect(inProgressItem(show)).toMatchObject({ createdAt: day(1) });
   });
 });
 

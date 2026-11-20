@@ -1,4 +1,5 @@
 import type { Season, TvSeries } from '@tvseri.es/schemas';
+import { lastWatchOf } from '@tvseri.es/utils';
 
 import type { ListState } from './state';
 
@@ -19,10 +20,36 @@ export type PlacementSeries = Pick<
     >;
   }>;
 
+type Watch = Readonly<{
+  seasonNumber: number;
+  episodeNumber: number;
+  watchedAt: number;
+  dateUnknown?: boolean;
+}>;
+
+/**
+ * A show's place in its list (`createdAt`): its last watch (`lastWatchOf`:
+ * the newest dated regular watch), so a special or an "I don't remember"
+ * mark never moves it. With only undated marks, when the newest of them was
+ * made. Null with nothing regular watched.
+ */
+export const listPlaceOf = (watched: ReadonlyArray<Watch>): number | null => {
+  const last = lastWatchOf(watched);
+  if (!last) return null;
+  return (
+    last.watchedAt ??
+    Math.max(
+      ...watched
+        .filter((watch) => watch.seasonNumber > 0)
+        .map((watch) => watch.watchedAt),
+    )
+  );
+};
+
 export type Plan = Readonly<{
   tvSeries: PlacementSeries;
   state: ListState;
-  /** Latest watchedAt of any watched episode of the show, null when none */
+  /** The show's place in its list (`listPlaceOf`), null when none */
   lastWatchedAt: number | null;
   regularCount: number;
 }>;
@@ -60,8 +87,8 @@ export type ListWrites = Readonly<{
  *   subset of Finished: a show that leaves Finished leaves it too)
  * - none (nothing regular watched, or nothing aired): out of all three
  *
- * The item's `createdAt` (its place in the list) is when the user last
- * watched anything of the show, unless `placedAt` says otherwise (the
+ * The item's `createdAt` (its place in the list) is the show's last watch
+ * (`listPlaceOf`), unless `placedAt` says otherwise (the
  * nightly job surfaces a show with a new episode now). A watched show's
  * watchlist entry is parked; with nothing watched it comes back with its
  * original `createdAt`.

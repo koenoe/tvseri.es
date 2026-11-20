@@ -104,25 +104,34 @@ export const calculateShows = (
   };
 };
 
-/** The shows that reached Finished in the year, with what was watched of them in it */
+/**
+ * The shows that reached Finished in the year, with what was watched of them
+ * in it: `items` are the year's dated regular watches, and a show none of
+ * them is of didn't finish in the year (its stored date came from a special
+ * or an "I don't remember" mark)
+ */
 export const calculateFinished = (
   items: ReadonlyArray<SegmentItem>,
   finished: ReadonlyArray<ListItem>,
 ): StatsFinished => {
   const totals = totalsPerSeries(items);
   const shows = finished
-    .map((show) => {
+    .flatMap((show) => {
       const entry = totals.get(show.id);
-      return {
-        episodes: entry?.episodes ?? 0,
-        finishedAt: show.createdAt ?? 0,
-        id: show.id,
-        posterImage: show.posterImage ?? null,
-        runtimeMinutes: entry?.runtimeMinutes ?? 0,
-        seasons: [...(entry?.seasons ?? [])].sort((a, b) => a - b),
-        slug: show.slug,
-        title: show.title,
-      };
+      return entry
+        ? [
+            {
+              episodes: entry.episodes,
+              finishedAt: show.createdAt ?? 0,
+              id: show.id,
+              posterImage: show.posterImage ?? null,
+              runtimeMinutes: entry.runtimeMinutes,
+              seasons: [...entry.seasons].sort((a, b) => a - b),
+              slug: show.slug,
+              title: show.title,
+            },
+          ]
+        : [];
     })
     .sort((a, b) => b.finishedAt - a.finishedAt);
 

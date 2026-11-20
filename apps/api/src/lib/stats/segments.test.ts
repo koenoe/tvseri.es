@@ -197,7 +197,7 @@ describe('calculateFinished', () => {
       ],
     );
 
-    expect(finished.count).toBe(2);
+    expect(finished.count).toBe(1);
     expect(finished.shows[0]).toEqual({
       episodes: 2,
       finishedAt: 200,
@@ -208,15 +208,16 @@ describe('calculateFinished', () => {
       slug: 'show-1',
       title: 'Show 1',
     });
-    expect(finished.shows[1]).toMatchObject({ episodes: 0, id: 9 });
+    // Nothing of show 9 was watched in the year
+    expect(finished.shows).toHaveLength(1);
   });
 
-  // A show's Finished date is its last watch of any kind (listSync's
-  // `lastWatchedAt`: undated "I don't remember" marks at the time they were
-  // made, specials too), while the year's read is dated regular episodes
-  // only (gsi2, `countsInStats`). So a show can reach Finished in the year
-  // with nothing of it counted in the year.
-  it('reports 0 for a show that reached Finished with nothing dated in the year', () => {
+  // A show's Finished date is its last dated regular watch (`listPlaceOf`),
+  // but a date stored before that rule, or one from an undated bulk mark,
+  // can fall in a year the year's read (dated regular episodes only: gsi2,
+  // `countsInStats`) has nothing of the show for. Such a show didn't finish
+  // in that year.
+  it('leaves out a show with no dated regular watch in the year', () => {
     const bulkMarkedAt = Date.parse('2026-11-16T21:00:00Z');
     const house = (
       seasonNumber: number,
@@ -287,17 +288,9 @@ describe('calculateFinished', () => {
     const { shows } = calculateFinished(yearRead, finishedInYear);
     const byId = new Map(shows.map((show) => [show.id, show]));
 
-    expect(byId.get(1408)).toMatchObject({
-      episodes: 0,
-      finishedAt: bulkMarkedAt,
-      runtimeMinutes: 0,
-      seasons: [],
-    });
-    expect(byId.get(2)).toMatchObject({
-      episodes: 0,
-      runtimeMinutes: 0,
-      seasons: [],
-    });
+    // Marked "I don't remember" in bulk, and a special only in the year
+    expect(byId.has(1408)).toBe(false);
+    expect(byId.has(2)).toBe(false);
     // Only what was watched in the year counts: the last season
     expect(byId.get(4)).toMatchObject({
       episodes: 6,

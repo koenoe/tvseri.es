@@ -1,4 +1,5 @@
 import type { SeriesFacts, SeriesPrefs, TvSeries } from '@tvseri.es/schemas';
+import { lastWatchOf } from '@tvseri.es/utils';
 
 import {
   addToList,
@@ -37,7 +38,12 @@ import { within } from '@/utils/within';
 import type { ChangeBudget } from './budget';
 import { cachedTvSeries } from './cachedTvSeries';
 import { decideListState, type ListState } from './state';
-import { listWrites, type PlacementSeries, type Plan } from './writes';
+import {
+  listPlaceOf,
+  listWrites,
+  type PlacementSeries,
+  type Plan,
+} from './writes';
 
 export { createChangeBudget } from './budget';
 
@@ -177,7 +183,7 @@ const planSeriesLists = async ({
   );
 
   return {
-    lastWatchedAt: watched.lastWatchedAt,
+    lastWatchedAt: listPlaceOf(watched.items),
     regularCount: watched.regularCount,
     state,
     tvSeries,
@@ -567,19 +573,6 @@ const createResumingSoon = (userId: string) => {
   };
 };
 
-/** The latest dated watch of a regular episode, null when there is none */
-const lastRegularWatchedAt = (
-  watched: ReturnType<WatchedBySeries['get']>,
-): number | null => {
-  let latest: number | null = null;
-  for (const item of watched?.items ?? []) {
-    if (item.seasonNumber > 0 && !item.dateUnknown) {
-      latest = Math.max(latest ?? 0, item.watchedAt);
-    }
-  }
-  return latest;
-};
-
 /**
  * The Finished shows still running: their list item says Returning Series,
  * or their stored facts say so now (a show finished while Ended or In
@@ -649,7 +642,8 @@ const checkFinishedShows = async (
           !isFullCheck &&
           hasNothingAiredSince(
             tvSeries,
-            lastRegularWatchedAt(watchedBySeries.get(item.id)),
+            lastWatchOf(watchedBySeries.get(item.id)?.items ?? [])?.watchedAt ??
+              null,
           )
         ) {
           await syncResumingSoon(tvSeries, finishedRead);

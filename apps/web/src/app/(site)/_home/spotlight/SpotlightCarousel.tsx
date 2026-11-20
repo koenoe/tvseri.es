@@ -168,7 +168,7 @@ export default function SpotlightCarousel({
       <m.section
         aria-label="Trending spotlight"
         aria-roledescription="carousel"
-        // phone: the stage (513px of page) and the 23px pager under it
+        // phone: the stage (553px of page) and the 23px pager under it
         className={SPOTLIGHT_STAGE}
         data-show-morph-scope=""
         data-slot="spotlight"
@@ -176,7 +176,7 @@ export default function SpotlightCarousel({
         style={PAN_STYLE}
         {...slideshow.handlers}
       >
-        <div className="absolute inset-x-0 -top-[47px] h-[560px] overflow-hidden md:top-0 md:h-full">
+        <div className="absolute inset-x-0 -top-[47px] h-[600px] overflow-hidden md:top-0 md:h-full">
           <ArtworkLayers
             firstIndex={firstIndex}
             layers={stage.layers}

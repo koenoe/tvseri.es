@@ -166,14 +166,16 @@ test.describe('/extension from Connected apps', () => {
   test('the extension’s status line is an instant way to /extension', async ({
     page,
   }) => {
-    await page.goto('/settings/connected-apps');
-    const link = page.getByRole('link', { name: 'Chrome extension' });
-    // instant() blocks the network: the link's prefetch must have landed
+    // instant() blocks the network: the link's prefetch must have landed.
+    // Listen before the visit: under load the prefetch can land before
+    // goto resolves
     const prefetched = page.waitForResponse(
       (response) =>
         new URL(response.url()).pathname === '/extension' &&
         'next-router-prefetch' in response.request().headers(),
     );
+    await page.goto('/settings/connected-apps');
+    const link = page.getByRole('link', { name: 'Chrome extension' });
     await expect(link).toBeVisible();
     await prefetched;
     await instant(page, async () => {

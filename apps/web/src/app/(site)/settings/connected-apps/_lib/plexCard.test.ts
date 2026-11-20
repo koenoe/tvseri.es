@@ -51,10 +51,9 @@ describe('plexCardPlan', () => {
     });
   });
 
-  it('spotlights the newest scrobble, and counts the Recent list', () => {
+  it('spotlights the newest scrobble', () => {
     const plan = plexCardPlan(CONNECTED);
     expect(plan.spotlight).toEqual(LATEST);
-    expect(plan.panel.recentCount).toBe(1);
     expect(plexCardPlan({ ...CONNECTED, recent: [] }).spotlight).toBeNull();
   });
 
@@ -67,7 +66,6 @@ describe('plexCardPlan', () => {
         lastReceivedAt: null,
         onlyAccountId: null,
         paused: false,
-        recentCount: 0,
         urlWorks: true,
       },
       spotlight: null,

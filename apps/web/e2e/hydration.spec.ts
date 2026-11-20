@@ -70,9 +70,13 @@ test.describe('hydration', () => {
     const errors = collectErrors(page);
     await page.goto('/settings/connected-apps');
     await settle(page);
+    // The closed card keeps its body mounted: the week hydrates unseen
     await expect(
-      page.getByRole('group', { name: 'Your week on Plex' }),
-    ).toBeVisible();
+      page.getByRole('group', {
+        includeHidden: true,
+        name: 'Your week on Plex',
+      }),
+    ).toBeAttached();
     expect(errors.filter((text) => HYDRATION.test(text))).toEqual([]);
   });
 });

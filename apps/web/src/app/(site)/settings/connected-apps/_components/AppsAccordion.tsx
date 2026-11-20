@@ -15,8 +15,11 @@ import type { AppBrand } from '../../_lib/services';
 import { APP_BODY_CLASS, APP_TOGGLE_CLASS } from './layout';
 
 type Accordion = Readonly<{
-  open: AppBrand | '';
-  toggle: (app: AppBrand) => void;
+  /** The viewer's own pick; null until they press a toggle */
+  chosen: AppBrand | '' | null;
+  /** The card that opens on its own (the server's pick) */
+  needsYou: Promise<AppBrand | ''>;
+  choose: (app: AppBrand | '') => void;
 }>;
 
 const AccordionContext = createContext<Accordion | null>(null);
@@ -29,18 +32,31 @@ const useAccordion = (): Accordion => {
   return value;
 };
 
+/** The open card: the viewer's pick, else the one that needs them */
+const useOpen = (): Readonly<{
+  choose: Accordion['choose'];
+  open: AppBrand | '';
+}> => {
+  const { choose, chosen, needsYou } = useAccordion();
+  // Read inside each card's own boundary, which streams after the
+  // statuses this waits on are read anyway
+  return { choose, open: chosen ?? use(needsYou) };
+};
+
 /**
- * Which app card is open (one at a time, Plex first). The
- * cards themselves stay server-rendered children; only this state and the
- * toggles are client.
+ * Which app card is open: one at a time, and at first only a card that
+ * needs the viewer (`appNeedingYou`). The cards themselves stay
+ * server-rendered children; only this state and the toggles are client.
  */
-export function AppsAccordion({ children }: Readonly<{ children: ReactNode }>) {
-  const [open, setOpen] = useState<AppBrand | ''>('plex');
-  const toggle = useCallback(
-    (app: AppBrand) => setOpen((current) => (current === app ? '' : app)),
-    [],
+export function AppsAccordion({
+  children,
+  needsYou,
+}: Readonly<{ children: ReactNode; needsYou: Promise<AppBrand | ''> }>) {
+  const [chosen, choose] = useState<AppBrand | '' | null>(null);
+  const value = useMemo<Accordion>(
+    () => ({ choose, chosen, needsYou }),
+    [chosen, needsYou],
   );
-  const value = useMemo<Accordion>(() => ({ open, toggle }), [open, toggle]);
   return <AccordionContext value={value}>{children}</AccordionContext>;
 }
 
@@ -52,10 +68,13 @@ export function AppToggle({
   app,
   name,
 }: Readonly<{ app: AppBrand; name: string }>) {
-  const { open, toggle } = useAccordion();
+  const { choose, open } = useOpen();
   const isOpen = open === app;
   const label = isOpen ? 'Hide' : 'Open';
-  const onClick = useCallback(() => toggle(app), [toggle, app]);
+  const onClick = useCallback(
+    () => choose(isOpen ? '' : app),
+    [choose, isOpen, app],
+  );
   const accessibleLabel = `${label} ${name}`;
   return (
     <Button
@@ -77,7 +96,7 @@ export function AppBody({
   app,
   children,
 }: Readonly<{ app: AppBrand; children: ReactNode }>) {
-  const { open } = useAccordion();
+  const { open } = useOpen();
   const closed = open !== app;
   return (
     <div className={APP_BODY_CLASS} hidden={closed}>

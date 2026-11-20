@@ -16,10 +16,9 @@
  *   paint, so nothing moves when the viewer's marks arrive.
  * - `data-stats-year="finished|current|future"` on a stats route, from the
  *   year in the path against the current year: a finished year has a Share row.
- * - `data-plex="none|wait|on|paused"` (and `data-plex-n`, how many recent
- *   plays the card lists) on `/settings/connected-apps`, for a signed-in viewer whose
- *   Plex hint is on this browser: the connected card is much taller than the
- *   not-connected one, so its placeholder takes the viewer's last known shape.
+ * - `data-plex="none|wait|on|paused"` on `/settings/connected-apps`, for a
+ *   signed-in viewer whose Plex hint is on this browser: the closed card's
+ *   placeholder says the viewer's last known state.
  *
  * Cosmetic only, like the display cookie: nothing is ever authorised on it.
  */
@@ -62,13 +61,7 @@ export function applyHtmlHints(
   promptVersion: number,
 ): void {
   try {
-    for (const name of [
-      'home',
-      'show-prompt',
-      'stats-year',
-      'plex',
-      'plex-n',
-    ]) {
+    for (const name of ['home', 'show-prompt', 'stats-year', 'plex']) {
       root.removeAttribute(`data-${name}`);
     }
     const stats = /^\/u\/[^/]+\/stats\/(\d{4})(?:\/|$)/.exec(path);
@@ -105,9 +98,6 @@ export function applyHtmlHints(
       const plex = read(plexKey, plexVersion, user);
       if (plex && ['none', 'wait', 'on', 'paused'].indexOf(plex.s) > -1) {
         root.setAttribute('data-plex', plex.s);
-        if (plex.n >= 1 && plex.n <= 5) {
-          root.setAttribute('data-plex-n', String(plex.n));
-        }
       }
       return;
     }

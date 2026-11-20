@@ -36,7 +36,6 @@ export default function PlexPanel({
   onlyAccountId,
   paused,
   prefix,
-  recentCount,
   scrobbles,
   urlWorks,
 }: PlexPanelStatus &
@@ -60,8 +59,8 @@ export default function PlexPanel({
   // The next hard load's placeholder takes this shape; it's a browser
   // store, so an effect writes it
   useEffect(() => {
-    persistPlexHint(readDisplayUsername(document.cookie), state, recentCount);
-  }, [recentCount, state]);
+    persistPlexHint(readDisplayUsername(document.cookie), state);
+  }, [state]);
 
   const pills = (
     <>

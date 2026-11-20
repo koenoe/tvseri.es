@@ -87,7 +87,7 @@ export function connectedAppsSummary(
     : { count: lines.length, kind: 'count' };
 }
 
-/** The summary in words; `none` invites ("Plex, Netflix and more") */
+/** The summary in words; `none` invites ("Netflix, Prime Video and more") */
 export function connectedAppsText(summary: ConnectedAppsSummary): string {
   switch (summary.kind) {
     case 'none':
@@ -103,11 +103,11 @@ export function connectedAppsText(summary: ConnectedAppsSummary): string {
   }
 }
 
-/** "Plex, Netflix and more" past two names */
+/** "Netflix, Prime Video and more" past two names, in the page's order */
 export function connectableAppsLine(): string {
   const names = [
-    'Plex',
     ...CONNECTION_SERVICES.map((id) => connectedService(id).name),
+    'Plex',
   ];
   return names.length > 2
     ? `${names.slice(0, 2).join(', ')} and more`

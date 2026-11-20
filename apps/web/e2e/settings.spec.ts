@@ -237,7 +237,7 @@ for (const width of [360, 800] as const) {
     await signInAs(context, 'nina');
     await page.goto('/settings/connected-apps');
     await fontsSettled(page);
-    // Plex, Netflix, BBC iPlayer and Prime Video, none connected for this
+    // Netflix, Prime Video, BBC iPlayer and Plex, none connected for this
     // viewer (a spec can't import the service list: Playwright loads the
     // workspace packages as CommonJS)
     const apps = 4;
@@ -333,6 +333,8 @@ test('Plex week: pressing a day filters the list, and it fits at 390px', async (
   await phoneScrollbars(page, 390);
   await signInAs(context, 'rae');
   await page.goto('/settings/connected-apps');
+  // Every card starts closed unless a service needs the viewer
+  await page.getByRole('button', { name: 'Open Plex' }).click();
   const week = page.getByRole('group', { name: 'Your week on Plex' });
   const days = week.getByRole('button');
   await expect(days).toHaveCount(7);

@@ -14,8 +14,6 @@ export type PlexPanelStatus = Readonly<{
   lastReceivedAt: number | null;
   onlyAccountId: number | null;
   paused: boolean;
-  /** How many plays the Recent list shows */
-  recentCount: number;
   /** False when the edge refuses the URL */
   urlWorks: boolean;
 }>;
@@ -34,7 +32,6 @@ const NOT_CONNECTED: PlexCardPlan = {
     lastReceivedAt: null,
     onlyAccountId: null,
     paused: false,
-    recentCount: 0,
     urlWorks: true,
   },
   spotlight: null,
@@ -57,7 +54,6 @@ export function plexCardPlan(status: WebhookStatus): PlexCardPlan {
       lastReceivedAt: status.lastReceivedAt,
       onlyAccountId: status.onlyAccount?.id ?? null,
       paused: status.paused,
-      recentCount: status.recent.length,
       urlWorks: status.urlWorks,
     },
     spotlight: status.recent[0] ?? null,

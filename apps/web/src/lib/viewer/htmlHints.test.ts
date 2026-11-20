@@ -138,20 +138,16 @@ describe('show library hint (the first-tracking prompt)', () => {
 });
 
 const plexHint = (over: Record<string, unknown> = {}) =>
-  JSON.stringify({ n: 3, s: 'on', u: 'kit', v: PLEX_HINT_VERSION, ...over });
+  JSON.stringify({ s: 'on', u: 'kit', v: PLEX_HINT_VERSION, ...over });
 
 describe('Plex card hint', () => {
-  it('sets the state and the number of recent plays on the Plex route', () => {
+  it('sets the state on the Plex route', () => {
     expect(
       run('/settings/connected-apps', { stored: plexHint() }).attributes,
-    ).toEqual({
-      'data-plex': 'on',
-      'data-plex-n': '3',
-    });
+    ).toEqual({ 'data-plex': 'on' });
     expect(
-      run('/settings/connected-apps/', {
-        stored: plexHint({ n: 0, s: 'wait' }),
-      }).attributes,
+      run('/settings/connected-apps/', { stored: plexHint({ s: 'wait' }) })
+        .attributes,
     ).toEqual({ 'data-plex': 'wait' });
   });
 

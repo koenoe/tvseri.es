@@ -12,6 +12,7 @@ import PlexCard from './_components/PlexCard';
 import PlexSkeleton from './_components/PlexSkeleton';
 import ServiceCard from './_components/ServiceCard';
 import ServiceSkeleton from './_components/ServiceSkeleton';
+import { loadAppNeedingYou } from './_data/appNeedingYou';
 
 /** Each card's skeleton: its hole's fallback and its failure's space */
 const plexSkeleton = <PlexSkeleton />;
@@ -26,29 +27,26 @@ const extensionSkeleton = <ExtensionStatusSkeleton />;
 export const metadata: Metadata = { title: 'Connected apps' };
 
 /**
- * Connected apps: the extension's status, then Plex's webhook and each
- * streaming service's extension link, each streamed in; How it works opens
- * over the page.
+ * Connected apps: the extension's status, then each streaming service's
+ * extension link (most used first) and Plex's webhook, each streamed in;
+ * How it works opens over the page.
  */
 export default function Page() {
+  // Not awaited: each card's own boundary reads it as it streams in
+  const needsYou = loadAppNeedingYou();
   return (
     <section
       className="flex flex-col gap-6"
       data-testid="route-settings-connected-apps"
     >
       <SectionHeader
-        lede="Your media server and streaming services mark episodes watched here."
+        lede="Your streaming services and media server mark episodes watched here."
         title="Connected apps"
       />
       <StreamedSlot fallback={extensionSkeleton} name="extension">
         <ExtensionStatus />
       </StreamedSlot>
-      <AppsAccordion>
-        <SectionErrorBoundary placeholder={plexSkeleton} what="Plex">
-          <StreamedSlot fallback={plexSkeleton} name="plex">
-            <PlexCard />
-          </StreamedSlot>
-        </SectionErrorBoundary>
+      <AppsAccordion needsYou={needsYou}>
         {services.map(({ name, service, skeleton }) => (
           <SectionErrorBoundary
             key={service}
@@ -60,6 +58,11 @@ export default function Page() {
             </StreamedSlot>
           </SectionErrorBoundary>
         ))}
+        <SectionErrorBoundary placeholder={plexSkeleton} what="Plex">
+          <StreamedSlot fallback={plexSkeleton} name="plex">
+            <PlexCard />
+          </StreamedSlot>
+        </SectionErrorBoundary>
       </AppsAccordion>
       {/* A card's How it works opens the drawing here, never leaving Settings */}
       <HowItWorksDialog />

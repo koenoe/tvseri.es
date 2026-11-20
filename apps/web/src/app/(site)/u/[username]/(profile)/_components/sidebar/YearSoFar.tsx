@@ -73,8 +73,8 @@ export default async function YearSoFar({
   }
   const empty = stats.episodes === 0;
   const statsHref = statsPath(username, year);
-  // Day one has no Stats link: there is nothing to open yet
-  const link = empty ? null : <HeadLink href={statsHref}>Stats</HeadLink>;
+  // Day one keeps the link, as the Stats tab does: the page says the year is empty
+  const link = <HeadLink href={statsHref}>Stats</HeadLink>;
   const bars = yearBars(stats.weeks, year, now);
   const who = profile.viewer === 'owner' ? '' : `${username} `;
   const label = `Episodes ${who}watched per week in ${year}`;

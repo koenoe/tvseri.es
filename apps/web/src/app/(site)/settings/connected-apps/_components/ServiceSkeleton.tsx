@@ -16,7 +16,7 @@ export default function ServiceSkeleton({
   return (
     <div aria-hidden="true" inert>
       <div className={APP_CARD_GHOST_CLASS}>
-        <AppHeaderGhost name={name} pills={pills} toggle="Open" />
+        <AppHeaderGhost name={name} pills={pills} />
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ function HeaderGhost({
   const pills = [state, ...PLEX_BRAND.facts];
   return (
     <div className={APP_CARD_GHOST_CLASS}>
-      <AppHeaderGhost name="Plex" pills={pills} status={status} toggle="Open" />
+      <AppHeaderGhost name="Plex" pills={pills} status={status} />
     </div>
   );
 }

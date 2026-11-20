@@ -10,15 +10,18 @@ import type { IconSize } from '@/components/ui/icon/types';
 export default function FoldLabel({
   label,
   open,
+  openLabel = 'Show fewer',
   size,
 }: Readonly<{
   /** the folded label: "Show all 22" */
   label: string;
   open: boolean;
+  /** the open label: "Show fewer" unless the place says otherwise ("Hide") */
+  openLabel?: string;
   size: IconSize;
 }>) {
-  const shown = open ? 'Show fewer' : label;
-  const spare = open ? label : 'Show fewer';
+  const shown = open ? openLabel : label;
+  const spare = open ? label : openLabel;
   return (
     <>
       <span className="grid">

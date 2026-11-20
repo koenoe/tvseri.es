@@ -5,7 +5,13 @@ import * as m from 'motion/react-m';
 import { type ReactNode, useId, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 
-import { SHEET_EASE } from '@/components/motion/ease';
+import {
+  FOLD_OPEN,
+  FOLD_OPEN_TIMING,
+  FOLD_SHUT,
+  FOLD_SHUT_TIMING,
+  FOLD_SNAP,
+} from '@/components/motion/fold';
 import ExpandButton from '@/components/ui/fold/ExpandButton';
 import { PHONE } from '@/lib/media/breakpoints';
 import useMediaQuery from '@/lib/media/useMediaQuery';
@@ -19,21 +25,7 @@ const FOLD_TILES = `${NO_DATE_TILES} pt-2.5`;
 /** Each press of the foot opens ten more */
 const STEP = 10;
 
-/** A fold opens to its height in 320ms with a 200ms fade; closes in 240ms */
-const FOLD_IN = { height: 'auto', opacity: 1 } as const;
-const FOLD_OUT = { height: 0, opacity: 0 } as const;
-const FOLD_TIMING = {
-  height: { duration: 0.32, ease: SHEET_EASE },
-  opacity: { duration: 0.2, ease: 'easeOut' },
-} as const;
-const SNAP = { duration: 0 } as const;
-const FOLD_EXIT = {
-  ...FOLD_OUT,
-  transition: {
-    height: { duration: 0.24, ease: SHEET_EASE },
-    opacity: { duration: 0.12 },
-  },
-} as const;
+const FOLD_EXIT = { ...FOLD_SHUT, transition: FOLD_SHUT_TIMING } as const;
 
 /**
  * A group of No date yet: the first five tiles (two on a phone), then
@@ -47,8 +39,8 @@ export default function NoDateFold({
   const phone = useMediaQuery(PHONE);
   // with reduced motion the fold snaps open and shut
   const reduced = useReducedMotion();
-  const timing = reduced ? SNAP : FOLD_TIMING;
-  const exit = reduced ? { ...FOLD_OUT, transition: SNAP } : FOLD_EXIT;
+  const timing = reduced ? FOLD_SNAP : FOLD_OPEN_TIMING;
+  const exit = reduced ? { ...FOLD_SHUT, transition: FOLD_SNAP } : FOLD_EXIT;
   const first = phone ? 2 : 5;
   const [folds, setFolds] = useState(0);
   const id = useId();
@@ -79,11 +71,11 @@ export default function NoDateFold({
         <AnimatePresence initial={false}>
           {chunks.map((chunk, index) => (
             <m.div
-              animate={FOLD_IN}
+              animate={FOLD_OPEN}
               className="overflow-hidden"
               data-fold={index + 1}
               exit={exit}
-              initial={FOLD_OUT}
+              initial={FOLD_SHUT}
               key={index}
               transition={timing}
             >

@@ -1,5 +1,7 @@
 'use client';
 
+import { useReducedMotion } from 'motion/react';
+import * as m from 'motion/react-m';
 import {
   createContext,
   type ReactNode,
@@ -8,8 +10,15 @@ import {
   useMemo,
   useState,
 } from 'react';
+import {
+  FOLD_OPEN,
+  FOLD_OPEN_TIMING,
+  FOLD_SHUT,
+  FOLD_SHUT_TIMING,
+  FOLD_SNAP,
+} from '@/components/motion/fold';
 import Button from '@/components/ui/button/Button';
-import { chevronDownGlyph } from '@/components/ui/icon/glyphs';
+import FoldLabel from '@/components/ui/fold/FoldLabel';
 import cn from '@/lib/cn';
 import type { AppBrand } from '../../_lib/services';
 
@@ -70,7 +79,7 @@ const TOGGLE = cn(APP_TOGGLE_CLASS, APP_TOGGLE_REACH_CLASS);
 /** The toggle's id: where focus goes when the card's own content leaves */
 export const appToggleId = (app: AppBrand) => `${app}-toggle`;
 
-/** "Open" while closed, "Hide" while open. */
+/** "Open" while closed, "Hide" while open, in one width; the chevron turns */
 export function AppToggle({
   app,
   name,
@@ -90,24 +99,44 @@ export function AppToggle({
       className={TOGGLE}
       id={appToggleId(app)}
       onClick={onClick}
-      trailingIcon={chevronDownGlyph}
       variant="tonal"
     >
-      {label}
+      <FoldLabel label="Open" open={isOpen} openLabel="Hide" size={13} />
     </Button>
   );
 }
 
-/** The card's body: shown while its card is the open one (kept mounted). */
+/** Shut and settled, the body is hidden as well: out of reach for find and assistive tech */
+const BODY_OPEN = { ...FOLD_OPEN, visibility: 'visible' } as const;
+const BODY_SHUT = {
+  ...FOLD_SHUT,
+  transitionEnd: { visibility: 'hidden' },
+} as const;
+
+/**
+ * The card's body, kept mounted: it folds open and shut as the calendar's No
+ * date yet does (`components/motion/fold`), and a shut one is inert. A card
+ * open on arrival (one that needs the viewer) is drawn open, not played.
+ */
 export function AppBody({
   app,
   children,
 }: Readonly<{ app: AppBrand; children: ReactNode }>) {
   const { open } = useOpen();
-  const closed = open !== app;
+  const reduced = useReducedMotion();
+  const opened = open === app;
+  const shutTiming = reduced ? FOLD_SNAP : FOLD_SHUT_TIMING;
+  const openTiming = reduced ? FOLD_SNAP : FOLD_OPEN_TIMING;
+  const transition = opened ? openTiming : shutTiming;
   return (
-    <div className={APP_BODY_CLASS} hidden={closed}>
-      {children}
-    </div>
+    <m.div
+      animate={opened ? BODY_OPEN : BODY_SHUT}
+      className="overflow-hidden"
+      inert={!opened}
+      initial={false}
+      transition={transition}
+    >
+      <div className={APP_BODY_CLASS}>{children}</div>
+    </m.div>
   );
 }

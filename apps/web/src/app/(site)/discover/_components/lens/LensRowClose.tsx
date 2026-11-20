@@ -25,9 +25,12 @@ export default function LensRowClose({
     <CircleButton
       className={CLASS_NAME}
       icon={closeGlyph}
-      iconSize={14}
+      // the row's arrows' circle (40); the ✕ a size under their chevrons,
+      // as its strokes reach the corners
+      iconSize={16}
       label={label}
       onClick={onClick}
+      size={40}
       title={undefined}
     />
   );

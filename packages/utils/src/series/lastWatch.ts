@@ -6,7 +6,7 @@ type Watch = Readonly<{
   dateUnknown?: boolean;
 }>;
 
-export type LastWatch = Readonly<{
+type LastWatch = Readonly<{
   seasonNumber: number;
   episodeNumber: number;
   /** null when every regular watch is undated */

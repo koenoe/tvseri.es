@@ -78,7 +78,7 @@ export {
   isSeasonPremiere,
 } from './series/episodeNumbers';
 export { byExpectedReturn } from './series/expectedReturn';
-export { type LastWatch, lastWatchOf } from './series/lastWatch';
+export { lastWatchOf } from './series/lastWatch';
 export {
   isDone,
   type ListState,

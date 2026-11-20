@@ -29,7 +29,11 @@ export const SERVICES = {
   },
 };
 
-export const SERVICE_IDS = Object.keys(SERVICES);
+/**
+ * The order the popup lists them in: the site's (most used first, as
+ * Connected apps does). Not the object's keys: those stay sorted
+ */
+export const SERVICE_IDS = ['netflix', 'prime', 'bbc'];
 
 /** The site's link route for a service */
 export const linkPath = (service) => `/api/connections/${service}/link`;

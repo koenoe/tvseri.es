@@ -1,6 +1,6 @@
 # tvseri.es extension (Chrome, MV3)
 
-Connects streaming services (Netflix, BBC iPlayer, Prime Video) to a
+Connects streaming services (Netflix, Prime Video, BBC iPlayer) to a
 tvseri.es account. The extension hands the service's browser session to
 tvseri.es once, against a short-lived code the site minted; sync then runs
 on the server. Nothing is sent before the viewer presses Continue on the

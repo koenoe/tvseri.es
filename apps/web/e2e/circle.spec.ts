@@ -182,13 +182,45 @@ test.describe('someone else’s Circle', () => {
   });
 });
 
-// No dead ends: no Circle tab without a follow either way
-test('the tab is hidden with no follows either way', async ({ page }) => {
-  await signInAs(page.context(), 'nina');
-  await page.goto('/u/nina');
-  await expect(
-    page
+/**
+ * Following nobody and followed by nobody, the tab still shows: the page
+ * says so, for the owner (`kit`) and for a visitor.
+ */
+test.describe('a Circle with no follows either way', () => {
+  test('your own: the tab, and how to follow someone', async ({ page }) => {
+    await signInAs(page.context(), 'kit');
+    await page.goto('/u/kit');
+    await page
       .getByRole('navigation', { name: 'Profile' })
-      .getByRole('link', { name: 'Circle' }),
-  ).toHaveCount(0);
+      .getByRole('link', { name: 'Circle' })
+      .click();
+    await page.waitForURL('**/u/kit/circle');
+    await expect(
+      page.getByText('You don’t follow anyone yet', { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText('Follow someone from their profile.', { exact: true }),
+    ).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Follows you' })).toHaveCount(
+      0,
+    );
+  });
+
+  test('someone else’s: the tab, and both lists say they are empty', async ({
+    page,
+  }) => {
+    await signInAs(page.context(), 'alex');
+    await page.goto('/u/kit');
+    await page
+      .getByRole('navigation', { name: 'Profile' })
+      .getByRole('link', { name: 'Circle' })
+      .click();
+    await page.waitForURL('**/u/kit/circle');
+    await expect(
+      page.getByText('kit doesn’t follow anyone yet', { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText('Nobody follows kit yet', { exact: true }),
+    ).toBeVisible();
+  });
 });

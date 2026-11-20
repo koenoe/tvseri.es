@@ -25,7 +25,11 @@ export type ProfileTab = Readonly<{
   segment: ProfileSegment | 'stats';
 }>;
 
-/** The tab bar: Overview · Calendar · Library · History · Circle · Stats */
+/**
+ * The tab bar: Overview · Calendar · Library · History · Circle · Stats, on
+ * every profile, day 0 included (no dead ends: an empty page says how it
+ * fills)
+ */
 export const PROFILE_TABS: ReadonlyArray<ProfileTab> = [
   { glyph: overviewGlyph, label: 'Overview', segment: '' },
   { glyph: calendarDaysGlyph, label: 'Calendar', segment: 'calendar' },
@@ -34,48 +38,6 @@ export const PROFILE_TABS: ReadonlyArray<ProfileTab> = [
   { glyph: usersGlyph, label: 'Circle', segment: 'circle' },
   { glyph: statsGlyph, label: 'Stats', segment: 'stats' },
 ];
-
-/** What the profile owner has; `null` when the read failed (the tab stays) */
-type TabFacts = Readonly<{
-  followers: number | null;
-  following: number | null;
-  /** Any stored episode, undated included (`hasStatsFromEpisodes`) */
-  hasStats: boolean | null;
-}>;
-
-/**
- * The tabs a profile shows, never a link to an empty page (no dead
- * ends): Circle goes while the owner follows nobody and nobody follows
- * them, Stats while they have no episode at all. Calendar always stays:
- * an empty one says how it fills. On day 0 that is
- * Overview · Calendar · Library · History. A count that didn't load keeps
- * its tab.
- */
-export function visibleTabs({
-  followers,
-  following,
-  hasStats,
-}: TabFacts): ReadonlyArray<ProfileTab> {
-  return PROFILE_TABS.filter((tab) => {
-    if (tab.segment === 'circle') {
-      return followers !== 0 || following !== 0;
-    }
-    if (tab.segment === 'stats') {
-      return hasStats !== false;
-    }
-    return true;
-  });
-}
-
-/**
- * Whether Stats has something to show, from the stored episode count (the
- * counts the tab bar reads anyway; regular episodes, undated included): a
- * user with only undated episodes gets a Stats tab that opens on an empty
- * year (rare). `null`: the count is unknown, the tab stays.
- */
-export const hasStatsFromEpisodes = (
-  episodes: number | null,
-): boolean | null => (episodes === null ? null : episodes > 0);
 
 /** How much of the tab before the active one stays in view: about half */
 const LEAD_IN = 0.55;

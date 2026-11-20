@@ -184,7 +184,7 @@ export const PEOPLE = {
     'admin',
   ),
   // Day 0 with only "Seen it" marks (Get started): two finished shows, every
-  // episode undated, so no year has a dated episode (no Stats tab)
+  // episode undated, so no year has a dated episode (Stats is an empty year)
   seenit: person(
     'seenit',
     '2026-11-01T10:00:00.000Z',

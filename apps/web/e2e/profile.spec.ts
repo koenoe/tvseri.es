@@ -463,16 +463,29 @@ test.describe('profile with real-data shapes', () => {
   });
 });
 
-// No dead ends: no Circle without a follow either way, no Stats
-// without a dated episode
-test('day 0 has four tabs: Overview, Calendar, Library, History', async ({
+const SIX_TABS = [
+  'Overview',
+  'Calendar',
+  'Library',
+  'History',
+  'Circle',
+  'Stats',
+];
+
+// Every tab on day 0 too: an empty page says how it fills. Stats opens on
+// the year with nothing logged.
+test('day 0 has all six tabs; Stats opens on an empty year', async ({
   page,
 }) => {
   await signInAs(page.context(), 'nina');
   await page.goto('/u/nina');
+  const tabs = page.getByRole('navigation', { name: 'Profile' });
+  await expect(tabs.getByRole('link')).toHaveText(SIX_TABS);
+  await tabs.getByRole('link', { name: 'Stats' }).click();
+  await page.waitForURL(/\/u\/nina\/stats\/\d{4}$/);
   await expect(
-    page.getByRole('navigation', { name: 'Profile' }).getByRole('link'),
-  ).toHaveText(['Overview', 'Calendar', 'Library', 'History']);
+    page.getByText(/^nina has nothing logged with a date in \d{4}\.$/),
+  ).toBeVisible();
 });
 
 /**
@@ -491,7 +504,7 @@ test('day 0: a broken Get started answer hides the block, never a crash', async 
   await page.goto('/u/nina');
   await expect(
     page.getByRole('navigation', { name: 'Profile' }).getByRole('link'),
-  ).toHaveText(['Overview', 'Calendar', 'Library', 'History']);
+  ).toHaveText(SIX_TABS);
   await page.waitForLoadState('networkidle');
   await expect(page.locator('[data-placeholder]:visible')).toHaveCount(0);
   await expect(page.locator('[data-slot="get-started"]')).toHaveCount(0);

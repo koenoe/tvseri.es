@@ -44,27 +44,24 @@ function useActiveInView(segment: string) {
 
 /**
  * The tab pills; the active one follows the URL (a soft navigation keeps
- * the layout, so only this island re-renders). `segments` are the tabs this
- * profile shows (`visibleTabs`). A tab opens at the top of the page, as every
- * new page does (`NavigationTracker`).
+ * the layout, so only this island re-renders). Every profile shows all six:
+ * an empty page says how it fills. A tab opens at the top of the page, as
+ * every new page does (`NavigationTracker`).
  */
 export default function TabLinks({
-  segments,
   statsHref,
   username,
 }: Readonly<{
-  segments: ReadonlyArray<string>;
   statsHref: string;
   username: string;
 }>) {
   const selected = useSelectedLayoutSegment();
   // The overview is the layout's own page (null, or `__PAGE__` in some versions)
   const segment = !selected || selected.startsWith('__') ? '' : selected;
-  const tabs = PROFILE_TABS.filter((tab) => segments.includes(tab.segment));
   const marker = useActiveInView(segment);
   return (
     <>
-      {tabs.map((tab) => {
+      {PROFILE_TABS.map((tab) => {
         const active = tab.segment === segment;
         const href =
           tab.segment === 'stats'

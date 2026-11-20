@@ -1,4 +1,5 @@
 import { TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb';
+import { KMSClient } from '@aws-sdk/client-kms';
 import { NETFLIX_WATCH_PROVIDER } from '@tvseri.es/constants';
 import { MATCHER_VERSION } from '@tvseri.es/import';
 import type { ConnectionCookie } from '@tvseri.es/schemas';
@@ -2071,6 +2072,51 @@ describe('a sync through any reader', () => {
         readerOf: () => reader,
       }),
     ).toBe('done');
+    const stored = await getConnection(USER_ID, 'netflix');
+    expect(await decryptSecret(USER_ID, 'netflix', stored!.secret)).toBe(
+      secret,
+    );
+  });
+
+  it('asks KMS once a run, however often the service renews the session', async () => {
+    await seedConnection();
+    let secret = JSON.stringify(JAR);
+    let reads = 0;
+    const reader: ServiceReader = {
+      ...fakeReader([], []),
+      open: async () => ({
+        ok: true,
+        session: {
+          readPage: async () => {
+            reads += 1;
+            secret = JSON.stringify([
+              { ...JAR[0]!, value: `renewed-${reads}` },
+            ]);
+            return {
+              ok: true,
+              page: { entries: [], invalid: 0, more: reads < 3 },
+            };
+          },
+          get secret() {
+            return secret;
+          },
+        },
+      }),
+    };
+    await syncNow();
+    const [message] = queued();
+    const send = vi.mocked(KMSClient.prototype.send);
+    send.mockClear();
+    expect(
+      await runSync(message!, () => true, {
+        ...noPause,
+        readerOf: () => reader,
+      }),
+    ).toBe('done');
+    const calls = send.mock.calls.map(([command]) => command.constructor.name);
+    expect(reads).toBe(3);
+    // One unwrap of the stored key; every renewal is sealed with it
+    expect(calls).toEqual(['DecryptCommand']);
     const stored = await getConnection(USER_ID, 'netflix');
     expect(await decryptSecret(USER_ID, 'netflix', stored!.secret)).toBe(
       secret,

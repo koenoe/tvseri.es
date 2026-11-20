@@ -13,7 +13,7 @@ import {
 } from '@tvseri.es/schemas';
 import { chunk, sleep } from '@tvseri.es/utils';
 
-import { decryptSecret, encryptSecret } from '@/lib/connections/crypto';
+import { type OpenedSecret, openSecret } from '@/lib/connections/crypto';
 import {
   type Connection,
   getConnection,
@@ -305,15 +305,18 @@ const onReadFailure = (
     ? strike(run, sync, 'rate-limited', retryAfterSeconds)
     : fail(run, sync, ERROR_OF[reason], step);
 
+type Opened = Readonly<{ secret: OpenedSecret; session: HistorySession }>;
+
+/** The stored secret, opened for this run: the caller closes it (`secret.close`) */
 const open = async (
   run: Run,
   sync: StoredSync,
   connection: Connection,
-): Promise<HistorySession | SyncOutcome> => {
+): Promise<Opened | SyncOutcome> => {
   const { reader, service, userId } = run;
-  let stored: string;
+  let secret: OpenedSecret;
   try {
-    stored = await decryptSecret(userId, service, connection.secret);
+    secret = await openSecret(userId, service, connection.secret);
   } catch (error) {
     console.error(
       `[${reader.label}] could not open the session | User: ${userId}`,
@@ -321,35 +324,34 @@ const open = async (
     );
     return fail(run, sync, 'failed', 'open');
   }
-  const opened = await reader.open(stored, connection.profileId);
+  const opened = await reader.open(secret.plaintext, connection.profileId);
   if (!opened.ok) {
+    secret.close();
     return onReadFailure(run, sync, opened, 'open');
   }
   const { session } = opened;
   if (
-    session.secret !== stored &&
-    !(await keepSecret(run, sync, session.secret))
+    session.secret !== secret.plaintext &&
+    !(await keepSecret(run, sync, secret, session.secret))
   ) {
+    secret.close();
     return 'stale';
   }
-  return session;
+  return { secret, session };
 };
 
 /**
  * A service may renew its cookies on any read (Prime Video on every one) and
  * refuse the old ones next time, so this runs after opening and each page.
+ * Sealed under the run's own data key: no KMS call per page.
  */
-const keepSecret = async (
+const keepSecret = (
   { service, userId }: Run,
   sync: StoredSync,
+  stored: OpenedSecret,
   secret: string,
 ): Promise<boolean> =>
-  saveRenewedSecret(
-    userId,
-    service,
-    sync.runId,
-    await encryptSecret(userId, service, secret),
-  );
+  saveRenewedSecret(userId, service, sync.runId, stored.reseal(secret));
 
 const readHistory = async (
   run: Run,
@@ -359,12 +361,28 @@ const readHistory = async (
   hasTime: () => boolean,
   deps: SyncDeps,
 ): Promise<StoredSync | SyncOutcome | 'continue'> => {
+  const opened = await open(run, start, connection);
+  if (isOutcome(opened)) {
+    return opened;
+  }
+  try {
+    return await readPages(run, opened, start, match, hasTime, deps);
+  } finally {
+    // The data key lives only as long as the run
+    opened.secret.close();
+  }
+};
+
+const readPages = async (
+  run: Run,
+  { secret, session }: Opened,
+  start: StoredSync,
+  match: Match,
+  hasTime: () => boolean,
+  deps: SyncDeps,
+): Promise<StoredSync | SyncOutcome | 'continue'> => {
   const { reader, service, userId } = run;
   let sync = start;
-  const session = await open(run, sync, connection);
-  if (isOutcome(session)) {
-    return session;
-  }
   let kept = session.secret;
   while (hasTime()) {
     const read = await session.readPage(sync.page, {
@@ -372,7 +390,7 @@ const readHistory = async (
       hasTime,
     });
     if (session.secret !== kept) {
-      if (!(await keepSecret(run, sync, session.secret))) {
+      if (!(await keepSecret(run, sync, secret, session.secret))) {
         return 'stale';
       }
       kept = session.secret;

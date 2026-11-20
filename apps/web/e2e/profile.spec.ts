@@ -44,6 +44,13 @@ test.describe('profile signed out', () => {
     ).toHaveAttribute('href', /\/u\/alex\/stats\/\d{4}$/);
   });
 
+  test('a tab is the same 401: the calendar too', async ({ page }) => {
+    await page.goto('/u/juno/calendar');
+    await expect(
+      page.getByRole('heading', { name: /Sign in to see @juno’s profile/ }),
+    ).toBeVisible();
+  });
+
   // No dead ends: someone without stats has no stats page to link to
   test('offers no stats link when there are no stats to show', async ({
     page,

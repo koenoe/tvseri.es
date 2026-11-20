@@ -468,6 +468,24 @@ describe('Paused', () => {
     expect(buildPaused([keptThenWatched], NOW)).toHaveLength(1);
   });
 
+  it('counts the 3 months from a new season, not from the last watch before it', () => {
+    // Season 1 finished long ago; season 2 came out 10 days ago
+    const newSeason = (premiere: string) =>
+      state({
+        facts: facts({
+          lastEpisodeToAir: ep(2, 2, day(-3)),
+          seasons: [
+            { airDate: '2020-01-01', episodeCount: 8, seasonNumber: 1 },
+            { airDate: premiere, episodeCount: 8, seasonNumber: 2 },
+          ],
+        }),
+        watched: watched(range(1, 1, 8), NOW - 200 * 86_400_000),
+      });
+
+    expect(buildPaused([newSeason(day(-10))], NOW)).toEqual([]);
+    expect(buildPaused([newSeason(day(-120))], NOW)).toHaveLength(1);
+  });
+
   it('ignores undated watches for the last date', () => {
     const undated = stale({
       watched: [

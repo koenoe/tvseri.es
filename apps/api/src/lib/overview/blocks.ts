@@ -385,6 +385,26 @@ export const buildComingUp = (
   return tickets.sort((a, b) => a.date.localeCompare(b.date));
 };
 
+/**
+ * When the show last had your attention: the last watch, or a season that
+ * came out after it (finishing a season and waiting for the next is not
+ * pausing). A season's premiere date is in the facts; a later episode's
+ * isn't, so mid-season the last watch counts.
+ */
+const activeSinceOf = (state: ShowState, lastWatchedAt: number) => {
+  const next = state.nextUp;
+  if (!next) return lastWatchedAt;
+  const nextAt = { episodeNumber: next.episode, seasonNumber: next.season };
+  if (!isSeasonPremiere(nextAt, state.facts.seasons)) return lastWatchedAt;
+  const season = state.facts.seasons.find(
+    (candidate) => candidate.seasonNumber === next.season,
+  );
+  const premiere = season?.airDate ? Date.parse(season.airDate) : Number.NaN;
+  return Number.isNaN(premiere)
+    ? lastWatchedAt
+    : Math.max(lastWatchedAt, premiere);
+};
+
 export const buildPaused = (
   states: ReadonlyArray<ShowState>,
   now: number,
@@ -392,7 +412,8 @@ export const buildPaused = (
   states
     .filter((state) => {
       if (state.lastWatchedAt === null || !state.lastWatched) return false;
-      if (now - state.lastWatchedAt <= PAUSED_AFTER) return false;
+      const activeSince = activeSinceOf(state, state.lastWatchedAt);
+      if (now - activeSince <= PAUSED_AFTER) return false;
       if (state.paused === 'hide') return false;
       // Keep asks again only once the show was watched after Keep and went stale again
       return (

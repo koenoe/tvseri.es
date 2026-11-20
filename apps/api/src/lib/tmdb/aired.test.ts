@@ -1,5 +1,5 @@
 import type { TmdbTvSeries } from '@tvseri.es/schemas';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { normalizeTvSeries } from './helpers';
 
@@ -42,9 +42,17 @@ const show = (overrides: Record<string, unknown>) =>
   }) as unknown as TmdbTvSeries;
 
 // What the watched stream and the nightly job finish a show by
-describe('normalizeTvSeries: the aired count of an ended show', () => {
+// Every fixture is dated against this day; the real clock would let a next
+// episode turn aired as the calendar passes it
+beforeEach(() => {
   vi.useFakeTimers({ now: Date.parse('2026-11-13'), toFake: ['Date'] });
+});
 
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+describe('normalizeTvSeries: the aired count of an ended show', () => {
   it('counts every regular episode when TMDB’s last aired episode is right', () => {
     const series = normalizeTvSeries(
       show({ last_episode_to_air: episode(3, 12, '2016-07-21') }),

@@ -23,6 +23,11 @@ const customDomain = isProduction ? 'www.tvseri.es' : `www.${domain}`;
 const siteUrl = `https://${customDomain}`;
 const projectName = isProduction ? 'tvseries' : `tvseries-${$app.stage}`;
 
+// Pinned: an unpinned `npx vercel` takes whatever was released that day, and
+// 66.6.0 deployed a preview whose functions ran without the project's
+// environment variables. Raise it on purpose, after a preview deploy works.
+const VERCEL_CLI = 'vercel@66.5.0';
+
 function runVercel(
   command: string,
   projectId: string,
@@ -32,7 +37,7 @@ function runVercel(
 
   // The token goes through the environment, never the command line, because a
   // failed execSync puts the full command in the error and the CI log.
-  return execSync(`npx vercel ${command}${scopeFlag}`, {
+  return execSync(`npx --yes ${VERCEL_CLI} ${command}${scopeFlag}`, {
     cwd: process.cwd(),
     encoding: 'utf-8',
     env: {

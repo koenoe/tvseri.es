@@ -2,6 +2,7 @@
 
 import { useCallback } from 'react';
 
+import { HIT_Y } from '@/components/ui/button/hitArea';
 import { Dialog } from '@/components/ui/dialog/Dialog';
 import { calendarGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
@@ -11,12 +12,15 @@ import JumpList from './JumpList';
 
 type Week = Readonly<{ episodes: number; last: string | null }>;
 
-/** The phone month header's Jump (30px) */
+/** The phone month header's Jump: 30px, 44px to the thumb */
+const JUMP = `${HIT_Y[7]} relative inline-flex h-[30px] items-center gap-1.5 rounded-full bg-white/6 pr-3 pl-2.5 text-meta font-medium text-white/80 transition-[scale] duration-150 ease-out active:scale-96`;
+
+/** The phone month header's Jump */
 export function JumpButton({ onOpen }: Readonly<{ onOpen: () => void }>) {
   return (
     <button
       aria-haspopup="dialog"
-      className="inline-flex h-[30px] items-center gap-1.5 rounded-full bg-white/6 px-3 text-meta font-medium text-white/80"
+      className={JUMP}
       onClick={onOpen}
       type="button"
     >

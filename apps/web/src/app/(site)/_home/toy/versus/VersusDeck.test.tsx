@@ -5,6 +5,7 @@ import type { VersusPair, VersusSide } from '@tvseri.es/schemas';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { forgetViewer } from '@/components/menu/displayCookie';
+import MotionProvider from '@/components/motion/MotionProvider';
 import { SIGNED_IN_ONLY, SIGNED_OUT_ONLY } from '@/components/ui/viewer/reveal';
 import { SIGN_IN_MESSAGE } from '@/lib/marking/copy';
 import MarkingProvider from '@/lib/marking/MarkingProvider';
@@ -223,5 +224,30 @@ describe('Versus: tap the one you would start', () => {
       ).toBe('On watchlist'),
     );
     expect(poster('Dark').getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('“Another pair”: the pair before’s names and rows leave out of reach as the next pair’s arrive', () => {
+    render(
+      <MotionProvider>
+        <MarkingProvider>
+          <VersusDeck pairs={PAIRS} />
+        </MarkingProvider>
+      </MotionProvider>,
+    );
+    const another = screen.getByRole('button', { name: 'Another pair' });
+    fireEvent.pointerEnter(another);
+    fireEvent.click(another);
+
+    // the posters' names: the shown pair's only, to the eye and to the ear
+    expect(poster('Silo')).toBeTruthy();
+    expect(poster('Severance')).toBeTruthy();
+    // the rows: the old table fades where it stood, inert
+    const old = screen.getByRole('table', {
+      hidden: true,
+      name: 'Dark and Devs',
+    });
+    expect(old.closest('[inert]')).not.toBe(null);
+    const next = screen.getByRole('table', { name: 'Silo and Severance' });
+    expect(next.closest('[inert]')).toBe(null);
   });
 });

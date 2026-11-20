@@ -10,16 +10,25 @@ export const APP_TOGGLE_CLASS =
 /**
  * The live toggle's reach: its press covers the whole header row
  * (`AppHeader` is its containing block), still one button for a keyboard
- * or a screen reader. Never on the placeholder's toggle face
+ * or a screen reader. Never on the placeholder's toggle face. No press
+ * scale (`none`, not 1: any scale makes the button the reach's containing
+ * block, shrinking it under the pointer mid-press, so the release misses).
  */
-export const APP_TOGGLE_REACH_CLASS = 'after:absolute after:inset-0';
+export const APP_TOGGLE_REACH_CLASS =
+  'after:absolute after:inset-0 active:scale-none';
+
+/**
+ * A stack spaced as the open card's body spaces its parts: a body stage
+ * that swaps in (`ServicePanel`), the live activity's panel and list
+ */
+export const BODY_STACK_CLASS = 'flex flex-col gap-4';
 
 /** The open card's body (`AppBody`) */
-export const APP_BODY_CLASS = 'flex flex-col gap-4 px-6 pb-6';
+export const APP_BODY_CLASS = `${BODY_STACK_CLASS} px-6 pb-6`;
 
-/** The webhook URL's field (`UrlField`) */
+/** The webhook URL's field (`UrlField`): a pill around its 32px pills (16 + 8) */
 export const URL_FIELD_CLASS =
-  'flex h-12 items-center gap-2 rounded-12 bg-black/32 pr-2 pl-4 text-body-sm text-white/60';
+  'flex h-12 items-center gap-2 rounded-full bg-black/32 pr-2 pl-4 text-body-sm text-white/60';
 
 /** A field's ring on a neutral card (the URL, the link code) */
 export const FIELD_RING_CLASS =
@@ -32,7 +41,8 @@ export const OPTION_ROW_CLASS =
 export const OPTION_TEXT_CLASS =
   'flex min-w-0 flex-1 flex-col gap-2 max-md:basis-[calc(100%-64px)]';
 export const OPTION_TITLE_CLASS = 'text-body-sm font-semibold';
-export const OPTION_LINE_CLASS = 'text-meta text-white/60';
+export const OPTION_LINE_CLASS =
+  'text-meta text-pretty text-white/60 tabular-nums';
 /** The pause switch's box (`Switch`) */
 export const SWITCH_BOX_CLASS = 'relative h-6.5 w-11 shrink-0 rounded-full';
 export const SEGMENTED_CLASS =
@@ -61,10 +71,19 @@ export const WEEK_BAR_MAX = { desktop: 56, phone: 40 } as const;
 
 /**
  * The seven days' row (`WeekBars`): bottom right of the card; on a phone,
- * under the meta row and spread across the card's width
+ * under the meta row and spread across the card's width. There it is a
+ * size container, so a day can reach half the gap to its neighbour.
  */
 export const WEEK_CLASS =
-  'flex shrink-0 items-end max-md:w-full max-md:justify-between';
+  'flex shrink-0 items-end max-md:w-full max-md:justify-between max-md:[container-type:inline-size]';
+
+/**
+ * A phone's day target, reaching half the gap each side: the row's width
+ * less seven 28px days, over six gaps, halved. Neighbours touch and never
+ * overlap at any width (the gaps run from a few px to about 11 at 375).
+ */
+export const WEEK_DAY_REACH_CLASS =
+  'max-md:after:absolute max-md:after:inset-y-0 max-md:after:-inset-x-[calc((100cqw-196px)/12)]';
 
 /**
  * One day: the bar's column plus its letter. The button is the column's

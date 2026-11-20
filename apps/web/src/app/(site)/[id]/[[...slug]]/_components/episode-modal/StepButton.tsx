@@ -7,6 +7,15 @@ import {
   chevronLeftGlyph,
   chevronRightGlyph,
 } from '@/components/ui/icon/glyphs';
+import cn from '@/lib/cn';
+
+/**
+ * 40px on a phone (the eye's size, 20px chevrons), 44 to the thumb: the
+ * `::after` starts inside the 2px ring, so 4px reach is 2px past it, 2 of
+ * the 6px gap between the two.
+ */
+const STEP =
+  'max-sm:size-10 max-sm:[&>svg]:size-5 max-sm:after:absolute max-sm:after:-inset-1 max-sm:after:rounded-full';
 
 const PREVIOUS = { icon: chevronLeftGlyph, label: 'Previous episode' };
 const NEXT = { icon: chevronRightGlyph, label: 'Next episode' };
@@ -30,7 +39,7 @@ function StepButton({
       onStep(direction);
     }
   }, [direction, enabled, onStep]);
-  const className = enabled ? undefined : 'pointer-events-none';
+  const className = cn(STEP, !enabled && 'pointer-events-none');
   const tabIndex = enabled ? 0 : -1;
   const disabled = !enabled;
   return (

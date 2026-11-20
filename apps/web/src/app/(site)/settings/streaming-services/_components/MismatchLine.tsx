@@ -1,9 +1,16 @@
+import { HIT_ALL } from '@/components/ui/button/hitArea';
 import { globeGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
 import Flag from './Flag';
 
 type Place = Readonly<{ code: string; name: string }>;
+
+/**
+ * A 24px text button reaching 44px to the pointer: 10px round it, inside
+ * the strip's 12px padding; the only other thing in the strip is text
+ */
+const USE_BUTTON = `relative cursor-pointer text-body-sm font-medium text-cyan hover:underline md:ml-auto ${HIT_ALL[10]}`;
 
 function Named({ code, name }: Place) {
   return (
@@ -28,18 +35,14 @@ export default function MismatchLine({
   onUseDetected: () => void;
 }>) {
   return (
-    <div className="-mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-b-18 bg-white/2.5 px-6 py-3 text-meta text-white/60">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-b-18 bg-white/2.5 px-6 py-3 text-meta text-white/60">
       <Icon className="size-3.5" glyph={globeGlyph} size={16} />
       <span className="inline-flex flex-wrap items-center gap-1.5">
         Detected: <Named {...detected} />
         <i className="mx-1 not-italic">·</i>
         You chose: <Named {...chosen} />
       </span>
-      <button
-        className="cursor-pointer text-body-sm font-medium text-cyan hover:underline md:ml-auto"
-        onClick={onUseDetected}
-        type="button"
-      >
+      <button className={USE_BUTTON} onClick={onUseDetected} type="button">
         {`Use ${detected.name}`}
       </button>
     </div>

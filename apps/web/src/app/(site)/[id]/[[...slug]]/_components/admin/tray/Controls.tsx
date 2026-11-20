@@ -1,11 +1,18 @@
 import { memo } from 'react';
 
+import FillRing from '@/components/motion/FillRing';
 import { undoGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
 import type { Status } from '../picker';
-import Ring from './Ring';
-import { quietButton, statusChip, trayButton } from './styles';
+import {
+  quietButton,
+  RING_INK_DARK,
+  RING_STROKE,
+  RING_TRACK_DARK,
+  statusChip,
+  trayButton,
+} from './styles';
 
 /** Automatic, Your pick · saved, Unsaved, Saving… */
 export const StatusChip = memo(function StatusChip({
@@ -43,7 +50,14 @@ export const SaveButton = memo(function SaveButton({
       onClick={onSave}
       type="button"
     >
-      {busy ? <Ring tone="dark" /> : null}
+      {busy ? (
+        <FillRing
+          className={RING_STROKE}
+          ink={RING_INK_DARK}
+          size={18}
+          track={RING_TRACK_DARK}
+        />
+      ) : null}
       <span>{busy ? 'Saving…' : 'Save for everyone'}</span>
     </button>
   );

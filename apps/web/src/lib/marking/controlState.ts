@@ -5,7 +5,12 @@ import type {
 } from '@tvseri.es/schemas';
 
 import { librarySets } from './librarySets';
-import { nextEpisode, seasonCountsOf, seriesProgress } from './progress';
+import {
+  isStillComing,
+  nextEpisode,
+  seasonCountsOf,
+  seriesProgress,
+} from './progress';
 import type { SeriesBase } from './types';
 
 /*
@@ -108,13 +113,6 @@ function membershipIn(ids: LibraryIds, seriesId: number): Membership {
   return sets.watchlist.has(seriesId) ? 'watchlist' : 'new';
 }
 
-/** Announced episodes still to air in a regular season */
-const stillComing = (view: SeriesBase) =>
-  view.seasons.some(
-    (season) =>
-      season.seasonNumber > 0 && season.episodeCount > season.airedEpisodeCount,
-  );
-
 /** The state a seeded show's marks give (the store's view) */
 function stateOfView(view: SeriesBase, streamed: ControlState): ControlState {
   const progress = seriesProgress(view);
@@ -142,7 +140,7 @@ function stateOfView(view: SeriesBase, streamed: ControlState): ControlState {
   if (streamed.kind === 'up-to-date') {
     return streamed;
   }
-  return stillComing(view)
+  return isStillComing(view)
     ? { kind: 'up-to-date', nextAirDate: null, onWatchlist }
     : { kind: 'finished', onWatchlist };
 }

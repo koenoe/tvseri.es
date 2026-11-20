@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import type { MouseEventHandler } from 'react';
 
 import { PICTURE_LAYER } from '@/components/ui/picture/pictureSurface';
 import TileLink from '@/components/ui/tile/TileLink';
@@ -25,6 +26,8 @@ export default function UpNextArt({
   href,
   label,
   loading,
+  onClick,
+  onIntent,
 }: Readonly<{
   backdrop?: string;
   /** A tone on the picture (the borrowed pick is dimmed) */
@@ -32,6 +35,8 @@ export default function UpNextArt({
   href: string;
   label: string;
   loading?: 'eager' | 'lazy';
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+  onIntent?: () => void;
 }>) {
   const backdropClass = cn(
     'object-cover object-[62%_top] md:object-top',
@@ -40,12 +45,15 @@ export default function UpNextArt({
   return (
     <TileLink
       aria-label={label}
+      backdrop={backdrop}
       className="absolute inset-0 rounded-12 focus-visible:-outline-offset-2"
       href={href}
+      onClick={onClick}
+      onIntent={onIntent}
     >
       {/* the backdrop and its shades: one layer, clipped once by the
-          card's corners */}
-      <span aria-hidden="true" className={PICTURE_LAYER}>
+          card's corners; the art a card hands over to the show page */}
+      <span aria-hidden="true" className={PICTURE_LAYER} data-show-morph="art">
         {backdrop ? (
           <Image
             alt=""

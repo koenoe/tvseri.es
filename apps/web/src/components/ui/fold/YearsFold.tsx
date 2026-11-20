@@ -9,6 +9,7 @@ import {
   useState,
 } from 'react';
 
+import { HIT_Y } from '@/components/ui/button/hitArea';
 import { visibleYears } from '@/lib/fold';
 
 import ExpandButton, { type ExpandLayout } from './ExpandButton';
@@ -21,8 +22,8 @@ const NEWEST = 5;
  * rows' edges so its hover fill lines up with theirs
  */
 const SHOW_ALL: ExpandLayout = {
-  button:
-    'mt-0.5 flex h-9 cursor-pointer items-center justify-center gap-1 rounded-10 px-3 font-medium text-body-sm text-white/60 whitespace-nowrap transition-colors hover:bg-white/5 hover:text-white',
+  // 36px, 40 to the pointer: up to the row 2px above
+  button: `${HIT_Y[2]} relative mt-0.5 flex h-9 cursor-pointer items-center justify-center gap-1 rounded-10 px-3 font-medium text-body-sm text-white/60 whitespace-nowrap transition-colors hover:bg-white/5 hover:text-white`,
   chevron: 13,
 };
 

@@ -17,7 +17,8 @@ let lastYear: number | null = null;
  * The year, its sentence, the week lines and the six numbers. When this
  * block arrives from another year's page, its week lines grow from the
  * baseline (`weekGrow.module.css`: from 0 with an 8ms stagger); the numbers cross-fade through the view
- * transition around it (StatsBody).
+ * transition around it (StatsBody). Share lifts it into the card
+ * (`data-share-source`, `liftIntoCard`).
  */
 export default function YearGlance({
   children,
@@ -32,7 +33,7 @@ export default function YearGlance({
   }, [year]);
   const className = cn('flex flex-col md:gap-6', grow && styles.grow);
   return (
-    <section aria-label={label} className={className}>
+    <section aria-label={label} className={className} data-share-source="">
       {children}
     </section>
   );

@@ -4,6 +4,8 @@ import type { LabelSide } from './labelSide';
 export type MapPlace = Readonly<{
   /** Which side of the pin its label takes on a phone and from md (`labelSides`) */
   label: Readonly<{ phone: LabelSide; wide: LabelSide }>;
+  /** Whether the pin has room for a 44px touch target on a phone and from md (`roomyPins`) */
+  roomy: Readonly<{ phone: boolean; wide: boolean }>;
   /** The pin's position over the map, in % of its width and height */
   left: string;
   name: string;

@@ -15,11 +15,14 @@ export default function CheckBanner({
   line,
   name,
   onToggle,
+  panelId,
 }: Readonly<{
   edit: boolean;
   line: string;
   name: string;
   onToggle: () => void;
+  /** The Columns panel's id: pointed at only while it is there */
+  panelId: string;
 }>) {
   return (
     <div className="grid grid-cols-[22px_minmax(0,1fr)] items-start gap-x-4 gap-y-3 rounded-16 bg-white/5 px-6 py-4 text-white/80 md:grid-cols-[22px_minmax(0,1fr)_auto] md:items-center">
@@ -33,6 +36,7 @@ export default function CheckBanner({
         <span className="text-meta leading-5">{line}</span>
       </span>
       <Button
+        aria-controls={edit ? panelId : undefined}
         aria-expanded={edit}
         className={EDIT_BUTTON}
         icon={columnsGlyph}

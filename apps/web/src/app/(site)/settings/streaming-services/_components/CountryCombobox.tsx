@@ -13,6 +13,7 @@ import {
 } from 'react';
 import { checkGlyph, searchGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import { focusOnMountInPlace } from '@/lib/a11y/focusOnMount';
 import cn from '@/lib/cn';
 import { moveSelection } from '@/lib/grid/moveSelection';
 
@@ -35,7 +36,7 @@ const reveal = (node: HTMLElement | null) => {
 };
 
 type Props = Readonly<{
-  /** Id of the listbox, for the Change button's `aria-controls`. */
+  /** Id of the dialog, for the Change button's `aria-controls`. */
   id: string;
   onClose: () => void;
   /** The country picked and its flag, so the card can draw it. */
@@ -62,6 +63,9 @@ export default function CountryCombobox({
   // Opens at the top of the list; the saved country
   // carries the check.
   const [cursor, setCursor] = useState(0);
+  // Only a keyboard move reveals the active option: on opening it is the
+  // first row, and revealing it would scroll the still-folded list
+  const [moved, setMoved] = useState(false);
   const active = matches[Math.min(cursor, matches.length - 1)];
 
   const pick = useCallback(
@@ -84,6 +88,7 @@ export default function CountryCombobox({
     ) {
       event.preventDefault();
       const blocks = [{ columns: 1, size: matches.length }];
+      setMoved(true);
       setCursor((current) => moveSelection(blocks, current, key));
     } else if (event.key === 'Enter') {
       event.preventDefault();
@@ -100,7 +105,7 @@ export default function CountryCombobox({
   return (
     <div
       aria-label="Choose your country"
-      className="-mt-4 flex flex-col gap-3 rounded-16 bg-[#141a1b] p-4 shadow-[0_20px_40px_-16px_rgb(0_0_0/0.7),inset_0_0_0_1px_rgb(255_255_255/0.1)]"
+      className="flex flex-col gap-3 rounded-16 bg-[#141a1b] p-4 shadow-[0_20px_40px_-16px_rgb(0_0_0/0.7),inset_0_0_0_1px_rgb(255_255_255/0.1)]"
       id={id}
       role="dialog"
     >
@@ -113,12 +118,13 @@ export default function CountryCombobox({
           aria-expanded="true"
           aria-label="Search countries"
           autoComplete="off"
-          // The list is the whole point of opening it.
-          autoFocus
           className={INPUT_CLASS}
           onChange={onQuery}
           onKeyDown={onKeyDown}
           placeholder={SEARCH_PLACEHOLDER}
+          // The list is the whole point of opening it; it is still folding
+          // open, so without a scroll
+          ref={focusOnMountInPlace}
           role="combobox"
           spellCheck={false}
           type="text"
@@ -143,6 +149,7 @@ export default function CountryCombobox({
               isSelected={isSelected}
               key={country.code}
               onPick={pick}
+              reveals={moved}
             />
           );
         })}
@@ -162,12 +169,15 @@ const CountryOption = memo(function CountryOption({
   isActive,
   isSelected,
   onPick,
+  reveals,
 }: Readonly<{
   country: Country;
   id: string;
   isActive: boolean;
   isSelected: boolean;
   onPick: (country: Country) => void;
+  /** The keyboard has moved the active option: keep it in view */
+  reveals: boolean;
 }>) {
   const handleClick = useCallback(() => onPick(country), [country, onPick]);
   const classes = cn(
@@ -177,6 +187,7 @@ const CountryOption = memo(function CountryOption({
     // (10%) it needs a step more to stay visible.
     isActive && (isSelected ? 'bg-white/14' : 'bg-white/7'),
   );
+  const revealRef = isActive && reveals ? reveal : undefined;
   // `onMouseDown` keeps focus in the filter input, as a click would otherwise
   // move it to the option.
   return (
@@ -186,7 +197,7 @@ const CountryOption = memo(function CountryOption({
       id={id}
       onClick={handleClick}
       onMouseDown={keepFocus}
-      ref={isActive ? reveal : undefined}
+      ref={revealRef}
       role="option"
     >
       <Flag className="h-4 w-6" code={country.code} lazy />

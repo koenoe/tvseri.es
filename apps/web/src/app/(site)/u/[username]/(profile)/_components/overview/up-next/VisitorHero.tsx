@@ -10,7 +10,8 @@ import { visitorFacts } from './heroCopy';
 /**
  * Watching now: the same card, but the facts line says what the show is
  * ("4 seasons · Ended · 36h"), a green tag when the show is new to you, and
- * the ⋯ is a + to your own watchlist.
+ * the ⋯ is a + to your own watchlist. It opens the show as your own does,
+ * handing its art and logo over.
  */
 export default function VisitorHero({
   isNew,
@@ -44,6 +45,7 @@ export default function VisitorHero({
       href={href}
       item={item}
       loading="eager"
+      morph
       now={now}
       tag={tag}
     />

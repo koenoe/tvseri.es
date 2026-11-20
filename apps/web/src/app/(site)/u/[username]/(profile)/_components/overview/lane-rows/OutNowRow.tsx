@@ -88,7 +88,6 @@ export default function OutNowRow({
   const href = showPath(item.seriesId, item.slug);
   return (
     <LaneRow
-      as="li"
       code={code}
       end={controls}
       facts={facts}

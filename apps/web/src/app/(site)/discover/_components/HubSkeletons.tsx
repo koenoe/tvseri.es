@@ -2,6 +2,7 @@ import { GHOST_FILL, GhostLine } from '@/components/ui/row/RowGhosts';
 import cn from '@/lib/cn';
 
 import { GENRE_TILES } from '../_data/hubTiles';
+import { GO_DEEPER_CARD } from './GoDeeperCard';
 
 /**
  * Blocks that hold a section's exact space while it streams (no layout
@@ -75,6 +76,8 @@ const ACTION_GHOST = cn(
   GHOST_FILL,
 );
 
+const GHOST_CARD = cn('h-full', GO_DEEPER_CARD);
+
 /**
  * A Go deeper card while it loads (`GoDeeperCard`): its frame, the from and
  * to lines (desktop: the left column with its arrow), three posters with
@@ -83,7 +86,7 @@ const ACTION_GHOST = cn(
  */
 export function GoDeeperCardGhost() {
   return (
-    <span className="flex h-full flex-col gap-3.5 rounded-16 bg-black/22 p-4 xl:grid xl:grid-cols-[290px_minmax(0,1fr)] xl:gap-8 xl:p-6">
+    <span className={GHOST_CARD}>
       <span className="flex items-end justify-between gap-3 xl:hidden">
         <span className="flex w-1/2 flex-col gap-1.5">
           <GhostLine className="h-5" inPulse look="loading" width="w-2/3" />

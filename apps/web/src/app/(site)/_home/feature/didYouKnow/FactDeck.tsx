@@ -2,6 +2,7 @@
 
 import { type ReactNode, useState } from 'react';
 
+import { TEXT_ARRIVAL_GROUP } from '@/components/motion/textArrival';
 import Button from '@/components/ui/button/Button';
 import { infoGlyph, shuffleGlyph } from '@/components/ui/icon/glyphs';
 import cn from '@/lib/cn';
@@ -14,14 +15,17 @@ import {
   DECK_CONTROLS,
   DECK_LABEL,
   DECK_LABEL_ID,
-  PIP,
+  PIP_FILL,
+  PIP_OFF,
+  PIP_STEP,
   PIPS,
 } from './layout';
 
 /**
  * Did you know's deck, its label top left: the
- * facts stacked in one place, one shown, cross-fading (opacity, 0.5s) to the next on "Another";
- * the pips say which. Hidden facts are inert (out of the tab order). The
+ * facts stacked in one place, one shown, cross-fading (opacity, 0.5s) to the next on "Another",
+ * its text rising in just behind the picture, as the favourites accordion's does;
+ * the pips say which, the fill gliding to the next. Hidden facts are inert (out of the tab order). The
  * slides are rendered on the server; this island only holds the index.
  */
 export default function FactDeck({
@@ -40,6 +44,7 @@ export default function FactDeck({
     setShown(index);
     setAnnounced(sentences[index] ?? '');
   };
+  const fillAt = { translate: `${shown * PIP_STEP}rem` };
   return (
     <section aria-labelledby={DECK_LABEL_ID} className={DECK}>
       <MomentLabel
@@ -56,12 +61,21 @@ export default function FactDeck({
       {slides.map((slide, index) => {
         const on = index === shown;
         const off = !on;
+        // `data-shown`: the slide's text arrives behind the picture
+        // (`TEXT_ARRIVAL`)
         const layer = cn(
+          TEXT_ARRIVAL_GROUP,
           '[grid-area:1/1] transition-opacity duration-500 ease-[ease]',
           on ? 'opacity-100' : 'opacity-0',
         );
         return (
-          <div aria-hidden={off} className={layer} inert={off} key={index}>
+          <div
+            aria-hidden={off}
+            className={layer}
+            data-shown={on}
+            inert={off}
+            key={index}
+          >
             {slide}
           </div>
         );
@@ -69,14 +83,10 @@ export default function FactDeck({
       {slides.length > 1 ? (
         <div className={DECK_CONTROLS}>
           <span aria-hidden className={PIPS}>
-            {slides.map((_, index) => {
-              const pip = cn(
-                PIP,
-                'transition-opacity duration-500',
-                index === shown ? 'opacity-100' : 'opacity-35',
-              );
-              return <i className={pip} key={index} />;
-            })}
+            {slides.map((_, index) => (
+              <i className={PIP_OFF} key={index} />
+            ))}
+            <i className={PIP_FILL} data-pip-fill="" style={fillAt} />
           </span>
           <Button icon={shuffleGlyph} onClick={next}>
             {ANOTHER_LABEL}

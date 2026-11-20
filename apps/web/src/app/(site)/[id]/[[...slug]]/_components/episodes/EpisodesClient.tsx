@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 
 import { useSeriesView } from '@/lib/marking/hooks';
+import useCulmination from '@/lib/marking/useCulmination';
 import type { ShowSeasonEpisodes } from '@/lib/series/seasonEpisodes';
 import useSeasonEpisodes, { primeSeason } from '@/lib/series/useSeasonEpisodes';
 import { useShow } from '../../_lib/ShowProvider';
@@ -41,9 +42,12 @@ function LiveEpisodes({ defaultSeason, initial, personal, seriesId }: Props) {
   // the reason) until a retry seeds the real state.
   const locked = seeded?.unavailable === true;
   const personalNow = personal && !locked;
+  // the viewer's own mark completed the season on screen
+  const completed = useCulmination(seriesId, selected);
   return (
     <ViewerLocked value={locked}>
       <EpisodesView
+        completed={completed}
         personal={personalNow}
         season={isInitial ? initial : fetched}
         seasonNumber={selected}

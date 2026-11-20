@@ -28,7 +28,7 @@ export const REMOTE_HEAD = 'flex min-h-9 items-center gap-2.5';
 export const REMOTE_LABEL = 'mr-auto';
 
 export const SCREEN =
-  'relative h-[300px] overflow-hidden rounded-16 bg-[#0c0e0f] md:h-[380px] lg:h-auto';
+  'image-rim relative h-[300px] overflow-hidden rounded-16 bg-[#0c0e0f] md:h-[380px] lg:h-auto';
 
 /** "CH 01" top left, the service top right, on one centre line */
 export const CAPTION_TOP =
@@ -78,9 +78,17 @@ export const CHANNELS = 'flex min-h-0 min-w-0 flex-col gap-1.5 lg:flex-1';
 
 /** One channel: number, the service's mark, service and show (48px; beside the screen a share of its height) */
 export const CHANNEL =
-  'grid h-12 cursor-pointer lg:h-auto lg:min-h-12 lg:flex-1 grid-cols-[30px_28px_minmax(0,1fr)] items-center gap-3.5 rounded-10 px-4 text-left transition-colors duration-200 hover:bg-white/6';
+  'relative isolate grid h-12 cursor-pointer lg:h-auto lg:min-h-12 lg:flex-1 grid-cols-[30px_28px_minmax(0,1fr)] items-center gap-3.5 rounded-10 px-4 text-left transition-colors duration-200 hover:bg-white/6';
 
-export const CHANNEL_ON = 'bg-white/12 hover:bg-white/12';
+/** The channel on: its highlight (`CHANNEL_PILL`) is the row's fill, so no hover fill */
+export const CHANNEL_ON = 'hover:bg-transparent';
+
+/**
+ * The channel on's highlight, under its words: it glides to the next
+ * channel (`usePillGlide`)
+ */
+export const CHANNEL_PILL =
+  'absolute inset-0 -z-1 rounded-[inherit] bg-white/12';
 
 /** "01" … "06": the channel numbers on the remote */
 export const channelNumber = (index: number) =>

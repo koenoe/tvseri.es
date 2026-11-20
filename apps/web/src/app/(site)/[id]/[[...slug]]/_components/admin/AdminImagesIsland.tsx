@@ -1,6 +1,7 @@
 'use client';
 
 import type { TvSeries } from '@tvseri.es/schemas';
+import { AnimatePresence } from 'motion/react';
 import { useCallback, useEffect, useMemo, useReducer } from 'react';
 
 import { useBackground } from '@/components/background/BackgroundProvider';
@@ -107,7 +108,12 @@ export default function AdminImagesIsland({ series }: Props) {
   }, []);
 
   const Tray = tray.get();
-  return open && Tray ? (
-    <Tray onClose={close} preview={preview} served={served} />
-  ) : null;
+  // the tray leaves with its own exit (Tray.tsx)
+  return (
+    <AnimatePresence>
+      {open && Tray ? (
+        <Tray key="tray" onClose={close} preview={preview} served={served} />
+      ) : null}
+    </AnimatePresence>
+  );
 }

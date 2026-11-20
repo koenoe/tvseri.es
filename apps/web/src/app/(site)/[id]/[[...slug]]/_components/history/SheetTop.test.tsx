@@ -105,6 +105,19 @@ describe('a fresh sheet', () => {
     expect(container.textContent).not.toContain('legend ?');
     expect(container.textContent).not.toContain(': null');
   });
+
+  it('points both legend toggles at the legend while it is open', () => {
+    mount(createSheetUi());
+    const [desktop, phone] = screen.getAllByRole('button', { name: 'Legend' });
+    expect(desktop!.hasAttribute('aria-controls')).toBe(false);
+    fireEvent.click(desktop!);
+    for (const toggle of [desktop!, phone!]) {
+      const legend = document.getElementById(
+        toggle.getAttribute('aria-controls') ?? '',
+      );
+      expect(legend?.textContent).toContain('Not watched');
+    }
+  });
 });
 
 const seasons = [0, 1, 2].map((seasonNumber) => ({

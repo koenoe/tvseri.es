@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { HEAD_LINK } from '@/app/(site)/u/[username]/_lib/headLink';
 import SliceAccordion, {
   type AccordionSlice,
 } from '@/components/ui/accordion/SliceAccordion';
@@ -98,6 +99,9 @@ function StripCard({ art, tile }: Readonly<Tile>) {
   );
 }
 
+/** The count's link to the Finished shelf */
+const COUNT_LINK = cn(HEAD_LINK, 'tabular-nums');
+
 /**
  * "Finished in 2025": the shows that reached Finished in the year, newest
  * first, in the profile's favourites accordion (one open, hover opens
@@ -128,10 +132,7 @@ export default async function Finished({ user, year }: SectionProps) {
   const slices = tiles.map(finishedSlice);
   const finishedHref = libraryPath(user.username, 'finished');
   const count = (
-    <Link
-      className="flex items-center gap-1 whitespace-nowrap font-medium text-body-sm text-white/60 tabular-nums"
-      href={finishedHref}
-    >
+    <Link className={COUNT_LINK} href={finishedHref}>
       {finished.count}
       <Icon glyph={chevronRightGlyph} size={14} />
     </Link>

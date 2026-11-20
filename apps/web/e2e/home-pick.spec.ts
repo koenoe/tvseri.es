@@ -17,7 +17,12 @@ const PICK = '[data-slot="pick-one"]';
 const deckIds = async (page: Page) => {
   const hrefs = await page
     .locator(`${PICK} [aria-hidden="true"] a[href]`)
-    .evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+    .evaluateAll((links) =>
+      links
+        // not the pick fading out after a deal or a roll (inert, aria-hidden)
+        .filter((link) => !link.closest('[inert]'))
+        .map((link) => link.getAttribute('href')),
+    );
   return hrefs.map(idOfHref);
 };
 
@@ -50,9 +55,12 @@ test.describe('Pick one for me', () => {
     const section = page.locator(PICK);
     await section.scrollIntoViewIfNeeded();
     // the deck's cards link to their shows; the first is the first pick
-    const hrefs = await section
-      .locator('a[href]')
-      .evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+    const hrefs = await section.locator('a[href]').evaluateAll((links) =>
+      links
+        // not the pick fading out after a deal or a roll (inert, aria-hidden)
+        .filter((link) => !link.closest('[inert]'))
+        .map((link) => link.getAttribute('href')),
+    );
     const ids = [...new Set(hrefs.map(idOfHref))];
     const [first, ...rest] = ids;
     expect(rest.length).toBeGreaterThan(0);
@@ -98,7 +106,8 @@ test.describe('Pick one for me', () => {
  */
 test.describe('Pick one for me deals new shows', () => {
   test.use({ viewport: { height: 900, width: 1440 } });
-  const TITLE = `${PICK} h3 a`;
+  // the pick on show, not the one fading out (inert) after a roll
+  const TITLE = `${PICK} :not([inert]) > h3 a`;
 
   const daySeven = async (page: Page) => {
     await page.goto('/');
@@ -131,7 +140,7 @@ test.describe('Pick one for me deals new shows', () => {
     const rollAgain = page.getByRole('button', { name: 'Roll again' });
     for (let roll = 0; roll < 8; roll += 1) {
       const before = (await title.textContent()) ?? '';
-      // a click while the last roll settles is ignored: click until one lands
+      // Roll again is aria-disabled while a roll settles: click until one lands
       await expect(async () => {
         await rollAgain.click();
         await expect(title).not.toHaveText(before, { timeout: 600 });

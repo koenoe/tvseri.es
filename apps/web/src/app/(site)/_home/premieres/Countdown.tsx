@@ -1,7 +1,12 @@
 import type { Premiere } from '@tvseri.es/schemas';
 
-import ButtonLink from '@/components/ui/button/ButtonLink';
+import ButtonContent from '@/components/ui/button/ButtonContent';
+import {
+  BUTTON_ICON_SIZE,
+  buttonStyles,
+} from '@/components/ui/button/buttonStyles';
 import { arrowRightGlyph, calendarGlyph } from '@/components/ui/icon/glyphs';
+import TileLink from '@/components/ui/tile/TileLink';
 import showPath from '@/lib/routing/showPath';
 
 import { MomentFrame } from '../feature/Moment';
@@ -16,6 +21,9 @@ import {
 } from './countdownLayout';
 import { countdownChip } from './format';
 
+/** "Open": ButtonLink's look on the show's own link (`TileLink`) */
+const OPEN_BUTTON = buttonStyles({ size: 'sm' });
+
 /** The Countdown's name: the card's label and its placeholder's */
 export const COUNTDOWN_TITLE = 'Next big premiere';
 
@@ -26,7 +34,8 @@ export const COUNTDOWN_TITLE = 'Next big premiere';
  * top left, the count, line, logo, date and season bottom left,
  * and bottom right up to three pills that crossfade between the next big
  * premieres; with one, "Open" in their place. Rendered here on the server;
- * only the switch is a client island.
+ * only the switch is a client island. The logo and "Open" open the show
+ * whole, the card handing its art and logo over (`showMorph.ts`).
  */
 export default function Countdown({
   premieres,
@@ -50,14 +59,20 @@ export default function Countdown({
   }));
   const firstHref = showPath(first.series.id, first.series.slug);
   const open = alone ? (
-    <ButtonLink href={firstHref} icon={arrowRightGlyph} size="sm">
-      {`Open ${first.series.title}`}
-    </ButtonLink>
+    <TileLink
+      backdrop={first.series.backdropImage}
+      className={OPEN_BUTTON}
+      href={firstHref}
+    >
+      <ButtonContent icon={arrowRightGlyph} iconSize={BUTTON_ICON_SIZE.sm}>
+        {`Open ${first.series.title}`}
+      </ButtonContent>
+    </TileLink>
   ) : null;
   return (
     <MomentFrame name="feature">
       <section aria-labelledby={COUNTDOWN_LABEL_ID} className={PAGE_COLUMN}>
-        <div className={COUNTDOWN_CARD}>
+        <div className={COUNTDOWN_CARD} data-show-morph-scope="">
           <CountdownSwitch open={open} slides={slides} />
           <div className={COUNTDOWN_LABEL}>
             <MomentLabel

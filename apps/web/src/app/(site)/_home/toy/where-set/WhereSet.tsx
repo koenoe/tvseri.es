@@ -12,7 +12,7 @@ import ShowMeta from '../../feature/ShowMeta';
 import { PAGE_COLUMN } from '../../frame';
 import { TOY_TITLE } from '../../moments';
 import DottedMap from './DottedMap';
-import { labelSides, MAP_PX } from './labelSide';
+import { labelSides, MAP_PX, roomyPins } from './labelSide';
 import {
   DETAIL_LOGO,
   DETAIL_META,
@@ -50,7 +50,7 @@ export default function WhereSet({
   const images: ReactNode[] = [];
   const metas: ReactNode[] = [];
   const titles: ReactNode[] = [];
-  const mapPlaces: Omit<MapPlace, 'label'>[] = [];
+  const mapPlaces: Omit<MapPlace, 'label' | 'roomy'>[] = [];
   const points: { name: string; point: { x: number; y: number } }[] = [];
 
   for (const place of places) {
@@ -104,11 +104,18 @@ export default function WhereSet({
   }
   const phone = labelSides(points, MAP_WIDTH, MAP_HEIGHT, MAP_PX.phone);
   const wide = labelSides(points, MAP_WIDTH, MAP_HEIGHT, MAP_PX.wide);
+  const pinPoints = points.map(({ point }) => point);
+  const roomyPhone = roomyPins(pinPoints, MAP_WIDTH, MAP_PX.phone);
+  const roomyWide = roomyPins(pinPoints, MAP_WIDTH, MAP_PX.wide);
   const pinned: MapPlace[] = mapPlaces.map((place, index) => ({
     ...place,
     label: {
       phone: phone[index] ?? 'right-up',
       wide: wide[index] ?? 'right-up',
+    },
+    roomy: {
+      phone: roomyPhone[index] ?? false,
+      wide: roomyWide[index] ?? false,
     },
   }));
   const start = Math.max(

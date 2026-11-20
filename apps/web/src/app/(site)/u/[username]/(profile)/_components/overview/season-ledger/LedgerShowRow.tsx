@@ -32,7 +32,7 @@ export default function LedgerShowRow({
         href={href}
         tabIndex={-1}
       >
-        <span className="relative block aspect-2/3 w-10 overflow-hidden rounded-6 bg-white/8 shadow-[0_8px_16px_-8px_rgb(0_0_0/0.8)]">
+        <span className="image-rim relative block aspect-2/3 w-10 overflow-hidden rounded-6 bg-white/8 shadow-[0_8px_16px_-8px_rgb(0_0_0/0.8)]">
           {view.posterImage ? (
             <Image
               alt=""
@@ -63,7 +63,7 @@ export default function LedgerShowRow({
             </TileLink>
           ) : null}
         </span>
-        <MetaRow fit="drop">
+        <MetaRow fit="drop" numbers="tabular">
           <MetaItem icon={seasonGlyph}>{seasons}</MetaItem>
           <MetaItem icon={ringGlyph}>{missingLabel(open)}</MetaItem>
         </MetaRow>

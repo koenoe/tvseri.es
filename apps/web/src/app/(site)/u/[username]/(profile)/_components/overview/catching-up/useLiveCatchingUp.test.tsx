@@ -34,6 +34,9 @@ const ITEM: CatchingUpItem = {
   waiting: 84,
 };
 
+/** The lane's items, one identity across renders as the lane keeps them */
+const ITEMS = [ITEM];
+
 const marks = (from: number, to: number) => ({
   kind: 'mark' as const,
   records: Object.fromEntries(
@@ -46,7 +49,7 @@ const marks = (from: number, to: number) => ({
 
 function setup() {
   const { result } = renderHook(
-    () => ({ live: useLiveCatchingUp(ITEM), store: useMarkingStoreApi() }),
+    () => ({ live: useLiveCatchingUp(ITEMS)[0], store: useMarkingStoreApi() }),
     { wrapper },
   );
   act(() => {

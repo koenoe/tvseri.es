@@ -60,7 +60,10 @@ export default function SkipAllButton({
       </Button>
     );
   }
-  // The confirm row Disconnect uses, on its own line under the header
+  // The confirm row Disconnect uses, on its own line under the header. It
+  // rises in but leaves at once: fading out, it would hold the header's
+  // container full width, so the returning button would drop a line and
+  // jump back up after the fade.
   return (
     <div data-asking="">
       <ConfirmRow

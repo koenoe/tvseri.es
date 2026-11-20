@@ -60,14 +60,15 @@ const LANE_POSTER_BOX = 'aspect-[2/3] w-12 shrink-0 rounded-6';
 
 export const LANE_POSTER = cn(
   LANE_POSTER_BOX,
-  'object-cover shadow-[0_8px_16px_-8px_rgb(0_0_0/0.8)]',
+  'image-outline object-cover shadow-[0_8px_16px_-8px_rgb(0_0_0/0.8)]',
 );
 
 /** A row without a poster: the poster's place, empty */
 export const LANE_POSTER_EMPTY = cn(LANE_POSTER_BOX, 'bg-white/8');
 
+/** Its corners concentric with the poster's: 6 + the 12px padding (14 from md) */
 const LANE_ROW =
-  'relative flex items-center gap-4 rounded-12 bg-white/4 p-3 md:p-3.5';
+  'relative flex items-center gap-4 rounded-18 bg-white/4 p-3 md:rounded-20 md:p-3.5';
 
 /**
  * In progress's rows on the shared lane row (`components/lane-row`). Each place keeps its own look on purpose; don't unify them.

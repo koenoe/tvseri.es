@@ -54,3 +54,14 @@ export const statusChip = cva(
 /** The small filled button in a toast or the phone's error line. */
 export const smallAction =
   'h-8 shrink-0 cursor-pointer whitespace-nowrap rounded-8 px-3 text-caption font-medium';
+
+/** The 18px ring that fills once (`FillRing`): Save while saving, the loading line */
+export const RING_STROKE = 'stroke-[2.5]';
+
+/** On the white Save button */
+export const RING_TRACK_DARK = 'stroke-black/15';
+export const RING_INK_DARK = 'stroke-[#171717]';
+
+/** On the tray's dark ground */
+export const RING_TRACK_LIGHT = 'stroke-white/16';
+export const RING_INK_LIGHT = 'stroke-white';

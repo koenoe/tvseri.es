@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import type { ReactNode } from 'react';
 
+import { TEXT_ARRIVAL } from '@/components/motion/textArrival';
+
 import {
   clockGlyph,
   completeGlyph,
@@ -43,8 +45,9 @@ const FACT_ICON: Readonly<Record<FactKind, Glyph | ToggleGlyph>> = {
 };
 
 /*
- * The open state is `data-open` on the slice (`SliceAccordion`). Class
- * names stay literal so Tailwind sees them.
+ * The open state is `data-open` on the slice (`SliceAccordion`), and
+ * `data-shown` for the text's arrival (`textArrival.ts`). Class names stay
+ * literal so Tailwind sees them.
  *
  * A slice's size changes at once and Motion plays it as a transform, so
  * anything sized or placed by the slice's own box would jump or re-wrap
@@ -109,10 +112,9 @@ export function SliceShade() {
  * settles, so it never shows at one size inside the other.
  */
 export function SliceRing({ dim }: Readonly<{ dim?: boolean }>) {
-  const ring = dim
-    ? 'shadow-[inset_0_0_0_1px_rgb(221_238_255/0.05)]'
-    : 'shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08)]';
-  const ringClass = `pointer-events-none absolute inset-0 rounded-12 transition-opacity duration-200 group-data-[moving=true]/fv:opacity-0 group-data-[moving=true]/fv:duration-0 ${ring}`;
+  // a dimmed slice's ring dims with it: the same rim, a little fainter
+  const ring = dim ? 'opacity-60' : '';
+  const ringClass = `pointer-events-none absolute inset-0 rounded-12 shadow-image-rim transition-opacity duration-200 group-data-[moving=true]/fv:opacity-0 group-data-[moving=true]/fv:duration-0 ${ring}`;
   return <span aria-hidden="true" className={ringClass} data-hairline />;
 }
 
@@ -126,7 +128,8 @@ export function SliceFull({
   interactive?: boolean;
 }>) {
   const layer = interactive ? 'pointer-events-none z-3' : 'z-1';
-  const classes = `${layer} absolute top-0 right-4 left-4 flex h-[284px] translate-y-1.5 flex-col items-start justify-end gap-[18px] opacity-0 transition-[opacity,translate] duration-300 xl:top-auto xl:right-auto xl:bottom-[26px] xl:left-6 xl:h-auto xl:w-[440px] group-data-[open=true]/fv:translate-y-0 group-data-[open=true]/fv:opacity-100 group-data-[open=true]/fv:delay-150`;
+  // the slice opening is the picture's reveal; the text arrives behind it
+  const classes = `${layer} absolute top-0 right-4 left-4 flex h-[284px] flex-col items-start justify-end gap-[18px] xl:top-auto xl:right-auto xl:bottom-[26px] xl:left-6 xl:h-auto xl:w-[440px] ${TEXT_ARRIVAL}`;
   return <span className={classes}>{children}</span>;
 }
 

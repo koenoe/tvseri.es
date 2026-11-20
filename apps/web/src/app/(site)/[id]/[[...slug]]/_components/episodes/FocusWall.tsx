@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatePresence } from 'motion/react';
 import { type ReactNode, useCallback } from 'react';
 import { flushSync } from 'react-dom';
 
@@ -10,16 +11,27 @@ import cn from '@/lib/cn';
 import type { WallDispatch } from './EpisodesView';
 import { WALL_GRID, WATCHED_GRID } from './tileLayout';
 import { CompactTile, StackTile } from './WallCompact';
+import WallFold from './WallFold';
 import { EpisodeTile, FocusTile, UpcomingTile } from './WallTiles';
 import type { FocusLayout, WallSlot } from './wall';
 
 type Props = Readonly<{
+  /** The viewer's mark completed the season here: the open part folds away */
+  completed: number | null;
   seriesId: number;
   seasonNumber: number;
   slots: ReadonlyArray<WallSlot>;
   focusLayout: FocusLayout | null;
   dispatch: WallDispatch;
 }>;
+
+/**
+ * The open part's place, on the part rather than its grid so a fold shuts
+ * it too: the grid's own top margin, and on a phone 8 of the 12px over the
+ * watched group (whose 4px stay), which a desktop's grid gap already gives.
+ */
+const OPEN_PART = 'mt-1 md:mt-6';
+const OPEN_GRID = cn(WALL_GRID, 'mt-0 md:mt-0');
 
 const MORE_ROW =
   'col-span-full flex min-h-14 items-center justify-center gap-3';
@@ -185,8 +197,11 @@ function Slot({ dispatch, focusLayout, seriesId, slot }: SlotProps): ReactNode {
  * tiles beside it, or across the row when fewer than two can stand there),
  * then the "N watched" group, which never backfills the part above it.
  * The slots come from `planWall`; marks move tiles between groups live.
+ * When the viewer's mark completes the season, the open part folds into
+ * the watched stacks (`WallFold`); every other change is at once.
  */
 export default function FocusWall({
+  completed,
   dispatch,
   focusLayout,
   seasonNumber,
@@ -206,11 +221,19 @@ export default function FocusWall({
       slot={slot}
     />
   );
-  const watchedClass = cn(WATCHED_GRID, main.length ? 'mt-3' : 'mt-1');
+  const openClass = cn(OPEN_PART, watched.length > 0 && 'max-md:pb-2');
+  const watchedClass = cn(WATCHED_GRID, 'mt-1');
   const label = `Season ${seasonNumber} episodes, what you haven’t seen first`;
+  const folding = completed !== null;
   return (
     <div aria-label={label} role="group">
-      {main.length ? <div className={WALL_GRID}>{main.map(render)}</div> : null}
+      <AnimatePresence custom={folding} initial={false}>
+        {main.length ? (
+          <WallFold className={openClass} key="open">
+            <div className={OPEN_GRID}>{main.map(render)}</div>
+          </WallFold>
+        ) : null}
+      </AnimatePresence>
       {watched.length ? (
         <div className={watchedClass} data-wall-group="watched">
           {watched.map(render)}

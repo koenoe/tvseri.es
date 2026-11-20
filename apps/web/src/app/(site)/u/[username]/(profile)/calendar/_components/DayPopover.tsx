@@ -27,7 +27,7 @@ const INITIAL = { opacity: 0, scale: 0.96 } as const;
 const EXIT = {
   opacity: 0,
   scale: 0.98,
-  transition: { duration: 0.12, ease: 'easeIn' },
+  transition: { duration: 0.12, ease: 'easeOut' },
 } as const;
 
 const focusPanel = (panel: HTMLElement) => panel.focus({ preventScroll: true });

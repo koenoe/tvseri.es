@@ -4,10 +4,7 @@ import cn from '@/lib/cn';
 /** The list's first rows (its 264px window holds six and a half) */
 const ROWS = [0, 1, 2, 3, 4, 5, 6];
 
-const PANEL = cn(
-  '-mt-4 flex h-87 flex-col gap-3 rounded-16 bg-[#141a1b] p-4',
-  PULSE,
-);
+const PANEL = cn('flex h-87 flex-col gap-3 rounded-16 bg-[#141a1b] p-4', PULSE);
 
 /**
  * The country list's place while its code loads (348px): the panel without its shadow and ring, the filter field and the

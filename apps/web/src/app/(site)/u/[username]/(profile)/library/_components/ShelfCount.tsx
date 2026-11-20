@@ -1,11 +1,14 @@
 'use client';
 
 import type { LibraryCounts, LibraryShelf } from '@tvseri.es/schemas';
-import { formatGrouped } from '@tvseri.es/utils';
+import RollingCount from '@/components/motion/RollingCount';
 
 import { useShelfCounts } from '../../_lib/shelfCounts';
 
-/** The header's count, following this page's changes */
+/**
+ * The header's count, following this page's changes (it rolls after a
+ * Remove 12); another shelf starts its own, never rolling from this one's
+ */
 export default function ShelfCount({
   counts,
   shelf,
@@ -17,5 +20,7 @@ export default function ShelfCount({
 }>) {
   const live = useShelfCounts(username, counts);
   const count = live?.[shelf];
-  return count === null || count === undefined ? null : formatGrouped(count);
+  return count === null || count === undefined ? null : (
+    <RollingCount key={shelf} value={count} />
+  );
 }

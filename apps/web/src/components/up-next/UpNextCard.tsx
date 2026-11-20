@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { MouseEventHandler, ReactNode } from 'react';
 
 import GlassPill from '@/components/ui/glass/GlassPill';
 import type { Glyph } from '@/components/ui/icon/types';
@@ -29,7 +29,7 @@ const UP_NEXT_TITLE: TitleTreatmentLook = {
   lines: 'line-clamp-2 min-w-0 [overflow-wrap:anywhere] md:line-clamp-3',
   logo: 'object-contain object-bottom md:object-left-bottom',
   sizes: '(min-width: 768px) 425px, 220px',
-  text: 'flex items-end justify-center text-center font-display text-title-1 text-white md:h-36 md:justify-start md:text-left',
+  text: 'flex items-end justify-center text-center font-display text-title-1 text-balance text-white md:h-36 md:justify-start md:text-left',
 };
 
 const CARD = cn(
@@ -52,6 +52,15 @@ type Props = Readonly<{
   /** `eager` above the fold */
   loading?: 'eager' | 'lazy';
   logo?: string;
+  /**
+   * The card opens its show by handing its art and logo over to the show
+   * page (`showMorph.ts`): the profile's Up next, never a dimmed pick
+   */
+  morph?: boolean;
+  /** The link's click, before it navigates */
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+  /** The place's warm-up when the card is pointed at (`TileLink`) */
+  onIntent?: () => void;
   /** The glass pill at the top left */
   pill: Readonly<{ glyph: Glyph; text: string }> | null;
   /** The place's tag, above the pill (a visitor's "New to you") */
@@ -76,23 +85,34 @@ export default function UpNextCard({
   label,
   loading,
   logo,
+  morph = false,
+  onClick,
+  onIntent,
   pill,
   tag,
   title,
 }: Props) {
+  const scope = morph ? '' : undefined;
   return (
-    <article className={CARD} data-slot="up-next-card">
+    <article
+      className={CARD}
+      data-show-morph-scope={scope}
+      data-slot="up-next-card"
+    >
       <UpNextArt
         backdrop={backdrop}
         className={backdropClassName}
         href={href}
         label={label}
         loading={loading}
+        onClick={onClick}
+        onIntent={onIntent}
       />
       <div className={UP_NEXT_BODY}>
         <TitleTreatment
           loading={loading}
           look={UP_NEXT_TITLE}
+          morph={morph}
           src={logo}
           title={title}
         />

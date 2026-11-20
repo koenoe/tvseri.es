@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { HIT_Y } from '@/components/ui/button/hitArea';
 import { extensionGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import type { BrowserSupport } from '@/lib/extension/browserSupport';
@@ -15,8 +16,13 @@ import LineSkeleton from '../../_components/LineSkeleton';
 // as it fills in
 const LINE =
   'flex h-5 min-w-0 items-center gap-2 whitespace-nowrap text-meta text-white/60';
-const LINK =
-  'font-medium text-white/80 underline decoration-white/30 underline-offset-3 transition-colors hover:text-white';
+/**
+ * Clipped sideways only (`clip` keeps the other axis visible), so the
+ * links' reach above and below isn't cut off with the overflow
+ */
+const TEXT = 'min-w-0 overflow-x-clip text-ellipsis';
+/** An inline link in the 20px line, reaching about 40px to the pointer */
+const LINK = `relative font-medium text-white/80 underline decoration-white/30 underline-offset-3 transition-colors hover:text-white ${HIT_Y[12]}`;
 
 const INSTALL = extensionInstall();
 
@@ -67,7 +73,7 @@ export default function ExtensionStatusLine({
   return (
     <p className={LINE} role="status">
       <Icon glyph={extensionGlyph} size={14} />
-      <span className="min-w-0 truncate">
+      <span className={TEXT}>
         <Link className={LINK} href="/extension">
           Chrome extension
         </Link>{' '}

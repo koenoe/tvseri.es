@@ -1,17 +1,10 @@
 'use client';
 
-import { AnimatePresence, useReducedMotion } from 'motion/react';
-import * as m from 'motion/react-m';
+import { AnimatePresence } from 'motion/react';
 import { type ReactNode, useId, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 
-import {
-  FOLD_OPEN,
-  FOLD_OPEN_TIMING,
-  FOLD_SHUT,
-  FOLD_SHUT_TIMING,
-  FOLD_SNAP,
-} from '@/components/motion/fold';
+import FoldPresence from '@/components/motion/FoldPresence';
 import ExpandButton from '@/components/ui/fold/ExpandButton';
 import { PHONE } from '@/lib/media/breakpoints';
 import useMediaQuery from '@/lib/media/useMediaQuery';
@@ -25,8 +18,6 @@ const FOLD_TILES = `${NO_DATE_TILES} pt-2.5`;
 /** Each press of the foot opens ten more */
 const STEP = 10;
 
-const FOLD_EXIT = { ...FOLD_SHUT, transition: FOLD_SHUT_TIMING } as const;
-
 /**
  * A group of No date yet: the first five tiles (two on a phone), then
  * ten more per press of "Show 10 more", each ten opening as one fold; once
@@ -37,10 +28,6 @@ export default function NoDateFold({
   tiles,
 }: Readonly<{ tiles: ReadonlyArray<ReactNode> }>) {
   const phone = useMediaQuery(PHONE);
-  // with reduced motion the fold snaps open and shut
-  const reduced = useReducedMotion();
-  const timing = reduced ? FOLD_SNAP : FOLD_OPEN_TIMING;
-  const exit = reduced ? { ...FOLD_SHUT, transition: FOLD_SNAP } : FOLD_EXIT;
   const first = phone ? 2 : 5;
   const [folds, setFolds] = useState(0);
   const id = useId();
@@ -70,17 +57,12 @@ export default function NoDateFold({
         <div className={NO_DATE_TILES}>{tiles.slice(0, first)}</div>
         <AnimatePresence initial={false}>
           {chunks.map((chunk, index) => (
-            <m.div
-              animate={FOLD_OPEN}
-              className="overflow-hidden"
-              data-fold={index + 1}
-              exit={exit}
-              initial={FOLD_SHUT}
-              key={index}
-              transition={timing}
-            >
-              <div className={FOLD_TILES}>{chunk}</div>
-            </m.div>
+            // its tiles leave out of reach (inert) while they fold away
+            <FoldPresence key={index}>
+              <div className={FOLD_TILES} data-fold={index + 1}>
+                {chunk}
+              </div>
+            </FoldPresence>
           ))}
         </AnimatePresence>
       </div>

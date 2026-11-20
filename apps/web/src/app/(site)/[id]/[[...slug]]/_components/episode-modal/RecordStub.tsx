@@ -2,8 +2,8 @@
 
 import type { EpisodeRef } from '@tvseri.es/schemas';
 import { type MouseEvent, memo, useCallback, useMemo } from 'react';
-
 import CircleButton from '@/components/ui/button/CircleButton';
+import { HIT_Y } from '@/components/ui/button/hitArea';
 import {
   FLAT,
   ghostCircle,
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/ghost/ghosts';
 import { eyeGlyph } from '@/components/ui/icon/glyphs';
 import { clearToastOver } from '@/components/ui/toast/clearToast';
+import cn from '@/lib/cn';
 import { episodeLabel } from '@/lib/marking/copy';
 import { useEpisodeRecord, useNextEpisode } from '@/lib/marking/hooks';
 import { episodeKey, pressMark } from '@/lib/marking/pressGate';
@@ -53,8 +54,13 @@ const LINE_GHOST = (
 const DATE_GHOST_CLASSES = `rounded-4 text-caption ${FLAT} ${PULSE}`;
 const DATE_GHOST = <span className={DATE_GHOST_CLASSES}>Add a date</span>;
 
-const LINK =
-  'cursor-pointer text-caption font-medium text-white/80 underline underline-offset-2 hover:text-white max-sm:font-normal max-sm:text-white/60 max-sm:no-underline';
+// 44px tall and 4px wider each side than the words: the bar's main way to
+// change a date on a phone (the ' · ' between them is wider than 8px)
+const LINK = cn(
+  'relative cursor-pointer text-caption font-medium text-white/80 underline underline-offset-2 hover:text-white max-sm:font-normal max-sm:text-white/60 max-sm:no-underline',
+  HIT_Y[12],
+  'after:-inset-x-1',
+);
 
 /**
  * The record stub: the eye
@@ -109,9 +115,10 @@ function RecordStub({
   }`;
 
   return (
-    // Docked at the bottom on phones: the mark toast rises above it
+    // Docked at the bottom on phones: the mark toast rises above it. A pill:
+    // its half-height corner is the eye's 20 plus the padding around it
     <div
-      className="mt-1 flex items-center gap-3 rounded-14 bg-white/8 py-2.5 pr-3 pl-2.5 max-sm:fixed max-sm:inset-x-3.5 max-sm:bottom-[29px] max-sm:z-10 max-sm:gap-2.5 max-sm:px-3.5 max-sm:py-3 max-sm:bg-[color-mix(in_srgb,color-mix(in_srgb,var(--color-page)_70%,black)_92%,white)]"
+      className="mt-1 flex items-center gap-3 rounded-full bg-white/8 py-2.5 pr-3 pl-2.5 max-sm:fixed max-sm:inset-x-3.5 max-sm:bottom-[29px] max-sm:z-10 max-sm:gap-2.5 max-sm:px-3.5 max-sm:py-3 max-sm:bg-[color-mix(in_srgb,color-mix(in_srgb,var(--color-page)_70%,black)_92%,white)]"
       data-record-stub=""
       ref={clearToastOver}
     >

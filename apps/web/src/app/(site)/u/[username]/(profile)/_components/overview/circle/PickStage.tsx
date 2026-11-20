@@ -3,6 +3,7 @@
 import * as m from 'motion/react-m';
 import { type ReactNode, useCallback, useState } from 'react';
 import MaxMotion from '@/components/motion/MaxMotion';
+import { TEXT_ARRIVAL_GROUP } from '@/components/motion/textArrival';
 import { PillSwitch, PillSwitchItem } from '@/components/ui/button/PillSwitch';
 
 type Pick = Readonly<{
@@ -19,7 +20,8 @@ const AMBIENT_FADE = { duration: 1.2, ease: EASE } as const;
 
 /**
  * The 400px card and its pill switcher: every pick arrives rendered, the
- * pill crossfades between them (opacity only) and the hidden ones are inert.
+ * pill crossfades between them (opacity only), the words arriving just
+ * behind the picture, and the hidden ones are inert.
  * With one pick there is nothing to switch.
  */
 export default function PickStage({
@@ -77,6 +79,9 @@ function Ambient({
   );
 }
 
+/** The card's words arrive behind its picture (`TEXT_ARRIVAL`, `PickCard`) */
+const LAYER = `absolute inset-0 ${TEXT_ARRIVAL_GROUP}`;
+
 function Layer({
   active,
   children,
@@ -86,7 +91,8 @@ function Layer({
   return (
     <m.div
       animate={animate}
-      className="absolute inset-0"
+      className={LAYER}
+      data-shown={active}
       inert={hidden}
       initial={false}
       transition={CARD_FADE}

@@ -1,5 +1,12 @@
 'use client';
 
+import { ViewTransition } from 'react';
+
+import {
+  showMorphClass,
+  showMorphName,
+  useShowMorphTarget,
+} from '@/components/ui/tile/showMorph';
 import TitleTreatment, {
   type TitleTreatmentLook,
 } from '@/components/ui/title/TitleTreatment';
@@ -26,15 +33,22 @@ const HERO_TITLE: TitleTreatmentLook = {
   width: 1000,
 };
 
-/** The hero's title; while an admin picks images, their live pick */
+/**
+ * The hero's title; while an admin picks images, their live pick. Opened
+ * from a card that hands over (`showMorph.ts`), the card's logo glides into
+ * it: its `<ViewTransition>` is what makes React run the browser's view
+ * transition for the navigation, so it is there (unnamed) even for a show
+ * without a logo, for the card's art to grow and dissolve.
+ */
 export default function HeroTitle({
   logo,
   seriesId,
   title,
 }: Readonly<{ logo?: string; seriesId: number; title: string }>) {
   const draft = useHeroTitleDraft(seriesId, logo);
+  const morph = useShowMorphTarget(seriesId);
   const src = draft ? (draft.kind === 'logo' ? draft.url : undefined) : logo;
-  return (
+  const treatment = (
     <TitleTreatment
       as="h1"
       draggable={false}
@@ -43,5 +57,15 @@ export default function HeroTitle({
       src={src}
       title={title}
     />
+  );
+  if (!morph) {
+    return treatment;
+  }
+  const name = src ? showMorphName('logo', seriesId) : undefined;
+  const enter = src ? showMorphClass('logo') : 'none';
+  return (
+    <ViewTransition default="none" enter={enter} name={name}>
+      {treatment}
+    </ViewTransition>
   );
 }

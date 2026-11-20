@@ -39,12 +39,15 @@ const ANSWERS =
  * Desktop: one row. Phones: the question and Not now, then the answers.
  */
 const CARD_BOX =
-  'relative z-[5] mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2.5 rounded-16 border px-4 pt-3.5 pb-4 md:-ml-2.5 md:flex md:w-[730px] md:max-w-[calc(100%+20px)] md:flex-row md:gap-4 md:py-3 md:pr-3 md:pl-5';
+  'relative z-[5] mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2.5 rounded-16 px-4 pt-3.5 pb-4 md:-ml-2.5 md:flex md:w-[730px] md:max-w-[calc(100%+20px)] md:flex-row md:gap-4 md:py-3 md:pr-3 md:pl-5';
 
-/** The card's glass: only the real card has it. */
+/**
+ * The card's glass: only the real card has it. Its edge is a 1px ring in
+ * the shadow, outside the glass, so it reads the same over any art.
+ */
 const CARD = cn(
   CARD_BOX,
-  'border-white/10 shadow-[0_14px_34px_-12px_rgb(0_0_0/0.55)]',
+  'shadow-[0_14px_34px_-12px_rgb(0_0_0/0.55),0_0_0_1px_rgb(255_255_255/0.1)]',
   PANEL_GLASS,
 );
 
@@ -112,7 +115,7 @@ export default function PromptCard({
   );
 }
 
-const GHOST_CARD_CLASS = cn(CARD_BOX, 'border-transparent', GHOST_LOOK.loading);
+const GHOST_CARD_CLASS = cn(CARD_BOX, GHOST_LOOK.loading);
 const GHOST_TITLE_CLASS = cn(TITLE, 'flex items-center');
 const GHOST_QUESTION_CLASS = cn('h-3 w-[192px] rounded-4', GHOST_FILL);
 const GHOST_ANSWER_JUST_STARTING_CLASS = cn(

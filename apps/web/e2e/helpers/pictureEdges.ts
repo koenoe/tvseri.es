@@ -51,8 +51,9 @@ export async function routeBrightPictures(
   });
 }
 
+// The shared image rim (`image-rim`, `image-outline`) is a deliberate 1px edge, not a gap
 const HAIRLINES_OFF =
-  '[data-hairline],[data-hairline]::before,[data-hairline]::after{box-shadow:none!important;outline:none!important}';
+  '[data-hairline],[data-hairline]::before,[data-hairline]::after,.image-rim::after,.image-outline{box-shadow:none!important;outline:none!important}';
 
 type Sample = Readonly<{
   /** the inward normal */

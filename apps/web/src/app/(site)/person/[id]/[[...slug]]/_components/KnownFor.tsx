@@ -18,7 +18,7 @@ const ROW = cn(PERSON_SNAP_ROW, 'lg:grid-cols-5 lg:gap-5');
 const TILE =
   'group flex w-32 shrink-0 snap-start flex-col gap-2 lg:w-auto lg:min-w-0 lg:gap-2.5';
 const POSTER =
-  'relative block h-48 overflow-hidden rounded-10 bg-white/5 lg:aspect-2/3 lg:h-auto lg:shadow-[0_10px_24px_-8px_rgba(0,0,0,0.7)]';
+  'image-rim relative block h-48 overflow-hidden rounded-10 bg-white/5 lg:aspect-2/3 lg:h-auto lg:shadow-[0_10px_24px_-8px_rgba(0,0,0,0.7)]';
 /** The placeholder: the row pulses once, the posters are flat (no shadow) */
 const GHOST_ROW = cn(ROW, 'animate-ghost');
 const POSTER_GHOST = cn(POSTER, GHOST_FILL, 'lg:shadow-none');

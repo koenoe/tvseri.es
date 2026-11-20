@@ -5,6 +5,12 @@ import { describe, expect, it, vi } from 'vitest';
 const fetchJson = vi.fn();
 vi.mock('@/lib/series/useCachedJson', () => ({ fetchJson }));
 
+vi.mock('./ShowRow', () => ({
+  default: ({ row }: { row: { href: string; name: string } }) => (
+    <a href={row.href}>{row.name}</a>
+  ),
+}));
+
 const { default: ShowsList } = await import('./ShowsList');
 
 const listOf = (all: number) => {
@@ -111,5 +117,41 @@ describe('the self credits fold', () => {
     expect(fold.getAttribute('aria-expanded')).toBe('false');
     expect(screen.getByTestId('rows')).toBeTruthy();
     errors.mockRestore();
+  });
+
+  it('points its toggle at the list once the list is drawn', async () => {
+    let land: (rows: unknown) => void = () => {};
+    fetchJson.mockReturnValueOnce(
+      new Promise((resolve) => {
+        land = resolve;
+      }),
+    );
+    render(
+      <ShowsList
+        counts={{ all: 20, crew: 0, guest: 0, series: 20 }}
+        personId={4}
+        self={{ count: 1, label: 'As himself' }}
+        titleId="t"
+      >
+        <ul />
+      </ShowsList>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /^Show all/ }));
+    const fold = screen.getByRole('button', { name: /As himself/ });
+    await act(async () => {
+      fireEvent.click(fold);
+    });
+    // open, still loading: nothing to point at yet
+    expect(fold.getAttribute('aria-expanded')).toBe('true');
+    expect(fold.hasAttribute('aria-controls')).toBe(false);
+    await act(async () => {
+      land([
+        { href: '/tv/1-the-tonight-show', id: 1, name: 'The Tonight Show' },
+      ]);
+    });
+    const list = document.getElementById(
+      fold.getAttribute('aria-controls') ?? '',
+    );
+    expect(list?.textContent).toContain('The Tonight Show');
   });
 });

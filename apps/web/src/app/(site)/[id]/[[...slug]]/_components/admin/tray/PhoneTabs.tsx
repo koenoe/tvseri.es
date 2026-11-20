@@ -2,6 +2,9 @@
 
 import { type KeyboardEvent, useCallback } from 'react';
 
+import { FILL_BEFORE } from '@/components/motion/glide';
+import ChoiceButton from '@/components/ui/button/ChoiceButton';
+
 import { tabLabels } from '../picker';
 import type { Tab } from './trayState';
 import type { TrayModel } from './useTray';
@@ -27,6 +30,9 @@ function tabFor(key: string, current: Tab): Tab | null {
   return target === undefined ? null : (TABS[target % TABS.length] ?? null);
 }
 
+/** The open tab's fill is its `::before`: it glides to the tab chosen (`ChoiceButton`) */
+const TAB = `${FILL_BEFORE} h-9 cursor-pointer rounded-8 text-body-sm font-medium text-white/60 transition-colors duration-150 aria-selected:text-white aria-selected:before:bg-white/16`;
+
 export const tabId = (ids: string, tab: Tab) => `${ids}-tab-${tab}`;
 export const panelId = (ids: string) => `${ids}-panel`;
 
@@ -47,18 +53,18 @@ function TabButton({
   const tabPanelId = panelId(ids);
   const ownId = tabId(ids, tab);
   return (
-    <button
+    <ChoiceButton
       aria-controls={tabPanelId}
       aria-selected={selected}
-      className="h-9 cursor-pointer rounded-8 text-body-sm font-medium text-white/60 aria-selected:bg-white/16 aria-selected:text-white"
+      className={TAB}
       id={ownId}
+      on={selected}
       onClick={select}
       role="tab"
       tabIndex={selected ? 0 : -1}
-      type="button"
     >
       {label}
-    </button>
+    </ChoiceButton>
   );
 }
 

@@ -12,6 +12,8 @@ import { PHONE } from '@/lib/media/breakpoints';
 import useMediaQuery from '@/lib/media/useMediaQuery';
 import getHistoryKey from '@/lib/navigation/getHistoryKey';
 import { isPlainClick } from '@/lib/navigation/isPlainClick';
+import { claimIntent } from '@/lib/navigation/useLinkIntent';
+import { showIdOf } from '@/lib/routing/showPath';
 import {
   createSearchController,
   type SearchEnv,
@@ -28,6 +30,7 @@ import { sessionView } from '@/lib/search/session';
 
 import openWhenPrefetched from './openWhenPrefetched';
 import { optionId } from './optionStyles';
+import { createTargetPrefetch } from './targetPrefetch';
 
 /**
  * One client per page: answers already fetched stay for the next open. A
@@ -42,6 +45,9 @@ const client = createSearchClient({
  * The overlay's search: one controller per open (restored for this history
  * entry when a result was opened from it before), the recents, and what
  * opening a result does (remember it, save the search for Back, go, close).
+ * The marked result (what Enter opens) opens whole once an arrow rests on
+ * it (`createTargetPrefetch`, `wholeKey`): a show's link asks for its page,
+ * once per session.
  */
 export default function useOverlaySearch({
   initialQuery,
@@ -51,6 +57,7 @@ export default function useOverlaySearch({
   // below `md`: the full-screen phone layout
   const phone = useMediaQuery(PHONE);
   const recents = useRecents((store) => store.recents);
+  const [wholeKey, setWholeKey] = useState<string | null>(null);
   const [session] = useState(() => {
     const historyKey = getHistoryKey();
     const restored =
@@ -59,9 +66,17 @@ export default function useOverlaySearch({
       controller: createSearchController(client, restored ?? undefined),
       historyKey,
       navigated: { current: false },
+      target: createTargetPrefetch((cell: SearchCell) => {
+        if (showIdOf(cell.href) !== null && claimIntent(cell.href)) {
+          setWholeKey(cell.key);
+        }
+      }),
     };
   });
-  const { controller } = session;
+  const { controller, target } = session;
+  // A result was opened: the overlay leaves in place rather than back into
+  // the search icon, which reads as cancelled (state, for the closing render)
+  const [opening, setOpening] = useState(false);
   const state = useStore(controller.store);
   // what the body draws: a keystroke changes the field, not this, until an
   // answer lands (or the selection or the stall changes)
@@ -84,11 +99,13 @@ export default function useOverlaySearch({
 
   const remember = useCallback(
     (cell: SearchCell) => {
+      target.stop();
       useRecents.getState().add(cell);
       saveSession(session.historyKey, controller.store.getState());
       session.navigated.current = true;
+      setOpening(true);
     },
-    [controller, session],
+    [controller, session, target],
   );
   const env = useMemo<SearchEnv>(
     () => ({
@@ -102,7 +119,12 @@ export default function useOverlaySearch({
         });
         onClose();
       },
-      onTarget: (cell) => router.prefetch(cell.href),
+      onTarget: (cell) => {
+        // the route's shell only: a landed answer is no intent yet, and the
+        // page itself costs a server render per typing pause. An arrow
+        // onto a result is intent (`move`)
+        router.prefetch(cell.href);
+      },
     }),
     [context, onClose, remember, router],
   );
@@ -111,8 +133,9 @@ export default function useOverlaySearch({
   // during the fade must not navigate.
   const close = useCallback(() => {
     controller.dispose();
+    target.cancel();
     onClose();
-  }, [controller, onClose]);
+  }, [controller, onClose, target]);
 
   // stable, so a keystroke doesn't re-render the results (memo `SearchBody`)
   const choose = useCallback(
@@ -134,23 +157,34 @@ export default function useOverlaySearch({
     /** The overlay has closed: stop, and forget a search that was dismissed. */
     finish: () => {
       controller.dispose();
+      target.cancel();
       if (!session.navigated.current) {
         forgetSession(session.historyKey);
       }
       return session.navigated.current;
     },
     /** Closed from outside (⌘K again): stop the search at once. */
-    halt: () => controller.dispose(),
-    input: (query: string) => controller.input(query, env),
+    halt: () => {
+      controller.dispose();
+      target.cancel();
+    },
+    input: (query: string) => {
+      // typing on: the next answer marks its own first result
+      target.cancel();
+      controller.input(query, env);
+    },
     move: (key: ArrowKey) => {
       const next = sessionView(controller.move(key, env), context);
       const cell = next.cells[next.selected];
       if (cell) {
+        target.mark(cell);
         document
           .getElementById(optionId(cell.key))
           ?.scrollIntoView({ block: 'nearest' });
       }
     },
+    /** A result was opened: the close fades in place */
+    opening,
     phone,
     retry,
     /**
@@ -167,6 +201,8 @@ export default function useOverlaySearch({
     },
     state,
     view,
+    /** The result whose page opens whole (`WholeResult`) */
+    wholeKey,
   };
 }
 

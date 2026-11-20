@@ -4,6 +4,10 @@ import Link from 'next/link';
 
 import { clockGlyph, trendingGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import {
+  PICTURE_ZOOM,
+  PICTURE_ZOOM_GROUP,
+} from '@/components/ui/tile/tileHover';
 import cn from '@/lib/cn';
 import showPath from '@/lib/routing/showPath';
 import { PAGE_COLUMN } from '../../frame';
@@ -37,6 +41,11 @@ export const ARCHIVE_CARD = cn(
 export const ARCHIVE_FADE =
   'absolute inset-0 bg-linear-to-t from-[rgb(14_14_14/0.92)] via-[rgb(14_14_14/0.8)] via-60% to-[rgb(14_14_14/0.25)] lg:bg-linear-to-r lg:from-[rgb(14_14_14/0.92)] lg:via-[rgb(14_14_14/0.5)] lg:via-45% lg:to-transparent lg:to-75%';
 
+const ARCHIVE_LINK = cn(ARCHIVE_CARD, PICTURE_ZOOM_GROUP);
+
+/** The print: zooms on hover like Home's other picture links */
+const PRINT = cn('object-cover object-[center_30%]', PICTURE_ZOOM);
+
 /** The text block over the fade: title, two sentences, facts, why */
 export const ARCHIVE_TEXT =
   'relative z-2 flex max-w-150 flex-col gap-3 px-4 pt-16 pb-6 md:px-10 md:py-9';
@@ -61,12 +70,12 @@ export default function FromTheArchive({
   return (
     <MomentFrame name="feature">
       <section aria-labelledby={LABEL_ID} className={PAGE_COLUMN}>
-        <Link className={ARCHIVE_CARD} href={href}>
+        <Link className={ARCHIVE_LINK} href={href}>
           <span aria-hidden="true" className={PICTURE_BLEED}>
             {series.backdropImage ? (
               <Image
                 alt=""
-                className="object-cover object-[center_30%]"
+                className={PRINT}
                 fill
                 sizes="(min-width: 1280px) 1216px, 100vw"
                 src={series.backdropImage}

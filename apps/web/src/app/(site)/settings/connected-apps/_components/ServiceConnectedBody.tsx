@@ -3,11 +3,12 @@
 import type { ConnectionLatest } from '@tvseri.es/schemas';
 import type { ReactNode } from 'react';
 
+import SwapIn from '@/components/motion/SwapIn';
 import cn from '@/lib/cn';
 
 import LocalMoment from '../../_components/LocalMoment';
 import type { ServiceCardStatus } from '../_lib/serviceCard';
-import { OPTIONS_CLASS } from './layout';
+import { BODY_STACK_CLASS, OPTIONS_CLASS } from './layout';
 import OptionRow from './OptionRow';
 import ServiceAccountActions from './ServiceAccountActions';
 import { useConnectedService } from './ServiceContext';
@@ -68,10 +69,23 @@ export default function ServiceConnectedBody({
   const { lastSyncedAt, latest } = status;
   const options = cn(OPTIONS_CLASS, live && hairline);
   const profile = profileLine(status);
+  // The first sync turns the link's newest entry into the live activity:
+  // the taller activity rises in as the line leaves at once. Never an
+  // empty wrapper, which would add the body's gap
+  let lead: ReactNode = null;
+  if (live) {
+    lead = activity;
+  } else if (latest) {
+    lead = <LatestEntry latest={latest} />;
+  }
+  const leadKey = live ? 'live' : 'latest';
   return (
     <>
-      {live ? activity : null}
-      {!live && latest ? <LatestEntry latest={latest} /> : null}
+      {lead ? (
+        <SwapIn className={BODY_STACK_CLASS} swapKey={leadKey}>
+          {lead}
+        </SwapIn>
+      ) : null}
       <div className={options}>
         {copy.profileTitle === null ? null : (
           <OptionRow description={profile} title={copy.profileTitle} />

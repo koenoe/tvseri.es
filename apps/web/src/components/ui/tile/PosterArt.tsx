@@ -16,8 +16,8 @@ type Props = Readonly<{
 
 /**
  * The 2:3 poster itself: radius from the row (`--tile-radius`, 12 by
- * default), the soft drop shadow (`--tile-shadow` for a page's own), a 1px
- * inner ring and, without art, a dashed placeholder with the title. No link
+ * default), the soft drop shadow (`--tile-shadow` for a page's own), the
+ * image rim and, without art, a dashed placeholder with the title. No link
  * and no hover of its own, so a non-clickable tile can use it too.
  */
 export default function PosterArt({
@@ -31,7 +31,7 @@ export default function PosterArt({
   const posterAlt = alt ?? title;
   return (
     <span
-      className="relative block aspect-2/3 w-full rounded-[var(--tile-radius,12px)] bg-white/5 shadow-[var(--tile-shadow,0_10px_15px_-3px_rgb(0_0_0/0.1),0_4px_6px_-4px_rgb(0_0_0/0.1))] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08)]"
+      className="relative block aspect-2/3 w-full rounded-[var(--tile-radius,12px)] bg-white/5 shadow-[var(--tile-shadow,0_10px_15px_-3px_rgb(0_0_0/0.1),0_4px_6px_-4px_rgb(0_0_0/0.1))] image-rim"
       data-hairline
     >
       {poster ? (
@@ -57,13 +57,14 @@ export default function PosterArt({
 
 /**
  * The placeholder for missing art: a dark gradient with a dashed
- * inset outline and, for a poster, the title. Fills its positioned box.
+ * inset outline and, for a poster, the title. Fills its positioned box. The
+ * outline sits 10px in, so its corners are the tile's radius less 10.
  */
 export function ArtPlaceholder({ title }: Readonly<{ title?: string }>) {
   return (
-    <span className="absolute inset-0 flex flex-col justify-end overflow-hidden rounded-[inherit] bg-linear-[165deg,#2b3335_0%,#1a1f20_70%] p-5 before:absolute before:inset-2.5 before:rounded-8 before:border before:border-dashed before:border-white/14">
+    <span className="absolute inset-0 flex flex-col justify-end overflow-hidden rounded-[inherit] bg-linear-[165deg,#2b3335_0%,#1a1f20_70%] p-5 before:absolute before:inset-2.5 before:rounded-[max(2px,calc(var(--tile-radius,12px)_-_10px))] before:border before:border-dashed before:border-white/14">
       {title ? (
-        <span className="line-clamp-3 text-body font-semibold text-white">
+        <span className="line-clamp-3 text-balance text-body font-semibold text-white">
           {title}
         </span>
       ) : null}

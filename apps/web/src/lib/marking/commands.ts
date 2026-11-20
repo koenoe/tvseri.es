@@ -39,6 +39,7 @@ import {
   unskippedMessage,
   WHOLE_SHOW,
 } from './copy';
+import { culminationOf } from './culmination';
 import {
   airedInSeason,
   airedRegularEpisodes,
@@ -125,15 +126,31 @@ export function createMarkingCommands(deps: MarkingDeps) {
     reportFailure(deps, result.error);
 
   /**
+   * After a write's optimistic change (a run applies it before its first
+   * await): what it completed, from `prior`, plays on the show page. Only
+   * the viewer's own commands call it; Undo and Try again never do.
+   */
+  function culminate(seriesId: number, prior: SeriesBase) {
+    const next = view(seriesId);
+    const completed = next ? culminationOf(prior, next) : null;
+    if (completed) {
+      store.getState().culminate(completed);
+    }
+  }
+
+  /**
    * The start every write command shares: nothing without the show's view,
    * the sign-in guard, then `build` decides from the show what to write
    * (null: nothing to do). A write ends any merge run, shows its toast and
    * sends. `'refused'`: no view, or signed out; `'nothing'`: `build` found
-   * nothing to write; else the write's promise.
+   * nothing to write; else the write's promise. A write that completes the
+   * show or a season plays it (`culminate`), unless `culminates` is false:
+   * an answer about the past ("Finished it all", "Seen it").
    */
   function command(
     seriesId: number,
     build: (prior: SeriesBase) => Write | null,
+    { culminates = true }: Readonly<{ culminates?: boolean }> = {},
   ): Started {
     const prior = view(seriesId);
     if (!prior || !signedIn()) {
@@ -145,7 +162,11 @@ export function createMarkingCommands(deps: MarkingDeps) {
     }
     merge.end();
     deps.toast(write.toast);
-    return write.send();
+    const sent = write.send();
+    if (culminates) {
+      culminate(seriesId, prior);
+    }
+    return sent;
   }
 
   /**
@@ -441,7 +462,10 @@ export function createMarkingCommands(deps: MarkingDeps) {
       deps.toast(
         runToast(merged.refs, markUndo(seriesId, merged.prior, merged.refs)),
       );
-      return mark(seriesId, [ref], { kind: 'now' });
+      const sent = mark(seriesId, [ref], { kind: 'now' });
+      // from the view before this mark, not the run's start
+      culminate(seriesId, prior);
+      return sent;
     }
     const before =
       where === 'page' && !prior.prefs?.neverAskBefore
@@ -470,7 +494,9 @@ export function createMarkingCommands(deps: MarkingDeps) {
       }),
     );
     merge.start(seriesId, ref, prior, now);
-    return mark(seriesId, [ref], { kind: 'now' });
+    const sent = mark(seriesId, [ref], { kind: 'now' });
+    culminate(seriesId, prior);
+    return sent;
   }
 
   /** Unmarks `refs` with one toast ("Unmarked …") and Undo */
@@ -653,22 +679,26 @@ export function createMarkingCommands(deps: MarkingDeps) {
         void saveAnswer();
         return;
       }
-      command(seriesId, (prior) => {
-        const refs = openEpisodes(prior);
-        return {
-          // Two writes, two runs: a failed mark never takes the answer back.
-          send: () =>
-            Promise.all([saveAnswer(), markScopeUnknown(seriesId, refs)]),
-          toast: markedToast({
-            choice: { kind: 'unknown' },
-            prior,
-            refs,
-            releaseDates: true,
-            seriesId,
-            what: WHOLE_SHOW,
-          }),
-        };
-      });
+      command(
+        seriesId,
+        (prior) => {
+          const refs = openEpisodes(prior);
+          return {
+            // Two writes, two runs: a failed mark never takes the answer back.
+            send: () =>
+              Promise.all([saveAnswer(), markScopeUnknown(seriesId, refs)]),
+            toast: markedToast({
+              choice: { kind: 'unknown' },
+              prior,
+              refs,
+              releaseDates: true,
+              seriesId,
+              what: WHOLE_SHOW,
+            }),
+          };
+        },
+        { culminates: false },
+      );
     },
 
     /**
@@ -759,26 +789,30 @@ export function createMarkingCommands(deps: MarkingDeps) {
      * toast names the show; its Undo removes exactly what this press added.
      */
     markSeen(seriesId: number, title: string) {
-      command(seriesId, (prior) => {
-        const open = openEpisodes(prior);
-        if (open.length === 0) {
-          // Nothing left to mark: say why, the button itself never changes.
-          // Aired, all skipped and none watched is not seen: skipped stays
-          // skipped
-          const progress = seriesProgress(prior);
-          deps.toast({
-            title:
-              progress.aired > 0 && !progress.isFinished
-                ? allSkippedMessage()
-                : SEEN_MESSAGE,
-          });
-          return null;
-        }
-        return {
-          send: () => markScopeUnknown(seriesId, open),
-          toast: undoToast(seriesId, prior, open, seenMessage(title)),
-        };
-      });
+      command(
+        seriesId,
+        (prior) => {
+          const open = openEpisodes(prior);
+          if (open.length === 0) {
+            // Nothing left to mark: say why, the button itself never changes.
+            // Aired, all skipped and none watched is not seen: skipped stays
+            // skipped
+            const progress = seriesProgress(prior);
+            deps.toast({
+              title:
+                progress.aired > 0 && !progress.isFinished
+                  ? allSkippedMessage()
+                  : SEEN_MESSAGE,
+            });
+            return null;
+          }
+          return {
+            send: () => markScopeUnknown(seriesId, open),
+            toast: undoToast(seriesId, prior, open, seenMessage(title)),
+          };
+        },
+        { culminates: false },
+      );
     },
 
     /**

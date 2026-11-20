@@ -9,7 +9,8 @@ import useNamedHeader from './useNamedHeader';
 
 /**
  * The lock-up, home link: 20px on a phone and in the pill, 24px in the
- * desktop bar. It stays live over the open menu; following it closes the
+ * desktop bar; 12px above and below make it a 44px target (it fits the
+ * 64px bar and the pill). It stays live over the open menu; following it closes the
  * menu.
  */
 export default function HeaderLogo() {
@@ -32,7 +33,7 @@ export default function HeaderLogo() {
   return (
     <Link
       aria-label="tvseri.es home"
-      className="z-10 -my-2 flex items-center py-2"
+      className="z-10 -my-3 flex items-center py-3"
       href="/"
       onClick={closeMenu}
     >

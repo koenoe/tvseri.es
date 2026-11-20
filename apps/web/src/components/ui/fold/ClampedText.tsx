@@ -2,6 +2,7 @@
 
 import { useId, useLayoutEffect, useRef, useState } from 'react';
 
+import { HIT_ALL } from '@/components/ui/button/hitArea';
 import ExpandChevron from '@/components/ui/icon/ExpandChevron';
 import cn from '@/lib/cn';
 
@@ -37,8 +38,8 @@ export function guessToggleClass(
   return cn(!overBase && 'max-md:hidden', !overMd && 'md:hidden');
 }
 
-const TOGGLE =
-  'inline-flex cursor-pointer items-center gap-1 text-body-sm font-medium text-white';
+/** About 24px tall, 40 to the pointer */
+const TOGGLE = `${HIT_ALL[8]} relative inline-flex cursor-pointer items-center gap-1 text-body-sm font-medium text-white`;
 
 /**
  * Text clamped to three lines with More / Less under it, only when the clamp

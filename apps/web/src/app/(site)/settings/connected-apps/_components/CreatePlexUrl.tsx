@@ -5,6 +5,7 @@ import { useTransition } from 'react';
 import Button from '@/components/ui/button/Button';
 import { linkGlyph } from '@/components/ui/icon/glyphs';
 import { showToast } from '@/components/ui/toast/showToast';
+import { PRIMARY_BUTTON } from '../../_lib/appButtons';
 import { PLEX_ERROR_TEXT } from '../_lib/plexCopy';
 import { createPlexUrl } from '../actions';
 
@@ -26,7 +27,7 @@ export default function CreatePlexUrl() {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Button
-        className="px-6 font-semibold"
+        className={PRIMARY_BUTTON}
         icon={linkGlyph}
         onClick={create}
         pending={pending}

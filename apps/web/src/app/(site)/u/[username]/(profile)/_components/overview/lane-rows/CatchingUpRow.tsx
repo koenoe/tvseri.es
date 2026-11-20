@@ -27,37 +27,35 @@ import {
   CATCHING_UP_TITLE,
 } from '../catching-up/runLayout';
 import { type RunwayView, runPlan, runwayView } from '../catching-up/runway';
-import useLiveCatchingUp from '../catching-up/useLiveCatchingUp';
 import useNextUpLabel from '../catching-up/useNextUpLabel';
 
 const POSTER_IMAGE = cn(
-  'object-cover shadow-[0_10px_20px_-8px_rgb(0_0_0/0.8)]',
+  'image-outline object-cover shadow-[0_10px_20px_-8px_rgb(0_0_0/0.8)]',
   CATCHING_UP_POSTER,
 );
 const POSTER_EMPTY = cn('block bg-white/6', CATCHING_UP_POSTER);
 
 /**
  * One Catching up show: the run of waiting episodes and the premiere runway.
- * It follows the viewer's marks in this tab (`useLiveCatchingUp`): the
- * count, the time left, the run and Next up move on together, and the row
- * leaves once nothing is waiting.
+ * It follows the viewer's marks in this tab (`live`, the lane's
+ * `useLiveCatchingUp`): the count, the time left, the run and Next up move
+ * on together. The lane takes the row out once nothing is waiting, so a
+ * row leaving keeps the last run it drew while it folds out.
  */
 export default function CatchingUpRow({
   item,
+  live,
   nextUp,
-}: Readonly<{ item: CatchingUpItem; nextUp: string }>) {
-  const live = useLiveCatchingUp(item);
-  const current = live ?? item;
-  const plan = useMemo(() => runPlan(current), [current]);
+}: Readonly<{
+  /** The server's item */
+  item: CatchingUpItem;
+  /** The item as the viewer's marks have it now */
+  live: CatchingUpItem;
+  nextUp: string;
+}>) {
+  const plan = useMemo(() => runPlan(live), [live]);
   const serverNextUp = { code: item.nextUp, label: nextUp };
-  const nextUpLabel = useNextUpLabel(
-    item.seriesId,
-    current.nextUp,
-    serverNextUp,
-  );
-  if (!live) {
-    return null;
-  }
+  const nextUpLabel = useNextUpLabel(item.seriesId, live.nextUp, serverNextUp);
   const href = showPath(item.seriesId, item.slug);
   const runway = runwayView(item);
   const runwayChip = runway
@@ -71,7 +69,7 @@ export default function CatchingUpRow({
   const waiting = `${plural(live.waiting, 'episode')} waiting`;
   const season = Number(/^S(\d+)/.exec(live.nextUp)?.[1] ?? 0) || undefined;
   return (
-    <li className={CATCHING_UP_ROW}>
+    <div className={CATCHING_UP_ROW}>
       <TileLink
         aria-label={item.title}
         className="shrink-0"
@@ -100,7 +98,7 @@ export default function CatchingUpRow({
             >
               {item.title}
             </TileLink>
-            <MetaRow fit="drop">
+            <MetaRow fit="drop" numbers="tabular">
               <MetaItem icon={seasonGlyph}>{waiting}</MetaItem>
               <MetaItem icon={clockGlyph}>
                 {formatRuntime(live.runtimeMinutes)}
@@ -123,7 +121,7 @@ export default function CatchingUpRow({
         />
         {runway ? <RunwayLine runway={runway} /> : null}
       </div>
-    </li>
+    </div>
   );
 }
 

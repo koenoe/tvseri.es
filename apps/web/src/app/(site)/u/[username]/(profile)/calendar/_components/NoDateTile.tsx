@@ -13,7 +13,7 @@ import { NO_DATE_TILE } from './calendarStyles';
 
 const TILE = cn(
   NO_DATE_TILE,
-  'transition-colors duration-100 ease-out hover:bg-white/7',
+  'transition-[background-color,scale] duration-[100ms,150ms] ease-out hover:bg-white/7 active:scale-96',
 );
 
 /** What TMDB knows: the listed season and its episodes, or only the renewal */
@@ -32,11 +32,7 @@ export default function NoDateTile({
   const href = showPath(item.seriesId, item.slug);
   return (
     <TileLink className={TILE} href={href}>
-      <LanePoster
-        className="rounded-6 outline-1 -outline-offset-1 outline-white/10"
-        src={item.posterImage}
-        width={40}
-      />
+      <LanePoster className="rounded-6" src={item.posterImage} width={40} />
       <span className="flex min-w-0 flex-col gap-0.5">
         <span
           className="truncate text-body-sm leading-[22px] font-semibold"

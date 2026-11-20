@@ -83,5 +83,5 @@ export const COUNTDOWN_SWITCH = 'min-w-0 max-w-full';
 /** A premiere's name: a long title truncates at 160px */
 export const COUNTDOWN_PILL = 'max-w-[160px]';
 
-/** The crossfade of the backdrops and the foreground (What's on, Where set) */
+/** The crossfade of the backdrops (the foreground arrives behind them, `textArrival`) */
 export const COUNTDOWN_FADE = 'transition-opacity duration-300 ease-[ease]';

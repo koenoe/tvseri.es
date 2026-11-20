@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { HEAD_LINK } from '@/app/(site)/u/[username]/_lib/headLink';
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import statsPath from '@/lib/routing/statsPath';
@@ -26,10 +27,7 @@ export default async function EmptyYear({ user, year }: SectionProps) {
         {`${user.username} has nothing logged with a date in ${year}.`}
       </p>
       {latest ? (
-        <Link
-          className="flex items-center gap-1 font-medium text-body-sm text-white/60"
-          href={latestHref}
-        >
+        <Link className={HEAD_LINK} href={latestHref}>
           {seeLatest}
           <Icon glyph={chevronRightGlyph} size={14} />
         </Link>

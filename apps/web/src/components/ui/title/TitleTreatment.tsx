@@ -38,6 +38,11 @@ type LogoProps = Readonly<{
   draggable?: boolean;
   loading?: 'eager' | 'lazy';
   look: TitleLogoLook;
+  /**
+   * The logo is the card's part in the hand-off to the show page
+   * (`showMorph.ts`): marks the drawn box, the element that glides
+   */
+  morph?: boolean;
   src: string;
   title: string;
 }>;
@@ -53,15 +58,20 @@ export function TitleTreatmentLogo({
   draggable,
   loading,
   look,
+  morph = false,
   src,
   title,
 }: LogoProps) {
   const logoAlt = alt ?? title;
+  const part = morph ? 'logo' : undefined;
+  // the box glides where there is one, else the image itself
+  const imagePart = look.box === undefined ? part : undefined;
   const image =
     look.width === undefined ? (
       <Image
         alt={logoAlt}
         className={look.logo}
+        data-show-morph={imagePart}
         draggable={draggable}
         fill
         loading={loading}
@@ -72,6 +82,7 @@ export function TitleTreatmentLogo({
       <Image
         alt={logoAlt}
         className={look.logo}
+        data-show-morph={imagePart}
         draggable={draggable}
         height={look.height}
         loading={loading}
@@ -83,7 +94,9 @@ export function TitleTreatmentLogo({
   return look.box === undefined ? (
     image
   ) : (
-    <Box className={look.box}>{image}</Box>
+    <Box className={look.box} data-show-morph={part}>
+      {image}
+    </Box>
   );
 }
 

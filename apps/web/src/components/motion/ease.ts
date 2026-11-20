@@ -1,6 +1,6 @@
 /**
  * The two Motion curves the chrome shares (transform and opacity only).
- * CSS transitions write the same curves out in their class strings.
+ * CSS has the sheet curve as a token (`--ease-sheet`, `ease-sheet`).
  */
 
 /** One curve for sheets, popovers and the pending ring, so they move alike */

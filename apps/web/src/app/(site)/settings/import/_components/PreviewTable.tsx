@@ -99,7 +99,7 @@ function PreviewTableRow({ row }: Readonly<{ row: PreviewRow }>) {
           {row.poster ? (
             <Image
               alt=""
-              className="h-12 w-8 shrink-0 rounded-6 object-cover shadow-[0_6px_14px_-6px_rgb(0_0_0/0.6)] max-md:hidden"
+              className="image-outline h-12 w-8 shrink-0 rounded-6 object-cover shadow-[0_6px_14px_-6px_rgb(0_0_0/0.6)] max-md:hidden"
               height={48}
               src={row.poster}
               width={32}
@@ -136,7 +136,7 @@ function PreviewTableRow({ row }: Readonly<{ row: PreviewRow }>) {
           {row.serviceLogo ? (
             <Image
               alt=""
-              className="size-5.5 shrink-0 rounded-6"
+              className="image-outline size-5.5 shrink-0 rounded-6"
               height={22}
               src={row.serviceLogo}
               width={22}

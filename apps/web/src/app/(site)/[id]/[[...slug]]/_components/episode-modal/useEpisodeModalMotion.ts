@@ -7,6 +7,10 @@ import { flushSync } from 'react-dom';
 import type { PanelMotion } from '@/components/ui/dialog/dialogMotion';
 import { LARGE_MOTION } from '@/components/ui/dialog/dialogMotion';
 import { codeOf } from '@/lib/marking/progress';
+import {
+  forgetModalOrigin,
+  modalOriginFor,
+} from '@/lib/navigation/modalOrigin';
 import { closeEpisode } from '../../_lib/urlState';
 import { growFrom, isOnScreen, shrinkTo } from './growMotion';
 import useGrowMotion from './useGrowMotion';
@@ -36,9 +40,16 @@ const tileControl = (ref: EpisodeRef | null): HTMLElement | null =>
 /**
  * The episode modal's open and close: the card grows from its tile, shrinks
  * back into it on close or Back, keeps the last episode drawn while it
- * leaves (`current`), and gives focus back to the tile.
+ * leaves (`current`), and gives focus back to the tile. Opened from a card
+ * on another page (Home's resume card, `modalOrigin`), it grows from where
+ * that card was instead, once; that card is gone, so it closes like any
+ * other: into the episode's tile on this page when that is on screen, else
+ * with the plain motion.
  */
-export default function useEpisodeModalMotion(episode: EpisodeRef | null) {
+export default function useEpisodeModalMotion(
+  seriesId: number,
+  episode: EpisodeRef | null,
+) {
   const [shown, setShown] = useState<EpisodeRef | null>(null);
   const [wasOpen, setWasOpen] = useState(false);
   const [motion, setMotion] = useState<PanelMotion>(LARGE_MOTION);
@@ -48,14 +59,19 @@ export default function useEpisodeModalMotion(episode: EpisodeRef | null) {
   if (Boolean(episode) !== wasOpen) {
     setWasOpen(Boolean(episode));
     if (episode) {
-      const box = tileBox(episode);
+      const origin = modalOriginFor(
+        seriesId,
+        episode,
+        performance.now(),
+        viewport(),
+      );
+      const box = origin ?? tileBox(episode);
       if (box) {
         grow.start(box, viewport());
       }
-      setMotion({
-        ...(box ? growFrom(box, viewport()) : LARGE_MOTION),
-        ...grow.styles,
-      });
+      const opening = box ? growFrom(box, viewport()) : LARGE_MOTION;
+      const exit = origin ? LARGE_MOTION.exit : opening.exit;
+      setMotion({ ...opening, exit, ...grow.styles });
     }
   }
   if (episode && (!shown || codeOf(episode) !== codeOf(shown))) {
@@ -67,6 +83,13 @@ export default function useEpisodeModalMotion(episode: EpisodeRef | null) {
   // The toast's own place (bottom right) is under the credits roll, clear
   // of the record stub on the left: nothing to move while the modal is open.
   const isOpen = Boolean(episode);
+
+  // Read during the opening render (`modalOriginFor`), forgotten once open
+  useEffect(() => {
+    if (isOpen) {
+      forgetModalOrigin();
+    }
+  }, [isOpen]);
 
   // The exit is read from the last render before the panel unmounts, so it
   // is set (flushed) before the URL closes the modal.

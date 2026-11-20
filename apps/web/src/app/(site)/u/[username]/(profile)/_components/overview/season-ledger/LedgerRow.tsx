@@ -2,6 +2,7 @@
 
 import Button from '@/components/ui/button/Button';
 import CodeBadge from '@/components/ui/button/CodeBadge';
+import { HIT_ALL } from '@/components/ui/button/hitArea';
 import {
   calendarGlyph,
   eyeGlyph,
@@ -11,17 +12,19 @@ import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import cn from '@/lib/cn';
 
-import {
-  LEDGER_BUTTON,
-  LEDGER_BUTTONS,
-  LEDGER_HOLE,
-  LEDGER_SETTLED,
-} from './ledgerLayout';
+import { LANE_ROW_BUTTON } from '../../blocks/laneRowButton';
+import { LEDGER_BUTTONS, LEDGER_HOLE, LEDGER_SETTLED } from './ledgerLayout';
 
 import type { HoleState } from './ledgerLines';
 import type { LedgerEpisodeView } from './loadLedger';
 
-const SKIPPED = cn(LEDGER_BUTTON, 'text-white/80');
+const SKIPPED = cn(LANE_ROW_BUTTON, 'text-white/80');
+
+/** A 20px word, reaching 40px: the settled row's full height */
+const UNDO = cn(
+  'relative cursor-pointer text-white/80 transition-colors hover:text-white',
+  HIT_ALL[10],
+);
 
 /**
  * One missing episode: code, "Aired Feb 2005", Watched and Skipped. Once
@@ -67,17 +70,17 @@ export default function LedgerRow({
           <MetaItem icon={stateGlyph}>
             {state === 'watched' ? 'Watched' : 'Skipped'}
           </MetaItem>
-          <button
-            className="cursor-pointer text-white/80 hover:text-white"
-            onClick={undo}
-            type="button"
-          >
+          <button className={UNDO} onClick={undo} type="button">
             Undo
           </button>
         </span>
       ) : (
         <span className={LEDGER_BUTTONS}>
-          <Button className={LEDGER_BUTTON} onClick={watched} variant="outline">
+          <Button
+            className={LANE_ROW_BUTTON}
+            onClick={watched}
+            variant="outline"
+          >
             Watched
           </Button>
           <Button className={SKIPPED} onClick={skipped} variant="outline">

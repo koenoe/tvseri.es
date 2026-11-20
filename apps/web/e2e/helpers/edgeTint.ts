@@ -29,6 +29,48 @@ const strips = (page: Page) =>
     ),
   );
 
+type Strip = Readonly<{ colour: string; edge: string; shown: boolean }>;
+
+/**
+ * From now until search unmounts, samples the closing dialog's strips on
+ * every frame (before it paints), so a close of any length is read whole
+ * rather than at one moment a busy machine can miss.
+ */
+const recordClosingStrips = (page: Page) =>
+  page.evaluate(() => {
+    const frames: Strip[][] = [];
+    (window as unknown as { __closingStrips: Strip[][] }).__closingStrips =
+      frames;
+    const sample = () => {
+      const dialog = document.querySelector('dialog[aria-label="Search"]');
+      if (!dialog) {
+        return;
+      }
+      if (dialog.hasAttribute('data-closing')) {
+        frames.push(
+          [...dialog.querySelectorAll(':scope > [data-edge-tint]')].map(
+            (strip) => {
+              const style = getComputedStyle(strip);
+              return {
+                colour: style.backgroundColor,
+                edge:
+                  strip.getBoundingClientRect().top === 0 ? 'top' : 'bottom',
+                shown: style.display !== 'none',
+              };
+            },
+          ),
+        );
+      }
+      requestAnimationFrame(sample);
+    };
+    requestAnimationFrame(sample);
+  });
+
+const closingStrips = (page: Page) =>
+  page.evaluate(
+    () => (window as unknown as { __closingStrips: Strip[][] }).__closingStrips,
+  );
+
 /** The ground the open dialog's panel paints */
 const panelGround = (page: Page) =>
   page.evaluate(() => {
@@ -82,15 +124,24 @@ export function edgeTintSuite() {
         { colour: WHITE, edge: 'top', shown: true },
         { colour: WHITE, edge: 'bottom', shown: true },
       ]);
-      // as it fades out, the bars go back to the page colour at once
+      // as it fades out, the bars go back to the page colour at once: every
+      // frame of the close (the dialog carries `data-closing` until it
+      // unmounts) shows the page colour at both edges
       const ground = await page.evaluate(
         () => getComputedStyle(document.body).backgroundColor,
       );
+      await recordClosingStrips(page);
       await page.keyboard.press('Escape');
-      expect(await strips(page)).toEqual([
-        { colour: ground, edge: 'top', shown: true },
-        { colour: ground, edge: 'bottom', shown: true },
-      ]);
+      // inert while it closes, so out of the accessibility tree: by its tag
+      await expect(page.locator('dialog[aria-label="Search"]')).toHaveCount(0);
+      const frames = await closingStrips(page);
+      expect(frames.length).toBeGreaterThan(0);
+      for (const frame of frames) {
+        expect(frame).toEqual([
+          { colour: ground, edge: 'top', shown: true },
+          { colour: ground, edge: 'bottom', shown: true },
+        ]);
+      }
     });
   });
 

@@ -24,7 +24,7 @@ export default function EpisodeModal({
 }: Readonly<{ episode: EpisodeRef | null }>) {
   const show = useShow();
   const { close, current, isOpen, motion, restoreFocus } =
-    useEpisodeModalMotion(episode);
+    useEpisodeModalMotion(show.id, episode);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const step = useEpisodeStepping(show, current, contentRef);

@@ -176,6 +176,8 @@ export default function useSlideshow({
       void prepare(slide.index);
       void prepare(wrapIndex(slide.index + 1, count));
     },
+    /** a pressed slide waits for its backdrop: its countdown hasn't started */
+    pending: target !== slide.index,
     running: advance.running,
     /** the pager's current line: the slide showing, or the one just pressed */
     target,

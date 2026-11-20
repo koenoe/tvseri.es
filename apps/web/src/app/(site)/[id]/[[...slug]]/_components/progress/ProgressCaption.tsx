@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+import RollingNumber from '@/components/motion/RollingNumber';
+
 import {
   calendarGlyph,
   clockGlyph,
@@ -95,11 +97,23 @@ const PERCENT = cn('whitespace-nowrap', TEXT, 'font-medium text-white/80');
  * `line.label`, the same facts in words ("46 hours" for "46h").
  */
 
-/** "76%" */
-export function LinePercent({ line }: Readonly<{ line: ProgressLine }>) {
+/** The finish's roll: from the share before it, to 100 (keyed, plays once) */
+export type PercentRoll = Readonly<{ key: number; from: number }>;
+
+/** "76%"; with `roll`, the digits roll up to "100%" */
+export function LinePercent({
+  line,
+  roll,
+}: Readonly<{ line: ProgressLine; roll?: PercentRoll | null }>) {
   return (
     <b aria-hidden="true" className={PERCENT}>
-      {line.percent}
+      {roll ? (
+        <>
+          <RollingNumber from={roll.from} key={roll.key} value={line.share} />%
+        </>
+      ) : (
+        line.percent
+      )}
     </b>
   );
 }

@@ -49,6 +49,7 @@ export default function PickCard({
   }
   const hide = known ? undefined : UNTIL_KNOWN;
   const onRoll = cards.length > 1 ? roll : undefined;
+  const rolling = phase !== 'rest';
   // the placeholder is the card's sibling, so the card is never remounted
   return (
     <>
@@ -63,7 +64,12 @@ export default function PickCard({
             <div className={DECK_FRAME}>
               <PickDeck cards={cards} phase={phase} pick={shown} seed={seed} />
             </div>
-            <PickResult card={card} onRoll={onRoll} states={states} />
+            <PickResult
+              card={card}
+              onRoll={onRoll}
+              rolling={rolling}
+              states={states}
+            />
           </div>
         </div>
       </section>

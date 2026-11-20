@@ -24,8 +24,12 @@ export const VERSUS_SIDE = {
 /** The poster and its name, 10px apart */
 export const VERSUS_POSTER_STACK = 'flex w-full flex-col gap-2.5';
 
-/** The poster's box: 2:3, 12px corners */
-export const VERSUS_POSTER = 'relative block aspect-2/3 w-full rounded-12';
+/** The poster's box: 2:3, 12px corners, the image rim */
+export const VERSUS_POSTER =
+  'image-rim relative block aspect-2/3 w-full rounded-12';
+
+/** The names under the poster, one per pair looked at, in one cell */
+export const VERSUS_NAMES = 'grid grid-cols-[minmax(0,1fr)]';
 
 /** The name under the poster: one line */
 export const VERSUS_NAME =
@@ -45,7 +49,13 @@ export const VERSUS_HEAD =
 
 export const VERSUS_HEAD_ICON = 'mr-2 inline-block size-[15px] align-[-2px]';
 
-export const VERSUS_ROWS = '[grid-area:rows] mt-4 flex flex-col lg:mt-0';
+/** The rows' place in the card */
+export const VERSUS_ROWS_PLACE = '[grid-area:rows] mt-4 lg:mt-0';
+
+/** The rows themselves, one under the other */
+export const VERSUS_ROWS_LIST = 'flex flex-col';
+
+export const VERSUS_ROWS = `${VERSUS_ROWS_PLACE} ${VERSUS_ROWS_LIST}`;
 
 /** One row: left value, label, right value; tabular figures */
 export const VERSUS_ROW =
@@ -61,10 +71,17 @@ export const VERSUS_LABEL =
 
 /**
  * The hint, or the chosen series' actions: 48px with
- * 12 on top, so swapping one for the other moves nothing
+ * 12 on top, so swapping one for the other moves nothing: the one leaving
+ * fades out in the same cell (`CrossFade`).
  */
 export const VERSUS_RESULT =
   '[grid-area:result] flex h-12 min-w-0 items-center justify-center gap-3.5 border-t border-white/8 pt-3 text-[13px] text-white/60';
+
+/** The hint or the actions' place in the result row, the row's width at most */
+export const VERSUS_RESULT_SLOT = 'min-w-0 max-w-full';
+
+/** The hint or the actions inside it */
+export const VERSUS_RESULT_SWAP = 'flex min-w-0 justify-center';
 
 /** "Another pair", centred under the result */
 export const VERSUS_MORE = '[grid-area:more] mt-3 flex justify-center';

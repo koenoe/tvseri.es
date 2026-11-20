@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatePresence } from 'motion/react';
 import { useTransition } from 'react';
 
 import Button from '@/components/ui/button/Button';
@@ -78,28 +79,32 @@ export default function PlexAccountActions({
           Disconnect
         </Button>
       </div>
-      {asking === 'regen' ? (
-        <ConfirmRow
-          confirm="Create a new URL"
-          onCancel={cancel}
-          onConfirm={regen}
-          pending={pending}
-        >
-          Your current URL stops working straight away. You’ll paste the new one
-          into Plex.
-        </ConfirmRow>
-      ) : null}
-      {asking === 'revoke' ? (
-        <ConfirmRow
-          confirm="Disconnect Plex"
-          confirmClassName={DISCONNECT_CLASSES}
-          onCancel={cancel}
-          onConfirm={revoke}
-          pending={pending}
-        >
-          Plex stops marking episodes here. What’s already marked stays.
-        </ConfirmRow>
-      ) : null}
+      <AnimatePresence initial={false}>
+        {asking === 'regen' ? (
+          <ConfirmRow
+            confirm="Create a new URL"
+            key="regen"
+            onCancel={cancel}
+            onConfirm={regen}
+            pending={pending}
+          >
+            Your current URL stops working straight away. You’ll paste the new
+            one into Plex.
+          </ConfirmRow>
+        ) : null}
+        {asking === 'revoke' ? (
+          <ConfirmRow
+            confirm="Disconnect Plex"
+            confirmClassName={DISCONNECT_CLASSES}
+            key="revoke"
+            onCancel={cancel}
+            onConfirm={revoke}
+            pending={pending}
+          >
+            Plex stops marking episodes here. What’s already marked stays.
+          </ConfirmRow>
+        ) : null}
+      </AnimatePresence>
     </>
   );
 }

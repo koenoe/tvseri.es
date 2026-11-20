@@ -7,7 +7,8 @@ import type { ReactNode } from 'react';
 import { DECK_CARD, DECK_FAN } from './deckLayout';
 import { type StartCard, slotAt } from './startCards';
 
-const CARD = `${DECK_CARD} bg-ground shadow-[0_24px_40px_-14px_rgb(0_0_0/0.85),inset_0_0_0_1px_rgb(221_238_255/0.08)]`;
+/** The rim is a layer over the poster: an inset shadow on the card would sit under it */
+const CARD = `${DECK_CARD} image-rim bg-ground shadow-[0_24px_40px_-14px_rgb(0_0_0/0.85)]`;
 
 /** The five fanned slots plus one waiting behind: the rest aren't rendered, so their posters don't load */
 const VISIBLE = 6;
@@ -55,6 +56,7 @@ export default function DeckFan({
             animate={animate}
             aria-hidden="true"
             className={CARD}
+            data-hairline
             initial={false}
             key={card.id}
             style={style}

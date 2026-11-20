@@ -84,6 +84,10 @@
   --color-iplayer: #ff4c98;
   --color-prime: #00a8e1;
   --color-plex: #e5a00d;
+  /* a picture's 1px edge on the dark ground (`image-rim`, `image-outline`):
+     pure white, as a tinted one picks up the picture and reads as dirt */
+  --color-rim: oklch(1 0 0 / 0.1);
+  --shadow-image-rim: inset 0 0 0 1px var(--color-rim);
   --text-display: var(--t-display-size);
   --text-display--line-height: var(--t-display-lh);
   --text-display--font-weight: 800;
@@ -130,6 +134,12 @@
   --radius-14: 14px;
   --radius-16: 16px;
   --radius-18: 18px;
+  --radius-20: 20px;
+  --radius-24: 24px;
+  --radius-26: 26px;
+
+  /* the sheet curve (`SHEET_EASE` in components/motion/ease.ts): ease-sheet */
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 
   /* the page container (header, rows, footer): max-w-page */
   --container-page: 1280px;
@@ -248,6 +258,21 @@
   [data-quiet-focus]:focus-visible {
     outline: none;
   }
+
+  /* no one-word last line: headings even out their lines, body text only
+     avoids an orphan (cheaper). The style longhand, so a line kept to one
+     (`truncate`, an ancestor's nowrap) stays one. A title that isn't an h*
+     or p takes `text-balance` / `text-pretty` itself. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap-style: balance;
+  }
+
+  p {
+    text-wrap-style: pretty;
+  }
 }
 
 /* Signing out (SignOutForm): nothing of the private page stays readable
@@ -266,6 +291,11 @@ html[data-signing-out] body > * {
     opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
     height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
     box-shadow 0.2s;
+}
+
+/* Leaving is quicker than arriving, and ends before sonner unmounts the toast (200ms). */
+[data-sonner-toaster] [data-sonner-toast][data-removed="true"] {
+  transition-duration: 0.15s;
 }
 
 /* The host is moving between <body> and a dialog: no replayed rise (toastHost.ts). */
@@ -316,6 +346,35 @@ html[data-signing-out] body > * {
 }
 
 /*
+ * A picture's 1px edge (`--color-rim`), so a dark poster or logo doesn't
+ * melt into the ground. `image-rim` draws it on an `::after` over the frame's
+ * content, as an inset shadow on the frame itself is painted under its
+ * image; the frame is positioned and carries the radius. A ring for a
+ * state (`aria-pressed:after:shadow-…`) still wins: it is more specific.
+ * `image-outline` is for an `<img>` or a box that has no `::after` to spare;
+ * never on a focusable element, as it would replace the focus ring. A layer
+ * of its own uses `shadow-image-rim`. On the white sheet (`remote-surface`)
+ * the rim turns black. e2e/picture-edges must not count the rim as a light
+ * line along a picture card's edge (`data-hairline`).
+ */
+@utility image-rim {
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    /* the colour read here, not through --shadow-image-rim, which resolves it at :root */
+    box-shadow: inset 0 0 0 1px var(--color-rim);
+  }
+}
+
+@utility image-outline {
+  outline: 1px solid var(--color-rim);
+  outline-offset: -1px;
+}
+
+/*
  * Reduced motion (`prefers-reduced-motion: reduce`): every CSS transition and
  * animation reaches its end state at once (a tile's grow, a fade-in, the
  * placeholders' pulse, which then rests at full fill). 0.01ms rather than
@@ -334,6 +393,16 @@ html[data-signing-out] body > * {
     transition-duration: 0.01ms !important;
     transition-delay: 0s !important;
     scroll-behavior: auto !important;
+  }
+
+  /* View transitions draw on pseudo-elements of the root, which neither
+     `*` nor `::before`/`::after` reach: the Stats year switch would still
+     fade over 200ms */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
   }
 
   .animate-spin {
@@ -365,6 +434,8 @@ html[data-signing-out] body > * {
  * [aria-disabled=true] (disabled).
  */
 @utility remote-surface {
+  /* a picture's rim on white is black, as the skill's light-mode rim */
+  --color-rim: oklch(0 0 0 / 0.1);
   --rk-text: var(--color-ground);
   --rk-key: color-mix(in srgb, var(--rk-text) 6%, #fff);
   --rk-key-hover: color-mix(in srgb, var(--rk-text) 10%, #fff);
@@ -445,7 +516,7 @@ html[data-signing-out] body > * {
   justify-content: center;
   width: 20px;
   height: 20px;
-  border-radius: 6px;
+  border-radius: 4px;
   background: #fff;
   color: var(--rk-w64);
   font-size: 12px;
@@ -461,8 +532,8 @@ html[data-signing-out] body > * {
  * The Stats year switch: the
  * year, its sentence and the six numbers fade into the next year's over the
  * same box (`ViewTransition name="stats-glance"`), whose size follows. The
- * rest of the page, the document root, changes at once: this is the only
- * view transition in the app. Browser-run, so it stays off the main thread.
+ * rest of the page, the document root, changes at once, in every view
+ * transition the app runs. Browser-run, so it stays off the main thread.
  */
 ::view-transition-old(root) {
   display: none;
@@ -477,6 +548,104 @@ html[data-signing-out] body > * {
 ::view-transition-new(stats-glance) {
   animation-duration: 200ms;
   animation-timing-function: ease-out;
+}
+
+/*
+ * The profile's "{year} so far" week strip grows into the Stats year's week
+ * chart (`yearWeeks.ts`, only when its Stats link is followed): the group
+ * carries the move and the size over 360ms on the sheets' curve
+ * (`SHEET_EASE`); the bars, a different drawing from the lines, give way in
+ * 120ms while the lines fade in over the move.
+ */
+::view-transition-group(*.year-weeks) {
+  animation-duration: 360ms;
+  animation-timing-function: var(--ease-sheet);
+}
+
+::view-transition-old(*.year-weeks) {
+  animation-duration: 120ms;
+}
+
+/*
+ * Stats' Share: the year's glance lifts into the card's frame as the dialog
+ * opens (`liftIntoCard`), on the same 360ms sheet curve, the glance
+ * cross-fading into the frame over the whole move
+ */
+::view-transition-group(year-card) {
+  animation-duration: 360ms;
+  animation-timing-function: var(--ease-sheet);
+}
+
+/*
+ * Opening a show from a big card (the Home Spotlight and Countdown, the
+ * profile's Up next; `showMorph.ts`): only the card's two parts move. Its
+ * logo glides into the show page's title, both drawn contained on their
+ * box's bottom left, so the logo itself keeps its shape; its art (named on
+ * the card only) grows from the card to the screen while it dissolves into
+ * the page's own backdrop, already there underneath. Everything else cuts:
+ * the root isn't captured, so the new page is live under the two parts
+ * (and takes clicks), and the header's band is clipped out of them, so the
+ * header never blinks. 360ms on the sheets' curve (`SHEET_EASE`), the
+ * moment's own length (one 1-step settle, short enough that nobody waits
+ * on it). Only for a show link's navigation (`SHOW_OPEN_TYPES`).
+ */
+:root:active-view-transition-type(show-open) {
+  view-transition-name: none;
+}
+
+:root:active-view-transition-type(show-open)::view-transition {
+  pointer-events: none;
+  clip-path: inset(4rem 0 0);
+
+  @media (width >= 48rem) {
+    clip-path: inset(5rem 0 0);
+  }
+}
+
+::view-transition-group(*.show-art) {
+  animation: show-art-open 360ms var(--ease-sheet) both;
+}
+
+::view-transition-old(*.show-art) {
+  block-size: 100%;
+  object-fit: cover;
+  animation: show-art-dissolve 360ms ease both;
+}
+
+::view-transition-group(*.show-logo) {
+  animation-duration: 360ms;
+  animation-timing-function: var(--ease-sheet);
+}
+
+::view-transition-old(*.show-logo),
+::view-transition-new(*.show-logo) {
+  block-size: 100%;
+  object-fit: contain;
+  object-position: left bottom;
+}
+
+/* A logo with no partner (the card's or the page's alone) cuts too */
+::view-transition-old(*.show-logo):only-child {
+  animation: none;
+  opacity: 0;
+}
+
+::view-transition-new(*.show-logo):only-child {
+  animation: none;
+}
+
+@keyframes show-art-open {
+  to {
+    transform: none;
+    width: 100vw;
+    height: 100vh;
+  }
+}
+
+@keyframes show-art-dissolve {
+  to {
+    opacity: 0;
+  }
 }
 
 /*

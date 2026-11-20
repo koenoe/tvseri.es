@@ -35,10 +35,7 @@ function Still({
       </span>
     );
   }
-  const filled = cn(
-    STILL,
-    'bg-rk-key after:absolute after:inset-0 after:rounded-6 after:shadow-[inset_0_0_0_1px_rgb(0_0_0/0.06)]',
-  );
+  const filled = cn(STILL, 'image-rim bg-rk-key');
   const unoptimized = !isTmdbImage(src);
   return (
     <span className={filled}>

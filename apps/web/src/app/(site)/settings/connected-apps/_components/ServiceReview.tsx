@@ -123,6 +123,7 @@ export default function ServiceReview({
         ) : null}
       </div>
       <ServiceReviewGroups
+        arrives={review.arrives}
         fix={fix}
         groups={groups}
         onSkippedAll={skippedAll}

@@ -132,11 +132,7 @@ function ChipView({ chip, dim }: Readonly<{ chip: Chip; dim: boolean }>) {
   );
   return (
     <span className={classes}>
-      <Icon
-        className="hidden size-[11px] md:block"
-        glyph={chip.glyph}
-        size={13}
-      />
+      <Icon className="hidden md:block" glyph={chip.glyph} size={11} />
       <span className="hidden md:inline">{chip.label}</span>
       <span className="md:hidden">{chip.short}</span>
     </span>

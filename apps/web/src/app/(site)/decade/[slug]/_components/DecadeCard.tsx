@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import MarkControl from '@/components/marking/MarkControl';
+import CrossFade from '@/components/motion/CrossFade';
 import {
   calendarGlyph,
   seasonGlyph,
@@ -70,7 +71,10 @@ export function DecadeCardActions({ show, states }: Actions) {
   );
 }
 
-/** Under the treemap on desktop: the card for the selected tile */
+/**
+ * Under the treemap on desktop: the card for the selected tile. The card
+ * stays; a newly picked show's words cross-fade in its place (`CrossFade`)
+ */
 export default function DecadeCard({
   show,
   states,
@@ -81,7 +85,9 @@ export default function DecadeCard({
       className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-8 rounded-16 bg-white/4 px-8 py-6 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.06)] max-md:hidden"
       data-slot="decade-card"
     >
-      <DecadeCardText show={show} />
+      <CrossFade frame="min-w-0" swapKey={show.id}>
+        <DecadeCardText show={show} />
+      </CrossFade>
       <DecadeCardActions show={show} states={states} />
     </div>
   );

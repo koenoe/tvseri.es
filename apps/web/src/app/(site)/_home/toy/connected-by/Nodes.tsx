@@ -27,7 +27,8 @@ const NODE_CLAMP = 'line-clamp-2 max-w-full break-words md:line-clamp-1';
  * card is as tall whatever the day's names (its placeholder draws the same)
  */
 const NAME_TEXT = `${NAME} ${NODE_CLAMP} min-h-12 md:min-h-0`;
-const IMAGE = 'block object-cover shadow-[0_8px_16px_rgb(0_0_0/0.3)]';
+const IMAGE =
+  'image-outline block object-cover shadow-[0_8px_16px_rgb(0_0_0/0.3)]';
 const SHOW_IMAGE = `${IMAGE} h-[126px] w-[84px] rounded-[9px]`;
 const PERSON_IMAGE = `${IMAGE} my-[21px] size-[84px] rounded-full object-[center_18%]`;
 

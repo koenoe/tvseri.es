@@ -15,7 +15,7 @@ import { useIsWatched } from '@/lib/marking/useWatched';
 import type { LandscapeShow } from '../_data/landscape';
 
 /** A cell and the one tile hover (`tileHover`: a 3% grow, above its neighbours); the selected cell keeps its white ring */
-const CELL = `group relative block size-full cursor-pointer overflow-hidden rounded-12 bg-[#1b1d22] text-left after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08)] aria-pressed:after:shadow-[inset_0_0_0_2px_#fff] ${TILE_HOVER_WIDE}`;
+const CELL = `group relative block size-full cursor-pointer overflow-hidden rounded-12 bg-[#1b1d22] text-left image-rim aria-pressed:after:shadow-[inset_0_0_0_2px_#fff] ${TILE_HOVER_WIDE}`;
 
 /** The Watched label's corner (it arrives after the first paint: fades in) */
 const LABEL_CORNER = cn('absolute top-2.5 left-2.5', LATE_FADE);

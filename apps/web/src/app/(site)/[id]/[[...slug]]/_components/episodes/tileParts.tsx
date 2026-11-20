@@ -6,12 +6,12 @@ import { useCallback } from 'react';
 import { calendarGlyph, clockGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
-import { EPISODE_TILE_HOVER } from '@/components/ui/tile/tileHover';
+import { PICTURE_ZOOM_GROUP } from '@/components/ui/tile/tileHover';
 import { codeOf } from '@/lib/marking/progress';
 
 import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
 import { openEpisode } from '../../_lib/urlState';
-import { preloadEpisodeModal } from '../episode-modal/EpisodeModalIsland';
+import { preloadEpisodeModal } from '../episode-modal/episodeModalChunk';
 import { formatAirDate } from './format';
 
 /**
@@ -19,7 +19,13 @@ import { formatAirDate } from './format';
  * Hover (`tileHover`, more subtle than a border): no ring, no
  * grow; its still zooms 3% inside its frame.
  */
-export const TILE = `relative overflow-hidden rounded-12 bg-white/5 shadow-[0_10px_15px_-3px_rgb(0_0_0/0.1),0_4px_6px_-4px_rgb(0_0_0/0.1)] ${EPISODE_TILE_HOVER}`;
+export const TILE = `relative overflow-hidden rounded-12 bg-white/5 shadow-[0_10px_15px_-3px_rgb(0_0_0/0.1),0_4px_6px_-4px_rgb(0_0_0/0.1)] ${PICTURE_ZOOM_GROUP}`;
+
+/**
+ * A tile whose still meets its edge (Focus, the grid's tiles): the image
+ * rim too. The watched rows are text on the surface, their thumb rimmed.
+ */
+export const STILL_TILE = `image-rim ${TILE}`;
 
 /** Still sizes for `next/image`: Focus (802px), a tile (392px), a thumb. */
 export const STILL_SIZES = {

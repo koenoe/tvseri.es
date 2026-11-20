@@ -1,7 +1,9 @@
 'use client';
 
+import { AnimatePresence } from 'motion/react';
 import { useId, useMemo, useRef } from 'react';
 
+import FoldPresence from '@/components/motion/FoldPresence';
 import { PHONE } from '@/lib/media/breakpoints';
 import useMediaQuery from '@/lib/media/useMediaQuery';
 
@@ -22,6 +24,14 @@ import EmptyMonth from './EmptyMonth';
 import Legend from './Legend';
 import MonthGrid from './MonthGrid';
 import MonthHeader from './MonthHeader';
+
+/**
+ * The empty-month banner folds in and out (`FoldPresence`) with the
+ * panel's gap under it, so the grid glides down instead of jumping while
+ * it slides: its box takes over the gap, so the gap folds too
+ */
+const BANNER_BOX = '-mb-4.5 max-md:-mb-3';
+const BANNER_GAP = 'mb-4.5 max-md:mb-3';
 
 /**
  * The calendar: one month at a time (from the URL), its grid, and the open
@@ -74,9 +84,15 @@ export default function CalendarView({
             summaryId={summaryId}
             todayLabel={todayLabel}
           />
-          {emptyAhead ? (
-            <EmptyMonth month={month} noDateYet={noDateYet} />
-          ) : null}
+          <AnimatePresence initial={false}>
+            {emptyAhead ? (
+              <FoldPresence className={BANNER_BOX} key="empty">
+                <div className={BANNER_GAP}>
+                  <EmptyMonth month={month} noDateYet={noDateYet} />
+                </div>
+              </FoldPresence>
+            ) : null}
+          </AnimatePresence>
           <MonthGrid
             calendar={calendar}
             claimFocus={nav.claimFocus}

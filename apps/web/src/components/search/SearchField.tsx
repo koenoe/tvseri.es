@@ -1,5 +1,6 @@
 import type { ChangeEvent, KeyboardEvent, Ref } from 'react';
 
+import { HIT_ALL } from '@/components/ui/button/hitArea';
 import { closeGlyph, searchGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
@@ -51,8 +52,11 @@ export default function SearchField(props: Props) {
     'flex h-16 shrink-0 items-center gap-4 px-gutter md:px-4',
     props.ruled && 'border-b border-black/10',
   );
+  // a 44px target (10px past the 24px cross): the thumb's way out of the
+  // phone's sheet, clear of the field across the 16px gap
   const crossClasses = cn(
-    'flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-6 text-rk-text hover:bg-black/5 focus-visible:shadow-[0_0_0_2px_var(--rk-mark)] focus-visible:outline-hidden',
+    'relative flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-6 text-rk-text transition-[background-color,scale] duration-150 ease-out hover:bg-black/5 active:scale-96 focus-visible:shadow-[0_0_0_2px_var(--rk-mark)] focus-visible:outline-hidden',
+    HIT_ALL[10],
     !query && 'md:hidden',
   );
 

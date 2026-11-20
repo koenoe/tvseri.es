@@ -2,6 +2,7 @@ import type { ComponentProps } from 'react';
 
 import { checkGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import MarkSwap from '@/components/ui/icon/MarkSwap';
 import type { IconSize } from '@/components/ui/icon/types';
 
 /** One place's look for the circle: its classes per state and its check's size */
@@ -23,10 +24,11 @@ type Props = Omit<ComponentProps<'span'>, 'children' | 'className'> &
   }>;
 
 /**
- * A step's numbered circle (Get started on Home and the profile): the
- * number, or a check once the step is done. Each place keeps its own
- * look through its layout; any `span` prop (an `aria-hidden`) is the
- * place's own.
+ * A step's numbered circle (Get started on Home and the profile, import's
+ * steps): the number, or a check once the step is done; the number swaps
+ * to the check (`MarkSwap`, still on the first render). Each place keeps
+ * its own look through its layout; any `span` prop (an `aria-hidden`) is
+ * the place's own.
  */
 export default function StepCircle({ done, layout, number, ...rest }: Props) {
   const classes = `${layout.base} ${done ? layout.done : layout.todo}`;
@@ -35,9 +37,10 @@ export default function StepCircle({ done, layout, number, ...rest }: Props) {
   ) : (
     number
   );
+  const swapKey = done ? 'done' : 'number';
   return (
     <span className={classes} {...rest}>
-      {content}
+      <MarkSwap swapKey={swapKey}>{content}</MarkSwap>
     </span>
   );
 }

@@ -5,7 +5,7 @@ import type { LibraryShelf } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 import type { SeriesBase } from '@/lib/marking/types';
 import type { TileView } from '@/lib/profile/tileView';
-import { useShelfCounts } from '../../_lib/shelfCounts';
+import { useShelfCounts, useShelfLanding } from '../../_lib/shelfCounts';
 import useShelfTiles, { offWatchlistReason } from './useShelfTiles';
 
 const COUNTS = {
@@ -175,5 +175,36 @@ describe('a show brought back in this tab still leaves when finished', () => {
     });
     act(() => result.current.shelf.leave([2], 'finished'));
     expect(ids(result.current.shelf.tiles)).toEqual([1, 3]);
+  });
+});
+
+describe('a show finished here lands on Finished', () => {
+  function landing(username: string) {
+    const props: Props = {
+      first: FIRST,
+      hidden: {},
+      items: [tile(1), tile(2), tile(3)],
+      shelf: 'watching',
+    };
+    return renderHook(() => ({
+      landed: useShelfLanding(username, 'finished'),
+      shelf: useShelfTiles({ ...props, username }),
+    }));
+  }
+
+  it('lands when a mark made here finished it', () => {
+    const { result } = landing('tam');
+    act(() => result.current.shelf.leave([2], 'finished', { marked: true }));
+    expect(result.current.landed).not.toBe(0);
+  });
+
+  it('a show that was already finished, or any other leave, never lands', () => {
+    const { result } = landing('uma');
+    act(() => {
+      result.current.shelf.leave([1], 'finished');
+      result.current.shelf.leave([2], 'hide', { marked: true });
+    });
+    act(() => result.current.shelf.comeBack([1], 'finished'));
+    expect(result.current.landed).toBe(0);
   });
 });

@@ -20,7 +20,9 @@ export type PickRoll = Readonly<{
 /**
  * The deck's state: the first card is the first pick (server and client
  * agree), Roll again shuffles, then settles on any other card. A roll in
- * progress ignores further clicks.
+ * progress ignores further clicks: a second roll would restart the shuffle
+ * mid-flight and the cards would jump. Roll again shows it (`aria-disabled`
+ * while `phase` isn't rest), so no press is lost without a cue.
  */
 export function usePickRoll(size: number): PickRoll {
   const [pick, setPick] = useState(0);

@@ -1,22 +1,30 @@
 'use client';
 
 import type { SeriesRuntimes } from '@tvseri.es/schemas';
-import { memo, useMemo } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 
+import Sheen, { FINISH_SHEEN } from '@/components/motion/Sheen';
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
 import cn from '@/lib/cn';
 import { useSeriesView } from '@/lib/marking/hooks';
 import promptSignIn from '@/lib/marking/promptSignIn';
+import useCulmination from '@/lib/marking/useCulmination';
 
 import { openHistory } from '../../_lib/urlState';
 import { PROGRESS_LINE_SPACE as LINE_SPACE } from '../frames';
 import { preloadHistorySheet } from '../history/HistorySheetIsland';
-import { LineFacts, LinePercent, SizeFacts } from './ProgressCaption';
+import {
+  LineFacts,
+  LinePercent,
+  type PercentRoll,
+  SizeFacts,
+} from './ProgressCaption';
 import ProgressLineLayout from './ProgressLineLayout';
 import ProgressUnavailable from './ProgressUnavailable';
 import { progressLine, sizeLine } from './progressLine';
+import { rememberLine } from './rememberedLine';
 import ShowProgressTrack from './ShowProgressTrack';
 
 type Props = Readonly<{
@@ -47,15 +55,44 @@ const CHEVRON = (
   />
 );
 
+/** The value before its last change (the value itself until it changes) */
+function useBefore(value: number): number {
+  const [pair, setPair] = useState({ before: value, value });
+  if (pair.value !== value) {
+    setPair({ before: pair.value, value });
+  }
+  return pair.value === value ? pair.before : pair.value;
+}
+
+/**
+ * The finish, when the viewer's own mark finishes the show here
+ * (`useCulmination`): the fill slides to 100% as any mark's does, the %
+ * rolls up to it from where it was, and one sheen passes along the line.
+ * Null otherwise (and signed out).
+ */
+function useFinish(seriesId: number, share: number | null): PercentRoll | null {
+  const play = useCulmination(seriesId, 'show');
+  const from = useBefore(share ?? 0);
+  return play !== null && share === 100 ? { from, key: play } : null;
+}
+
 /**
  * The hero's progress line, live from the marking
  * store: every mark, drag and Undo moves it in the same frame. A click opens
  * the watch-history sheet (`?history`). Signed out it is the same control in
  * the same place: the bar empty, the series' size in place of the numbers
  * ("47 episodes · 26h 51m in all"), and a click shows the sign-in toast, as
- * every marking control does for a visitor.
+ * every marking control does for a visitor. A finish here plays once
+ * (`useFinish`).
  */
 function ProgressBar({ nextAirDate, runtimes, seriesId, signedIn }: Props) {
+  // The next visit in this tab draws this line at once (`ProgressFallback`):
+  // written after commit, so a render React throws away writes nothing
+  useEffect(() => {
+    if (signedIn) {
+      rememberLine(seriesId, { nextAirDate, runtimes });
+    }
+  }, [nextAirDate, runtimes, seriesId, signedIn]);
   const view = useSeriesView(seriesId);
   const line = useMemo(() => {
     if (!view || view.unavailable) {
@@ -71,6 +108,10 @@ function ProgressBar({ nextAirDate, runtimes, seriesId, signedIn }: Props) {
       !signedIn && view ? sizeLine(view, { nextAirDate, runtimes }) : null,
     [view, nextAirDate, runtimes, signedIn],
   );
+  const finish = useFinish(
+    seriesId,
+    size === null ? (line?.share ?? null) : null,
+  );
   if (view?.unavailable) {
     return <ProgressUnavailable seriesId={seriesId} />;
   }
@@ -82,8 +123,14 @@ function ProgressBar({ nextAirDate, runtimes, seriesId, signedIn }: Props) {
       ? `${line.label}: open watch history`
       : `Watch history: ${size.join(' · ')}`;
   const onClick = size === null ? open : promptSignIn;
-  const track = <ShowProgressTrack line={line} slide="ease-out" />;
-  const percent = size === null ? <LinePercent line={line} /> : null;
+  const track = (
+    <>
+      <ShowProgressTrack line={line} slide="ease-out" />
+      {finish ? <Sheen key={finish.key} timing={FINISH_SHEEN} /> : null}
+    </>
+  );
+  const percent =
+    size === null ? <LinePercent line={line} roll={finish} /> : null;
   const facts =
     size === null ? <LineFacts line={line} /> : <SizeFacts facts={size} />;
   // Signed in, intent fetches the sheet's code (a visitor gets the toast)

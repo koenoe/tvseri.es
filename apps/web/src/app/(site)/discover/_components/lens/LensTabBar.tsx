@@ -1,7 +1,8 @@
 'use client';
 
 import { type KeyboardEvent, useCallback } from 'react';
-
+import { FILL_BEFORE } from '@/components/motion/glide';
+import ChoiceButton from '@/components/ui/button/ChoiceButton';
 import {
   calendarGlyph,
   globeGlyph,
@@ -25,16 +26,22 @@ const LENS_GLYPH: Readonly<Record<LensKey, Glyph>> = {
   theme: tagGlyph,
 };
 
-// Phones: 34px pills that scroll sideways, white when chosen. Desktop:
-// the 10px-padded dark bar with icon tabs.
+// Phones: 34px pills that scroll sideways, white when chosen; the scroller
+// has 6px above and below so the tabs' taller targets aren't clipped.
+// Desktop: the 10px-padded dark bar with icon tabs, its corner the tabs'
+// 8 plus the padding.
 const BAR =
-  '-mx-gutter flex gap-1.5 overflow-x-auto px-gutter scrollbar-none md:mx-0 md:gap-1 md:overflow-visible md:rounded-12 md:bg-black/22 md:p-2.5';
+  '-mx-gutter flex gap-1.5 overflow-x-auto px-gutter scrollbar-none max-md:-my-1.5 max-md:py-1.5 md:mx-0 md:gap-1 md:overflow-visible md:rounded-18 md:bg-black/22 md:p-2.5';
+// 5px above and below (44px on a phone), half the gap at the sides
 const TAB = [
-  'flex h-8.5 shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full bg-white/6 px-3.5 text-body-sm font-medium text-white/80',
+  'flex h-8.5 shrink-0 after:absolute after:-inset-x-[3px] after:-inset-y-[5px] md:after:-inset-x-0.5 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full bg-white/6 px-3.5 text-body-sm font-medium text-white/80',
   'transition-[background-color,color] duration-200',
-  'aria-selected:bg-white aria-selected:text-black/90',
+  // the chosen fill is the tab's ::before, so it glides to the next tab
+  // chosen (`ChoiceButton`) without moving the words
+  FILL_BEFORE,
+  'aria-selected:before:bg-white aria-selected:text-black/90',
   'md:h-auto md:rounded-8 md:bg-transparent md:px-4 md:py-1.5 md:text-white/60 md:hover:text-white',
-  'md:aria-selected:bg-white/15 md:aria-selected:text-white',
+  'md:aria-selected:before:bg-white/15 md:aria-selected:text-white',
 ].join(' ');
 
 function LensTab({ lens }: Readonly<{ lens: LensKey }>) {
@@ -44,19 +51,19 @@ function LensTab({ lens }: Readonly<{ lens: LensKey }>) {
   const panelId = lensPanelId(lens);
   const tabId = lensTabId(lens);
   return (
-    <button
+    <ChoiceButton
       aria-controls={panelId}
       aria-selected={selected}
       className={TAB}
       id={tabId}
+      on={selected}
       onClick={onClick}
       role="tab"
       tabIndex={selected ? 0 : -1}
-      type="button"
     >
       <Icon className="max-md:hidden" glyph={LENS_GLYPH[lens]} size={14} />
       {LENS_LABELS[lens]}
-    </button>
+    </ChoiceButton>
   );
 }
 

@@ -6,7 +6,7 @@ import ClampedText, { type ClampFit } from '@/components/ui/fold/ClampedText';
 import { ActionButtonsSkeleton } from '../actions/ActionButtons';
 import ActionsHole from '../actions/ActionsHole';
 import FirstTrackingPrompt from '../first-tracking/FirstTrackingPrompt';
-import { ProgressSkeleton } from '../progress/ProgressBar';
+import ProgressFallback from '../progress/ProgressFallback';
 import ProgressHole from '../progress/ProgressHole';
 import RatingAndProvider, {
   RatingAndProviderSkeleton,
@@ -66,7 +66,7 @@ export default function Hero({ series }: Props) {
             </Suspense>
           </HeroMeta>
         </div>
-        <Suspense fallback={<ProgressSkeleton />}>
+        <Suspense fallback={<ProgressFallback seriesId={series.id} />}>
           <ProgressHole series={series} />
         </Suspense>
       </div>

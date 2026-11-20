@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { HEAD_LINK } from '@/app/(site)/u/[username]/_lib/headLink';
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import cn from '@/lib/cn';
 import { useHiddenShows } from '@/lib/marking/hooks';
 import useIntentSeed from '@/lib/marking/useIntentSeed';
 import useMarking from '@/lib/marking/useMarking';
@@ -21,8 +23,7 @@ import {
 import type { LedgerEpisodeView, LedgerView } from './loadLedger';
 import SeasonChart from './SeasonChart';
 
-const NEXT_LINK =
-  'flex min-w-0 cursor-pointer items-center gap-1 whitespace-nowrap text-body-sm font-medium text-white/60 transition-colors hover:text-white';
+const NEXT_LINK = cn(HEAD_LINK, 'min-w-0 cursor-pointer');
 
 /**
  * Season ledger: one show's holes at a time, most holes first. "Next: <show>"

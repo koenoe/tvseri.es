@@ -2,6 +2,7 @@
 
 import type { WatchProvider } from '@tvseri.es/schemas';
 import { regionName } from '@tvseri.es/utils';
+import { AnimatePresence } from 'motion/react';
 import {
   type ChangeEvent,
   useCallback,
@@ -11,6 +12,7 @@ import {
   useState,
 } from 'react';
 
+import FoldPresence from '@/components/motion/FoldPresence';
 import { createLoader } from '@/lib/lazy/createLoader';
 import { useLoader } from '@/lib/lazy/useLoader';
 import { useSelectedServices } from '@/lib/watchProviders/useSelectedServices';
@@ -29,6 +31,14 @@ import ServicesShelf from './ServicesShelf';
 const combobox = createLoader(() =>
   import('./CountryCombobox').then((module) => module.default),
 );
+
+/**
+ * The strip and the country list sit 8px under the region card. Each folds
+ * in and out, taking the column's 24px gap back and drawing its own 8px, so
+ * the fold's clip, while it moves, never cuts a negative margin.
+ */
+const UNDER_CARD_FOLD = '-mt-6';
+const UNDER_CARD_GAP = 'pt-2';
 
 /**
  * Region and services: one client island so the region card, the "Popular in
@@ -74,9 +84,11 @@ export default function ServicesEditor({
     },
     [choose, close],
   );
+  // The strip and its button leave: focus goes to the card it belongs to
   const onUseDetected = useCallback(() => {
     if (detected) {
       choose(detected, true);
+      changeButton.current?.focus();
     }
   }, [choose, detected]);
   const onQuery = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -88,34 +100,56 @@ export default function ServicesEditor({
   const regionLineText = regionLine(region, detected);
   const popular = popularLabel(name, query);
   const popularTitle = popularLabel(name, '');
+  // Where the visitor is, while it differs from the chosen country
+  const mismatch = detected && hasMismatch(region, detected) ? detected : null;
+  const chosenPlace = { code: region, name };
+  const detectedPlace = mismatch
+    ? { code: mismatch, name: regionName(mismatch) }
+    : null;
+  // Only while the list is there to point at (not its skeleton)
+  const controls = open && CountryCombobox ? comboboxId : undefined;
+  // The skeleton hands over to the list in place, at once (no fade): both
+  // are 348px
+  const picker = CountryCombobox ? (
+    <CountryCombobox
+      id={comboboxId}
+      onClose={close}
+      onPick={onPick}
+      selected={region}
+    />
+  ) : (
+    <ComboboxSkeleton />
+  );
   return (
     <>
       <RegionCard
         buttonRef={changeButton}
         code={region}
-        controls={comboboxId}
+        controls={controls}
         line={regionLineText}
         name={name}
         onPreload={combobox.preload}
         onToggle={toggleOpen}
         open={open}
       />
-      {detected && hasMismatch(region, detected) ? (
-        <MismatchLine
-          chosen={{ code: region, name }}
-          detected={{ code: detected, name: regionName(detected) }}
-          onUseDetected={onUseDetected}
-        />
-      ) : null}
-      {open && CountryCombobox ? (
-        <CountryCombobox
-          id={comboboxId}
-          onClose={close}
-          onPick={onPick}
-          selected={region}
-        />
-      ) : null}
-      {open && !CountryCombobox ? <ComboboxSkeleton /> : null}
+      <AnimatePresence initial={false}>
+        {detectedPlace ? (
+          <FoldPresence className={UNDER_CARD_FOLD} key="mismatch">
+            <div className={UNDER_CARD_GAP}>
+              <MismatchLine
+                chosen={chosenPlace}
+                detected={detectedPlace}
+                onUseDetected={onUseDetected}
+              />
+            </div>
+          </FoldPresence>
+        ) : null}
+        {open ? (
+          <FoldPresence className={UNDER_CARD_FOLD} key="picker">
+            <div className={UNDER_CARD_GAP}>{picker}</div>
+          </FoldPresence>
+        ) : null}
+      </AnimatePresence>
       <ServicesShelf
         onReorder={reorder}
         onToggle={toggle}

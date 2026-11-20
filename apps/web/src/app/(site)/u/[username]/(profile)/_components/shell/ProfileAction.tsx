@@ -23,9 +23,10 @@ export function ProfileActionSkeleton({
   return <span aria-hidden="true" className={SKELETON[size]} />;
 }
 
+/** Follow's own sizes and paddings, so the off button takes its exact place */
 const UNAVAILABLE: Readonly<Record<Size, string>> = {
-  compact: 'h-8 shrink-0 rounded-full px-3 text-[13px] font-semibold',
-  sidebar: 'h-[42px] w-full rounded-10 px-4 text-[14px] font-medium',
+  compact: 'h-8 shrink-0 rounded-full pr-3.5 pl-3 text-[13px] font-semibold',
+  sidebar: 'h-[42px] w-full rounded-10 px-[18px] text-[14px] font-medium',
 };
 
 /**
@@ -43,7 +44,7 @@ export default async function ProfileAction({
   const follow = await loadFollowState(profile);
   if (isUnavailable(follow)) {
     // contrast-exempt: a disabled action
-    const className = `flex cursor-not-allowed items-center justify-center gap-2 border-2 border-white/15 whitespace-nowrap text-white/40 ${UNAVAILABLE[size]}`;
+    const className = `flex cursor-not-allowed items-center justify-center gap-2 whitespace-nowrap text-white/40 shadow-[inset_0_0_0_2px_rgb(255_255_255/0.15)] ${UNAVAILABLE[size]}`;
     return (
       <button
         aria-label="Follow, unavailable right now"

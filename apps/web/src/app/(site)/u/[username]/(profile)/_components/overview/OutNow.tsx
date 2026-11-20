@@ -61,7 +61,8 @@ export default async function OutNow({
       <CappedRows
         as="ul"
         cap={LANE_CAPS.outNow}
-        className="flex flex-col gap-5 px-1 pt-0.5 pb-1"
+        className="px-1 pt-0.5 pb-1"
+        gap="5"
         ids={ids}
         rows={rows}
       />

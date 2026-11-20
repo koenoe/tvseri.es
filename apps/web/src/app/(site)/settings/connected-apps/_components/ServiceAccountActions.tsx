@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatePresence } from 'motion/react';
 import { useTransition } from 'react';
 
 import Button from '@/components/ui/button/Button';
@@ -50,17 +51,20 @@ export default function ServiceAccountActions({
           Disconnect
         </Button>
       </div>
-      {asking === 'disconnect' ? (
-        <ConfirmRow
-          confirm={confirm}
-          confirmClassName={DISCONNECT_CLASSES}
-          onCancel={cancel}
-          onConfirm={disconnect}
-          pending={pending}
-        >
-          {warning}
-        </ConfirmRow>
-      ) : null}
+      <AnimatePresence initial={false}>
+        {asking === 'disconnect' ? (
+          <ConfirmRow
+            confirm={confirm}
+            confirmClassName={DISCONNECT_CLASSES}
+            key="disconnect"
+            onCancel={cancel}
+            onConfirm={disconnect}
+            pending={pending}
+          >
+            {warning}
+          </ConfirmRow>
+        ) : null}
+      </AnimatePresence>
     </>
   );
 }

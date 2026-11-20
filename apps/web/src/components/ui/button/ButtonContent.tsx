@@ -2,13 +2,16 @@ import type { ReactNode } from 'react';
 
 import { pendingGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import IconSwap from '@/components/ui/icon/IconSwap';
 import type { Glyph, IconSize, ToggleGlyph } from '@/components/ui/icon/types';
 
 /**
  * The inside of every pill: leading icon, label, trailing icon. A string
  * label truncates (the pill is never wider than its container). A toggle glyph
  * (eye, bookmark…) shows its filled drawing while `active`; `pending` swaps
- * the leading icon for the spinning pending ring.
+ * the leading icon for the spinning pending ring. A pill that can change
+ * (`active` or `pending` given) swaps its icon through `IconSwap`; a static
+ * one stays a plain server-drawn `Icon`.
  */
 export default function ButtonContent({
   active,
@@ -57,14 +60,9 @@ function LeadingIcon({
   pending?: boolean;
   size: IconSize;
 }>) {
-  if (pending) {
-    return <Icon className="animate-spin" glyph={pendingGlyph} size={size} />;
+  if (active !== undefined || pending !== undefined) {
+    const glyph = pending ? pendingGlyph : (icon ?? null);
+    return <IconSwap active={active} glyph={glyph} size={size} />;
   }
-  if (!icon) {
-    return null;
-  }
-  if (icon.filled) {
-    return <Icon active={active} glyph={icon} size={size} />;
-  }
-  return <Icon glyph={icon} size={size} />;
+  return icon ? <Icon glyph={icon} size={size} /> : null;
 }

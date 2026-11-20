@@ -23,7 +23,7 @@ export default function PersonOption({ cell, marked, onChoose }: OptionProps) {
   const roleClasses = cn(PERSON.role, 'text-rk-w64');
   const knownForClasses = cn(PERSON.knownFor, 'text-rk-w64');
   const faceClasses = cn(
-    'rounded-full object-cover object-[center_20%] transition-shadow duration-120',
+    'image-outline rounded-full object-cover object-[center_20%] transition-shadow duration-120',
     marked ? MARKED_RING : HOVER_RING,
   );
 

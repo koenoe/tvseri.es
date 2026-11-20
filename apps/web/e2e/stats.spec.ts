@@ -131,6 +131,57 @@ test.describe('stats', () => {
     ).toBeVisible({ timeout: afterRelease() });
   });
 
+  // The profile's "{year} so far" Stats link fetches its year on intent (a
+  // per-link prefetch: a mouse resting on it, or keyboard focus), so the
+  // click commits the year's header at once, the week chart its strip
+  // grows into (`yearWeeks.ts`). A click alone is no intent: it gets the
+  // route's App Shell, the year's skeleton.
+  test('the profile’s year so far opens its Stats year instantly after intent', async ({
+    baseURL,
+    page,
+  }) => {
+    await signInAs(page.context(), 'alex');
+    await page.setViewportSize({ height: 900, width: 1440 });
+    await page.goto('/u/alex');
+    await hydrated(page);
+    const block = page.locator('section[aria-labelledby="i-yr"]');
+    const stats = block.getByRole('link', { name: 'Stats' });
+    await stats.scrollIntoViewIfNeeded();
+    await expect(stats).toBeVisible();
+    // the link's own prefetch in view (the route's App Shell) is in
+    await page.waitForLoadState('networkidle');
+    const path = `/u/alex/stats/${THIS_YEAR}`;
+    await instant(
+      page,
+      async () => {
+        // the per-link prefetch (`2`): shell prefetches (`1`) for the same
+        // URL land inside the lock too (see instant.spec.ts)
+        const prefetched = page.waitForResponse(
+          (response) =>
+            new URL(response.url()).pathname === path &&
+            response.request().headers()['next-router-prefetch'] === '2',
+        );
+        await stats.hover();
+        await (await prefetched).finished();
+        await stats.click();
+        await page.waitForURL((url) => url.pathname === path);
+        await expect(
+          page.getByRole('heading', { level: 1, name: String(THIS_YEAR) }),
+        ).toBeVisible();
+        // the week chart the strip grows into is in the same commit, and
+        // the year's skeleton (what a click without intent commits) is not
+        await expect(page.locator('[data-slot="stats-header"]')).toBeVisible();
+        await expect(
+          page.locator('[data-placeholder="stats-header"]'),
+        ).toHaveCount(0);
+      },
+      baseURL ? { baseURL } : undefined,
+    );
+    await expect(page.getByTestId('route-stats')).toBeVisible({
+      timeout: afterRelease(),
+    });
+  });
+
   // The sidebar and the phone head are the Stats layout's (above `[year]`):
   // a year switch keeps them mounted (no skeleton, the same nodes), the
   // clicked year is the selected one while the new year is still its
@@ -348,11 +399,11 @@ test.describe('stats', () => {
     );
     await section.scrollIntoViewIfNeeded();
     await hydrated(page);
-    const quarters = section.getByRole('radiogroup', { name: 'Quarter' });
-    const first = quarters.getByRole('radio', { name: 'Jan–Mar' });
-    const last = quarters.getByRole('radio', { name: 'Oct–Dec' });
+    const quarters = section.getByRole('group', { name: 'Quarter' });
+    const first = quarters.getByRole('button', { name: 'Jan–Mar' });
+    const last = quarters.getByRole('button', { name: 'Oct–Dec' });
     // a finished year opens on its first quarter
-    await expect(first).toHaveAttribute('aria-checked', 'true');
+    await expect(first).toHaveAttribute('aria-pressed', 'true');
     const scroller = section.getByRole('region', { name: /week by week$/ });
     const scrollLeft = () => scroller.evaluate((el) => el.scrollLeft);
     await expect.poll(scrollLeft).toBe(0);
@@ -375,7 +426,7 @@ test.describe('stats', () => {
           let frames = 0;
           const tick = () => {
             const on = document.querySelector(
-              '[aria-label="Quarter"] [aria-checked="true"]',
+              '[aria-label="Quarter"] [aria-pressed="true"]',
             );
             seen.push(on?.textContent ?? '');
             frames += 1;
@@ -389,8 +440,8 @@ test.describe('stats', () => {
         }),
     );
     await page.keyboard.press('Enter');
-    await expect(last).toHaveAttribute('aria-checked', 'true');
-    await expect(first).toHaveAttribute('aria-checked', 'false');
+    await expect(last).toHaveAttribute('aria-pressed', 'true');
+    await expect(first).toHaveAttribute('aria-pressed', 'false');
     const max = await scroller.evaluate(
       (el) => el.scrollWidth - el.clientWidth,
     );
@@ -433,14 +484,14 @@ test.describe('stats', () => {
     );
     await section.scrollIntoViewIfNeeded();
     await hydrated(page);
-    const quarters = section.getByRole('radiogroup', { name: 'Quarter' });
-    await quarters.getByRole('radio', { name: 'Oct–Dec' }).click();
+    const quarters = section.getByRole('group', { name: 'Quarter' });
+    await quarters.getByRole('button', { name: 'Oct–Dec' }).click();
     const scroller = section.getByRole('region', { name: /week by week$/ });
     await expect
       .poll(() => scroller.evaluate((el) => el.scrollLeft))
       .toBeGreaterThan(0);
     await section.getByRole('button', { name: /^All \d+$/ }).click();
-    await page.getByRole('radio', { name: 'Most hours' }).first().click();
+    await page.getByRole('button', { name: 'Most hours' }).first().click();
     const wrong = await scroller.evaluate((el) => {
       const from = el.scrollLeft / 24;
       const to = (el.scrollLeft + el.clientWidth) / 24;
@@ -479,8 +530,8 @@ test.describe('stats', () => {
     const scroller = section.getByRole('region', { name: /week by week$/ });
     const scrollLeft = () => scroller.evaluate((el) => el.scrollLeft);
     const lit = section
-      .getByRole('radiogroup', { name: 'Quarter' })
-      .locator('[aria-checked="true"]');
+      .getByRole('group', { name: 'Quarter' })
+      .locator('[aria-pressed="true"]');
     const slider = section.getByRole('slider', { name: 'Weeks in view' });
     await expect(lit).toHaveText('Jan–Mar');
     // the section is taller than the screen: the strip mid-screen, clear of

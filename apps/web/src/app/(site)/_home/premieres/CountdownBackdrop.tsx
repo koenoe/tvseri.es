@@ -31,6 +31,7 @@ function CountdownBackdrop({
   index,
   on,
   onLoaded,
+  seriesId,
 }: Readonly<{
   backdrop: string;
   /** The API's `backdropColor` ('#000000' when unknown) */
@@ -39,6 +40,8 @@ function CountdownBackdrop({
   on: boolean;
   /** decoded (or failed): its turn can come */
   onLoaded: (index: number) => void;
+  /** whose backdrop: the part the card hands over to the show page */
+  seriesId: number;
 }>) {
   const onLoad = useCallback(
     (event: SyntheticEvent<HTMLImageElement>) => {
@@ -63,6 +66,8 @@ function CountdownBackdrop({
       aria-hidden="true"
       className={layer}
       data-countdown-backdrop={index}
+      data-show-morph="art"
+      data-show-morph-id={seriesId}
       style={shade}
     >
       <Image

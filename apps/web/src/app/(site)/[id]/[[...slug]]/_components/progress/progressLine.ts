@@ -33,6 +33,8 @@ export type LinePart = Readonly<{
 export type ProgressLine = Readonly<{
   /** "76%" */
   percent: string;
+  /** The same share as a number, 0–100 */
+  share: number;
   parts: ReadonlyArray<LinePart>;
   /** Everything the line says, in words, for the label */
   label: string;
@@ -164,7 +166,8 @@ export function progressLine(
   // Left = aired, neither watched nor skipped (one rule for the page)
   const left = map.open;
   const minutesLeft = minutesOf(left, options.runtimes);
-  const percent = `${toPercentage(watched + skipped, total)}%`;
+  const share = toPercentage(watched + skipped, total);
+  const percent = `${share}%`;
   const withSkips = skipped > 0;
 
   const counts = countParts(watched, skipped, total);
@@ -206,6 +209,7 @@ export function progressLine(
     percent,
     plain: isPlainFill(runs),
     runs,
+    share,
     watched: total > 0 ? (watched / total) * 100 : 0,
   };
 }

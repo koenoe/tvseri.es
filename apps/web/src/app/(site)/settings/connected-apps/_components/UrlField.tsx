@@ -1,54 +1,14 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
-
-import { LATE_FADE } from '@/components/motion/lateFade';
 import Button from '@/components/ui/button/Button';
-import {
-  checkGlyph,
-  copyGlyph,
-  eyeGlyph,
-  eyeOffGlyph,
-} from '@/components/ui/icon/glyphs';
+import CopyButton from '@/components/ui/button/CopyButton';
+import { eyeGlyph, eyeOffGlyph } from '@/components/ui/icon/glyphs';
+import IconSwap from '@/components/ui/icon/IconSwap';
 import cn from '@/lib/cn';
 
 import { SM_BUTTON } from '../../_lib/appButtons';
 import { TOKEN_MASK } from '../_lib/webhookUrl';
 import { FIELD_RING_CLASS, URL_FIELD_CLASS } from './layout';
-
-/** How long Copy says Copied before it is Copy again */
-const COPIED_MS = 1500;
-
-/**
- * Copy, which says Copied for a moment once the URL is on the clipboard:
- * each word fades in as it takes the label (the toast still says it, for a
- * screen reader too).
- */
-function CopyButton({ onCopy }: Readonly<{ onCopy: () => Promise<boolean> }>) {
-  const [copied, setCopied] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const copy = useCallback(async () => {
-    if (!(await onCopy())) {
-      return;
-    }
-    setCopied(true);
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => setCopied(false), COPIED_MS);
-  }, [onCopy]);
-  const word = copied ? 'Copied' : 'Copy';
-  return (
-    <Button
-      className={SM_BUTTON}
-      icon={copied ? checkGlyph : copyGlyph}
-      onClick={copy}
-      variant="tonal"
-    >
-      <span className={LATE_FADE} key={word}>
-        {word}
-      </span>
-    </Button>
-  );
-}
 
 /**
  * The webhook URL: masked until Show; Copy always copies the whole URL. The
@@ -64,7 +24,8 @@ export default function UrlField({
 }: Readonly<{
   /** On the connected (amber) panel */
   connected: boolean;
-  onCopy: () => Promise<boolean>;
+  /** The whole URL for Copy, fetched if it isn't loaded (null: it couldn't be) */
+  onCopy: () => Promise<string | null>;
   onToggle: () => void;
   /** The URL is being fetched */
   pending: boolean;
@@ -81,6 +42,7 @@ export default function UrlField({
   const revealed = url !== null;
   const shown = revealed ? url.slice(prefix.length) : TOKEN_MASK;
   const busy = pending ? true : undefined;
+  const revealGlyph = revealed ? eyeOffGlyph : eyeGlyph;
   return (
     <div className={classes}>
       <span className="min-w-0 flex-1 truncate">
@@ -90,13 +52,20 @@ export default function UrlField({
       <Button
         aria-busy={busy}
         className={SM_BUTTON}
-        icon={revealed ? eyeOffGlyph : eyeGlyph}
         onClick={onToggle}
         variant="quiet"
       >
+        <IconSwap glyph={revealGlyph} size={16} />
         {revealed ? 'Hide' : 'Show'}
       </Button>
-      <CopyButton onCopy={onCopy} />
+      <CopyButton
+        className={SM_BUTTON}
+        copied="Copied your Plex webhook URL"
+        failed="Couldn’t copy your Plex URL. Try again."
+        text={onCopy}
+      >
+        Copy
+      </CopyButton>
     </div>
   );
 }

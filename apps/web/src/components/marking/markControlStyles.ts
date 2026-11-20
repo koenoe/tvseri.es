@@ -47,4 +47,4 @@ export const layer = (shown: boolean) =>
 export const ON_FILL = 'bg-white/6';
 
 /** The one button's second fact at its end ("3 of 15", "Thu Nov 19") */
-export const FACT = 'shrink-0 text-meta font-normal text-white/60';
+export const FACT = 'shrink-0 text-meta font-normal text-white/60 tabular-nums';

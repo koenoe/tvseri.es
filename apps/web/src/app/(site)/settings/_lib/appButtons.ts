@@ -1,12 +1,20 @@
+import { HIT_Y } from '@/components/ui/button/hitArea';
+
 /**
  * Class overrides on the shared `Button` for what sits off its sizes and
  * tones. Muted red appears only where something is destroyed: Disconnect and
  * Delete account.
  */
 
-/** 32px, 12px sides, body-sm, 13px icons 6px from the label. */
-export const SM_BUTTON =
-  'h-8 gap-1.5 px-3 has-[>svg:first-child]:pl-3 [&>svg]:size-[13px]';
+/** 32px (40px to the pointer), 12px sides, body-sm, 13px icons 6px from the label. */
+export const SM_BUTTON = `relative h-8 gap-1.5 px-3 has-[>svg:first-child]:pl-3 [&>svg]:size-[13px] ${HIT_Y[4]}`;
+
+/**
+ * A card's main call to action (Connect, Create my Plex URL): 24px on the
+ * text side, 22px on the icon's (its box has air in it).
+ */
+export const PRIMARY_BUTTON =
+  'px-6 font-semibold has-[>svg:first-child]:pl-5.5';
 
 /** The 40px buttons: 16px sides, 14px icons on the settings pages. */
 export const MD_BUTTON = 'has-[>svg:first-child]:pl-4 [&>svg]:size-3.5';

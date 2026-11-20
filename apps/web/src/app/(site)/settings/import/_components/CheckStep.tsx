@@ -1,7 +1,10 @@
 'use client';
 
 import { plural } from '@tvseri.es/utils';
+import { AnimatePresence } from 'motion/react';
 import { useMemo } from 'react';
+
+import FoldPresence from '@/components/motion/FoldPresence';
 import { unmatchedLines } from '../../_components/problems/problems';
 import type { ImportProvider } from '../_data/importer';
 import { isCombinedColumn } from '../_lib/columns';
@@ -19,6 +22,9 @@ import CheckSummary from './CheckSummary';
 import ColumnsPanel from './ColumnsPanel';
 import DatesNote from './DatesNote';
 import PreviewTable from './PreviewTable';
+import { STEP_FOLD, STEP_FOLD_GAP } from './styles';
+
+const COLUMNS_ID = 'import-columns';
 
 const notCountedLine = (state: CheckState): string => {
   const { films, repeats } = state.prepared.skipped;
@@ -106,19 +112,26 @@ export default function CheckStep({
         line={recognised}
         name={file.name}
         onToggle={importer.toggleEdit}
+        panelId={COLUMNS_ID}
       />
-      {state.edit ? (
-        <ColumnsPanel
-          combined={combined}
-          dateExample={exampleText}
-          dateOrder={order}
-          headers={file.headers}
-          mapping={mapping}
-          onMapping={importer.setMapping}
-          providers={providerNames}
-          source={source}
-        />
-      ) : null}
+      <AnimatePresence initial={false}>
+        {state.edit ? (
+          <FoldPresence className={STEP_FOLD} key="columns">
+            <div className={STEP_FOLD_GAP} id={COLUMNS_ID}>
+              <ColumnsPanel
+                combined={combined}
+                dateExample={exampleText}
+                dateOrder={order}
+                headers={file.headers}
+                mapping={mapping}
+                onMapping={importer.setMapping}
+                providers={providerNames}
+                source={source}
+              />
+            </div>
+          </FoldPresence>
+        ) : null}
+      </AnimatePresence>
       <PreviewTable heads={heads} rows={rows} />
       <CheckSummary
         checking={checking}

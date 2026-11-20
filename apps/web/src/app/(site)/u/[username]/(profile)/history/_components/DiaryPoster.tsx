@@ -17,7 +17,7 @@ const SIZES = '(max-width: 767px) 40px, 56px';
 
 const POSTER = cn(
   DIARY_POSTER,
-  'relative block shrink-0 overflow-hidden bg-white/6 shadow-[0_8px_24px_rgb(0_0_0/0.35)] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08)]',
+  'relative block shrink-0 overflow-hidden bg-white/6 shadow-[0_8px_24px_rgb(0_0_0/0.35)] image-rim',
 );
 
 /** The glow's bitmap: the poster at 8 × 12, in its own 2:3 */

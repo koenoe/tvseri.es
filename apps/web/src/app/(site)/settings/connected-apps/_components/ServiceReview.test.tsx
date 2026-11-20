@@ -269,6 +269,42 @@ describe('ServiceReview', () => {
     expect(screen.queryByRole('button', { name: 'Show more' })).toBeNull();
   });
 
+  /** The list item an entry's line sits in, as drawn now */
+  const itemOf = (text: string) =>
+    screen.getByText(text).closest<HTMLElement>('[data-leaving-item]');
+
+  it('opens the entries Show more brings into the list', async () => {
+    more.mockResolvedValue({ data: page([NEW_ENTRY]), ok: true });
+    render(
+      <ServiceReview
+        count={3}
+        overflow={0}
+        page={page([TOP_BOY, LOST], 'c1')}
+      />,
+    );
+    expect(itemOf('Lost Signals: Pilot')?.style.opacity).not.toBe('0');
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Show more' }));
+    });
+    // it starts shut and opens into its place
+    expect(itemOf('Fresh Show: One')?.style.opacity).toBe('0');
+  });
+
+  it('draws the entries a sync adds at once', () => {
+    const { rerender } = render(
+      <ServiceReview count={2} overflow={0} page={page([TOP_BOY, LOST])} />,
+    );
+    rerender(
+      <ServiceReview
+        count={3}
+        overflow={0}
+        page={page([TOP_BOY, LOST, NEW_ENTRY])}
+      />,
+    );
+    expect(itemOf('Fresh Show: One')?.style.opacity).not.toBe('0');
+  });
+
   it('keeps what it loaded when the card refreshes', async () => {
     more.mockResolvedValue({ data: page([LOST]), ok: true });
     const { rerender } = render(

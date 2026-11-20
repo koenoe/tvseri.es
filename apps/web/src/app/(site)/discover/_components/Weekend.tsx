@@ -53,7 +53,7 @@ const WEEKEND_WIDE =
   'flex w-66 shrink-0 snap-start flex-col gap-2 md:col-span-2 md:w-auto md:gap-3';
 const WEEKEND_POSTER = 'w-33 shrink-0 snap-start md:w-auto';
 /** The wide tile's backdrop link: the one backdrop hover (`tileHover`), no lift or ring */
-const WIDE_LINK = `relative block h-49.5 overflow-hidden rounded-10 bg-white/5 shadow-[0_10px_24px_-8px_rgb(0_0_0/0.7)] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08)] focus-visible:outline-offset-4 md:h-85 ${TILE_HOVER_WIDE}`;
+const WIDE_LINK = `relative block h-49.5 overflow-hidden rounded-10 bg-white/5 shadow-[0_10px_24px_-8px_rgb(0_0_0/0.7)] image-rim focus-visible:outline-offset-4 md:h-85 ${TILE_HOVER_WIDE}`;
 
 /**
  * The line under each tile: the title, then the facts (24 + 10 + 20). The

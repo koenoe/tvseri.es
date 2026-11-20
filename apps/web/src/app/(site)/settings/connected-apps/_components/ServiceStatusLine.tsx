@@ -1,3 +1,4 @@
+import CrossFade from '@/components/motion/CrossFade';
 import LocalMoment from '../../_components/LocalMoment';
 import { STATE_DOT } from '../_lib/appState';
 import {
@@ -6,7 +7,6 @@ import {
   serviceStatusText,
 } from '../_lib/serviceState';
 import AppStatus from './AppStatus';
-import Swap from './motion/Swap';
 import { useConnectedService } from './ServiceContext';
 import { STATUS_GHOST } from './StatusGhost';
 
@@ -39,9 +39,5 @@ export default function ServiceStatusLine({
         ) : null}
       </AppStatus>
     );
-  return (
-    <Swap stacked swapKey={state}>
-      {line}
-    </Swap>
-  );
+  return <CrossFade swapKey={state}>{line}</CrossFade>;
 }

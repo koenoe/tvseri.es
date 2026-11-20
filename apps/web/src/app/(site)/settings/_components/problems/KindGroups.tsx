@@ -3,11 +3,10 @@
 import { plural } from '@tvseri.es/utils';
 import { AnimatePresence } from 'motion/react';
 import type { ReactNode } from 'react';
-
+import LeavingItem from '@/components/motion/LeavingItem';
 import type { SeriesCandidate } from '@/lib/import/contract';
 import AmbiguousItem from './AmbiguousItem';
 import type { Fix } from './fix';
-import LeavingItem from './LeavingItem';
 import NotFoundItem, { type NotFoundHandlers } from './NotFoundItem';
 import ProblemGroup from './ProblemGroup';
 import { type ProblemItem, rowCount } from './problems';
@@ -28,6 +27,8 @@ const PICK_LINE: Readonly<Record<ProblemUnit, string>> = {
 type GroupProps = Readonly<{
   /** Beside the group's header (a sync's Skip all) */
   action?: ReactNode;
+  /** An item a page added after the first render (Show more): it opens into the list */
+  arrives?: (item: ProblemItem) => boolean;
   bodyId: string;
   /** What follows the items (the import's summed-up rest) */
   children?: ReactNode;
@@ -47,6 +48,7 @@ type GroupProps = Readonly<{
 /** "Which series?", shared by the import and the sync's review list */
 export function AmbiguousProblems({
   action,
+  arrives,
   bodyId,
   children,
   count,
@@ -84,7 +86,11 @@ export function AmbiguousProblems({
         {items.map((item, index) => {
           const itemCount = ITEM_COUNT[unit](item.indexes.length);
           return (
-            <LeavingItem index={index} key={item.key}>
+            <LeavingItem
+              arrive={arrives?.(item) ?? false}
+              index={index}
+              key={item.key}
+            >
               <AmbiguousItem
                 count={itemCount}
                 fix={fixes?.[item.key]}
@@ -105,6 +111,7 @@ export function AmbiguousProblems({
 /** "Not found": search for the show, or pick the episode, or skip. */
 export function NotFoundProblems({
   action,
+  arrives,
   bodyId,
   children,
   count,
@@ -135,7 +142,11 @@ export function NotFoundProblems({
         {items.map((item, index) => {
           const itemCount = ITEM_COUNT[unit](item.indexes.length);
           return (
-            <LeavingItem index={index} key={item.key}>
+            <LeavingItem
+              arrive={arrives?.(item) ?? false}
+              index={index}
+              key={item.key}
+            >
               <NotFoundItem
                 count={itemCount}
                 fix={fixes?.[item.key]}

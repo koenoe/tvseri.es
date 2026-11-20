@@ -17,7 +17,7 @@ import CastSheetList from './CastSheetList';
 
 /**
  * One panel in two shapes: below md a bottom sheet (80% of the screen, 24px
- * top corners, the grab handle; it swipes down to close), from md a 440px
+ * top corners, the grab handle; it swipes down to close), from md a 480px
  * side panel the full height on the right, as every side panel slides in.
  */
 /**
@@ -35,7 +35,9 @@ const PANEL = cn(
   SURFACE.sheet,
   SHADOW.sheet,
   'max-md:h-[80dvh] max-md:w-full max-md:self-end max-md:rounded-t-[24px] max-md:px-gutter max-md:pt-2.5 max-md:shadow-[0_-20px_40px_rgb(0_0_0/0.4)]',
-  'md:h-dvh md:w-110 md:max-w-full md:self-stretch md:justify-self-end md:border-white/8 md:border-l',
+  // 480px: "The Lord of the Rings: The Rings of Power · 311 people" needs
+  // 443 with the padding and the ✕
+  'md:h-dvh md:w-120 md:max-w-full md:self-stretch md:justify-self-end md:border-white/8 md:border-l',
 );
 
 const HEADER =
@@ -46,6 +48,7 @@ const TITLE = 'font-semibold text-[17px] leading-6 md:text-[20px] md:leading-7';
 /** The show and the count: the side panel's second line (white/60, the app's contrast floor); the sheet has none */
 const SUBTITLE =
   'mt-0.5 text-[13px] text-white/60 leading-[18px] max-md:hidden';
+const SUBTITLE_LINE = cn(SUBTITLE, 'text-balance');
 
 /**
  * The cast & crew sheet: everyone who made the show, the cast then the
@@ -65,7 +68,7 @@ export default function CastSheet({
   total: number;
 }>) {
   const titleId = useId();
-  const subtitle = `${title} · ${peopleCount(total)}`;
+  const count = `· ${peopleCount(total)}`;
   return (
     <ModalShell
       backdropClassName={BACKDROP.side}
@@ -83,7 +86,11 @@ export default function CastSheet({
           <h2 className={TITLE} id={titleId}>
             All cast &amp; crew
           </h2>
-          <p className={SUBTITLE}>{subtitle}</p>
+          {/* Fits one line at 480px; a longer title wraps, balanced, and
+              "· 311 people" stays together */}
+          <p className={SUBTITLE_LINE}>
+            {title} <span className="whitespace-nowrap">{count}</span>
+          </p>
         </div>
         <DialogCloseCircle size={40} />
       </header>

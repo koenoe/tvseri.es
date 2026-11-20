@@ -1,8 +1,10 @@
+import SwapIn from '@/components/motion/SwapIn';
 import Button from '@/components/ui/button/Button';
 
 import type { SeriesCandidate } from '@/lib/import/contract';
-import FixDone from './FixDone';
+import FixDone, { FixStatus } from './FixDone';
 import type { Fix } from './fix';
+import { keepFocusInItem } from './itemFocus';
 import { ProblemItemFrame } from './ProblemGroup';
 import { hasName, type ProblemItem } from './problems';
 import { CHIP, SMALL_BUTTON } from './styles';
@@ -24,7 +26,8 @@ const candidateLabel = (candidate: SeriesCandidate, name: string) =>
 /**
  * A show with several series of its name, or TMDB's closest ones ("Which
  * series?"): "Which one?" and a chip per series. Picking one sends its rows
- * again with that series; nothing doubtful is ever written by itself.
+ * again with that series; nothing doubtful is ever written by itself. What
+ * became of it rises into the chips' place.
  */
 export default function AmbiguousItem({
   count,
@@ -44,8 +47,8 @@ export default function AmbiguousItem({
   /** Takes a kept fix back (the import) */
   onUndo?: (key: string) => void;
 }>) {
-  const undo = () => onUndo?.(item.key);
-  const skip = () => onSkip(item);
+  const undo = () => keepFocusInItem(() => onUndo?.(item.key));
+  const skip = () => keepFocusInItem(() => onSkip(item));
   return (
     <ProblemItemFrame
       count={count}
@@ -53,38 +56,41 @@ export default function AmbiguousItem({
       title={item.title}
       why={item.why}
     >
-      {fix ? (
-        <FixDone fix={fix} onUndo={undo} />
-      ) : (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="mr-1 text-caption text-white/60 max-md:basis-full">
-            Which one?
-          </span>
-          {item.candidates.map((candidate) => {
-            const pick = () => onPick(item, candidate);
-            const label = candidateLabel(candidate, item.query);
-            return (
-              <button
-                aria-pressed={false}
-                className={CHIP}
-                key={candidate.id}
-                onClick={pick}
-                type="button"
-              >
-                {label}
-              </button>
-            );
-          })}
-          <Button
-            className={SMALL_BUTTON}
-            onClick={skip}
-            size="xs"
-            variant="quiet"
-          >
-            <span className="text-body-sm">Skip</span>
-          </Button>
-        </div>
-      )}
+      <FixStatus fix={fix} title={item.title} />
+      <SwapIn swapKey={fix ? 'done' : 'ask'}>
+        {fix ? (
+          <FixDone fix={fix} onUndo={undo} />
+        ) : (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="mr-1 text-caption text-white/60 max-md:basis-full">
+              Which one?
+            </span>
+            {item.candidates.map((candidate) => {
+              const pick = () => keepFocusInItem(() => onPick(item, candidate));
+              const label = candidateLabel(candidate, item.query);
+              return (
+                <button
+                  aria-pressed={false}
+                  className={CHIP}
+                  key={candidate.id}
+                  onClick={pick}
+                  type="button"
+                >
+                  {label}
+                </button>
+              );
+            })}
+            <Button
+              className={SMALL_BUTTON}
+              onClick={skip}
+              size="xs"
+              variant="quiet"
+            >
+              <span className="text-body-sm">Skip</span>
+            </Button>
+          </div>
+        )}
+      </SwapIn>
     </ProblemItemFrame>
   );
 }

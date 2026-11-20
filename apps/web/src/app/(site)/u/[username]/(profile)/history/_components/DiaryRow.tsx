@@ -1,6 +1,7 @@
 'use client';
 
 import { formatRuntime } from '@tvseri.es/utils';
+import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
 import {
   memo,
@@ -11,6 +12,7 @@ import {
   useState,
 } from 'react';
 
+import { useMotionLive } from '@/components/motion/ArmedMaxMotion';
 import CodeBadge from '@/components/ui/button/CodeBadge';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import TileLink from '@/components/ui/tile/TileLink';
@@ -57,15 +59,18 @@ const RUNTIME = cn(
   DIARY_ROW_END_CELL,
 );
 
-/** The owner's ⋯ shows on hover (desktop only); a visitor's + always */
+/**
+ * The owner's ⋯ waits for hover with a mouse; a touch tablet can't hover,
+ * so there it stays shown. Not on a phone, where its space goes to the title
+ */
 const HOVER_ACTION =
-  'opacity-0 transition-opacity duration-160 group-hover/row:opacity-100 focus-within:opacity-100 has-[[aria-expanded=true]]:opacity-100 max-md:hidden';
+  'opacity-0 transition-opacity duration-160 group-hover/row:opacity-100 focus-within:opacity-100 has-[[aria-expanded=true]]:opacity-100 [@media(hover:none)]:opacity-100 max-md:hidden';
 
 /**
  * One show on one day, lit by its poster: poster, the show, the code with
  * the episode's title or "N episodes", the runtime and a 32px slot. A one-episode row opens that episode; a run's "N episodes" opens
  * each episode (code, title, runtime) and its chevron fills the slot. The
- * page passes the ⋯ (`action`, shown on hover; not on a phone, where its
+ * page passes the ⋯ (`action`, shown on hover or touch; not on a phone, where its
  * space goes to the title) and a visitor's tag. The ⋯ sits in the slot, or
  * on a run, where the chevron has it, before the runtime.
  */
@@ -76,7 +81,7 @@ function DiaryRow({
   tag,
 }: Readonly<{
   action?: ReactNode;
-  /** The visitor's +: always shown (the owner's ⋯ shows on hover, desktop only) */
+  /** The visitor's +: always shown (the owner's ⋯ waits for a mouse's hover, desktop only) */
   actionAlways?: boolean;
   row: Row;
   tag?: ReactNode;
@@ -84,6 +89,7 @@ function DiaryRow({
   const [open, setOpen] = useState(false);
   const bump = useDiaryLayoutBump();
   const layout = useDiaryLayout();
+  const live = useMotionLive();
   const listId = useId();
   const glow = useRef<HTMLCanvasElement>(null);
   const toggle = useCallback(() => {
@@ -157,7 +163,10 @@ function DiaryRow({
       </div>
       {/* after the grid: the row's first child stays its grid (the e2e reads it) */}
       {row.poster ? <DiaryGlow ref={glow} /> : null}
-      {open ? <DiaryEpisodes id={listId} row={row} /> : null}
+      {/* shut at once without the month's Motion (no renderer to fold it) */}
+      <AnimatePresence custom={live} initial={false}>
+        {open ? <DiaryEpisodes id={listId} key="episodes" row={row} /> : null}
+      </AnimatePresence>
     </m.div>
   );
 }

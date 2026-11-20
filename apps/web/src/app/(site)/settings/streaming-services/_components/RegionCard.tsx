@@ -38,7 +38,8 @@ export default function RegionCard({
   open,
 }: Readonly<{
   buttonRef: Ref<HTMLButtonElement>;
-  controls: string;
+  /** The country list's id, only while it is there */
+  controls?: string;
   /** The region's ISO code, for its flag */
   code: string;
   line: string;

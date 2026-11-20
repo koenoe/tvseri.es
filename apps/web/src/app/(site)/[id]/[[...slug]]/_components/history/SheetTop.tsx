@@ -1,7 +1,9 @@
 'use client';
 
-import { type MouseEvent, memo, useCallback, useMemo } from 'react';
-
+import { AnimatePresence } from 'motion/react';
+import { type MouseEvent, memo, useCallback, useId, useMemo } from 'react';
+import FoldPresence from '@/components/motion/FoldPresence';
+import { HIT_Y } from '@/components/ui/button/hitArea';
 import { SegmentedItem } from '@/components/ui/button/Segmented';
 import { helpGlyph, trendingGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
@@ -40,7 +42,7 @@ const HINTS: Readonly<Record<SheetMode, string>> = {
  * Phones only (no show row): the hint follows the mode pill, with the
  * legend toggle at its end, as the pills row has no room for it.
  */
-function PaintHint() {
+function PaintHint({ legendId }: Readonly<{ legendId: string }>) {
   const mode = useSheetUi((state) => state.mode);
   return (
     <div className="flex items-start gap-2 sm:hidden">
@@ -48,7 +50,10 @@ function PaintHint() {
         <Icon className="shrink-0" glyph={trendingGlyph} size={16} />
         {HINTS[mode]}
       </p>
-      <LegendButton className="-my-1 shrink-0 px-2 text-caption" />
+      <LegendButton
+        className="-my-1 shrink-0 px-2 text-caption"
+        controls={legendId}
+      />
     </div>
   );
 }
@@ -90,7 +95,7 @@ function ShowRow() {
   const nothingOpen = (progress?.left ?? 0) === 0;
   return (
     <div className="flex items-center gap-4 rounded-14 bg-white/3.5 px-4 py-3.5 max-sm:hidden">
-      <p className="min-w-0 flex-1 truncate text-body-sm text-white/60">
+      <p className="min-w-0 flex-1 truncate text-body-sm text-white/60 tabular-nums">
         <b className="font-semibold text-white">{show.title}</b>
         {` · ${counts}`}
       </p>
@@ -127,7 +132,14 @@ function ModeItem({
   );
 }
 
-function LegendButton({ className }: Readonly<{ className?: string }>) {
+function LegendButton({
+  className,
+  controls,
+}: Readonly<{
+  className?: string;
+  /** the legend's id, named only while it is drawn */
+  controls: string;
+}>) {
   const store = useSheetUiStore();
   const open = useSheetUi((state) => state.legend);
   const toggle = useCallback(() => {
@@ -135,9 +147,12 @@ function LegendButton({ className }: Readonly<{ className?: string }>) {
   }, [store]);
   return (
     <button
+      aria-controls={open ? controls : undefined}
       aria-expanded={open}
       className={cn(
-        'inline-flex h-7.5 min-w-7.5 cursor-pointer items-center gap-1.5 rounded-8 px-2.5 text-body-sm font-medium text-white/70 transition-colors hover:bg-white/8 hover:text-white aria-expanded:bg-white/6 aria-expanded:text-white',
+        // 44px tall to the thumb, still clear of the mode pills above on a phone
+        'relative inline-flex h-7.5 min-w-7.5 cursor-pointer items-center gap-1.5 rounded-8 px-2.5 text-body-sm font-medium text-white/70 transition-colors hover:bg-white/8 hover:text-white aria-expanded:bg-white/6 aria-expanded:text-white',
+        HIT_Y[7],
         className,
       )}
       onClick={toggle}
@@ -151,11 +166,13 @@ function LegendButton({ className }: Readonly<{ className?: string }>) {
 
 /**
  * The block above the seasons: the show row, the
- * mode pills (what a tap does) with the legend toggle, the legend; on phones
+ * mode pills (what a tap does) with the legend toggle, the legend (it folds
+ * open and shut); on phones
  * the paint hint (with the legend toggle) instead of the show row.
  */
 function SheetTop() {
   const legend = useSheetUi((state) => state.legend);
+  const legendId = useId();
   // 24px above the pills row and 24px below it (the sheet's own gap to the
   // seasons): the row sits evenly between the show line and the first season
   return (
@@ -171,10 +188,20 @@ function SheetTop() {
             <ModeItem key={mode} label={label} mode={mode} />
           ))}
         </div>
-        <LegendButton className="max-sm:hidden" />
+        <LegendButton className="max-sm:hidden" controls={legendId} />
       </div>
-      <PaintHint />
-      {legend ? <Legend /> : null}
+      <PaintHint legendId={legendId} />
+      <AnimatePresence initial={false}>
+        {legend ? (
+          // takes the column's gap back and draws it inside, so the gap
+          // folds with the legend instead of jumping
+          <FoldPresence className="-mt-6 max-sm:-mt-3" key="legend">
+            <div className="pt-6 max-sm:pt-3" id={legendId}>
+              <Legend />
+            </div>
+          </FoldPresence>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

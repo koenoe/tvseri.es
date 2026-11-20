@@ -1,8 +1,10 @@
 'use client';
 
+import { useIsPresent } from 'motion/react';
 import * as m from 'motion/react-m';
 import { type KeyboardEvent, useCallback, useEffect, useMemo } from 'react';
 import { SHEET_EASE } from '@/components/motion/ease';
+import { SWAP_VARIANTS } from '@/components/motion/swap';
 import cn from '@/lib/cn';
 import { WIDE } from '@/lib/media/breakpoints';
 import useMediaQuery from '@/lib/media/useMediaQuery';
@@ -80,6 +82,8 @@ export default function Tray({
   served: AdminSeries;
 }>) {
   const isDesktop = useMediaQuery(WIDE);
+  // leaving, it takes no press (the swap's own fade out)
+  const present = useIsPresent();
   const model = useTray({ isDesktop, onClose, preview, served });
 
   // The choices may still be loading (a `?images` link opens at once).
@@ -114,6 +118,8 @@ export default function Tray({
       animate={ENTER}
       aria-label={label}
       className={className}
+      exit={SWAP_VARIANTS.out}
+      inert={!present}
       initial={FROM}
       key={isDesktop ? 'desktop' : 'phone'}
       onKeyDown={onKeyDown}

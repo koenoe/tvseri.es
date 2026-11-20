@@ -20,6 +20,9 @@ export type LeaveReason =
   | 'unhide'
   | 'watchlist-remove';
 
+/** `marked`: a mark made on this page made the show leave (N finished it) */
+export type LeaveHow = Readonly<{ marked?: boolean }>;
+
 /** How each way of leaving moves the shelf counts */
 const COUNT_CHANGE: Readonly<
   Record<LeaveReason, Partial<Record<LibraryShelf, number>>>
@@ -119,13 +122,17 @@ export default function useShelfTiles({
   );
 
   const leave = useCallback(
-    (ids: ReadonlyArray<number>, reason: LeaveReason) => {
+    (ids: ReadonlyArray<number>, reason: LeaveReason, how?: LeaveHow) => {
       setMoving(true);
       setLeft(
         (was) => new Map([...was, ...ids.map((id) => [id, reason] as const)]),
       );
+      // Only N finishing the show here lands it on Finished (the sidebar's
+      // count rings): never a show the store first had finished
+      const landed =
+        reason === 'finished' && how?.marked ? 'finished' : undefined;
       for (const _ of ids) {
-        bumpCounts(username, COUNT_CHANGE[reason]);
+        bumpCounts(username, COUNT_CHANGE[reason], landed);
       }
     },
     [username],

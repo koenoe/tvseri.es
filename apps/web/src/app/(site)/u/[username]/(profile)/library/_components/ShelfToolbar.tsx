@@ -21,12 +21,16 @@ import {
   sparkleGlyph,
 } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import IconSwap from '@/components/ui/icon/IconSwap';
 import cn from '@/lib/cn';
 
 import { SHELVES } from '../_lib/shelves';
 import type { FindText } from '../_lib/useFindText';
 import SortMenu from './SortMenu';
-import { CHIP, FIELD, PILL, PILL_ON } from './toolbarStyles';
+import { CHIP, FIELD, PILL, PILL_ON, SELECT_PILL } from './toolbarStyles';
+
+/** Select's marker (`SELECT_PILL`) */
+const SELECT_MARK = { [SELECT_PILL]: '' };
 
 export type ToolbarProps = Readonly<{
   shelf: LibraryShelf;
@@ -161,6 +165,7 @@ export default function ShelfToolbar({
   const findLabel = `Find in ${SHELVES[shelf].label}`;
   const toggleFinding = useCallback(() => setFinding((was) => !was), []);
   const findPillClass = cn(PILL, 'px-2.5 md:hidden', finding && PILL_ON);
+  const findGlyph = finding ? closeGlyph : searchGlyph;
   const selectPillClass = cn(PILL, selecting && PILL_ON);
   const newOn = filter === 'new';
   const sharedOn = filter === 'shared';
@@ -199,10 +204,11 @@ export default function ShelfToolbar({
           onClick={toggleFinding}
           type="button"
         >
-          <Icon glyph={finding ? closeGlyph : searchGlyph} size={16} />
+          <IconSwap glyph={findGlyph} size={16} />
         </button>
         {canSelect ? (
           <button
+            {...SELECT_MARK}
             aria-pressed={selecting}
             className={selectPillClass}
             onClick={onSelect}

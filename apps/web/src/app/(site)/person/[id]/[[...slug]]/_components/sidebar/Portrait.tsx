@@ -4,7 +4,7 @@ import Icon from '@/components/ui/icon/Icon';
 
 /** 112 × 150 on phones, 300 × 400 on desktop */
 const FRAME =
-  'relative block h-[150px] w-[112px] overflow-hidden rounded-12 lg:h-[400px] lg:w-[300px] lg:rounded-16 lg:shadow-[0_24px_40px_-18px_rgba(0,0,0,0.8)]';
+  'image-rim relative block h-[150px] w-[112px] overflow-hidden rounded-12 lg:h-[400px] lg:w-[300px] lg:rounded-16 lg:shadow-[0_24px_40px_-18px_rgba(0,0,0,0.8)]';
 // contrast-exempt: the no-photo person icon
 const NO_PHOTO = `${FRAME} flex items-center justify-center bg-white/7 text-white/50`;
 

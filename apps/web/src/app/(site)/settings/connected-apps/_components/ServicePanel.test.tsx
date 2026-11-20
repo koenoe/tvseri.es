@@ -23,7 +23,11 @@ vi.mock('./AppsAccordion', async (importOriginal) => ({
   AppBody: ({ children }: Readonly<{ children: ReactNode }>) => (
     <div>{children}</div>
   ),
-  AppToggle: () => <button type="button">Hide Netflix</button>,
+  AppToggle: () => (
+    <button id="netflix-toggle" type="button">
+      Hide Netflix
+    </button>
+  ),
 }));
 
 const NOT_CONNECTED: ConnectionStatus = {
@@ -173,7 +177,7 @@ describe('ServicePanel', () => {
       body: JSON.stringify({ service: 'netflix' }),
       method: 'POST',
     });
-    expect(screen.getByLabelText('Your code: 4 8 2 9')).toBeTruthy();
+    expect(screen.getByText('Your code: 4 8 2 9')).toBeTruthy();
     expect(screen.getByText('Waiting for the extension')).toBeTruthy();
     expect(screen.getByText(/^Valid for/)).toBeTruthy();
     // Pairing is not live: no red panel, the pill still says Available
@@ -289,7 +293,7 @@ describe('ServicePanel', () => {
       />,
     );
     await connect();
-    expect(screen.getByLabelText('Your code: 4 8 2 9')).toBeTruthy();
+    expect(screen.getByText('Your code: 4 8 2 9')).toBeTruthy();
 
     linked = true;
     await act(async () => {
@@ -298,6 +302,90 @@ describe('ServicePanel', () => {
     expect(screen.getByText('Waiting for the first sync · Koen')).toBeTruthy();
     // the server's status takes over
     expect(refresh).toHaveBeenCalled();
+    // said once, and focus left with the code's Cancel goes to the card's toggle
+    expect(showToast).toHaveBeenLastCalledWith({ title: 'Netflix connected' });
+    expect(document.activeElement?.id).toBe('netflix-toggle');
+  });
+
+  it('keeps focus on the card: on Cancel once the code is up, then on the toggle after Cancel', async () => {
+    serve();
+    await show(
+      <ServicePanel
+        browser={browser}
+        service="netflix"
+        status={NOT_CONNECTED}
+      />,
+    );
+    await connect();
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: 'Cancel' }),
+    );
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    });
+    expect(document.activeElement?.id).toBe('netflix-toggle');
+  });
+
+  // Connect's press moves focus to Cancel once the code is up: Enter held
+  // on Connect mustn't walk on and revoke the code just minted
+  it('lets a held Enter on Connect not press Cancel', async () => {
+    serve();
+    await show(
+      <ServicePanel
+        browser={browser}
+        service="netflix"
+        status={NOT_CONNECTED}
+      />,
+    );
+    await connect();
+    const cancel = screen.getByRole('button', { name: 'Cancel' });
+    expect(document.activeElement).toBe(cancel);
+    // fireEvent returns false once the default was prevented
+    expect(fireEvent.keyDown(cancel, { key: 'Enter', repeat: true })).toBe(
+      false,
+    );
+  });
+
+  it('lands a link once when the poll and the extension’s answer overlap', async () => {
+    vi.useFakeTimers();
+    const answers: Array<Reply> = [];
+    withExtension((reply: Reply) => {
+      answers.push(reply);
+    });
+    serve();
+    await show(
+      <ServicePanel
+        browser={browser}
+        service="netflix"
+        status={NOT_CONNECTED}
+      />,
+    );
+    await connect();
+    // Both reads are in flight when the link lands
+    const reads: Array<() => void> = [];
+    fetchMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          reads.push(() => resolve(Response.json(CONNECTED)));
+        }),
+    );
+    await act(async () => {
+      vi.advanceTimersByTime(3100);
+    });
+    await act(async () => {
+      answers[0]?.({ ok: true, profile: 'Koen' });
+    });
+    expect(reads).toHaveLength(2);
+    await act(async () => {
+      for (const read of reads) {
+        read();
+      }
+    });
+    const landed = showToast.mock.calls.filter(
+      ([toast]) => toast.title === 'Netflix connected',
+    );
+    expect(landed).toHaveLength(1);
+    expect(refresh).toHaveBeenCalledOnce();
   });
 
   it('ignores a poll answer that isn’t a status', async () => {
@@ -387,9 +475,10 @@ describe('ServicePanel', () => {
     expect(writeText).toHaveBeenCalledWith('4829');
     expect(showToast).toHaveBeenLastCalledWith({ title: 'Copied your code' });
 
+    // for a moment the button says so itself
     writeText.mockRejectedValue(new Error('denied'));
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Copy' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Copied' }));
     });
     expect(showToast).toHaveBeenLastCalledWith(
       expect.objectContaining({ tone: 'error' }),
@@ -479,7 +568,7 @@ describe('ServicePanel and the extension', () => {
     });
     // A new code is on screen when the old one's answer comes back
     await connect();
-    expect(screen.getByLabelText('Your code: 4 8 3 0')).toBeTruthy();
+    expect(screen.getByText('Your code: 4 8 3 0')).toBeTruthy();
     await act(async () => {
       answers[0]?.({ ok: false, reason: 'signed-out' });
     });
@@ -578,7 +667,7 @@ describe('ServicePanel and the extension', () => {
       { code: '4829', service: 'netflix', type: 'link' },
       expect.any(Function),
     );
-    expect(screen.getByLabelText('Your code: 4 8 2 9')).toBeTruthy();
+    expect(screen.getByText('Your code: 4 8 2 9')).toBeTruthy();
   });
 
   it('asks to confirm in the extension once it has the code, and keeps polling', async () => {
@@ -596,7 +685,7 @@ describe('ServicePanel and the extension', () => {
     await connect();
     expect(screen.getByText('Confirm in the extension')).toBeTruthy();
     expect(screen.getByText('Code 4 8 2 9')).toBeTruthy();
-    expect(screen.queryByLabelText('Your code: 4 8 2 9')).toBeNull();
+    expect(screen.queryByText('Your code: 4 8 2 9')).toBeNull();
     expect(
       screen.getByText('Confirm in the extension, top right of Chrome'),
     ).toBeTruthy();
@@ -699,7 +788,7 @@ describe('ServicePanel and the extension', () => {
     expect(
       screen.getByText(linkFailureText(NETFLIX)['signed-out']),
     ).toBeTruthy();
-    expect(screen.getByLabelText('Your code: 4 8 2 9')).toBeTruthy();
+    expect(screen.getByText('Your code: 4 8 2 9')).toBeTruthy();
   });
 
   it('checks at once when the extension says it linked', async () => {

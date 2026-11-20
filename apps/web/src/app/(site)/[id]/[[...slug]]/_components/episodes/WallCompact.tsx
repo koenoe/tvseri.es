@@ -18,7 +18,8 @@ import { OpenEpisodeHit, STILL_SIZES, TILE } from './tileParts';
 import { stackLine, stackTitle } from './wall';
 
 const ROW = 'flex min-h-26 items-center gap-4 p-4';
-const THUMB = 'relative h-18 w-32 flex-none overflow-hidden rounded-8 bg-black';
+const THUMB =
+  'image-rim relative h-18 w-32 flex-none overflow-hidden rounded-8 bg-black';
 const TEXT = 'flex min-w-0 flex-1 flex-col gap-1';
 const LINE = 'truncate text-meta text-white/60';
 
@@ -191,9 +192,9 @@ function FanThumb({
 }: Readonly<{ episode: ShowEpisode; index: number }>) {
   // No black ground or dark ring: on a tilted card both show as a black rim
   // round the still. A faint light ground (for a missing still) and a light
-  // hairline, as the posters have.
+  // rim, as the posters have.
   const classes = cn(
-    'absolute top-0.5 h-18 w-32 overflow-hidden rounded-8 bg-white/6 shadow-[0_6px_14px_-4px_rgb(0_0_0/0.6)] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.08)]',
+    'absolute top-0.5 h-18 w-32 overflow-hidden image-rim rounded-8 bg-white/6 shadow-[0_6px_14px_-4px_rgb(0_0_0/0.6)]',
     FAN[index],
   );
   return (

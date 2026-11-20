@@ -32,9 +32,25 @@ export const DECK_LABEL_ID = 'did-you-know-label';
 export const DECK_CONTROLS =
   'absolute right-4 bottom-6 left-4 z-3 flex items-center justify-between gap-4 lg:left-auto lg:right-7 lg:justify-start';
 
-export const PIPS = 'flex gap-1.5';
+export const PIPS = 'relative flex gap-1.5';
 
 export const PIP = 'block h-0.5 w-4.5 rounded-2 bg-white';
+
+/** A pip not on show: the track the fill moves along */
+export const PIP_OFF = cn(PIP, 'opacity-35');
+
+/** From one pip to the next, in rem: its width and the gap (`w-4.5`, `gap-1.5`) */
+export const PIP_STEP = 1.5;
+
+/**
+ * The shown fact's pip: one fill over the first pip, moved `PIP_STEP` per
+ * fact, so "Another" glides it to the next pip at the
+ * selection pills' pace (`GLIDE`, 240ms)
+ */
+export const PIP_FILL = cn(
+  PIP,
+  'absolute top-0 left-0 transition-[translate] duration-240 ease-[cubic-bezier(0.2,0.8,0.2,1)]',
+);
 
 export const ANOTHER_LABEL = 'Another';
 

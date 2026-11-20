@@ -5,8 +5,9 @@
 
 export const GET_STARTED_SECTION = 'flex scroll-mt-6 flex-col gap-4';
 export const GET_STARTED_INTRO = '-mt-3 text-body-sm text-white/60';
+/** Concentric round its steps: their 12px corners plus the 18px padding */
 export const GET_STARTED_STEPS =
-  'flex flex-col gap-2 rounded-16 bg-black/22 p-[18px]';
+  'flex flex-col gap-2 rounded-[30px] bg-black/22 p-[18px]';
 
 /**
  * The head's "0 of 3 done" and its three-part bar: on a small phone the bar
@@ -25,8 +26,9 @@ export const STEP_LINE = 'mt-0.5 mb-2 text-caption text-white/60';
 
 /** Step 1's chips and step 3's links: 32px pills that wrap */
 export const PILL_ROW = 'flex flex-wrap gap-2';
+/** A link pill: its outline a 2px inner ring (a picked chip's border is its state) */
 export const HISTORY_PILL =
-  'inline-flex h-8 items-center gap-2 rounded-full border-2 border-white/20 pr-3.5 pl-2.5 text-caption font-medium text-white/80 transition-colors hover:border-white/40';
+  'inline-flex h-8 items-center gap-2 rounded-full pr-4 pl-3 text-caption font-medium text-white/80 shadow-[inset_0_0_0_2px_rgb(255_255_255/0.2)] transition-shadow hover:shadow-[inset_0_0_0_2px_rgb(255_255_255/0.4)]';
 
 /** Step 2's posters: a row of eight on desktop, two of four on a phone */
 export const SEEN_GRID = 'grid grid-cols-4 gap-2.5 sm:grid-cols-8';

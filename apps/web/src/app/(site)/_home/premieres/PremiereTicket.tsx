@@ -56,8 +56,12 @@ export const TICKET_LINES = 'flex w-full min-w-0 flex-1 flex-col gap-2';
 /** The Watchlist pill sits above the ticket's link, so it doesn't open the show */
 const TICKET_ACTION = 'relative z-3';
 
-/** The ticket and the one tile hover (`tileHover`: a 3% grow, no tint or ring) */
-const TICKET = `group/ticket relative ${TICKET_FRAME} bg-white/5 after:pointer-events-none after:absolute after:inset-0 after:z-4 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.08)] ${TILE_HOVER_WIDE}`;
+/**
+ * The ticket, the shared picture rim over everything in it (`image-rim`,
+ * lifted over the scrim and the stub) and the one tile hover (`tileHover`:
+ * a 3% grow, no tint or ring)
+ */
+const TICKET = `group/ticket image-rim relative ${TICKET_FRAME} bg-white/5 after:z-4 ${TILE_HOVER_WIDE}`;
 
 /** The show's logo in the ticket's logo box (140 × 32, 200 × 44 from md); else its title */
 // Each place keeps its own look on purpose; don't unify them.

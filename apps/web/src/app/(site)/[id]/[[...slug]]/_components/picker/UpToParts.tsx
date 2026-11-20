@@ -2,7 +2,9 @@
 
 import { memo } from 'react';
 
+import { FILL_BEFORE } from '@/components/motion/glide';
 import Badge from '@/components/ui/button/Badge';
+import ChoiceButton from '@/components/ui/button/ChoiceButton';
 import cn from '@/lib/cn';
 import { episodeLabel } from '@/lib/marking/copy';
 import type { UpToPlan } from '@/lib/marking/progress';
@@ -21,6 +23,13 @@ const DOT: Readonly<Record<SetState, string>> = {
   part: 'bg-white/60',
   w: 'bg-white',
 };
+
+/**
+ * A season tab; the open one's fill is its `::before`, so it glides to the
+ * season chosen along a line (`ChoiceButton`), and jumps to one the row
+ * wrapped onto another line
+ */
+const SEASON_TAB = `${FILL_BEFORE} flex h-7.5 cursor-pointer items-center gap-1.5 rounded-[7px] px-3 text-body-sm font-medium text-white/60 transition-colors aria-selected:text-white aria-selected:before:bg-white/15`;
 
 /** Season tabs with a dot each: none / partly / complete. */
 export const UpToTabs = memo(function UpToTabs({
@@ -42,17 +51,17 @@ export const UpToTabs = memo(function UpToTabs({
         const dot = cn('block size-1.5 rounded-full', DOT[season.state]);
         const pick = () => onPick(season.seasonNumber);
         return (
-          <button
+          <ChoiceButton
             aria-selected={on}
-            className="flex h-7.5 cursor-pointer items-center gap-1.5 rounded-[7px] px-3 text-body-sm font-medium text-white/60 transition-colors aria-selected:bg-white/15 aria-selected:text-white"
+            className={SEASON_TAB}
             key={season.seasonNumber}
+            on={on}
             onClick={pick}
             role="tab"
-            type="button"
           >
             <i aria-hidden="true" className={dot} />
             {`Season ${season.seasonNumber}`}
-          </button>
+          </ChoiceButton>
         );
       })}
     </div>
@@ -147,7 +156,7 @@ export const UpToKinds = memo(function UpToKinds({
         return (
           <button
             aria-checked={checked}
-            className="flex min-w-0 cursor-pointer flex-col items-start gap-1 rounded-12 bg-white/5 p-3 text-left transition-[background-color,box-shadow] hover:bg-white/10 aria-checked:bg-white/12 aria-checked:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.5)]"
+            className="flex min-w-0 cursor-pointer flex-col items-start gap-1 rounded-12 bg-white/5 p-3 text-left transition-[background-color,box-shadow,scale] duration-150 ease-out hover:bg-white/10 active:scale-96 aria-checked:bg-white/12 aria-checked:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.5)]"
             key={option.kind}
             onClick={pick}
             role="radio"

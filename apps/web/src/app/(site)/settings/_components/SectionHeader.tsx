@@ -18,7 +18,7 @@ export default function SectionHeader({
     <>
       <div className="-mx-gutter -mt-6 grid h-12 grid-cols-[96px_minmax(0,1fr)_96px] items-center border-white/6 border-b px-2 lg:hidden">
         <Link
-          className="inline-flex h-10 items-center gap-0.5 px-1.5 text-body-sm font-medium text-white/80 hover:text-white"
+          className="inline-flex h-11 items-center gap-0.5 px-1.5 text-body-sm font-medium text-white/80 hover:text-white"
           href={SETTINGS_INDEX}
         >
           <Icon glyph={chevronLeftGlyph} size={20} />

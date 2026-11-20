@@ -2,6 +2,9 @@
 
 import type { CSSProperties, ReactNode } from 'react';
 
+import { Segmented, SegmentedItem } from '@/components/ui/button/Segmented';
+import cn from '@/lib/cn';
+
 import {
   monthsInView,
   NOMINAL_WEEKS,
@@ -12,11 +15,18 @@ import {
 } from './model';
 import Overview from './Overview';
 import OverviewSlider from './OverviewSlider';
-import Segmented, { type SegmentedOption } from './Segmented';
+import { SWITCH_ITEM, SWITCH_TRACK } from './switchLook';
 import useQuarterScroll from './useQuarterScroll';
 
-const OPTIONS: ReadonlyArray<SegmentedOption<number>> = QUARTERS.map(
-  (label, value) => ({ label, value }),
+const QUARTERS_TRACK = cn('grid grid-cols-4', SWITCH_TRACK);
+
+/**
+ * A quarter: 30px, 44px to the thumb; its reach stops 3px short of the
+ * slider above
+ */
+const QUARTER = cn(
+  SWITCH_ITEM,
+  'justify-center px-0 py-[3px] text-center text-meta leading-6 after:absolute after:inset-x-0 after:-top-1.5 after:-bottom-2',
 );
 
 /**
@@ -92,14 +102,22 @@ export default function QuarterScroller({
         />
       </Overview>
       <div className="mt-1.5 md:hidden">
-        <Segmented
-          className="grid grid-cols-4"
-          itemClassName="py-[3px] text-center text-meta leading-6"
-          label="Quarter"
-          onChange={select}
-          options={OPTIONS}
-          value={quarter}
-        />
+        <Segmented className={QUARTERS_TRACK} label="Quarter">
+          {QUARTERS.map((label, index) => {
+            const choose = () => select(index);
+            const pressed = index === quarter;
+            return (
+              <SegmentedItem
+                className={QUARTER}
+                key={label}
+                onClick={choose}
+                pressed={pressed}
+              >
+                {label}
+              </SegmentedItem>
+            );
+          })}
+        </Segmented>
       </div>
       <div
         className="group/qs mt-3 snap-x snap-proximity overflow-x-auto overscroll-x-contain [container-type:inline-size] [scrollbar-width:none] md:contents [&::-webkit-scrollbar]:hidden"

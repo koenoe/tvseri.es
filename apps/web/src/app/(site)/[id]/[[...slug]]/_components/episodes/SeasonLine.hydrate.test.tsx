@@ -24,6 +24,7 @@ function Page() {
     <MarkingProvider>
       <ClockProvider>
         <SeasonLine
+          completed={null}
           episodes={episodes}
           marked={marked}
           seasonNumber={1}

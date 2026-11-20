@@ -39,8 +39,8 @@ export function PillSwitch({
   );
 }
 
-/** Production's tab pill: a short spring with a touch of bounce */
-const SLIDE = { bounce: 0.2, duration: 0.6, type: 'spring' } as const;
+/** Production's tab pill's slide, without its bounce: the fill lands, it doesn't wobble */
+const SLIDE = { bounce: 0, duration: 0.4, type: 'spring' } as const;
 const FILL = 'absolute inset-0 rounded-full bg-white/14';
 const LABEL = 'relative min-w-0 truncate';
 

@@ -50,6 +50,15 @@ describe('Connected by: the path switcher', () => {
     expect(screen.queryByText('chain to Dark')).toBeNull();
   });
 
+  it('announces a new path’s title, not the first one read with the page', () => {
+    const { container } = renderSwitcher();
+    const live = container.querySelector('[aria-live="polite"]');
+
+    expect(live?.textContent).toBe('');
+    fireEvent.click(another());
+    expect(live?.textContent).toBe('Silo to Devs, in 2 steps');
+  });
+
   it('leaves Another path out when the day has one path', () => {
     renderSwitcher(1);
 

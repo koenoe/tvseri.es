@@ -65,6 +65,9 @@ export default function useServiceReview(
     () => (swept.size === 0 ? shown : addKeys(shown, [...swept])),
     [shown, swept],
   );
+  // The entries Show more brought: their items open into the list, where
+  // those a sync adds are drawn at once
+  const [paged, setPaged] = useState<ReadonlySet<string>>(new Set());
   const [loading, startLoading] = useTransition();
   const [, startFix] = useTransition();
 
@@ -93,6 +96,12 @@ export default function useServiceReview(
         return;
       }
       setEntries((was) => withNewEntries(was, result.data.items));
+      setPaged((was) =>
+        addKeys(
+          was,
+          result.data.items.map(({ key }) => key),
+        ),
+      );
       setCursor(result.data.nextCursor);
     });
   };
@@ -174,7 +183,12 @@ export default function useServiceReview(
     setSwept((was) => addKeys(was, keys));
   };
 
+  /** An item Show more brought (its first entry came with a page) */
+  const arrives = (item: ProblemItem) =>
+    paged.has(entries[item.indexes[0] ?? -1]?.key ?? '');
+
   return {
+    arrives,
     closed: hidden,
     entries,
     fix,

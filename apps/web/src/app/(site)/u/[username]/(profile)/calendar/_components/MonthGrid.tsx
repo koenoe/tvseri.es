@@ -1,10 +1,8 @@
 'use client';
 
-import { AnimatePresence, type Variants } from 'motion/react';
-import * as m from 'motion/react-m';
 import type { KeyboardEvent, MouseEvent } from 'react';
 
-import { SHEET_EASE } from '@/components/motion/ease';
+import PageSlide from '@/components/motion/PageSlide';
 
 import {
   addDays,
@@ -21,25 +19,6 @@ import {
 import { WEEK_ROW, WEEKS } from './calendarStyles';
 import DayCell from './DayCell';
 import WeekdayRow from './WeekdayRow';
-
-/**
- * A month change slides the grid 40px the way you travel and crossfades
- * (in 280ms, out 200ms); the old and new grids overlap, so quick presses
- * interrupt cleanly
- */
-const SLIDE: Variants = {
-  center: {
-    opacity: 1,
-    transition: { duration: 0.28, ease: SHEET_EASE },
-    x: 0,
-  },
-  enter: (direction: number) => ({ opacity: 0, x: direction * 40 }),
-  exit: (direction: number) => ({
-    opacity: 0,
-    transition: { duration: 0.2, ease: SHEET_EASE },
-    x: direction * -40,
-  }),
-};
 
 const KEY_STEP: Readonly<Record<string, number>> = {
   ArrowDown: 7,
@@ -141,55 +120,46 @@ export default function MonthGrid({
     >
       <WeekdayRow />
       <div className="relative">
-        <AnimatePresence custom={direction} initial={false} mode="popLayout">
-          <m.div
-            animate="center"
-            className={WEEKS}
-            custom={direction}
-            exit="exit"
-            initial="enter"
-            key={month}
-            variants={SLIDE}
-          >
-            {weeks.map((week) => (
-              <div className={WEEK_ROW} key={week[0]} role="row">
-                {week.map((iso) => {
-                  const inMonth = monthOf(iso) === month;
-                  const day = calendar.days.get(iso);
-                  const reachable =
-                    !inMonth &&
-                    day !== undefined &&
-                    coversMonth(calendar, monthOf(iso));
-                  const today = iso === calendar.today;
-                  const tabbable = iso === focusDay;
-                  const label = dayLabel(
-                    calendar,
-                    iso,
-                    reachable ? monthOf(iso) : null,
-                  );
-                  return (
-                    <DayCell
-                      day={day}
-                      flash={today ? flash : 0}
-                      focusRef={tabbable ? claimFocus : undefined}
-                      inMonth={inMonth}
-                      iso={iso}
-                      key={iso}
-                      label={label}
-                      month={inMonth ? month : undefined}
-                      open={iso === openDay}
-                      past={iso < calendar.today}
-                      pulse={pulse}
-                      reachable={reachable}
-                      tabbable={tabbable}
-                      today={today}
-                    />
-                  );
-                })}
-              </div>
-            ))}
-          </m.div>
-        </AnimatePresence>
+        {/* a month change slides the grid the way you travel (`PageSlide`) */}
+        <PageSlide className={WEEKS} direction={direction} pageKey={month}>
+          {weeks.map((week) => (
+            <div className={WEEK_ROW} key={week[0]} role="row">
+              {week.map((iso) => {
+                const inMonth = monthOf(iso) === month;
+                const day = calendar.days.get(iso);
+                const reachable =
+                  !inMonth &&
+                  day !== undefined &&
+                  coversMonth(calendar, monthOf(iso));
+                const today = iso === calendar.today;
+                const tabbable = iso === focusDay;
+                const label = dayLabel(
+                  calendar,
+                  iso,
+                  reachable ? monthOf(iso) : null,
+                );
+                return (
+                  <DayCell
+                    day={day}
+                    flash={today ? flash : 0}
+                    focusRef={tabbable ? claimFocus : undefined}
+                    inMonth={inMonth}
+                    iso={iso}
+                    key={iso}
+                    label={label}
+                    month={inMonth ? month : undefined}
+                    open={iso === openDay}
+                    past={iso < calendar.today}
+                    pulse={pulse}
+                    reachable={reachable}
+                    tabbable={tabbable}
+                    today={today}
+                  />
+                );
+              })}
+            </div>
+          ))}
+        </PageSlide>
       </div>
     </div>
   );

@@ -1,14 +1,22 @@
 /*
  * Builds once per open, after the panel settles: `--base` matches the
- * dialog's motion (CENTER_MOTION 200ms, PHONE_MOTION 240ms). Under reduced
- * motion the global rule ends every animation at once.
+ * dialog's motion (CENTER_MOTION 200ms, PHONE_MOTION 240ms for the phone's
+ * sheet). A drawing that mounts late, once its chunk is in, finds the panel
+ * settled and starts at once. Under reduced motion the global rule ends
+ * every animation at once.
  */
 .build {
   --base: 200ms;
 }
 
-.phone {
-  --base: 240ms;
+@media (width < 40rem) {
+  .phone {
+    --base: 240ms;
+  }
+}
+
+.build[data-late] {
+  --base: 0ms;
 }
 
 .line {

@@ -2,7 +2,12 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { bumpCounts, useShelfCount, useShelfCounts } from './shelfCounts';
+import {
+  bumpCounts,
+  useShelfCount,
+  useShelfCounts,
+  useShelfLanding,
+} from './shelfCounts';
 
 const COUNTS = {
   all: 10,
@@ -77,5 +82,31 @@ describe('useShelfCount: the sidebar’s “N finished” is the shelf’s numbe
     });
     expect(renders).toBe(before + 1);
     expect(result.current).toBe(8);
+  });
+});
+
+describe('useShelfLanding: a show this page moved onto a shelf', () => {
+  it('is 0 at first, even after earlier landings', () => {
+    bumpCounts('ada', { finished: 1, watching: -1 }, 'finished');
+    const { result } = renderHook(() => useShelfLanding('ada', 'finished'));
+    expect(result.current).toBe(0);
+  });
+
+  it('changes with each landing on its shelf, never with a count change alone', () => {
+    const { result } = renderHook(() => useShelfLanding('bo', 'finished'));
+    act(() => {
+      bumpCounts('bo', { finished: 1, watching: -1 });
+      bumpCounts('cy', { finished: 1, watching: -1 }, 'finished');
+    });
+    expect(result.current).toBe(0);
+    act(() => {
+      bumpCounts('bo', { finished: 1, watching: -1 }, 'finished');
+    });
+    const first = result.current;
+    expect(first).not.toBe(0);
+    act(() => {
+      bumpCounts('bo', { finished: 1, watching: -1 }, 'finished');
+    });
+    expect(result.current).not.toBe(first);
   });
 });

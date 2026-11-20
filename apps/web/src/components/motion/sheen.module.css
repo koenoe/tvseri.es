@@ -1,0 +1,44 @@
+/*
+ * A soft light passes once along a line (`Sheen`): a white glow, 0 → 35% →
+ * 0 across, taller than the 4px line so it reads over a white fill too,
+ * clipped to the line's length. Transform only, on the compositor. At rest
+ * (before its delay, after it ends, and at once with reduced motion, whose
+ * global rule ends every animation) it is invisible.
+ */
+.sheen {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 16px;
+  margin-top: -8px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sheen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      closest-side,
+      rgb(255 255 255 / 0.35),
+      rgb(255 255 255 / 0)
+    )
+    center / 64px 100% no-repeat;
+  opacity: 0;
+  animation: sheen-pass var(--sheen-ms) ease-in-out var(--sheen-delay) 1;
+}
+
+/* the glow's centre from just before the line's start to just past its end */
+@keyframes sheen-pass {
+  from {
+    opacity: 1;
+    transform: translateX(calc(-50% - 32px));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(calc(50% + 32px));
+  }
+}

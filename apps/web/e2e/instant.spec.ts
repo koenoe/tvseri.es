@@ -135,6 +135,43 @@ test.describe('show page (/{id}/{slug})', () => {
     ).toBeVisible({ timeout: afterRelease() });
   });
 
+  test('a poster a mouse rests on opens the show whole, not its skeleton', async ({
+    page,
+  }) => {
+    await page.goto('/1396/breaking-bad');
+    const poster = page.getByRole('link', { name: 'The Bear' });
+    await poster.scrollIntoViewIfNeeded();
+    await expect(poster).toBeVisible();
+    // the poster's own prefetch in view (the show's shell) is in
+    await page.waitForLoadState('networkidle');
+    await instant(page, async () => {
+      // A mouse resting on a show's tile (150ms, useLinkIntent) asks for
+      // the show's own page: a per-link prefetch, let through under the
+      // lock. The click waits for it, as a resting mouse would have. Only
+      // Next's prefetch header tells it apart: shell prefetches (`1`) for
+      // the same URL land inside the lock too; the per-link one is `2`.
+      const prefetched = page.waitForResponse(
+        (response) =>
+          new URL(response.url()).pathname === '/136315/the-bear' &&
+          response.request().headers()['next-router-prefetch'] === '2',
+      );
+      await poster.hover();
+      await (await prefetched).finished();
+      await poster.click();
+      await page.waitForURL((url) => url.pathname === '/136315/the-bear');
+      // the show itself commits from the router cache, not its skeleton
+      await expect(
+        page.getByRole('heading', { level: 1, name: 'The Bear' }),
+      ).toBeVisible();
+      await expect(page.getByText('Created by:')).toBeVisible();
+      await expect(page.getByTestId('show-skeleton')).toHaveCount(0);
+    });
+    // the viewer's holes fill in after the lock
+    await expect(
+      page.getByRole('button', { name: 'More actions for The Bear' }).first(),
+    ).toBeVisible({ timeout: afterRelease() });
+  });
+
   test('a poster prefetches on hover, so its click is served from the prefetch', async ({
     page,
   }) => {

@@ -13,11 +13,10 @@ import cn from '@/lib/cn';
 import { loadOverview } from '../../_data/overview';
 import type { Profile } from '../../_data/profile';
 import { isDayZero } from '../../_lib/dayZero';
-import CappedRows from '../blocks/CappedRows';
 import EmptyState from '../blocks/EmptyState';
-import Lane from '../blocks/Lane';
 import LaneGhost, { GhostRows, ShowAllGhost } from '../blocks/LaneGhost';
 import { LANE_CAPS } from '../blocks/laneCaps';
+import CatchingUpLane from './catching-up/CatchingUpLane';
 import {
   CATCHING_UP_HEAD,
   CATCHING_UP_POSTER,
@@ -28,50 +27,35 @@ import {
   RUN_CLASS,
   RUN_LINE_CLASS,
 } from './catching-up/runLayout';
-import CatchingUpRow from './lane-rows/CatchingUpRow';
 
 /**
  * Catching up: shows with three or more aired episodes waiting, marked up to
  * any chip with one click, and the premiere runway when the next season has
- * a date. Owner only.
+ * a date. Owner only. The lane follows the viewer's marks
+ * (`CatchingUpLane`): a row folds out once caught up, and the empty state
+ * rises in after the last, so the server draws it either way.
  */
 export default async function CatchingUp({
   profile,
 }: Readonly<{ profile: Profile }>) {
   const overview = await loadOverview(profile);
-  const items = overview.catchingUp;
-  const ids = items.map((item) => item.seriesId);
-  if (items.length === 0) {
-    const dayZero = isDayZero(overview);
-    return (
-      <Lane dot="cyan" hollow id="b-catch" title="Catching up">
-        <EmptyState
-          glyph={completeGlyph}
-          sub={
-            dayZero
-              ? 'Series where a few episodes stacked up.'
-              : 'No episodes are piling up.'
-          }
-          title={dayZero ? 'Nothing piling up' : 'All caught up'}
-        />
-      </Lane>
-    );
-  }
-  const rows = items.map((item) => {
-    const nextUp = nextUpLabel(item, overview.upNext);
-    return <CatchingUpRow item={item} key={item.seriesId} nextUp={nextUp} />;
-  });
-  return (
-    <Lane count={items.length} dot="cyan" id="b-catch" title="Catching up">
-      <CappedRows
-        as="ul"
-        cap={LANE_CAPS.catchingUp}
-        className="flex flex-col gap-3.5"
-        ids={ids}
-        rows={rows}
-      />
-    </Lane>
+  const dayZero = isDayZero(overview);
+  const empty = (
+    <EmptyState
+      glyph={completeGlyph}
+      sub={
+        dayZero
+          ? 'Series where a few episodes stacked up.'
+          : 'No episodes are piling up.'
+      }
+      title={dayZero ? 'Nothing piling up' : 'All caught up'}
+    />
   );
+  const rows = overview.catchingUp.map((item) => ({
+    item,
+    nextUp: nextUpLabel(item, overview.upNext),
+  }));
+  return <CatchingUpLane empty={empty} rows={rows} />;
 }
 
 /** "S05E05 The Last Supper, Part 1": the title when Up next has it */

@@ -37,6 +37,7 @@ function Artwork({
   onLoaded,
   onSettled,
   priority,
+  seriesId,
 }: Readonly<{
   backdrop: string;
   color: string;
@@ -46,6 +47,8 @@ function Artwork({
   /** it is fully in: the layers under it can go */
   onSettled: (key: number) => void;
   priority: boolean;
+  /** whose art: the part the slide hands over to the show page */
+  seriesId: number;
 }>) {
   const classes = cn(
     'absolute inset-0',
@@ -63,6 +66,8 @@ function Artwork({
   return (
     <div
       className={classes}
+      data-show-morph="art"
+      data-show-morph-id={seriesId}
       data-spotlight-layer={layer.index}
       onAnimationEnd={layer.entering ? handleAnimationEnd : undefined}
     >

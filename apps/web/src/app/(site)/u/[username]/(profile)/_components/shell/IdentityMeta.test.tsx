@@ -26,6 +26,21 @@ beforeEach(() => {
   apiFetch.mockReset();
 });
 
+/** An element's text as a screen reader reads it: rolling digits are hidden */
+const spoken = (element: Element) => {
+  const copy = element.cloneNode(true) as Element;
+  for (const hidden of copy.querySelectorAll('[aria-hidden="true"]')) {
+    hidden.remove();
+  }
+  return copy.textContent;
+};
+
+/** The innermost element that reads `text` (the counts' line) */
+const spokenLine = (text: string) => (_: string, element: Element | null) =>
+  element !== null &&
+  spoken(element) === text &&
+  !Array.from(element.children).some((child) => spoken(child) === text);
+
 describe('the sidebar counts', () => {
   it('say so when a read timed out, and keep both lines', async () => {
     apiFetch.mockRejectedValue(new ApiError(0, 'ApiTimeout'));
@@ -58,7 +73,9 @@ describe('the sidebar counts', () => {
       },
     );
     render(await IdentityMeta({ profile }), { wrapper: MarkingProvider });
-    expect(screen.getByText('5,341 episodes, 218 finished')).toBeTruthy();
+    expect(
+      screen.getByText(spokenLine('5,341 episodes, 218 finished')),
+    ).toBeTruthy();
     expect(screen.getByText(/6 followers · 8 following/)).toBeTruthy();
     expect(screen.getByText('Follows you')).toBeTruthy();
   });
@@ -77,7 +94,9 @@ describe('the sidebar counts', () => {
     render(await CompactIdentityMeta({ profile }), {
       wrapper: MarkingProvider,
     });
-    expect(screen.getByText('5,341 episodes · 218 finished')).toBeTruthy();
+    expect(
+      screen.getByText(spokenLine('5,341 episodes · 218 finished')),
+    ).toBeTruthy();
   });
 
   it('say so in the compact identity when a read failed', async () => {

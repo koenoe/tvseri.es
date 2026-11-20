@@ -1,18 +1,23 @@
 'use client';
 
 import { startTransition, useOptimistic, useState } from 'react';
+import { HIT_Y } from '@/components/ui/button/hitArea';
 import { userCheckGlyph, userPlusGlyph } from '@/components/ui/icon/glyphs';
-import Icon from '@/components/ui/icon/Icon';
+import IconSwap from '@/components/ui/icon/IconSwap';
 import { showToast } from '@/components/ui/toast/showToast';
 import cn from '@/lib/cn';
 
 import { setFollowing } from '../../_actions/follow';
 import { recordFollow } from './followCount';
 
+/**
+ * The icon's side sits 2px closer than the text's (not in the full-width,
+ * centred sidebar). The 32px pills reach 44px to the thumb.
+ */
 const SIZE = {
-  circle: 'h-8 shrink-0 rounded-full px-2.5 text-[13px] font-semibold',
-  compact: 'h-8 shrink-0 rounded-full px-3 text-[13px] font-semibold',
-  sidebar: 'h-[42px] w-full rounded-10 px-4 text-[14px] font-medium',
+  circle: `${HIT_Y[6]} h-8 shrink-0 rounded-full pr-3 pl-2.5 text-[13px] font-semibold`,
+  compact: `${HIT_Y[6]} h-8 shrink-0 rounded-full pr-3.5 pl-3 text-[13px] font-semibold`,
+  sidebar: 'h-[42px] w-full rounded-10 px-[18px] text-[14px] font-medium',
 } as const;
 
 type Props = Readonly<{
@@ -31,12 +36,12 @@ type Props = Readonly<{
 
 /**
  * The Circle's desktop pills: Following is the ghost button, Follow the
- * white one. The ring is the 2px border, so each padding is 2px less than
- * it would be without it.
+ * white one
  */
 const CIRCLE = {
-  follow: 'md:h-10 md:px-4 md:text-[14px]',
-  following: 'border-white/20 md:h-9 md:px-3',
+  follow: 'md:h-10 md:pr-[18px] md:pl-4 md:text-[14px]',
+  following:
+    'shadow-[inset_0_0_0_2px_rgb(255_255_255/0.2)] md:h-9 md:pr-3.5 md:pl-3',
 } as const;
 
 /**
@@ -89,14 +94,18 @@ export default function FollowButton({
   const circle = size === 'circle';
   const label = following ? 'Following' : followLabel;
   const className = cn(
-    'flex cursor-pointer items-center justify-center gap-2 border-2 whitespace-nowrap transition-[background-color,border-color,color] duration-200',
+    'relative flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap transition-[background-color,box-shadow,color,scale] duration-150 ease-out active:scale-96',
     SIZE[size],
+    // Following's outline is a 2px inner ring: it takes no layout, so both
+    // states share their padding
     following
-      ? 'border-white/25 text-white hover:border-white/50'
-      : 'border-white bg-white text-[#171717] hover:bg-white/88',
+      ? 'text-white shadow-[inset_0_0_0_2px_rgb(255_255_255/0.25)] hover:shadow-[inset_0_0_0_2px_rgb(255_255_255/0.5)]'
+      : 'bg-white text-[#171717] hover:bg-white/88',
     circle && (following ? CIRCLE.following : CIRCLE.follow),
   );
   const busy = pending || undefined;
+  const glyph = following ? userCheckGlyph : userPlusGlyph;
+  const iconClass = circle ? undefined : 'size-[15px]';
 
   return (
     <button
@@ -105,11 +114,7 @@ export default function FollowButton({
       onClick={toggle}
       type="button"
     >
-      <Icon
-        className={circle ? undefined : 'size-[15px]'}
-        glyph={following ? userCheckGlyph : userPlusGlyph}
-        size={circle ? 16 : 13}
-      />
+      <IconSwap className={iconClass} glyph={glyph} size={circle ? 16 : 13} />
       {label}
     </button>
   );

@@ -17,11 +17,16 @@ const easeOut = (progress: number) => 1 - (1 - progress) ** 3;
  * jitter. It writes its own text frame by frame, never re-rendering; React
  * draws only the first value. Hidden from screen readers: the caller says
  * the number in words once it settles. With reduced motion it jumps.
+ * `from`: mounted for the change itself (a moment that plays once, keyed),
+ * it draws that number first and rolls from it.
  */
-export default function RollingNumber({ value }: Readonly<{ value: number }>) {
+export default function RollingNumber({
+  from,
+  value,
+}: Readonly<{ from?: number; value: number }>) {
   const ref = useRef<HTMLSpanElement>(null);
-  const [first] = useState(value);
-  const shown = useRef(value);
+  const [first] = useState(from ?? value);
+  const shown = useRef(first);
 
   // A frame loop is a subscription to the clock: an effect is the way
   useEffect(() => {

@@ -22,11 +22,11 @@ import {
 } from '@/components/ui/title/TitleTreatment';
 import cn from '@/lib/cn';
 import { ratingLabel } from '@/lib/series/episodeRatings';
+import { useSeasonRatings } from '@/lib/series/useEpisodeData';
 import type { ShowSeason } from '../../_lib/show';
 import { formatAirDate } from '../episodes/format';
 import { seasonName } from '../episodes/panelRows';
 import { positionLabel } from './episodeSteps';
-import { useSeasonRatings } from './useEpisodeData';
 
 type Props = Readonly<{
   seriesId: number;

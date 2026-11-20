@@ -15,8 +15,13 @@ const MARK = {
 } as const;
 
 /** +N in the 10px row beside 8px dots: smaller than every type token */
-const MORE =
-  'text-[10px] leading-[10px] font-semibold text-white/70 tabular-nums';
+const MORE = 'text-[10px] leading-[10px] font-semibold tabular-nums';
+
+/**
+ * Past and outside days fade their marks only: +N steps down to white/60
+ * instead (about 6:1 on the panel), as opacity would take it under 4.5:1
+ */
+const FADED = 'opacity-40';
 
 /**
  * A day on a phone: the date on top (today a filled white circle, the open
@@ -55,7 +60,11 @@ export default function CellDots({
   );
   const marks = day?.marks ?? [];
   const more = marks.length - MOST;
-  const rowClass = cn(DOT_ROW, (outside || past) && 'opacity-40');
+  const faded = outside || past;
+  const moreClass = cn(MORE, faded ? 'text-white/60' : 'text-white/70');
+  const markClasses = marks
+    .slice(0, MOST)
+    .map((mark) => cn(MARK[mark ?? 'episode'], faded && FADED));
   return (
     <span className="contents md:hidden">
       <span className={dateClass}>
@@ -63,11 +72,12 @@ export default function CellDots({
         <TodayFlash flash={flash} on="date" />
       </span>
       {marks.length > 0 ? (
-        <span aria-hidden="true" className={rowClass}>
-          {marks.slice(0, MOST).map((mark, index) => (
-            <i className={MARK[mark ?? 'episode']} key={index} />
+        <span aria-hidden="true" className={DOT_ROW}>
+          {markClasses.map((markClass, index) => (
+            // the dots repeat (two episodes look the same): their place is the key
+            <i className={markClass} key={index} />
           ))}
-          {more > 0 ? <b className={MORE}>+{more}</b> : null}
+          {more > 0 ? <b className={moreClass}>+{more}</b> : null}
         </span>
       ) : null}
     </span>

@@ -1,9 +1,9 @@
 'use client';
 
 import * as m from 'motion/react-m';
-import Link from 'next/link';
 import type { ComponentProps } from 'react';
 import MaxMotion from '@/components/motion/MaxMotion';
+import TileLink from '@/components/ui/tile/TileLink';
 import type { ControlStatesRead } from '@/lib/marking/controlState';
 
 import {
@@ -62,6 +62,7 @@ function ArtworkLayers({
         onLoaded={onLoaded}
         onSettled={onSettled}
         priority={priority}
+        seriesId={item.id}
       />
     ) : null;
   });
@@ -114,7 +115,8 @@ function TextLayers({
  * artwork, the text and the page colour (the ground's 600ms) start in the
  * same frame and end together, once the next backdrop is decoded (it is
  * preloaded during the countdown and on a pager line's hover or focus).
- * The artwork and the title link to the show.
+ * The artwork and the title link to the show, and open it whole: the
+ * slide hands its art and logo over to the show page (`showMorph.ts`).
  */
 export default function SpotlightCarousel({
   slides,
@@ -165,6 +167,7 @@ export default function SpotlightCarousel({
         aria-roledescription="carousel"
         // phone: the stage (513px of page) and the 23px pager under it
         className={SPOTLIGHT_STAGE}
+        data-show-morph-scope=""
         data-slot="spotlight"
         ref={attach}
         style={PAN_STYLE}
@@ -179,13 +182,15 @@ export default function SpotlightCarousel({
             slides={slides}
           />
           {/* The artwork opens the show too (one link per slide for keyboards
-              and screen readers: the title's) */}
-          <Link
+              and screen readers: the title's); only on intent, the title's
+              link prefetches in view */}
+          <TileLink
             aria-hidden="true"
+            backdrop={slide.backdrop}
             className="absolute inset-0"
             draggable={false}
             href={slide.href}
-            prefetch={false}
+            prefetchOn="intent"
             tabIndex={-1}
           />
         </div>
@@ -208,6 +213,7 @@ export default function SpotlightCarousel({
               onIntent={prepare}
               onSelect={slideshow.goTo}
               onTogglePlay={slideshow.togglePlay}
+              pending={slideshow.pending}
               running={slideshow.running}
               titles={titles}
               userChose={slideshow.userChose}

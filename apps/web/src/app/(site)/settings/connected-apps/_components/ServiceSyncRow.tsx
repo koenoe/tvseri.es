@@ -160,7 +160,7 @@ export default function ServiceSyncRow({
     <>
       <AnimatePresence initial={false}>
         {lastSyncedAt === null ? null : (
-          <FoldPresence as="span" className="overflow-hidden" key="last">
+          <FoldPresence as="span" key="last">
             <LocalMoment at={lastSyncedAt} prefix="Last sync " style="at" />
           </FoldPresence>
         )}

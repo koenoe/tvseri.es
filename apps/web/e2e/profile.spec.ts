@@ -275,10 +275,13 @@ test.describe('profile signed in', () => {
       const widths = new Set(boxes.map((box) => Math.round(box.width)));
       expect(widths.size).toBe(1);
       expect([...widths][0]).toBeGreaterThanOrEqual(63);
-      const row = await nav.evaluate((element) => ({
-        overflows: element.scrollWidth > element.clientWidth,
-        scrolled: element.scrollLeft,
-      }));
+      // the bar's frame holds a scroller (the fade masks only the tabs)
+      const row = await nav
+        .locator('[data-tab-scroller]')
+        .evaluate((element) => ({
+          overflows: element.scrollWidth > element.clientWidth,
+          scrolled: element.scrollLeft,
+        }));
       expect(row.overflows).toBe(true);
       expect(row.scrolled).toBeGreaterThan(0);
       const active = await nav

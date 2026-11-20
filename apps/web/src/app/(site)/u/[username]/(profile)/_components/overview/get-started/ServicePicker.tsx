@@ -4,7 +4,7 @@ import type { WatchProvider } from '@tvseri.es/schemas';
 import Link from 'next/link';
 import { useCallback } from 'react';
 import { checkGlyph } from '@/components/ui/icon/glyphs';
-import Icon from '@/components/ui/icon/Icon';
+import IconSwap from '@/components/ui/icon/IconSwap';
 import ServiceIcon, {
   type ServiceIconLayout,
 } from '@/components/ui/service/ServiceIcon';
@@ -28,7 +28,7 @@ export default function ServicePicker({
     return (
       <div className="flex">
         <Link
-          className="inline-flex h-8 items-center rounded-full border-2 border-white/20 px-3.5 text-caption font-medium text-white/80 transition-colors hover:border-white/40"
+          className="inline-flex h-8 items-center rounded-full px-4 text-caption font-medium text-white/80 shadow-[inset_0_0_0_2px_rgb(255_255_255/0.2)] transition-shadow hover:shadow-[inset_0_0_0_2px_rgb(255_255_255/0.4)]"
           href="/settings/streaming-services"
         >
           Choose your services
@@ -63,7 +63,7 @@ function Chip({
   provider: WatchProvider;
 }>) {
   const classes = cn(
-    'inline-flex h-8 cursor-pointer items-center gap-2 rounded-full border-2 pr-3 pl-1.5 text-caption font-medium transition-colors',
+    'inline-flex h-8 cursor-pointer items-center gap-2 rounded-full border-2 pr-3 pl-1.5 text-caption font-medium transition-[background-color,border-color,color,scale] duration-150 ease-out active:scale-96',
     on
       ? 'border-white bg-white/8 text-white'
       : 'border-white/20 text-white/80 hover:border-white/40',
@@ -80,7 +80,7 @@ function Chip({
         <ServiceIcon alt="" layout={LOGO} logo={provider.logo} />
       ) : null}
       {provider.name}
-      {on ? <Icon glyph={checkGlyph} size={13} /> : null}
+      <IconSwap glyph={on ? checkGlyph : null} size={13} />
     </button>
   );
 }

@@ -3,6 +3,8 @@
 import type { VersusPair } from '@tvseri.es/schemas';
 import { useId, useState } from 'react';
 
+import CrossFade from '@/components/motion/CrossFade';
+import { TEXT_ARRIVAL_VARIANTS } from '@/components/motion/textArrival';
 import Button from '@/components/ui/button/Button';
 import { shuffleGlyph } from '@/components/ui/icon/glyphs';
 import { SIGNED_IN_ONLY, SIGNED_OUT_ONLY } from '@/components/ui/viewer/reveal';
@@ -11,7 +13,13 @@ import { TOY_TITLE } from '../../moments';
 import useWarmSet from '../useWarmSet';
 import { ANOTHER_PAIR_LABEL, versusAnnouncement } from './copy';
 import { nextChoice } from './deck';
-import { VERSUS_CARD, VERSUS_MIDDLE, VERSUS_MORE, VERSUS_SIDE } from './layout';
+import {
+  VERSUS_CARD,
+  VERSUS_MIDDLE,
+  VERSUS_MORE,
+  VERSUS_ROWS_PLACE,
+  VERSUS_SIDE,
+} from './layout';
 import type { Side } from './rows';
 import useVersusDeck from './useVersusDeck';
 import VersusGhost from './VersusGhost';
@@ -34,7 +42,8 @@ const stateOf = (side: Side, chosen: Side | null): PosterState =>
  * Versus: two similar series face to face. Tapping a
  * poster chooses it (the other side dims and the actions replace the hint);
  * tapping the other switches, tapping it again clears. "Another pair" steps
- * through the day's deck.
+ * through the day's deck: the posters cross-fade, then the names and the
+ * rows arrive just behind them (`textArrival`).
  *
  * A signed-in viewer gets only the pairs with neither series in their lists
  * (`useVersusDeck`); with no pair left the block is not drawn.
@@ -68,6 +77,7 @@ export default function VersusDeck({
   const announcement = versusAnnouncement(titles, chosen);
   const chosenSeries = chosen ? pair[chosen] : null;
   const hide = known ? undefined : UNTIL_KNOWN;
+  const pairKey = `${pair.left.id}-${pair.right.id}`;
   const leftState = stateOf('left', chosen);
   const rightState = stateOf('right', chosen);
 
@@ -92,7 +102,13 @@ export default function VersusDeck({
             </div>
             <div className={VERSUS_MIDDLE}>
               <VersusHeading id={headingId} />
-              <VersusRows chosen={chosen} pair={pair} />
+              <CrossFade
+                frame={VERSUS_ROWS_PLACE}
+                swapKey={pairKey}
+                variants={TEXT_ARRIVAL_VARIANTS}
+              >
+                <VersusRows pair={pair} />
+              </CrossFade>
               <VersusResult chosen={chosenSeries} />
               {pairs.length > 1 ? (
                 <div className={VERSUS_MORE}>

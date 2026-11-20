@@ -6,23 +6,27 @@ import Button from '@/components/ui/button/Button';
 import CodeBadge from '@/components/ui/button/CodeBadge';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import TileLink from '@/components/ui/tile/TileLink';
+import { ignoreKeyRepeat } from '@/lib/a11y/ignoreKeyRepeat';
 import cn from '@/lib/cn';
 import { pressMark } from '@/lib/marking/pressGate';
 import useMarking from '@/lib/marking/useMarking';
 import showPath from '@/lib/routing/showPath';
 import type { PausedChoice } from '../../../_lib/marking/setPaused';
+import { LANE_ROW_BUTTON } from '../../blocks/laneRowButton';
 import {
   PAUSED_ACTIONS,
-  PAUSED_BUTTON,
   PAUSED_META,
   PAUSED_POSTER,
   PAUSED_ROW,
   PAUSED_TITLE,
 } from './pausedLayout';
 
-const POSTER = cn('relative block overflow-hidden bg-white/8', PAUSED_POSTER);
+const POSTER = cn(
+  'image-rim relative block overflow-hidden bg-white/8',
+  PAUSED_POSTER,
+);
 const TITLE = cn(PAUSED_TITLE, 'hover:underline');
-const HIDE = cn(PAUSED_BUTTON, 'text-white/80');
+const HIDE = cn(LANE_ROW_BUTTON, 'text-white/80');
 
 export type PausedRowView = Readonly<{
   code: string;
@@ -43,8 +47,8 @@ export default function PausedRow({
 }>) {
   const marking = useMarking();
   const href = showPath(row.seriesId, row.slug);
-  // The row leaves and the next one's buttons slide under the pointer: one
-  // press, one answer (`pressMark`)
+  // The row folds out and the next one's buttons slide up under the
+  // pointer: one press, one answer (`pressMark`)
   const key = `${row.seriesId}:paused`;
   const keep = (event: MouseEvent<HTMLButtonElement>) => {
     pressMark(key, event, () => onAnswer([row.seriesId], 'keep'));
@@ -87,10 +91,11 @@ export default function PausedRow({
           </span>
         </MetaRow>
       </span>
-      <span className={PAUSED_ACTIONS}>
+      {/* Keep and Hide move focus to the next row's: a held Enter answers once */}
+      <span className={PAUSED_ACTIONS} onKeyDownCapture={ignoreKeyRepeat}>
         <Button
           aria-label={keepLabel}
-          className={PAUSED_BUTTON}
+          className={LANE_ROW_BUTTON}
           onClick={keep}
           variant="outline"
         >

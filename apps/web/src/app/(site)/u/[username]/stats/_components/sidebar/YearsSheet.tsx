@@ -23,14 +23,14 @@ export default function YearsSheet({
   const onOpenChange = (next: boolean) => setOpenedOn(next ? pathname : null);
   return (
     <>
+      {/* the name starts with the visible word, so voice control finds it */}
       <button
         aria-haspopup="dialog"
-        aria-label="All years"
         className={classes}
         onClick={show}
         type="button"
       >
-        More
+        More<span className="sr-only"> years</span>
       </button>
       <Dialog onOpenChange={onOpenChange} open={open} title="Years">
         {children}

@@ -28,8 +28,9 @@ type AnchoredPopoverProps = Omit<
  * A desktop panel by its anchor in a manual popover: the top layer, so no
  * `overflow: hidden` or stacking context around the anchor clips or covers
  * it. It is placed against the viewport (`place`) and kept there per frame
- * on resize and scroll (a list scrolling inside it, a row under it). A
- * pointer down outside it and its anchor dismisses.
+ * on resize and on a scroll outside it (a row under the anchor); a list
+ * scrolling inside it moves nothing, so it measures nothing. A pointer down
+ * outside it and its anchor dismisses.
  *
  * The owner wraps it in `AnimatePresence` with its motion, and holds the
  * page's scroll lock (`holdScrollLock`) while open, rendered before it, so
@@ -82,11 +83,16 @@ export default function AnchoredPopover({
         });
       }
     };
+    const scrolled = (event: Event) => {
+      if (!(event.target instanceof Node && node.contains(event.target))) {
+        placeSoon();
+      }
+    };
     reposition();
     show(node);
     document.addEventListener('pointerdown', outside, true);
     window.addEventListener('resize', placeSoon);
-    window.addEventListener('scroll', placeSoon, {
+    window.addEventListener('scroll', scrolled, {
       capture: true,
       passive: true,
     });
@@ -94,7 +100,7 @@ export default function AnchoredPopover({
       cancelAnimationFrame(frame);
       document.removeEventListener('pointerdown', outside, true);
       window.removeEventListener('resize', placeSoon);
-      window.removeEventListener('scroll', placeSoon, { capture: true });
+      window.removeEventListener('scroll', scrolled, { capture: true });
       try {
         node.hidePopover?.();
       } catch {

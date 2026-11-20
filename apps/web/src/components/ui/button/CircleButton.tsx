@@ -3,6 +3,7 @@
 import { type ComponentProps, useLayoutEffect, useRef } from 'react';
 
 import Icon from '@/components/ui/icon/Icon';
+import IconSwap from '@/components/ui/icon/IconSwap';
 import type { Glyph, IconSize, ToggleGlyph } from '@/components/ui/icon/types';
 import { REDUCED_MOTION } from '@/lib/media/breakpoints';
 import { matchesNow } from '@/lib/media/useMediaQuery';
@@ -25,7 +26,7 @@ type Props = Omit<ComponentProps<'button'>, 'aria-label' | 'children'> &
     pressed?: boolean;
   }>;
 
-/** A toggle's icon shrinks while it is held */
+/** A toggle's icon shrinks while it is held: the press is the gesture, so it goes past the button's own 0.96 */
 const TOGGLE_ICON =
   'inline-flex transition-[scale] duration-150 ease-out group-active/circle:scale-60 group-disabled/circle:scale-100';
 
@@ -88,8 +89,9 @@ export default function CircleButton({
     tone,
   });
   const iconSize = iconSizeOverride ?? CIRCLE_ICON_SIZE[size ?? 32];
-  const glyph = icon.filled ? (
-    <Icon active={pressed} glyph={icon} size={iconSize} />
+  // A toggle's icon swaps with its state (outline ↔ filled, + ↔ check)
+  const glyph = isToggle ? (
+    <IconSwap active={pressed} glyph={icon} size={iconSize} />
   ) : (
     <Icon glyph={icon} size={iconSize} />
   );

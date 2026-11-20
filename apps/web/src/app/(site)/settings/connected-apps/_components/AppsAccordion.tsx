@@ -4,6 +4,7 @@ import { useReducedMotion } from 'motion/react';
 import * as m from 'motion/react-m';
 import {
   createContext,
+  type MouseEvent,
   type ReactNode,
   use,
   useCallback,
@@ -17,6 +18,7 @@ import {
   FOLD_SHUT_TIMING,
   FOLD_SNAP,
 } from '@/components/motion/fold';
+import holdInPlace from '@/components/motion/holdInPlace';
 import Button from '@/components/ui/button/Button';
 import cn from '@/lib/cn';
 import type { AppBrand } from '../../_lib/services';
@@ -82,7 +84,14 @@ const TOGGLE = cn(APP_TOGGLE_CLASS, APP_TOGGLE_REACH_CLASS);
 /** The toggle's id: where focus goes when the card's own content leaves */
 export const appToggleId = (app: AppBrand) => `${app}-toggle`;
 
-/** "Open" while closed, "Hide" while open, cross-fading in one width; the chevron turns */
+/** The longer fold (opening): the pressed header is held for its length */
+const FOLD_MS = FOLD_OPEN_TIMING.height.duration * 1000;
+
+/**
+ * "Open" while closed, "Hide" while open, cross-fading in one width; the
+ * chevron turns. Opening a card shuts the open one, which may be above it:
+ * the pressed header stays under the pointer while that fold runs.
+ */
 export function AppToggle({
   app,
   name,
@@ -91,7 +100,10 @@ export function AppToggle({
   const isOpen = open === app;
   const label = isOpen ? 'Hide' : 'Open';
   const onClick = useCallback(
-    () => choose(isOpen ? '' : app),
+    (event: MouseEvent<HTMLButtonElement>) => {
+      holdInPlace(event.currentTarget, FOLD_MS);
+      choose(isOpen ? '' : app);
+    },
     [choose, isOpen, app],
   );
   const accessibleLabel = `${label} ${name}`;

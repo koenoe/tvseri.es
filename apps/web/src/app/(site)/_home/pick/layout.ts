@@ -40,10 +40,17 @@ export const DECK_CARD_FRONT =
 export const DECK_CARD_BACK =
   'shadow-[0_0_0_1px_rgb(0_0_0/0.4),0_0_24px_rgb(0_0_0/0.5),0_16px_32px_-12px_rgb(0_0_0/0.7)]';
 
-/** The result: title, facts, why (from xl), then the two actions */
-/** Centred under the fan below xl; beside it, left-aligned, from xl */
+/**
+ * The result: title, facts, why (from xl), then the two actions. Centred
+ * under the fan below xl; beside it, left-aligned, from xl. The text a roll
+ * replaces fades out in its own cell (`CrossFade`).
+ */
 export const RESULT =
   'flex flex-col items-start gap-2 max-xl:items-center max-xl:text-center';
+
+/** The title, facts and why: the part a roll swaps, laid out as the result */
+export const RESULT_TEXT =
+  'flex flex-col items-start gap-2 max-xl:items-center';
 export const RESULT_TITLE = 'text-title-1 text-white';
 export const RESULT_WHY = 'max-xl:hidden';
 export const RESULT_ACTIONS = 'flex items-center gap-3 pt-4';

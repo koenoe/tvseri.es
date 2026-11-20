@@ -324,11 +324,13 @@ for (const width of [360] as const) {
         .flatMap((head) => {
           const title = head.querySelector(':scope > h2');
           const link = title?.parentElement?.lastElementChild;
+          // the head's link (Show all, a lane's way out); a lane without
+          // one ends on its count pill, which holds text only
           if (
             !title ||
             !link ||
             link === title ||
-            link.childElementCount === 0
+            !link.querySelector('a, button')
           ) {
             return [];
           }

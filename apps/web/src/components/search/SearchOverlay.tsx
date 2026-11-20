@@ -1,24 +1,14 @@
 'use client';
 
-import {
-  type SyntheticEvent,
-  type TransitionEvent,
-  useEffect,
-  useEffectEvent,
-  useRef,
-  useState,
-} from 'react';
+import { useRef, useState } from 'react';
 
-import EdgeTint, { untintEdges } from '@/components/ui/dialog/EdgeTint';
-import {
-  openedFromKeyboard,
-  quietFocus,
-  returnFocus,
-} from '@/components/ui/dialog/focusReturn';
+import EdgeTint from '@/components/ui/dialog/EdgeTint';
+import { openedFromKeyboard } from '@/components/ui/dialog/focusReturn';
 import useModalDialog from '@/components/ui/dialog/useModalDialog';
 
 import growOrigin from './growOrigin';
 import SearchPanel from './SearchPanel';
+import useOverlayClose from './useOverlayClose';
 import useOverlaySearch from './useOverlaySearch';
 
 export type SearchOverlayProps = Readonly<{
@@ -33,21 +23,29 @@ export type SearchOverlayProps = Readonly<{
   trigger: HTMLElement | null;
 }>;
 
-/** The 500 ms close plus a margin. */
-const CLOSE_FALLBACK_MS = 600;
-
 /**
  * The motion: the dim fades to the page colour at 70% in 200 ms; the panel
  * grows from the header's search icon, scale 0 → 1 and opacity 0 → 1 in
- * 500 ms on `cubic-bezier(.32,.72,0,1)`, and closes the same way back into
- * the icon (scale .03). `transform-origin` is the icon's centre
- * (`growOrigin`), so only `scale` and `opacity` animate, on the compositor.
+ * 500 ms on `cubic-bezier(.32,.72,0,1)`, and shrinks back into the icon
+ * (scale .03) in 200 ms ease-out: ⌘K closes as often as it opens. Opening
+ * a result only fades it, in place (`data-closing="open"`). The
+ * modal is released as the close starts (`useOverlayClose`), so the page
+ * takes clicks while the panel shrinks. `transform-origin` is
+ * the icon's centre (`growOrigin`), so only `scale` and `opacity` animate,
+ * on the compositor.
  */
 const EASE = 'ease-[cubic-bezier(.32,.72,0,1)]';
 
 const FADE = `transition-opacity duration-200 ${EASE} starting:opacity-0 data-closing:opacity-0`;
 
-const MOTION = `transition-[opacity,scale] duration-500 ${EASE} starting:scale-0 starting:opacity-0 data-closing:scale-[.03] data-closing:opacity-0`;
+const MOTION = `transition-[opacity,scale] duration-500 ${EASE} starting:scale-0 starting:opacity-0 data-[closing=cancel]:scale-[.03] data-closing:opacity-0 data-closing:duration-200 data-closing:ease-out`;
+
+/**
+ * Released as the close starts, the dialog is out of the top layer: it
+ * stays drawn over the header (z-50) for the shrink.
+ */
+const DIALOG =
+  'fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-clip bg-transparent p-0 backdrop:bg-transparent data-closing:z-50';
 
 const DIM = `absolute inset-0 bg-page/70 ${FADE}`;
 
@@ -57,7 +55,7 @@ const PANEL = `remote-surface absolute inset-0 flex flex-col overflow-hidden pt-
  * The search overlay: a native modal
  * `<dialog>` over the page colour at 70%, with the white 672 px panel 128 px
  * down (full screen on a phone). It grows out of the header's search icon
- * and shrinks back into it.
+ * and shrinks back into it, or fades where it is as a result opens.
  */
 export default function SearchOverlay({
   initialQuery,
@@ -101,69 +99,23 @@ export default function SearchOverlay({
     panelRef,
   });
 
-  const done = useRef(false);
-  const finish = () => {
-    if (done.current) {
-      return;
-    }
-    done.current = true;
-    const navigated = search.finish();
-    if (!navigated) {
-      // A modal dialog keeps the page inert: close it first, or the focus
-      // can't land (Safari doesn't focus a clicked button, so it has no
-      // earlier focus to give back either)
-      if (dialogRef.current?.open) {
-        dialogRef.current.close();
-      }
-      if (opened.trigger?.isConnected) {
-        returnFocus(opened.trigger, opened.ring);
-      } else {
-        // the shortcut: the dialog gave focus back where it was, quietly
-        quietFocus(document.activeElement);
-      }
-    }
-    onClosed();
-  };
-  // A close the browser did on its own (a second quick Escape skips
-  // `cancel`). Strict Mode's ref re-run also closes and reopens the dialog:
-  // by the time that event arrives it is open again, so it is ignored.
-  const closedByBrowser = (event: SyntheticEvent<HTMLDialogElement>) => {
-    if (!event.currentTarget.open) {
-      finish();
-    }
-  };
-  // The fade normally ends it (`faded`); a close in the very first frame has
-  // nothing to fade (opacity is still at its starting 0), so a timer backs it
-  // up. Once, when `open` turns false: a late search answer re-rendering the
-  // closing overlay doesn't restart the timer.
-  const halt = useEffectEvent(() => search.halt());
-  const finishLate = useEffectEvent(() => finish());
-  useEffect(() => {
-    if (open) {
-      return;
-    }
-    if (panelRef.current) {
-      untintEdges(panelRef.current);
-    }
-    halt();
-    const timer = window.setTimeout(finishLate, CLOSE_FALLBACK_MS);
-    return () => window.clearTimeout(timer);
-  }, [open]);
-  const faded = (event: TransitionEvent<HTMLDivElement>) => {
-    if (
-      !open &&
-      event.target === event.currentTarget &&
-      event.propertyName === 'opacity'
-    ) {
-      finish();
-    }
-  };
-  const closing = open ? undefined : '';
+  const { closedByBrowser, faded } = useOverlayClose({
+    dialogRef,
+    onClosed,
+    open,
+    opened,
+    panelRef,
+    search,
+  });
+  // Opening a result fades it where it is: shrinking back into the icon
+  // says "cancelled", which is for Escape, the dim and the cross
+  const closing = open ? undefined : search.opening ? 'open' : 'cancel';
 
   return (
     <dialog
       aria-label="Search"
-      className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-clip bg-transparent p-0 backdrop:bg-transparent"
+      className={DIALOG}
+      data-closing={closing}
       onCancel={onCancel}
       onClick={onClick}
       onClose={closedByBrowser}

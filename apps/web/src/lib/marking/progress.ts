@@ -239,6 +239,32 @@ export function seriesProgress(series: SeriesBase): SeriesProgress {
   };
 }
 
+/** Announced episodes still to air in a regular season: caught up, not finished */
+export const isStillComing = (series: Pick<SeriesBase, 'seasons'>) =>
+  series.seasons.some(
+    (season) =>
+      season.seasonNumber > 0 && season.episodeCount > season.airedEpisodeCount,
+  );
+
+/**
+ * A regular season that reads "Watched": every announced episode aired, and
+ * done (one watched, none open; skips count as done). Specials never do.
+ */
+export function isSeasonComplete(
+  series: SeriesBase,
+  seasonNumber: number,
+): boolean {
+  const season = series.seasons.find(
+    (item) => item.seasonNumber === seasonNumber,
+  );
+  return (
+    seasonNumber > 0 &&
+    season !== undefined &&
+    season.episodeCount <= season.airedEpisodeCount &&
+    seasonProgress(series, seasonNumber).isDone
+  );
+}
+
 /** Any regular episode watched, aired or not (the lists' "started") */
 export const isStarted = (series: SeriesMarks) => progressOf(series).started;
 

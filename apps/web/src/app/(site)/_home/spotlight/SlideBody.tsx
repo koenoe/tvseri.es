@@ -138,6 +138,7 @@ function SlideBody({
       aria-label={label}
       aria-roledescription="slide"
       className={bodyClasses}
+      data-show-morph-id={slide.id}
       inert={leaving}
       role="group"
     >
@@ -150,7 +151,12 @@ function SlideBody({
         <span className="text-white/80">{slide.rank}</span>
       </span>
       <h2 className={titleClasses}>
-        <TileLink className={TITLE_LINK} draggable={false} href={slide.href}>
+        <TileLink
+          backdrop={slide.backdrop}
+          className={TITLE_LINK}
+          draggable={false}
+          href={slide.href}
+        >
           {slide.logo && failed === slide.logo ? (
             <span className={LOGO_FALLBACK} style={logoStyle}>
               <span className="line-clamp-1 font-display text-display text-white md:line-clamp-2">
@@ -161,6 +167,8 @@ function SlideBody({
             <Image
               alt={slide.title}
               className={LOGO}
+              // the part that glides into the show page's title
+              data-show-morph="logo"
               // The 460 × 150 cap at 2×; CSS holds the box (`LOGO_HELD`)
               height={300}
               loading="eager"

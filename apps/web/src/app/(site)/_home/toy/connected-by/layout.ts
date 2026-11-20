@@ -38,7 +38,16 @@ export const PATH_TITLE_SLOT = 'max-md:basis-full md:flex-1 md:basis-0';
  * whatever the day's two series are called; from md it is one line (the
  * full text in its hover title)
  */
-export const PATH_TITLE_BOX = `${PATH_TITLE_SLOT} max-md:line-clamp-2 max-md:min-h-12 md:line-clamp-1`;
+export const PATH_TITLE_BOX = `${PATH_TITLE_SLOT} min-w-0 max-md:min-h-12`;
+
+/** The title's lines, inside its box: two on a phone, one from md */
+export const PATH_TITLE_LINES = 'max-md:line-clamp-2 md:line-clamp-1';
+
+/** The chain's place under the head: the card's room left */
+export const PATH_CHAIN_SLOT = 'min-h-0 flex-1';
+
+/** The chain inside its place, the one leaving faded out in the same cell */
+export const PATH_CHAIN = 'flex min-h-0 flex-col';
 
 /** "Another path", at the head's end (centred under the title on a phone) */
 export const PATH_SWITCH = 'ml-auto max-md:mx-auto';

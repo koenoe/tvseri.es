@@ -20,6 +20,7 @@ import {
 import { connectedService } from '../../_lib/services';
 import { codeLifeLeft } from '../_lib/codeLife';
 import { type ServiceCardStatus, toCardStatus } from '../_lib/serviceCard';
+import { appToggleId } from './AppsAccordion';
 import { readAs, readStatus } from './readStatus';
 
 /** How often the card asks whether the extension has landed the link. */
@@ -36,6 +37,10 @@ const mintCode = (service: ConnectionService) =>
     }),
     LinkCodeSchema,
   );
+
+/** Where focus goes when the pairing's own controls leave */
+const focusToggle = (service: ConnectionService) =>
+  document.getElementById(appToggleId(service))?.focus();
 
 /** Best effort: the code expires on its own within minutes anyway. */
 const revokeCode = () => {
@@ -88,6 +93,9 @@ export default function usePairing(
   const [minting, startMinting] = useTransition();
   // The code the extension's answer belongs to: a stale answer is dropped
   const handedOver = useRef<string | null>(null);
+  // The poll and the extension's answer can both be reading when the link
+  // lands: only the first to see it lands it (one toast, refresh, focus)
+  const landing = useRef(false);
 
   const expired = code !== null && now >= code.expiresAt;
   const live = code !== null && !expired;
@@ -109,13 +117,25 @@ export default function usePairing(
 
   const checkLink = useCallback(async () => {
     const found = await readStatus(service);
-    if (isLanded(found)) {
+    if (isLanded(found) && !landing.current) {
+      landing.current = true;
+      // The poll lands it: focus moves only if the pairing held it (its
+      // controls leave now) or it was already lost
+      const active = document.activeElement;
+      const lost =
+        !active ||
+        active === document.body ||
+        active.closest('[data-pairing]') !== null;
       setLinked(toCardStatus(found));
       setCode(null);
       setNotice(null);
       setConfirming(false);
       handedOver.current = null;
       router.refresh();
+      if (lost) {
+        focusToggle(service);
+      }
+      showToast({ title: `${connectedService(service).name} connected` });
     }
   }, [router, service]);
 
@@ -167,6 +187,7 @@ export default function usePairing(
 
   const connect = () =>
     startMinting(async () => {
+      landing.current = false;
       const minted = await mintCode(service);
       if (!minted) {
         showToast({ title: 'Couldn’t get a code. Try again.', tone: 'error' });
@@ -195,6 +216,8 @@ export default function usePairing(
     setNotice(null);
     setConfirming(false);
     revokeCode();
+    // Cancel leaves with the code: the card's toggle holds focus
+    focusToggle(service);
   };
 
   /** After Disconnect: the link the poll saw is gone. */

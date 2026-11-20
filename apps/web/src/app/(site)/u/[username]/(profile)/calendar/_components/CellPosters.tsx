@@ -21,7 +21,8 @@ const PULSE_TIMING = { delay: 0.45, duration: 1.1, ease: 'easeOut' } as const;
 /**
  * A day on desktop: its number, today's first-paint pulse and Today's
  * flash, and the day's poster stack. Past days and the outside rows keep
- * their posters, dimmed.
+ * their posters, faded. The wrapper passes the tile's corners on to the
+ * rings: display: contents still takes part in inheritance.
  */
 export default function CellPosters({
   day,
@@ -44,9 +45,9 @@ export default function CellPosters({
     // contrast-exempt: another month's dates sit on the month panel (black/22 over the ground), where white/50 is ≥4.8:1
     outside ? 'text-white/50' : past ? 'text-white/60' : 'text-white/85',
   );
-  const dim = outside ? 'opacity-35' : past ? 'opacity-40' : undefined;
+  const fade = outside ? 'outside' : past ? 'past' : null;
   return (
-    <span className="contents max-md:hidden">
+    <span className="contents rounded-[inherit] max-md:hidden">
       <span className={numberClass}>{dayNumber(iso)}</span>
       {pulse ? (
         <m.span
@@ -58,11 +59,7 @@ export default function CellPosters({
         />
       ) : null}
       <TodayFlash flash={flash} on="cell" />
-      {day ? (
-        <span className={dim}>
-          <PosterStack day={day} />
-        </span>
-      ) : null}
+      {day ? <PosterStack day={day} fade={fade} /> : null}
     </span>
   );
 }

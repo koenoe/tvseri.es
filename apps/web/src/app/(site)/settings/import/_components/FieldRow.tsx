@@ -1,8 +1,8 @@
 'use client';
 
 import { type ChangeEvent, useCallback } from 'react';
+import ChoiceButton from '@/components/ui/button/ChoiceButton';
 import cn from '@/lib/cn';
-
 import type { ColumnMapping, DetectedSource } from '../_lib/columns';
 import { type FIELDS, type FieldKey, fieldHint } from '../_lib/copy';
 import type { DateOrder } from '../_lib/parseDate';
@@ -109,22 +109,22 @@ function ServiceSource({
       className={SEGMENTED}
       role="group"
     >
-      <button
+      <ChoiceButton
         aria-pressed={fromColumn}
         className={SEGMENT_FILL}
+        on={fromColumn}
         onClick={onColumn}
-        type="button"
       >
         Column
-      </button>
-      <button
+      </ChoiceButton>
+      <ChoiceButton
         aria-pressed={fixed}
         className={SEGMENT_FILL}
+        on={fixed}
         onClick={onFixed}
-        type="button"
       >
         Same for all rows
-      </button>
+      </ChoiceButton>
     </span>
   );
 }

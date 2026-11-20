@@ -67,11 +67,13 @@ export default async function IdentityMeta({
         {known === null ? (
           'Followers and following'
         ) : (
-          <FollowersCount
-            followers={known.followers}
-            following={known.following}
-            userId={profile.user.id}
-          />
+          <span className="tabular-nums">
+            <FollowersCount
+              followers={known.followers}
+              following={known.following}
+              userId={profile.user.id}
+            />
+          </span>
         )}
         {followsYou ? <FollowsYou /> : null}
       </IdentityLinkLine>
@@ -91,11 +93,12 @@ function episodesLine(
   return known.episodes === 0 ? (
     'No episodes yet'
   ) : (
-    <>
+    // the counts move with this tab's marks: their digits keep their width
+    <span className="tabular-nums">
       <EpisodesCount episodes={known.episodes} username={username} />
       {separator}
       <FinishedCount finished={known.finished} username={username} />
-    </>
+    </span>
   );
 }
 
@@ -110,7 +113,9 @@ export async function CompactIdentityMeta({
   return (
     <span className="flex min-w-0 items-center gap-2 text-[13px] leading-5 whitespace-nowrap text-white/60">
       <Icon className="size-[13px] shrink-0" glyph={eyeGlyph} size={13} />
-      <span className="truncate">
+      {/* More room to the clip than to the layout: the count's ring
+          (`FinishedCount`) passes the line's end, top and bottom */}
+      <span className="-my-1 -mr-2 truncate py-1 pr-2">
         {episodesLine(
           isUnavailable(counts) ? null : counts,
           ' · ',

@@ -1,13 +1,14 @@
 'use client';
 
 import HowItWorksLink from '@/components/extension/HowItWorksLink';
+import SwapIn from '@/components/motion/SwapIn';
 import Button from '@/components/ui/button/Button';
 import { closeGlyph, historyGlyph } from '@/components/ui/icon/glyphs';
-
+import { focusOnMount } from '@/lib/a11y/focusOnMount';
+import { ignoreKeyRepeat } from '@/lib/a11y/ignoreKeyRepeat';
 import { MD_BUTTON } from '../../_lib/appButtons';
 import ConfirmInExtension from './ConfirmInExtension';
 import LinkCodeField from './LinkCodeField';
-import Swap from './motion/Swap';
 import { useConnectedService } from './ServiceContext';
 import SetupSteps from './SetupSteps';
 import type { Countdown } from './usePairing';
@@ -56,9 +57,9 @@ export default function ServicePairingBody({
   const group = confirming ? CODE_GROUP : CODE_GROUP_BEFORE_STEPS;
   return (
     <>
-      <div className={group}>
+      <div className={group} data-pairing="">
         {/* the confirm block rises into the code's place */}
-        <Swap swapKey={confirming ? 'confirm' : 'code'}>
+        <SwapIn swapKey={confirming ? 'confirm' : 'code'}>
           {confirming ? (
             <ConfirmInExtension code={code} />
           ) : (
@@ -68,13 +69,19 @@ export default function ServicePairingBody({
               expired={expired}
             />
           )}
-        </Swap>
+        </SwapIn>
         <p aria-live="polite" className={noticeClass}>
           {spoken}
         </p>
       </div>
       {confirming ? null : <SetupSteps lines={copy.steps} />}
-      <div className="flex flex-wrap items-center gap-2">
+      {/* Focus arrives on Cancel from a press (Connect, Get a new code):
+          Enter held there mustn't press it too */}
+      <div
+        className="flex flex-wrap items-center gap-2"
+        data-pairing=""
+        onKeyDownCapture={ignoreKeyRepeat}
+      >
         {expired ? (
           <Button
             className={MD_BUTTON}
@@ -85,10 +92,14 @@ export default function ServicePairingBody({
             Get a new code
           </Button>
         ) : null}
+        {/* Keyed by the code: each new code (Connect, Get a new code)
+            puts focus here, where the button pressed has gone */}
         <Button
           className={MD_BUTTON}
           icon={closeGlyph}
+          key={code}
           onClick={onCancel}
+          ref={focusOnMount}
           variant={expired || confirming ? 'quiet' : 'tonal'}
         >
           Cancel

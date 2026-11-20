@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useSelectedLayoutSegment } from 'next/navigation';
 import { useLayoutEffect, useRef } from 'react';
 
+import { useLinkGlide } from '@/components/motion/fillGlide';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 import scrollBehavior from '@/lib/media/scrollBehavior';
@@ -20,22 +21,22 @@ function useActiveInView(segment: string) {
   const placed = useRef(false);
   // biome-ignore lint/correctness/useExhaustiveDependencies: runs when the active tab changes, reading the row it drew
   useLayoutEffect(() => {
-    const nav = marker.current?.closest('nav');
-    const tab = nav?.querySelector<HTMLElement>('[aria-current="page"]');
-    if (!nav || !tab) {
+    const row = marker.current?.closest<HTMLElement>('[data-tab-scroller]');
+    const tab = row?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!row || !tab) {
       return;
     }
     const left = activeTabScroll({
-      clientWidth: nav.clientWidth,
+      clientWidth: row.clientWidth,
       first: !tab.previousElementSibling,
       left: tab.offsetLeft,
-      scrollWidth: nav.scrollWidth,
+      scrollWidth: row.scrollWidth,
       width: tab.offsetWidth,
     });
     if (placed.current) {
-      nav.scrollTo({ behavior: scrollBehavior(), left });
+      row.scrollTo({ behavior: scrollBehavior(), left });
     } else {
-      nav.scrollLeft = left;
+      row.scrollLeft = left;
     }
     placed.current = true;
   }, [segment]);
@@ -59,6 +60,11 @@ export default function TabLinks({
   // The overview is the layout's own page (null, or `__PAGE__` in some versions)
   const segment = !selected || selected.startsWith('__') ? '' : selected;
   const marker = useActiveInView(segment);
+  // the highlight glides from the tab that was open to the one pressed
+  const onPress = useLinkGlide(
+    () => marker.current?.closest<HTMLElement>('[data-tab-scroller]'),
+    segment,
+  );
   return (
     <>
       {PROFILE_TABS.map((tab) => {
@@ -70,7 +76,7 @@ export default function TabLinks({
         const className = cn(
           TAB,
           active
-            ? 'bg-white/15 text-white'
+            ? 'text-white before:bg-white/15'
             : 'text-white/60 hover:bg-white/8 hover:text-white',
         );
         return (
@@ -79,6 +85,7 @@ export default function TabLinks({
             className={className}
             href={href}
             key={tab.label}
+            onClick={onPress}
           >
             <Icon glyph={tab.glyph} size={16} />
             {tab.label}

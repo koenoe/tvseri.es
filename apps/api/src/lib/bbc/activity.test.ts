@@ -294,3 +294,82 @@ describe('readActivityPage', () => {
     expect(session.header()).toBe('ckns_atkn=renewed');
   });
 });
+
+describe('an expired access token', () => {
+  const SESSION = 'https://session.bbc.co.uk/session';
+  const REFUSED = () =>
+    new Response('{"key":"tokenNotSupplied"}', { status: 401 });
+  const RENEWED = () =>
+    new Response('{}', {
+      headers: {
+        'set-cookie':
+          'ckns_atkn=fresh-value; Domain=.bbc.co.uk; Path=/; Secure; HttpOnly',
+      },
+    });
+
+  /** Answers the session call with `renewal`, the history with `pages` in turn */
+  const serve = (renewal: () => Response, pages: Array<() => Response>) => {
+    const asked: string[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        asked.push(url);
+        if (url.startsWith(SESSION)) {
+          return renewal();
+        }
+        return (pages.shift() ?? (() => Response.json(PAGE)))();
+      }),
+    );
+    return asked;
+  };
+
+  it('is renewed through the BBC’s session, as iPlayer’s pages do, and the page read again', async () => {
+    const asked = serve(RENEWED, [REFUSED]);
+    const session = jar();
+    expect(await readActivityPage(session, 0)).toMatchObject({ ok: true });
+    expect(asked.map((url) => new URL(url).host)).toEqual([
+      'activity.api.bbc.co.uk',
+      'session.bbc.co.uk',
+      'activity.api.bbc.co.uk',
+    ]);
+    expect(session.header()).toBe('ckns_atkn=fresh-value');
+    expect(session.renewed()).toBe(true);
+  });
+
+  it('means signed out when the session gives no new token', async () => {
+    const asked = serve(() => new Response('{}'), [REFUSED]);
+    expect(await readActivityPage(jar(), 0)).toEqual({
+      ok: false,
+      reason: 'signed-out',
+    });
+    expect(asked).toHaveLength(2);
+  });
+
+  it.each([401, 403, 302])(
+    'means signed out when the session answers %s',
+    async (status) => {
+      serve(() => new Response(null, { status }), [REFUSED]);
+      expect(await readActivityPage(jar(), 0)).toEqual({
+        ok: false,
+        reason: 'signed-out',
+      });
+    },
+  );
+
+  it('tries later when the session service is down: the viewer may still be signed in', async () => {
+    serve(() => new Response(null, { status: 503 }), [REFUSED]);
+    expect(await readActivityPage(jar(), 0)).toEqual({
+      ok: false,
+      reason: 'unavailable',
+    });
+  });
+
+  it('renews once: a refusal with the new token is signed out', async () => {
+    const asked = serve(RENEWED, [REFUSED, REFUSED]);
+    expect(await readActivityPage(jar(), 0)).toEqual({
+      ok: false,
+      reason: 'signed-out',
+    });
+    expect(asked.filter((url) => url.startsWith(SESSION))).toHaveLength(1);
+  });
+});

@@ -14,9 +14,26 @@ import { clientKey, dropClientKey } from './clientKey';
  *
  * Not through `getJson`: a 400's text says whether the client key was
  * refused or the page is past the last.
+ *
+ * Its access token (`ckns_atkn`) lasts hours, and nothing UAS answers renews
+ * it: iPlayer's pages get a new one from the BBC's session service with the
+ * long-lived sign-in (`ckns_id`). A refused page does the same, once.
  */
 
 const PLAYS_URL = 'https://activity.api.bbc.co.uk/my/plays';
+
+/** idcta's `tokenRefresh_url`, as the BBC's config serves it */
+const SESSION_URL =
+  'https://session.bbc.co.uk/session?ptrt=https%3A%2F%2Fsession.bbc.co.uk%2Fsession%2Fannounce';
+
+const ACCESS_TOKEN = 'ckns_atkn';
+
+/** What the BBC's own pages send */
+const BBC_PAGE_HEADERS = {
+  accept: 'application/json',
+  origin: 'https://www.bbc.co.uk',
+  referer: 'https://www.bbc.co.uk/',
+} as const;
 
 export const PLAYS_PER_PAGE = 100;
 
@@ -92,7 +109,39 @@ const END: ActivityPage = {
   total: null,
 };
 
-export const readActivityPage = async (
+const accessToken = (jar: CookieJar) =>
+  jar.cookies().find((cookie) => cookie.name === ACCESS_TOKEN)?.value;
+
+/**
+ * A new access token into the jar. A refusal, a redirect (to sign-in) or an
+ * answer without a token means the BBC sign-in itself is gone; the session
+ * service being down doesn't.
+ */
+const renewAccessToken = async (
+  jar: CookieJar,
+): Promise<Readonly<{ ok: true }> | ReadFailure> => {
+  const before = accessToken(jar);
+  const answer = await ask(
+    SESSION_URL,
+    {
+      headers: { ...BBC_PAGE_HEADERS, 'content-type': 'application/json' },
+      redirect: 'manual',
+    },
+    jar,
+  );
+  if (!answer) {
+    return readFailure('unavailable');
+  }
+  if (answer.status >= 200 && answer.status < 400) {
+    const after = accessToken(jar);
+    return answer.status < 300 && after !== undefined && after !== before
+      ? { ok: true }
+      : readFailure('signed-out');
+  }
+  return failureOf(answer);
+};
+
+const readOnce = async (
   jar: CookieJar,
   page: number,
 ): Promise<ActivityPage | ReadFailure> => {
@@ -109,13 +158,7 @@ export const readActivityPage = async (
   const answer = await ask(
     `${PLAYS_URL}?${query}`,
     {
-      headers: {
-        accept: 'application/json',
-        // What the BBC's own pages send
-        origin: 'https://www.bbc.co.uk',
-        referer: 'https://www.bbc.co.uk/',
-        'x-api-key': key,
-      },
+      headers: { ...BBC_PAGE_HEADERS, 'x-api-key': key },
       redirect: 'manual',
     },
     jar,
@@ -156,4 +199,16 @@ export const readActivityPage = async (
     plays,
     total: parsed.output.total,
   };
+};
+
+export const readActivityPage = async (
+  jar: CookieJar,
+  page: number,
+): Promise<ActivityPage | ReadFailure> => {
+  const read = await readOnce(jar, page);
+  if (read.ok || read.reason !== 'signed-out') {
+    return read;
+  }
+  const renewed = await renewAccessToken(jar);
+  return renewed.ok ? readOnce(jar, page) : renewed;
 };

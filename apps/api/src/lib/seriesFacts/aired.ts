@@ -23,7 +23,8 @@ type Episode = Readonly<{ seasonNumber: number; episodeNumber: number }>;
  *   the caller's day rule);
  * - never fewer than the seasons prove: a season that started (air date in
  *   the past) counts in full when a later season has started too, or when
- *   the show has ended or was cancelled.
+ *   the show has ended or was cancelled; never the next episode's season,
+ *   which TMDB's next episode to air proves unfinished.
  *
  * The floor matters when `last_episode_to_air` is a special (season 0, so
  * no regular season counted at all), missing, or stuck in an early season:
@@ -73,8 +74,11 @@ export const airedBySeason = (
         input.nextHasAired ? placeOf(next) : placeOf(next) - 1,
       );
     }
+    // A next episode to air in this season proves it isn't done, even when
+    // TMDB already calls the show Ended or Canceled
     const isProvenAired =
       started.includes(season.seasonNumber) &&
+      next?.seasonNumber !== season.seasonNumber &&
       (over || season.seasonNumber < latestStarted);
     if (isProvenAired) {
       aired = season.episodeCount;

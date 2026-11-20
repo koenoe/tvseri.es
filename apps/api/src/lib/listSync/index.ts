@@ -576,8 +576,10 @@ const createResumingSoon = (userId: string) => {
 /**
  * The Finished shows still running: their list item says Returning Series,
  * or their stored facts say so now (a show finished while Ended or In
- * Production and renewed since). The facts are a read of the Cache table,
- * no TMDB call; a show without stored facts is judged by its item.
+ * Production and renewed since) or still list a next episode to air (TMDB
+ * calls a show Canceled while its last episodes air). The facts are a read
+ * of the Cache table, no TMDB call; a show without stored facts is judged by
+ * its item.
  */
 const runningFinishedShows = async (userId: string) => {
   const finished = await getAllListItems({ listId: 'WATCHED', userId });
@@ -588,8 +590,11 @@ const runningFinishedShows = async (userId: string) => {
     others.length > 0
       ? await peekSeriesFacts(others.map((item) => item.id))
       : new Map<number, SeriesFacts>();
+  const isAiring = (show: SeriesFacts | undefined) =>
+    show !== undefined &&
+    (isRunning(show.status) || show.nextEpisodeToAir !== null);
   return finished.filter(
-    (item) => isRunning(item.status) || isRunning(facts.get(item.id)?.status),
+    (item) => isRunning(item.status) || isAiring(facts.get(item.id)),
   );
 };
 

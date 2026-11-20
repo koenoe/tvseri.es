@@ -207,3 +207,75 @@ describe('airedEpisodesAt: episodes numbered on across seasons', () => {
     });
   });
 });
+
+// TMDB marks a show Canceled while its last episodes still air
+describe('airedEpisodesAt: a show over while its next episode is still to air', () => {
+  const cancelled = facts({
+    lastEpisodeToAir: {
+      airDate: '2025-03-01',
+      episodeNumber: 5,
+      runtime: 50,
+      seasonNumber: 3,
+    },
+    nextEpisodeToAir: {
+      airDate: '2025-03-08',
+      episodeNumber: 6,
+      runtime: 50,
+      seasonNumber: 3,
+    },
+    seasons: [
+      { airDate: '2020-01-01', episodeCount: 8, seasonNumber: 1 },
+      { airDate: '2022-01-01', episodeCount: 10, seasonNumber: 2 },
+      { airDate: '2025-02-01', episodeCount: 8, seasonNumber: 3 },
+    ],
+    status: 'Canceled',
+  });
+
+  it('counts the next episode’s season up to it, not in full', () => {
+    expect(airedEpisodesAt(cancelled, Date.parse('2025-03-03'))).toEqual({
+      bySeason: { 1: 8, 2: 10, 3: 5 },
+      total: 23,
+    });
+  });
+
+  it('counts the next episode from its air day', () => {
+    expect(
+      airedEpisodesAt(cancelled, Date.parse('2025-03-08T00:00:00Z')),
+    ).toEqual({ bySeason: { 1: 8, 2: 10, 3: 6 }, total: 24 });
+  });
+
+  it('still counts the earlier seasons in full when the last aired episode is a special', () => {
+    expect(
+      airedEpisodesAt(
+        {
+          ...cancelled,
+          lastEpisodeToAir: {
+            airDate: '2025-03-01',
+            episodeNumber: 1,
+            runtime: 50,
+            seasonNumber: 0,
+          },
+        },
+        Date.parse('2025-03-03'),
+      ),
+    ).toEqual({ bySeason: { 1: 8, 2: 10, 3: 5 }, total: 23 });
+  });
+
+  it('counts every started season in full once nothing is left to air', () => {
+    expect(
+      airedEpisodesAt(
+        {
+          ...cancelled,
+          lastEpisodeToAir: {
+            airDate: '2025-03-01',
+            episodeNumber: 2,
+            runtime: 50,
+            seasonNumber: 1,
+          },
+          nextEpisodeToAir: null,
+        },
+        Date.parse('2025-06-01'),
+      ),
+    ).toEqual({ bySeason: { 1: 8, 2: 10, 3: 8 }, total: 26 });
+  });
+});

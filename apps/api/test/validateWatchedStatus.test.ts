@@ -16,10 +16,15 @@ import { listItems, withStream } from './stream';
 let nextShow = 8100;
 const newShow = (
   seasons: Parameters<typeof fakeShow>[0]['seasons'],
-  options: Readonly<{ status?: string; specials?: number }> = {},
+  options: Readonly<{
+    status?: string;
+    specials?: number;
+    extra?: Record<string, unknown>;
+  }> = {},
 ) => {
   nextShow += 1;
   fakeShow({
+    extra: options.extra,
     id: nextShow,
     seasons,
     status: options.status ?? 'Returning Series',
@@ -151,6 +156,32 @@ describe('nightly validation: which finished shows it checks', () => {
     await getSeriesFacts([show]);
     seedWatched(USER_ID, show, episodes(1, 1, 4), LAST_WATCH);
     seedListItem('WATCHED', show, Date.parse(LAST_WATCH), 'Ended');
+
+    await run();
+
+    expect(finished(show)).toBeUndefined();
+    expect(inProgress(show)).toMatchObject({ createdAt: TUESDAY });
+  });
+
+  it('checks a cancelled show whose last episodes still air', async () => {
+    vi.useFakeTimers({ now: TUESDAY, toFake: ['Date'] });
+    seedUser();
+    // Finished at E5; E6 aired 5 Nov, E7 is still to come
+    const show = newShow([{ airDate: '2026-10-01', aired: 6, episodes: 8 }], {
+      extra: {
+        next_episode_to_air: {
+          air_date: '2026-11-12',
+          episode_number: 7,
+          id: 2,
+          name: 'Next',
+          season_number: 1,
+        },
+      },
+      status: 'Canceled',
+    });
+    await getSeriesFacts([show]);
+    seedWatched(USER_ID, show, episodes(1, 1, 5), LAST_WATCH);
+    seedListItem('WATCHED', show, Date.parse(LAST_WATCH), 'Canceled');
 
     await run();
 

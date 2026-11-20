@@ -74,9 +74,8 @@ export function HowItWorksDialog() {
         {HowItWorksDrawing ? <HowItWorksDrawing /> : <DrawingSpace />}
         <figcaption className="flex flex-wrap items-center justify-between gap-4 max-sm:flex-col max-sm:items-start max-sm:gap-2">
           <span className="text-body-sm text-white/80 max-sm:text-meta">
-            Envelope encryption: a KMS data key per sign-in, AES-256-GCM,
-            encryption context userId + service. Only the sync Lambda holds
-            kms:Decrypt.
+            Encrypted with a key held in AWS KMS (AES-256-GCM, tied to your
+            account and the service). Only the sync job can decrypt it.
           </span>
           <a
             className="inline-flex items-center gap-1.5 font-medium text-meta text-white/80 underline decoration-white/30 underline-offset-3 transition-colors hover:text-white"

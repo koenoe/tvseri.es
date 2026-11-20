@@ -9,7 +9,7 @@ import styles from './drawing.module.css';
 
 /** The drawing's name for assistive tech */
 const LABEL =
-  'How a sign-in moves: your browser and the tvseri.es extension send it once over HTTPS with a one-time code to the tvseri.es API Lambda, which test-reads it and encrypts it with a KMS data key (envelope encryption, encryption context user id and service), storing AES-256-GCM ciphertext and the wrapped key in DynamoDB in eu-west-2. Only the sync Lambda has kms:Decrypt; right after you connect, then every night, it reads your watch history on the service and marks episodes watched in your tvseri.es history.';
+  'How a sign-in moves: your browser and the tvseri.es extension send it once over HTTPS with a one-time code to the tvseri.es API, which checks it works and encrypts it with a key held in AWS KMS (envelope encryption, AES-256-GCM, tied to your account and the service), storing it in a database in London. Only the sync job can decrypt it; right after you connect, then every night, it reads your watch history on the service and marks episodes watched in your tvseri.es history.';
 
 /**
  * Drawn twice, not scaled: across on a computer, top to bottom in a phone's
@@ -341,10 +341,10 @@ export default function HowItWorksDrawing() {
             tvseri.es API
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="258" y="199">
-            Lambda · test read
+            checks it works
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="258" y="215">
-            kms:GenerateDataKey
+            encrypts it
           </text>
         </g>
         <g className={cn(styles.node, styles.s2)}>
@@ -402,7 +402,7 @@ export default function HowItWorksDrawing() {
             <path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" />
           </g>
           <text fill="#fff" fontSize="12.5" fontWeight="600" x="486" y="197">
-            DynamoDB
+            Database
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="466" y="215">
             SSE at rest
@@ -440,10 +440,10 @@ export default function HowItWorksDrawing() {
             Sync job
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="650" y="359">
-            Lambda
+            runs nightly
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="650" y="375">
-            IAM: only kms:Decrypt
+            only it can decrypt
           </text>
         </g>
         <g className={cn(styles.node, styles.s6)}>
@@ -540,8 +540,8 @@ export default function HowItWorksDrawing() {
             fill="#15191a"
             height="20"
             rx="10"
-            width="99.0"
-            x="369.5"
+            width="84.0"
+            x="377.0"
             y="124.0"
           />
           <text
@@ -552,7 +552,7 @@ export default function HowItWorksDrawing() {
             x="419"
             y="138.0"
           >
-            GenerateDataKey
+            new data key
           </text>
         </g>
         <g className={cn(styles.fade, styles.s3)}>
@@ -622,7 +622,7 @@ export default function HowItWorksDrawing() {
             x="770"
             y="166.0"
           >
-            kms:Decrypt
+            decrypt
           </text>
           <text
             fill="#00ffff"
@@ -994,10 +994,10 @@ export default function HowItWorksDrawing() {
             tvseri.es API
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="110" y="233">
-            Lambda · test read
+            checks it works
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="110" y="249">
-            kms:GenerateDataKey
+            encrypts it
           </text>
         </g>
         <g className={cn(styles.node, styles.s2)}>
@@ -1058,7 +1058,7 @@ export default function HowItWorksDrawing() {
             <path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" />
           </g>
           <text fill="#fff" fontSize="12.5" fontWeight="600" x="44" y="329">
-            DynamoDB
+            Database
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="24" y="347">
             SSE at rest
@@ -1096,10 +1096,10 @@ export default function HowItWorksDrawing() {
             Sync job
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="110" y="517">
-            Lambda
+            runs nightly
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="110" y="533">
-            IAM: only kms:Decrypt
+            only it can decrypt
           </text>
         </g>
         <g className={cn(styles.node, styles.s6)}>
@@ -1213,8 +1213,8 @@ export default function HowItWorksDrawing() {
             fill="#15191a"
             height="20"
             rx="10"
-            width="99.0"
-            x="198.5"
+            width="84.0"
+            x="206.0"
             y="270.0"
           />
           <text
@@ -1225,7 +1225,7 @@ export default function HowItWorksDrawing() {
             x="248"
             y="284.0"
           >
-            GenerateDataKey
+            new data key
           </text>
         </g>
         <g className={cn(styles.fade, styles.s4)}>
@@ -1275,7 +1275,7 @@ export default function HowItWorksDrawing() {
             x="300"
             y="458.0"
           >
-            kms:Decrypt
+            decrypt
           </text>
         </g>
         <g className={cn(styles.fade, styles.s6)}>

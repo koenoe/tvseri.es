@@ -1,17 +1,13 @@
 import { episodeCode, type Ledger, type LedgerShow } from '@tvseri.es/schemas';
 import { buildPosterImageUrl } from '@tvseri.es/utils';
 
-import { getAllListItems } from '@/lib/db/list';
 import { getSeriesPrefsMany } from '@/lib/db/prefs';
+import { readInProgress } from '@/lib/followed';
 import { readShowItems } from '@/lib/rollups';
 import { getSeriesFacts } from '@/lib/seriesFacts';
 import { progressAt } from '@/lib/seriesFacts/aired';
 import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { mapSettled } from '@/utils/limit';
-
-// The in-progress shows scanned (their per-show summaries), most recently
-// added first
-const MAX_SHOWS = 30;
 
 type Hole = Readonly<{ season: number; episode: number }>;
 
@@ -64,13 +60,7 @@ export const getLedger = async (
   userId: string,
   now: number,
 ): Promise<Ledger> => {
-  const inProgress = (
-    await getAllListItems({
-      listId: 'IN_PROGRESS',
-      sortDirection: 'desc',
-      userId,
-    })
-  ).slice(0, MAX_SHOWS);
+  const inProgress = await readInProgress(userId);
 
   const ids = inProgress.map((item) => item.id);
   // The shows' watched items from their summaries in one batch read

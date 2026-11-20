@@ -8,19 +8,28 @@ import { getAllListItems } from '@/lib/db/list';
 import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
 import { orLeaveOut } from '@/utils/orLeaveOut';
 
-// Read per request, most recently added first
-const MAX_IN_PROGRESS = 60;
+/**
+ * The most recent In progress shows (by their place: the last watch) a
+ * profile read works through in full: the overview's blocks, the calendar,
+ * the Season ledger. Each costs a facts, prefs and summary read, and its
+ * facts may cost a TMDB call when cold.
+ */
+export const MAX_IN_PROGRESS = 60;
 const MAX_WATCHLIST = 100;
 
-/** The in-progress shows the profile reads (the overview and the calendar) */
-export const readInProgress = async (userId: string) =>
+/**
+ * The In progress shows the profile reads, most recent first: the first
+ * `MAX_IN_PROGRESS`, or up to `limit` (the overview's Paused looks further).
+ * The list is one Query either way.
+ */
+export const readInProgress = async (userId: string, limit = MAX_IN_PROGRESS) =>
   (
     await getAllListItems({
       listId: 'IN_PROGRESS',
       sortDirection: 'desc',
       userId,
     })
-  ).slice(0, MAX_IN_PROGRESS);
+  ).slice(0, limit);
 
 /** The watchlist shows Coming up and the calendar follow */
 export const readWatchlist = async (userId: string) =>

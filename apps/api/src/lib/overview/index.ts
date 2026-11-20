@@ -9,6 +9,7 @@ import { getSeriesPrefsMany } from '@/lib/db/prefs';
 import {
   type FollowedShow,
   followedShows,
+  MAX_IN_PROGRESS,
   readInProgress,
   readWatchlist,
   watchProviderOf,
@@ -17,10 +18,11 @@ import { readShowItems } from '@/lib/rollups';
 import { releaseOf, seasonEpisodes } from '@/lib/seasonEpisodes';
 import { getSeriesFacts } from '@/lib/seriesFacts';
 import { getSeriesRuntimes } from '@/lib/seriesRuntimes';
+import { withTmdbCap } from '@/lib/upstream/requestCap';
 import { readWaitingFor } from '@/lib/waitingFor';
 import { orLeaveOut } from '@/utils/orLeaveOut';
 
-import { analyzeShow } from './analyze';
+import { analyzeShow, type ShowState } from './analyze';
 import {
   buildAlmostDone,
   buildCatchingUp,
@@ -29,6 +31,7 @@ import {
   buildPaused,
   buildUpNext,
   datedLater,
+  isStale,
   returnsSoon,
   waitingForLater,
 } from './blocks';
@@ -115,6 +118,54 @@ const finishedTickets = (
       title: item.title,
     }));
 
+/**
+ * Paused looks at every In progress show up to this many, not only the
+ * `MAX_IN_PROGRESS` most recent the other blocks read: the stalest shows are
+ * the ones it is for. Past those, only shows whose place (the last watch)
+ * is 3 months old are read, in batches (facts, prefs, summaries).
+ */
+const MAX_PAUSED_SCAN = 300;
+/** TMDB calls for the older shows' facts (missing ones); later views fill the rest */
+const MAX_PAUSED_TMDB_CALLS = 10;
+
+type ListedShow = Awaited<ReturnType<typeof readInProgress>>[number];
+
+/**
+ * The In progress shows past the first `MAX_IN_PROGRESS`, for Paused only:
+ * the stale ones by their place, analysed from their facts (shared, cached;
+ * at most `MAX_PAUSED_TMDB_CALLS` TMDB calls), prefs and summaries.
+ */
+const olderStates = async (
+  userId: string,
+  older: ReadonlyArray<ListedShow>,
+  now: number,
+): Promise<ShowState[]> => {
+  const ids = older
+    .filter((item) => isStale(item.createdAt ?? 0, now))
+    .map((item) => item.id);
+  if (ids.length === 0) return [];
+  const [facts, prefs, watched] = await Promise.all([
+    withTmdbCap(MAX_PAUSED_TMDB_CALLS, () => getSeriesFacts(ids)),
+    getSeriesPrefsMany(userId, ids),
+    readShowItems(userId, ids),
+  ]);
+  return ids.flatMap((id) => {
+    const showFacts = facts.get(id);
+    return showFacts
+      ? [
+          analyzeShow(
+            {
+              facts: showFacts,
+              prefs: prefs.get(id) ?? NO_PREFS,
+              watched: watched.get(id) ?? [],
+            },
+            now,
+          ),
+        ]
+      : [];
+  });
+};
+
 type OverviewOptions = Readonly<{
   /**
    * Only Up next (the visitor page's Watching now and Also watching): skips
@@ -125,6 +176,7 @@ type OverviewOptions = Readonly<{
 }>;
 
 const NOTHING_WAITING: WaitingFor = { items: [] };
+const NO_PREFS = { paused: null, pausedAt: null, skipped: [] } as const;
 
 /**
  * The profile overview, computed per request: the in-progress shows
@@ -138,12 +190,13 @@ export const getOverview = async (
   now: number,
   { upNextOnly = false }: OverviewOptions = {},
 ): Promise<Overview> => {
-  const [tracked, saved, finished] = await Promise.all([
-    readInProgress(userId),
+  const [inProgress, saved, finished] = await Promise.all([
+    readInProgress(userId, upNextOnly ? MAX_IN_PROGRESS : MAX_PAUSED_SCAN),
     upNextOnly ? [] : readWatchlist(userId),
     upNextOnly ? null : readWaitingFor(userId, now),
   ]);
   const waiting = finished?.waitingFor ?? NOTHING_WAITING;
+  const tracked = inProgress.slice(0, MAX_IN_PROGRESS);
 
   // Each show's items: their summaries in one read (a show without one is
   // read itself); a failed read fails the request rather than showing the
@@ -155,7 +208,6 @@ export const getOverview = async (
     readShowItems(userId, trackedIds),
   ]);
 
-  const noPrefs = { paused: null, pausedAt: null, skipped: [] } as const;
   const analyzed = tracked.flatMap((item) => {
     const showFacts = facts.get(item.id);
     return showFacts
@@ -163,7 +215,7 @@ export const getOverview = async (
           analyzeShow(
             {
               facts: showFacts,
-              prefs: prefs.get(item.id) ?? noPrefs,
+              prefs: prefs.get(item.id) ?? NO_PREFS,
               watched: watched.get(item.id) ?? [],
             },
             now,
@@ -203,7 +255,7 @@ export const getOverview = async (
           {
             onWatchlist: true,
             state: analyzeShow(
-              { facts: showFacts, prefs: noPrefs, watched: [] },
+              { facts: showFacts, prefs: NO_PREFS, watched: [] },
               now,
             ),
           },
@@ -242,9 +294,10 @@ export const getOverview = async (
       : facts.get(show.seriesId)?.nextEpisodeToAir?.airDate,
   );
 
-  const [upNext, tickets] = await Promise.all([
+  const [upNext, tickets, older] = await Promise.all([
     withEpisodeTitles(buildUpNext(states)),
     withTicketDetails(comingUp, country),
+    olderStates(userId, inProgress.slice(MAX_IN_PROGRESS), now),
   ]);
 
   return {
@@ -253,7 +306,7 @@ export const getOverview = async (
     comingUp: tickets,
     datedLater: datedLater(nextDates, now),
     outNow: buildOutNow(states, now),
-    paused: buildPaused(states, now),
+    paused: buildPaused([...states, ...older], now),
     upNext,
     // Computed here anyway (Coming up's finished shows), so the profile
     // page needs no second request for it

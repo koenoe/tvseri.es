@@ -97,6 +97,14 @@ const minutesOf = (state: ShowState, episodes: ReadonlyArray<EpisodeRef>) =>
 const minutesOfOne = (state: ShowState, episode: EpisodeRef) =>
   episodeMinutes(state.runtimes, episode, state.facts.episodeRuntime);
 
+/**
+ * Whether a show last active at `activeSince` (`activeSinceOf`) is stale
+ * enough to ask about: Paused's 3 months. The overview also reads a list
+ * item's place (its last watch) by it, so only stale shows are looked at.
+ */
+export const isStale = (activeSince: number, now: number) =>
+  now - activeSince > PAUSED_AFTER;
+
 /** A show Hide was chosen for leaves the overview blocks while it stays In progress */
 const isHidden = (state: ShowState) => state.paused === 'hide';
 
@@ -419,7 +427,7 @@ export const buildPaused = (
     .filter((state) => {
       if (state.lastWatchedAt === null || !state.lastWatched) return false;
       const activeSince = activeSinceOf(state, state.lastWatchedAt);
-      if (now - activeSince <= PAUSED_AFTER) return false;
+      if (!isStale(activeSince, now)) return false;
       if (state.paused === 'hide') return false;
       // Keep asks again only once the show was watched after Keep and went stale again
       return (

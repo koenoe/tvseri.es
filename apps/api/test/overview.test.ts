@@ -346,6 +346,32 @@ describe('profile overview', () => {
     expect(overview.datedLater).toBe(false);
   });
 
+  it('finds a paused show among every In progress show, past the ones Up next reads', async () => {
+    setup();
+    // 60 shows watched since: show 3 (120 days ago) is the 61st most recent
+    const ids = Array.from({ length: 60 }, (_, index) => 100 + index);
+    for (const id of ids) {
+      fakeShow({ id, seasons: [{ airDate: '2026-01-01', episodes: 10 }] });
+      watched(id, range(1, 1, 3));
+    }
+    db.seed(
+      'Lists',
+      ids.map((id, index) => listItem('IN_PROGRESS', id, 10_000 - index)),
+    );
+
+    const { paused, upNext } = (await (
+      await request('/me/overview', { as: USER_ID })
+    ).json()) as {
+      paused: Array<Record<string, unknown>>;
+      upNext: Array<Record<string, unknown>>;
+    };
+
+    expect(upNext.some((item) => item.seriesId === 3)).toBe(false);
+    expect(paused).toEqual([
+      expect.objectContaining({ lastWatchedCode: 'S01E03', seriesId: 3 }),
+    ]);
+  });
+
   it('is empty for a viewer with nothing in progress', async () => {
     seedUser();
 

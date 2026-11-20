@@ -17,6 +17,15 @@ import {
  * Signed-in tests sign in through the auth stub (`e2e/stub-auth`).
  */
 
+/**
+ * After an instant() scope on an initial load, the whole dynamic page
+ * arrives in one RSC refresh, beside the tab bar's ~20 segment prefetches
+ * the hydrated shell sends. With 14 workers on one machine over half the
+ * runs took longer than the default 10s; none took 30s. Two thirds of the
+ * test's own budget, so the slow clamp (`E2E_SLOW`) scales it too.
+ */
+const afterRelease = () => (test.info().timeout * 2) / 3;
+
 test.describe('profile signed out', () => {
   test('the frame is instant on an initial page load', async ({
     page,
@@ -95,7 +104,9 @@ test.describe('profile signed in', () => {
       },
       { baseURL },
     );
-    await expect(page.getByRole('heading', { name: 'Up next' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Up next' })).toBeVisible({
+      timeout: afterRelease(),
+    });
     await expect(
       page.getByRole('link', { name: 'Edit profile' }),
     ).toBeVisible();

@@ -11,6 +11,7 @@ import {
 } from '../_lib/connectedAppsLine';
 import { plexStateOf } from '../_lib/plexState';
 import type { SettingsSectionId } from '../_lib/sections';
+import { servicesLine } from '../_lib/servicesLine';
 import LocalMoment from './LocalMoment';
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -22,8 +23,10 @@ async function ProfileLine() {
 
 async function ServicesLine() {
   const { user } = await getSettingsSession();
-  const count = plural(user.watchProviders?.length ?? 0, 'service');
-  return user.country ? `${count} · ${regionName(user.country)}` : count;
+  return servicesLine(
+    user.country ? regionName(user.country) : null,
+    user.watchProviders ?? [],
+  );
 }
 
 async function ImportLine() {
@@ -39,6 +42,12 @@ async function ImportLine() {
     Date.now() - last.createdAt < DAY
   ) {
     return `Imported ${plural(importedEpisodes(last), 'episode')} today`;
+  }
+  // An older import that stands: the viewer's own day, so the browser fills it
+  if (last && !last.undoneAt && !last.undoRequestedAt && last.written > 0) {
+    return (
+      <LocalMoment at={last.createdAt} prefix="Last import " style="day" />
+    );
   }
   return 'Upload your CSV file';
 }

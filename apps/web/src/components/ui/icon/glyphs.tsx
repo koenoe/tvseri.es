@@ -63,7 +63,6 @@ export const calendarGlyph: Glyph = {
   ),
 };
 
-/** The calendar with its days marked: the profile's Calendar tab */
 export const calendarDaysGlyph: Glyph = {
   outline: (
     <>
@@ -123,6 +122,12 @@ export const copyGlyph: Glyph = {
   ),
 };
 
+export const databaseGlyph: Glyph = {
+  outline: (
+    <path d="M4 5a8 3 0 1 0 16 0a8 3 0 1 0-16 0M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" />
+  ),
+};
+
 export const domeGlyph: Glyph = {
   outline: (
     <path d="M2 18h20M4 18v-6a8 8 0 0 1 16 0v6M12 4v14M8 6.5V18M16 6.5V18" />
@@ -135,7 +140,10 @@ export const downloadGlyph: Glyph = {
   ),
 };
 
-/** A browser extension: three blocks and a fourth being added */
+export const downloadLineGlyph: Glyph = {
+  outline: <path d="M12 3v12M7 10l5 5 5-5M5 21h14" />,
+};
+
 export const extensionGlyph: Glyph = {
   outline: (
     <>
@@ -523,15 +531,6 @@ export const statsGlyph: Glyph = {
   outline: <path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3" />,
 };
 
-export const streamingGlyph: Glyph = {
-  outline: (
-    <>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M10 8.6v6.8l5.4-3.4z" />
-    </>
-  ),
-};
-
 export const sunGlyph: Glyph = {
   outline: (
     <>
@@ -571,6 +570,15 @@ export const trashGlyph: Glyph = {
 
 export const trendingGlyph: Glyph = {
   outline: <path d="M22 7l-8.5 8.5-5-5L2 17M16 7h6v6" />,
+};
+
+export const tvGlyph: Glyph = {
+  outline: (
+    <>
+      <rect height="14" rx="2" width="20" x="2" y="5" />
+      <path d="M8 21h8" />
+    </>
+  ),
 };
 
 export const undoGlyph: Glyph = {
@@ -618,6 +626,15 @@ export const userPlusGlyph: ToggleGlyph = {
       <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
       <circle cx="9" cy="7" r="4" />
       <path d="M19 8v6M22 11h-6" />
+    </>
+  ),
+};
+
+export const userRoundGlyph: Glyph = {
+  outline: (
+    <>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21a8 8 0 0 1 16 0" />
     </>
   ),
 };
@@ -687,12 +704,6 @@ export const variantHourglassGlyph: Glyph = {
   ),
 };
 
-export const variantSignalGlyph: Glyph = {
-  outline: (
-    <path d="M12 12h.01M8.5 15.5a5 5 0 0 1 0-7M15.5 8.5a5 5 0 0 1 0 7M5.6 18.4a9 9 0 0 1 0-12.8M18.4 5.6a9 9 0 0 1 0 12.8" />
-  ),
-};
-
 export const variantTGlyph: Glyph = {
   outline: <path d="M4 7V4h16v3M9 20h6M12 4v16" />,
 };
@@ -718,5 +729,11 @@ export const warningGlyph: Glyph = {
       <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3zM12 9v4" />
       <circle cx="12" cy="17" fill="currentColor" r="1.1" stroke="none" />
     </>
+  ),
+};
+
+export const wifiGlyph: Glyph = {
+  outline: (
+    <path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01" />
   ),
 };

@@ -41,4 +41,9 @@ describe('formatMoment', () => {
     const older = Date.UTC(2026, 10, 8, 21, 5);
     expect(formatMoment(older, NOW, 'at', 'UTC')).toBe('Sun at 21:05');
   });
+
+  it('gives the day alone for a date line ("Last import Oct 2")', () => {
+    const older = Date.UTC(2026, 9, 2, 9, 30);
+    expect(formatMoment(older, NOW, 'day', 'UTC')).toBe('Oct 2');
+  });
 });

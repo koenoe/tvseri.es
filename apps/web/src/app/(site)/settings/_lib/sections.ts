@@ -1,9 +1,9 @@
 import {
-  downloadGlyph,
-  plugGlyph,
-  shieldGlyph,
-  streamingGlyph,
-  userGlyph,
+  databaseGlyph,
+  downloadLineGlyph,
+  tvGlyph,
+  userRoundGlyph,
+  wifiGlyph,
 } from '@/components/ui/icon/glyphs';
 import type { Glyph } from '@/components/ui/icon/types';
 
@@ -24,31 +24,31 @@ export type SettingsSection = Readonly<{
 /** The five rows of the sidebar and the phone's list, in order. */
 export const SETTINGS_SECTIONS: ReadonlyArray<SettingsSection> = [
   {
-    glyph: userGlyph,
+    glyph: userRoundGlyph,
     href: '/settings/profile',
     id: 'profile',
     label: 'Profile',
   },
   {
-    glyph: streamingGlyph,
+    glyph: tvGlyph,
     href: '/settings/streaming-services',
     id: 'services',
     label: 'Streaming services',
   },
   {
-    glyph: downloadGlyph,
+    glyph: downloadLineGlyph,
     href: '/settings/import',
     id: 'import',
     label: 'Import',
   },
   {
-    glyph: plugGlyph,
+    glyph: wifiGlyph,
     href: '/settings/connected-apps',
     id: 'connected-apps',
     label: 'Connected apps',
   },
   {
-    glyph: shieldGlyph,
+    glyph: databaseGlyph,
     href: '/settings/data',
     id: 'data',
     label: 'Your data',

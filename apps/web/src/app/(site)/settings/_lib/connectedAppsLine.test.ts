@@ -31,14 +31,26 @@ const text = (...args: Parameters<typeof connectedAppsSummary>) =>
 describe('the Connected apps summary', () => {
   it('names the one connected app with its state', () => {
     expect(text(plex({ lastReceivedAt: 1 }), {})).toBe('Plex receiving');
-    expect(text(null, netflix())).toBe('Netflix waiting');
+    expect(text(null, netflix())).toBe('Netflix · first sync to start');
     expect(text(plex({ connected: false }), netflix({ lastSyncedAt: 1 }))).toBe(
-      'Netflix syncing',
+      'Netflix connected',
     );
   });
 
-  it('counts two or more', () => {
-    expect(text(plex(), netflix({ lastSyncedAt: 1 }))).toBe('2 apps connected');
+  it('names two, in the page’s order, and counts three or more', () => {
+    expect(text(plex(), netflix({ lastSyncedAt: 1 }))).toBe(
+      'Netflix, Plex connected',
+    );
+    expect(
+      text(plex(), {
+        ...netflix({ lastSyncedAt: 1 }),
+        prime: {
+          connected: true,
+          lastSyncedAt: 1,
+          status: 'ok',
+        } as ConnectionStatus,
+      }),
+    ).toBe('3 apps connected');
   });
 
   it('puts what needs the viewer before the count', () => {
@@ -50,7 +62,7 @@ describe('the Connected apps summary', () => {
         plex({ urlWorks: false }),
         netflix({ lastSyncedAt: 1, status: 'signed-out' }),
       ),
-    ).toBe('Plex not working · +1 more');
+    ).toBe('Netflix signed out · +1 more');
   });
 
   it('invites when nothing is connected or nothing answered', () => {

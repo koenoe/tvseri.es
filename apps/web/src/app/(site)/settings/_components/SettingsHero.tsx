@@ -4,7 +4,7 @@ import {
   calendarGlyph,
   eyeGlyph,
   showGlyph,
-  variantSignalGlyph,
+  wifiGlyph,
 } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
@@ -37,14 +37,10 @@ async function AppItems() {
   // Nothing connected keeps Plex's own word
   if (summary.kind === 'none') {
     return plex ? (
-      <MetaItem icon={variantSignalGlyph}>
-        Plex {plexWord(plexStateOf(plex))}
-      </MetaItem>
+      <MetaItem icon={wifiGlyph}>Plex {plexWord(plexStateOf(plex))}</MetaItem>
     ) : null;
   }
-  return (
-    <MetaItem icon={variantSignalGlyph}>{connectedAppsText(summary)}</MetaItem>
-  );
+  return <MetaItem icon={wifiGlyph}>{connectedAppsText(summary)}</MetaItem>;
 }
 
 async function HeroMeta() {

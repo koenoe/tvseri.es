@@ -18,16 +18,20 @@ const PLEX_WORD: Readonly<Record<Exclude<PlexState, 'none'>, string>> = {
 export const plexWord = (state: PlexState): string =>
   state === 'none' ? 'not connected' : PLEX_WORD[state];
 
-/** One connected app in the summary: its words, and whether it needs the viewer */
-type AppLine = Readonly<{ broken: boolean; words: string }>;
+/** One connected app in the summary: its name, its words, and whether it needs the viewer */
+type AppLine = Readonly<{ broken: boolean; name: string; words: string }>;
 
 function serviceLine(name: string, status: ConnectionStatus): AppLine {
   if (status.status === 'signed-out') {
-    return { broken: true, words: `${name} signed out` };
+    return { broken: true, name, words: `${name} signed out` };
   }
   return {
     broken: false,
-    words: `${name} ${status.lastSyncedAt === null ? 'waiting' : 'syncing'}`,
+    name,
+    words:
+      status.lastSyncedAt === null
+        ? `${name} · first sync to start`
+        : `${name} connected`,
   };
 }
 
@@ -36,24 +40,25 @@ export type ServiceStatuses = Readonly<
   Partial<Record<ConnectionService, ConnectionStatus | null>>
 >;
 
-/** Plex first, then the services in their own order */
+/** In the page's order: the services, then Plex */
 function appLines(
   plex: WebhookStatus | null,
   services: ServiceStatuses,
 ): ReadonlyArray<AppLine> {
   const lines: AppLine[] = [];
-  if (plex?.connected) {
-    const state = plexStateOf(plex);
-    lines.push({
-      broken: state === 'broken',
-      words: `Plex ${plexWord(state)}`,
-    });
-  }
   for (const id of CONNECTION_SERVICES) {
     const status = services[id];
     if (status?.connected) {
       lines.push(serviceLine(connectedService(id).name, status));
     }
+  }
+  if (plex?.connected) {
+    const state = plexStateOf(plex);
+    lines.push({
+      broken: state === 'broken',
+      name: 'Plex',
+      words: `Plex ${plexWord(state)}`,
+    });
   }
   return lines;
 }
@@ -65,6 +70,7 @@ function appLines(
 export type ConnectedAppsSummary =
   | Readonly<{ kind: 'none' }>
   | Readonly<{ kind: 'one'; words: string }>
+  | Readonly<{ kind: 'two'; names: readonly [string, string] }>
   | Readonly<{ count: number; kind: 'count' }>
   | Readonly<{ kind: 'broken'; more: number; words: string }>;
 
@@ -78,9 +84,12 @@ export function connectedAppsSummary(
   if (first) {
     return { kind: 'broken', more: broken.length - 1, words: first.words };
   }
-  const [only] = lines;
+  const [only, second] = lines;
   if (lines.length === 1 && only) {
     return { kind: 'one', words: only.words };
+  }
+  if (lines.length === 2 && only && second) {
+    return { kind: 'two', names: [only.name, second.name] };
   }
   return lines.length === 0
     ? { kind: 'none' }
@@ -94,6 +103,8 @@ export function connectedAppsText(summary: ConnectedAppsSummary): string {
       return connectableAppsLine();
     case 'one':
       return summary.words;
+    case 'two':
+      return `${summary.names.join(', ')} connected`;
     case 'count':
       return `${summary.count} apps connected`;
     case 'broken':

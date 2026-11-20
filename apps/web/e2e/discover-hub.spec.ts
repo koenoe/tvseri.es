@@ -2,6 +2,7 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { open } from './helpers';
+import { afterRelease } from './helpers/instantRelease';
 import { fontsSettled, pageSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
@@ -43,7 +44,10 @@ test.describe('discover hub (/discover)', () => {
       { baseURL },
     );
     // the stub's server has no geo header: the default region
-    await expect(regionLine(page)).toHaveText('Streaming in the United States');
+    await expect(regionLine(page)).toHaveText(
+      'Streaming in the United States',
+      { timeout: afterRelease() },
+    );
   });
 
   test('serves no region in its HTML (a static page, one for everyone)', async ({

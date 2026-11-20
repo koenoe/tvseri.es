@@ -1,6 +1,7 @@
 import { instant } from '@next/playwright';
 import { expect, test } from '@playwright/test';
 
+import { afterRelease } from './helpers/instantRelease';
 import { clientSize, pageLine, phoneScrollbars } from './helpers/viewport';
 
 /**
@@ -35,7 +36,9 @@ test.describe('404', () => {
       { baseURL },
     );
     // the prefill is read from the URL after hydration
-    await expect(page.getByRole('searchbox')).toHaveValue('breaking bad');
+    await expect(page.getByRole('searchbox')).toHaveValue('breaking bad', {
+      timeout: afterRelease(),
+    });
   });
 
   test('Pick one for me opens a trending show', async ({ page }) => {

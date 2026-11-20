@@ -1,6 +1,7 @@
 import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
+import { afterRelease } from './helpers/instantRelease';
 import { signInAs, signInShownAs } from './helpers/session';
 import { fontsSettled, pageSettled, phoneScrollbars } from './helpers/viewport';
 
@@ -127,7 +128,7 @@ test.describe('stats', () => {
     });
     await expect(
       page.getByRole('heading', { level: 1, name: String(YEAR_BEFORE) }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: afterRelease() });
   });
 
   // The sidebar and the phone head are the Stats layout's (above `[year]`):
@@ -210,7 +211,7 @@ test.describe('stats', () => {
       );
       await expect(
         page.getByRole('heading', { level: 1, name: String(YEAR_BEFORE) }),
-      ).toBeVisible();
+      ).toBeVisible({ timeout: afterRelease() });
       await expect(target).toHaveAttribute('aria-current', 'page');
       expect(await keptNodes()).toBe(true);
       expect(

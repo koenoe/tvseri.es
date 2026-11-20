@@ -1,6 +1,7 @@
 import { instant } from '@next/playwright';
 import { devices, expect, test } from '@playwright/test';
 
+import { afterRelease } from './helpers/instantRelease';
 import { findOverflow, formatProblems } from './helpers/overflow';
 import { signInAs } from './helpers/session';
 import { fontsSettled, pageSettled, phoneScrollbars } from './helpers/viewport';
@@ -50,7 +51,9 @@ test.describe('settings signed in (desktop)', () => {
       { baseURL },
     );
     // the viewer's parts streamed in, and the URL never moved
-    await expect(page.getByText('@alex · Alex Example')).toBeVisible();
+    await expect(page.getByText('@alex · Alex Example')).toBeVisible({
+      timeout: afterRelease(),
+    });
     expect(new URL(page.url()).pathname).toBe('/settings');
     // One canonical, on the page a visitor loads. Released from instant()'s
     // shell lock, Next renders the page's whole metadata (title, robots,
@@ -80,7 +83,9 @@ test.describe('settings signed in (desktop)', () => {
       { baseURL },
     );
     // the viewer's parts stream in after the shell
-    await expect(page.getByText('@alex · Alex Example')).toBeVisible();
+    await expect(page.getByText('@alex · Alex Example')).toBeVisible({
+      timeout: afterRelease(),
+    });
   });
 
   for (const [url, title] of [
@@ -122,7 +127,9 @@ test.describe('settings signed in (desktop)', () => {
         page.getByRole('heading', { level: 2, name: 'Streaming services' }),
       ).toBeVisible();
     });
-    await expect(services).toHaveAttribute('aria-current', 'page');
+    await expect(services).toHaveAttribute('aria-current', 'page', {
+      timeout: afterRelease(),
+    });
   });
 
   test('the popular services fold with the shared chevron control', async ({

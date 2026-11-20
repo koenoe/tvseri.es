@@ -1,6 +1,8 @@
 import { instant } from '@next/playwright';
 import { expect, test } from '@playwright/test';
 
+import { afterRelease } from './helpers/instantRelease';
+
 /**
  * A sign-in that fails on our side (“Sign-in broke”): the
  * callback never answers with JSON; it sends the visitor to the static
@@ -30,6 +32,7 @@ test.describe('sign-in errors', () => {
     await expect(page.getByRole('link', { name: 'Try again' })).toHaveAttribute(
       'href',
       '/api/auth/login?returnTo=%2Fu%2Fmargaux',
+      { timeout: afterRelease() },
     );
   });
 

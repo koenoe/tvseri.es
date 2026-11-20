@@ -2,6 +2,7 @@ import { instant } from '@next/playwright';
 import { expect, type Page, type Route, test } from '@playwright/test';
 
 import { open } from './helpers';
+import { afterRelease } from './helpers/instantRelease';
 import { signInAs } from './helpers/session';
 
 /**
@@ -57,7 +58,9 @@ test.describe('person (/person/{id}/{slug})', () => {
       },
       { baseURL },
     );
-    await expect(line).toContainText('Watched 74 episodes, 3 of 67 series');
+    await expect(line).toContainText('Watched 74 episodes, 3 of 67 series', {
+      timeout: afterRelease(),
+    });
     await expect(
       page.getByRole('link', {
         name: /^Breaking Bad\s?: Walter White, 62 episodes, 2008–2013\s?, 62 of 62 watched$/,
@@ -83,7 +86,9 @@ test.describe('person (/person/{id}/{slug})', () => {
       await page.waitForURL(CRANSTON);
       await expect(page.getByLabel('Loading')).toBeVisible();
     });
-    await expect(name(page, 'Bryan Cranston')).toBeVisible();
+    await expect(name(page, 'Bryan Cranston')).toBeVisible({
+      timeout: afterRelease(),
+    });
   });
 
   test('draws a person who died with the dates and the marker, no Today', async ({

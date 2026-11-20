@@ -1,6 +1,7 @@
 import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
+import { afterRelease } from './helpers/instantRelease';
 import { signInAs, stubApiAs } from './helpers/session';
 
 /**
@@ -46,7 +47,9 @@ test.describe('your own Circle', () => {
       },
       { baseURL },
     );
-    await expect(rowNames(page, 'You follow').first()).toBeVisible();
+    await expect(rowNames(page, 'You follow').first()).toBeVisible({
+      timeout: afterRelease(),
+    });
 
     await page.goto('/u/alex');
     await expect(page.getByRole('heading', { name: 'Up next' })).toBeVisible();
@@ -60,7 +63,9 @@ test.describe('your own Circle', () => {
         page.getByRole('heading', { name: 'How a match is made' }),
       ).toBeVisible();
     });
-    await expect(page.getByRole('heading', { name: 'Circle' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Circle' })).toBeVisible({
+      timeout: afterRelease(),
+    });
   });
 
   test('ranks who you follow by match, then who to follow back', async ({

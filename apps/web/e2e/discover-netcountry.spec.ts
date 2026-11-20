@@ -2,6 +2,7 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { open } from './helpers';
+import { afterRelease } from './helpers/instantRelease';
 import { expectShellFilled } from './helpers/warm';
 
 /**
@@ -22,30 +23,36 @@ const heading = (page: Page, name: string) =>
 const firstPoster = (page: Page, row: string) =>
   page.getByRole('region', { name: row }).getByRole('listitem').first();
 
-async function expectHbo(page: Page) {
-  await expect(crumb(page).filter({ hasText: 'Networks' })).toBeVisible();
-  await expect(heading(page, 'HBO')).toBeVisible();
+async function expectHbo(page: Page, timeout?: number) {
+  await expect(crumb(page).filter({ hasText: 'Networks' })).toBeVisible({
+    timeout,
+  });
+  await expect(heading(page, 'HBO')).toBeVisible({ timeout });
   // the desktop line (phones get a shorter one)
   await expect(
     page.getByText(
       'Prestige drama since The Sopranos. Most of its series are finished stories you can start from the beginning.',
     ),
-  ).toBeVisible();
-  await expect(page.getByText('381 series', { exact: true })).toBeVisible();
+  ).toBeVisible({ timeout });
+  await expect(page.getByText('381 series', { exact: true })).toBeVisible({
+    timeout,
+  });
   // the recommendation tile
   await expect(
     page.getByRole('button', { name: /watchlist/i }).first(),
-  ).toBeVisible();
-  await expect(firstPoster(page, 'The best of HBO')).toBeVisible();
+  ).toBeVisible({ timeout });
+  await expect(firstPoster(page, 'The best of HBO')).toBeVisible({ timeout });
 }
 
-async function expectGb(page: Page) {
-  await expect(crumb(page).filter({ hasText: 'Countries' })).toBeVisible();
-  await expect(heading(page, 'United Kingdom')).toBeVisible();
-  await expect(page.getByText('Mostly in English')).toBeVisible();
-  await expect(page.getByText('7,240 series')).toBeVisible();
-  await expect(page.getByText('Everyone’s favourite')).toBeVisible();
-  await expect(firstPoster(page, 'Made for')).toBeVisible();
+async function expectGb(page: Page, timeout?: number) {
+  await expect(crumb(page).filter({ hasText: 'Countries' })).toBeVisible({
+    timeout,
+  });
+  await expect(heading(page, 'United Kingdom')).toBeVisible({ timeout });
+  await expect(page.getByText('Mostly in English')).toBeVisible({ timeout });
+  await expect(page.getByText('7,240 series')).toBeVisible({ timeout });
+  await expect(page.getByText('Everyone’s favourite')).toBeVisible({ timeout });
+  await expect(firstPoster(page, 'Made for')).toBeVisible({ timeout });
 }
 
 test.describe('network landing (/network/hbo)', () => {
@@ -72,7 +79,7 @@ test.describe('network landing (/network/hbo)', () => {
     );
     await expect(
       page.getByText('First aired on HBO: about 340 of its 381 series'),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: afterRelease() });
   });
 
   test('is instant on a client navigation from /network', async ({ page }) => {
@@ -84,7 +91,7 @@ test.describe('network landing (/network/hbo)', () => {
       await page.waitForURL((url) => url.pathname === '/network/hbo');
       await expect(crumb(page).filter({ hasText: 'Networks' })).toBeVisible();
     });
-    await expectHbo(page);
+    await expectHbo(page, afterRelease());
   });
 
   test('switches The best of by decade in place', async ({ page }) => {
@@ -139,7 +146,7 @@ test.describe('country landing (/country/gb)', () => {
       page
         .getByRole('group', { name: 'Broadcaster' })
         .filter({ visible: true }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: afterRelease() });
   });
 
   test('is instant on a client navigation from /country', async ({ page }) => {
@@ -154,7 +161,7 @@ test.describe('country landing (/country/gb)', () => {
       await page.waitForURL((url) => url.pathname === '/country/gb');
       await expect(crumb(page).filter({ hasText: 'Countries' })).toBeVisible();
     });
-    await expectGb(page);
+    await expectGb(page, afterRelease());
   });
 
   test('hides Made for when fewer than 3 networks qualify (Denmark)', async ({

@@ -2,6 +2,7 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { loadRows, wheelFor5s } from './helpers/diary';
+import { afterRelease } from './helpers/instantRelease';
 import { signInAs } from './helpers/session';
 import { untilStable } from './helpers/viewport';
 
@@ -75,7 +76,7 @@ test.describe('History on a desktop', () => {
       },
       { baseURL },
     );
-    await expect(firstMonth(page)).toBeVisible();
+    await expect(firstMonth(page)).toBeVisible({ timeout: afterRelease() });
   });
 
   // The first paint is the server's HTML: read with JavaScript off, the

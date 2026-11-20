@@ -1,6 +1,7 @@
 import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
+import { afterRelease } from './helpers/instantRelease';
 import { findOverflow, formatProblems } from './helpers/overflow';
 import { expectParity, parityTable } from './helpers/parity';
 import { signInAs } from './helpers/session';
@@ -37,8 +38,12 @@ test.describe('/extension', () => {
       },
       { baseURL },
     );
-    await expect(page).toHaveTitle('Chrome Extension · tvseri.es');
-    await expect(page.getByText('Not installed in this browser')).toBeVisible();
+    await expect(page).toHaveTitle('Chrome Extension · tvseri.es', {
+      timeout: afterRelease(),
+    });
+    await expect(page.getByText('Not installed in this browser')).toBeVisible({
+      timeout: afterRelease(),
+    });
   });
 
   test('the call-to-action’s skeleton holds its place', async ({

@@ -1,6 +1,7 @@
 import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
+import { afterRelease } from './helpers/instantRelease';
 import { recordNavigationFetches } from './helpers/navigationFetches';
 import { signInAs } from './helpers/session';
 import { untilStable } from './helpers/viewport';
@@ -35,7 +36,7 @@ test('?history keeps the page shell instant, then opens the sheet', async ({
     },
     { baseURL },
   );
-  await expect(sheet(page)).toBeVisible();
+  await expect(sheet(page)).toBeVisible({ timeout: afterRelease() });
   // The show row's counts: the progress line's words (alex skipped S02E05)
   await expect(
     sheet(page).getByText('21 watched · 1 skipped').first(),

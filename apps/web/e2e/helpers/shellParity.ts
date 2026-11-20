@@ -1,6 +1,7 @@
 import { instant } from '@next/playwright';
 import { expect, type Page } from '@playwright/test';
 
+import { afterRelease } from './instantRelease';
 import {
   type Boxes,
   type Parity,
@@ -214,7 +215,7 @@ export async function measureParity(
     expect(incomplete, 'the shell never came whole').toBe(false);
   }).toPass({ intervals: [2000], timeout: 90_000 });
   await expect
-    .poll(() => visiblePlaceholders(page), { timeout: 30_000 })
+    .poll(() => visiblePlaceholders(page), { timeout: afterRelease() })
     .toBe(0);
   // Some pages keep a request open (images that never load on the rig):
   // wait for quiet, but not for ever.

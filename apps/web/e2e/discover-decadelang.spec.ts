@@ -2,6 +2,7 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { open } from './helpers';
+import { afterRelease } from './helpers/instantRelease';
 
 /**
  * The Decade and Language landings: on a hard load of the sample slug the
@@ -65,7 +66,9 @@ test.describe('decade landing (/decade/2010s)', () => {
       // the App Shell every decade shares (Partial Prefetching)
       await expect(crumb(page, 'Decades')).toBeVisible();
     });
-    await expect(heading(page, '2010s')).toBeVisible();
+    await expect(heading(page, '2010s')).toBeVisible({
+      timeout: afterRelease(),
+    });
     await expect(page.getByText('Most rated of the decade')).toBeVisible();
   });
 
@@ -113,7 +116,9 @@ test.describe('language landing (/language/ja)', () => {
       // the App Shell every language shares (Partial Prefetching)
       await expect(crumb(page, 'Languages')).toBeVisible();
     });
-    await expect(heading(page, '日本語')).toBeVisible();
+    await expect(heading(page, '日本語')).toBeVisible({
+      timeout: afterRelease(),
+    });
     await expect(page.getByText('葬送のフリーレン')).toBeVisible();
   });
 

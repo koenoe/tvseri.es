@@ -1,6 +1,7 @@
 import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
+import { afterRelease } from './helpers/instantRelease';
 import { signInAs } from './helpers/session';
 
 /**
@@ -42,7 +43,7 @@ test.describe('the Library, yours', () => {
       },
       { baseURL },
     );
-    await expect(tiles(page).first()).toBeVisible();
+    await expect(tiles(page).first()).toBeVisible({ timeout: afterRelease() });
   });
 
   test('the Library tab is instant from the overview', async ({ page }) => {
@@ -58,7 +59,7 @@ test.describe('the Library, yours', () => {
         page.getByRole('heading', { level: 2, name: 'Watching' }),
       ).toBeVisible();
     });
-    await expect(tiles(page).first()).toBeVisible();
+    await expect(tiles(page).first()).toBeVisible({ timeout: afterRelease() });
   });
 
   test('opens on Watching, with its shelves in the sidebar', async ({

@@ -2,6 +2,7 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { TILE_PREFETCH } from '../src/components/ui/tile/tilePrefetch';
+import { afterRelease } from './helpers/instantRelease';
 
 /**
  * `instant()` gates dynamic data: what is asserted inside the callback must be
@@ -106,7 +107,7 @@ test.describe('show page (/{id}/{slug})', () => {
     // personal progress line).
     await expect(
       page.getByRole('button', { name: 'More actions for The Bear' }).first(),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: afterRelease() });
   });
 
   test('is instant on a client navigation from another show', async ({
@@ -131,7 +132,7 @@ test.describe('show page (/{id}/{slug})', () => {
     });
     await expect(
       page.getByRole('heading', { level: 1, name: 'The Bear' }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: afterRelease() });
   });
 
   test('a poster prefetches on hover, so its click is served from the prefetch', async ({
@@ -165,6 +166,8 @@ test.describe('show page (/{id}/{slug})', () => {
       await expect(page.getByRole('banner')).toBeVisible();
       await expect(page.getByTestId('show-skeleton')).toBeVisible();
     });
-    await expect(page.getByTestId('route-show')).toBeVisible();
+    await expect(page.getByTestId('route-show')).toBeVisible({
+      timeout: afterRelease(),
+    });
   });
 });

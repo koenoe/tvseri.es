@@ -1,6 +1,7 @@
 import { instant } from '@next/playwright';
 import { expect, test } from '@playwright/test';
 
+import { afterRelease } from './helpers/instantRelease';
 import { signInAs } from './helpers/session';
 
 /**
@@ -28,10 +29,12 @@ test('Coming up leads to the calendar, where today opens its tickets', async ({
   });
   await expect(
     page.getByRole('link', { exact: true, name: 'Calendar' }),
-  ).toHaveAttribute('aria-current', 'page');
+  ).toHaveAttribute('aria-current', 'page', { timeout: afterRelease() });
 
   const today = page.getByRole('grid').locator('[aria-current="date"]');
-  await expect(today).toHaveAccessibleName(/Midsomer Murders/);
+  await expect(today).toHaveAccessibleName(/Midsomer Murders/, {
+    timeout: afterRelease(),
+  });
   await today.click();
   const day = page.getByRole('dialog');
   await expect(day.getByRole('heading', { level: 3 })).toBeVisible();
@@ -73,11 +76,13 @@ test('someone else’s calendar: their tab, their dates, no “your”', async (
     await page.waitForURL('**/u/juno/calendar');
     await expect(page.locator('[data-placeholder="calendar"]')).toBeVisible();
   });
-  await expect(tab).toHaveAttribute('aria-current', 'page');
+  await expect(tab).toHaveAttribute('aria-current', 'page', {
+    timeout: afterRelease(),
+  });
   // the sidebar's months are hers too (from lg)
   await expect(
     page.getByRole('navigation', { name: 'Months with dates' }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: afterRelease() });
 
   // juno's premiere today, on her watchlist: the tag that says "your" is
   // the owner's only

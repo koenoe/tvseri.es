@@ -2,6 +2,7 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { open } from './helpers';
+import { afterRelease } from './helpers/instantRelease';
 
 /**
  * The site footer: full width, its links, and that no error view has it
@@ -124,7 +125,7 @@ test.describe('the footer', () => {
 const expectErrorWithoutFooter = async (page: Page, title: string | RegExp) => {
   await expect(
     page.getByRole('heading', { level: 1, name: title }),
-  ).toBeVisible({ timeout: 15_000 });
+  ).toBeVisible({ timeout: afterRelease() });
   await expect(page.getByRole('contentinfo')).toHaveCount(0);
   await expect(footer(page)).toBeHidden();
   // one site header: a view inside the site layout draws none of its own

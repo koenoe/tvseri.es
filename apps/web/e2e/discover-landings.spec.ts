@@ -2,6 +2,7 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { open } from './helpers';
+import { afterRelease } from './helpers/instantRelease';
 
 /**
  * The Genre and Theme landings. The sample slugs
@@ -19,24 +20,26 @@ const heading = (page: Page, name: string) =>
 const firstPoster = (page: Page, row: string) =>
   page.getByRole('region', { name: row }).getByRole('listitem').first();
 
-async function expectCrime(page: Page) {
-  await expect(crumb(page, 'Genres')).toBeVisible();
-  await expect(heading(page, 'Crime')).toBeVisible();
-  await expect(page.getByText('series on TMDB')).toBeVisible();
-  await expect(firstPoster(page, 'Trending in Crime')).toBeVisible();
+async function expectCrime(page: Page, timeout?: number) {
+  await expect(crumb(page, 'Genres')).toBeVisible({ timeout });
+  await expect(heading(page, 'Crime')).toBeVisible({ timeout });
+  await expect(page.getByText('series on TMDB')).toBeVisible({ timeout });
+  await expect(firstPoster(page, 'Trending in Crime')).toBeVisible({ timeout });
   await expect(
     page.getByRole('heading', { name: 'Where to start' }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout });
 }
 
-async function expectDystopia(page: Page) {
-  await expect(crumb(page, 'Themes')).toBeVisible();
-  await expect(heading(page, 'Dystopia')).toBeVisible();
-  await expect(page.getByText('Start here')).toBeVisible();
+async function expectDystopia(page: Page, timeout?: number) {
+  await expect(crumb(page, 'Themes')).toBeVisible({ timeout });
+  await expect(heading(page, 'Dystopia')).toBeVisible({ timeout });
+  await expect(page.getByText('Start here')).toBeVisible({ timeout });
   await expect(
     page.getByRole('link', { exact: true, name: 'Post-apocalyptic' }),
-  ).toBeVisible();
-  await expect(firstPoster(page, 'The best dystopias')).toBeVisible();
+  ).toBeVisible({ timeout });
+  await expect(firstPoster(page, 'The best dystopias')).toBeVisible({
+    timeout,
+  });
 }
 
 test.describe('genre landing (/genre/[slug])', () => {
@@ -71,7 +74,7 @@ test.describe('genre landing (/genre/[slug])', () => {
       await page.waitForURL((url) => url.pathname === '/genre/crime');
       await expect(crumb(page, 'Genres')).toBeVisible();
     });
-    await expectCrime(page);
+    await expectCrime(page, afterRelease());
   });
 
   test('is instant on a client navigation to a genre’s theme', async ({
@@ -125,7 +128,7 @@ test.describe('theme landing (/theme/[slug])', () => {
       await page.waitForURL((url) => url.pathname === '/theme/dystopia');
       await expect(crumb(page, 'Themes')).toBeVisible();
     });
-    await expectDystopia(page);
+    await expectDystopia(page, afterRelease());
   });
 
   test('is instant on a client navigation between two themes', async ({

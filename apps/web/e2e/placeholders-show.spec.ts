@@ -1,5 +1,6 @@
 import { instant } from '@next/playwright';
 import { expect, test } from '@playwright/test';
+import { afterRelease } from './helpers/instantRelease';
 import { expectParity, parityTable } from './helpers/parity';
 import { namedViewports } from './helpers/placeholders';
 import { setLibraryHint, signInAs } from './helpers/session';
@@ -267,7 +268,7 @@ for (const viewport of VIEWPORTS.slice(0, 1)) {
     const card = page.getByRole('group', {
       name: 'Where are you in this series?',
     });
-    await expect(card).toBeVisible();
+    await expect(card).toBeVisible({ timeout: afterRelease() });
     const real = await card.evaluate(read);
     expect(ghost).toBeDefined();
     if (!ghost) {

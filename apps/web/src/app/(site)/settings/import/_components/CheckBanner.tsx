@@ -1,5 +1,4 @@
 import Button from '@/components/ui/button/Button';
-import { FoldWords } from '@/components/ui/fold/FoldLabel';
 import { checkGlyph, columnsGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
@@ -47,11 +46,7 @@ export default function CheckBanner({
         variant="tonal"
       >
         <span className="text-body-sm font-medium">
-          <FoldWords
-            label="Edit columns"
-            open={edit}
-            openLabel="Hide columns"
-          />
+          {edit ? 'Hide columns' : 'Edit columns'}
         </span>
       </Button>
     </div>

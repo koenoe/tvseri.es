@@ -11,14 +11,11 @@ export const SLIDE_BODY =
 export const SLIDE_ACTIONS = 'flex items-center gap-2.5 max-md:mt-3 md:gap-3';
 
 /**
- * The stage. Desktop: the window less 90px, from 788 (a short laptop keeps
- * the buttons in the first screen) to 860, so a tall window shows more art
- * above the text; the text ends 24px above its foot, so with the rows' 40px
- * the first row sits one row gap, 64px, under the buttons. Phone: the 553px
- * stage + 23px pager.
+ * The stage: 788 on desktop (the text ends 24px above its foot, so with the
+ * rows' 40px the first row sits one row gap, 64px, under the buttons), the
+ * 553px phone stage + 23px pager
  */
-export const SPOTLIGHT_STAGE =
-  'relative h-[576px] md:h-[clamp(788px,calc(100svh-90px),860px)]';
+export const SPOTLIGHT_STAGE = 'relative h-[576px] md:h-[788px]';
 
 /** The text's frame inside the stage (the 47px under the header is not in the phone page) */
 export const SPOTLIGHT_TEXT_FRAME =

@@ -91,6 +91,9 @@ export const web = $dev
       const project = new vercel.Project('WebProject', {
         framework: 'nextjs',
         name: projectName,
+        // Production's runtime; left unset, a new preview project took
+        // Vercel's newest default (26.x)
+        nodeVersion: '24.x',
         resourceConfig: {
           // One region, next to the API in eu-west-2 (London)
           functionDefaultCpuType: 'standard',

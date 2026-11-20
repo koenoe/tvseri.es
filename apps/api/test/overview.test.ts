@@ -372,6 +372,32 @@ describe('profile overview', () => {
     ]);
   });
 
+  it('does not call a show back from a mid-season break Paused', async () => {
+    setup();
+    // E1–E8 watched in July; after a break E9 aired 20 days ago, E11 yesterday
+    fakeShow({
+      extra: { last_episode_to_air: episode(1, 11, '2026-11-11') },
+      id: 7,
+      seasons: [{ airDate: '2026-05-01', episodes: 16 }],
+      status: 'Returning Series',
+    });
+    onTmdb('/tv/7/season/1', {
+      episodes: Array.from({ length: 16 }, (_, index) =>
+        episode(1, index + 1, index < 8 ? '2026-06-01' : '2026-10-23'),
+      ),
+      id: 701,
+      season_number: 1,
+    });
+    db.seed('Lists', [listItem('IN_PROGRESS', 7, 250)]);
+    watched(7, range(1, 1, 8), '2026-07-01T20:00:00Z');
+
+    const { paused } = (await (
+      await request('/me/overview', { as: USER_ID })
+    ).json()) as { paused: Array<Record<string, unknown>> };
+
+    expect(paused.map((item) => item.seriesId)).toEqual([3]);
+  });
+
   it('is empty for a viewer with nothing in progress', async () => {
     seedUser();
 

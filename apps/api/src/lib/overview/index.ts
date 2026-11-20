@@ -1,6 +1,7 @@
 import type {
   ComingUpItem,
   Overview,
+  PausedItem,
   UpNextItem,
   WaitingFor,
 } from '@tvseri.es/schemas';
@@ -32,6 +33,7 @@ import {
   buildUpNext,
   datedLater,
   isStale,
+  needsNextAirDate,
   returnsSoon,
   waitingForLater,
 } from './blocks';
@@ -128,7 +130,42 @@ const MAX_PAUSED_SCAN = 300;
 /** TMDB calls for the older shows' facts (missing ones); later views fill the rest */
 const MAX_PAUSED_TMDB_CALLS = 10;
 
+/** Seasons read for Paused's next episodes (cached, shared), and their TMDB calls */
+const MAX_NEXT_DATES = 10;
+
 type ListedShow = Awaited<ReturnType<typeof readInProgress>>[number];
+
+/**
+ * The air dates of the next episodes Paused needs and the facts don't have
+ * (`needsNextAirDate`: a season back from a break), from their seasons
+ * (cached, shared), for at most `MAX_NEXT_DATES` shows. A season that can't
+ * be read leaves its show to the last watch.
+ */
+const nextAirDates = async (
+  states: ReadonlyArray<ShowState>,
+  now: number,
+): Promise<Map<number, string>> => {
+  const wanted = states
+    .filter((state) => needsNextAirDate(state, now))
+    .slice(0, MAX_NEXT_DATES);
+  const found = await withTmdbCap(MAX_NEXT_DATES, () =>
+    Promise.all(
+      wanted.map(async (state) => {
+        const next = state.nextUp as NonNullable<ShowState['nextUp']>;
+        const episodes = (
+          await orLeaveOut('Overview: paused season', () =>
+            seasonEpisodes(state.facts.id, [next.season]),
+          )
+        )?.get(next.season);
+        const airDate = episodes?.find(
+          (candidate) => candidate.episodeNumber === next.episode,
+        )?.airDate;
+        return airDate ? ([state.facts.id, airDate] as const) : null;
+      }),
+    ),
+  );
+  return new Map(found.filter((entry) => entry !== null));
+};
 
 /**
  * The In progress shows past the first `MAX_IN_PROGRESS`, for Paused only:
@@ -164,6 +201,21 @@ const olderStates = async (
         ]
       : [];
   });
+};
+
+/**
+ * Paused: the shows the other blocks read (`states`) and the older In
+ * progress ones, with the next episode's air date where only its season has
+ * it
+ */
+const readPaused = async (
+  userId: string,
+  states: ReadonlyArray<ShowState>,
+  older: ReadonlyArray<ListedShow>,
+  now: number,
+): Promise<PausedItem[]> => {
+  const all = [...states, ...(await olderStates(userId, older, now))];
+  return buildPaused(all, now, await nextAirDates(all, now));
 };
 
 type OverviewOptions = Readonly<{
@@ -294,10 +346,10 @@ export const getOverview = async (
       : facts.get(show.seriesId)?.nextEpisodeToAir?.airDate,
   );
 
-  const [upNext, tickets, older] = await Promise.all([
+  const [upNext, tickets, paused] = await Promise.all([
     withEpisodeTitles(buildUpNext(states)),
     withTicketDetails(comingUp, country),
-    olderStates(userId, inProgress.slice(MAX_IN_PROGRESS), now),
+    readPaused(userId, states, inProgress.slice(MAX_IN_PROGRESS), now),
   ]);
 
   return {
@@ -306,7 +358,7 @@ export const getOverview = async (
     comingUp: tickets,
     datedLater: datedLater(nextDates, now),
     outNow: buildOutNow(states, now),
-    paused: buildPaused([...states, ...older], now),
+    paused,
     upNext,
     // Computed here anyway (Coming up's finished shows), so the profile
     // page needs no second request for it

@@ -13,6 +13,7 @@ import {
   buildOutNow,
   buildPaused,
   buildUpNext,
+  needsNextAirDate,
   waitingForLater,
 } from './blocks';
 
@@ -550,6 +551,47 @@ describe('Paused', () => {
 
     expect(buildPaused([newSeason(day(-10))], NOW)).toEqual([]);
     expect(buildPaused([newSeason(day(-120))], NOW)).toHaveLength(1);
+  });
+
+  // Mid-season break: S2 E1–E8 watched in July, E9 back after the break
+  const afterBreak = (lastEpisode: number) =>
+    state({
+      facts: facts({
+        lastEpisodeToAir: ep(2, lastEpisode, day(-1)),
+        seasons: [
+          { airDate: '2020-01-01', episodeCount: 8, seasonNumber: 1 },
+          { airDate: day(-200), episodeCount: 16, seasonNumber: 2 },
+        ],
+      }),
+      watched: watched([...range(1, 1, 8), ...range(2, 1, 8)], NOW - 130 * DAY),
+    });
+
+  it('counts the 3 months from the next episode when it is the latest to air', () => {
+    expect(buildPaused([afterBreak(9)], NOW)).toEqual([]);
+  });
+
+  it('counts them from the next episode’s air date when it is known', () => {
+    // E9 came back 20 days ago, E11 aired yesterday
+    const back = afterBreak(11);
+    expect(buildPaused([back], NOW, new Map([[1, day(-20)]]))).toEqual([]);
+    expect(buildPaused([back], NOW, new Map([[1, day(-100)]]))).toHaveLength(1);
+    // Not known (the season couldn't be read): the last watch counts
+    expect(buildPaused([back], NOW)).toHaveLength(1);
+  });
+
+  it('asks for the next episode’s date only where it can change the answer', () => {
+    // Several back after the break, the latest aired yesterday: worth a read
+    expect(needsNextAirDate(afterBreak(11), NOW)).toBe(true);
+    // The next episode is the latest: its date is in the facts
+    expect(needsNextAirDate(afterBreak(9), NOW)).toBe(false);
+    // Watched recently: not Paused anyway
+    expect(needsNextAirDate(state(), NOW)).toBe(false);
+    // Nothing aired in 3 months: no next episode can be recent
+    const quiet = state({
+      facts: facts({ lastEpisodeToAir: ep(2, 8, day(-100)) }),
+      watched: watched(range(1, 1, 3), NOW - 200 * DAY),
+    });
+    expect(needsNextAirDate(quiet, NOW)).toBe(false);
   });
 
   it('ignores a special watched since: it says nothing about the show', () => {

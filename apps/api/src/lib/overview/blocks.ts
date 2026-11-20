@@ -399,34 +399,84 @@ export const buildComingUp = (
   return tickets.sort((a, b) => a.date.localeCompare(b.date));
 };
 
+/** Air dates (`YYYY-MM-DD`) of shows' next episodes, by series id, read from their seasons */
+export type NextAirDates = ReadonlyMap<number, string>;
+
+const NO_DATES: NextAirDates = new Map();
+
+/** The next episode is the latest to air, so its date is in the facts */
+const nextIsLatest = (state: ShowState) =>
+  state.nextUp !== null &&
+  state.latest?.season === state.nextUp.season &&
+  state.latest.episode === state.nextUp.episode;
+
 /**
- * When the show last had your attention: the last watch, or a season that
- * came out after it (finishing a season and waiting for the next is not
- * pausing). A season's premiere date is in the facts; a later episode's
- * isn't, so mid-season the last watch counts.
+ * When the next episode to watch came out, when known: a season's premiere
+ * and the latest episode are in the facts; any other episode's date only
+ * from its season (`nextAirDates`)
  */
-const activeSinceOf = (state: ShowState, lastWatchedAt: number) => {
+const nextAiredAt = (state: ShowState, nextAirDates: NextAirDates) => {
   const next = state.nextUp;
-  if (!next) return lastWatchedAt;
+  if (!next) return Number.NaN;
   const nextAt = { episodeNumber: next.episode, seasonNumber: next.season };
-  if (!isSeasonPremiere(nextAt, state.facts.seasons)) return lastWatchedAt;
-  const season = state.facts.seasons.find(
-    (candidate) => candidate.seasonNumber === next.season,
-  );
-  const premiere = season?.airDate ? Date.parse(season.airDate) : Number.NaN;
-  return Number.isNaN(premiere)
-    ? lastWatchedAt
-    : Math.max(lastWatchedAt, premiere);
+  const date = isSeasonPremiere(nextAt, state.facts.seasons)
+    ? state.facts.seasons.find(
+        (candidate) => candidate.seasonNumber === next.season,
+      )?.airDate
+    : nextIsLatest(state)
+      ? state.latest?.airDate
+      : nextAirDates.get(state.facts.id);
+  return date ? Date.parse(date) : Number.NaN;
+};
+
+/**
+ * When the show last had your attention: the last watch, or the next
+ * episode coming out after it (a new season, or the season back from a
+ * break: waiting for it is not pausing). Its date unknown, the last watch
+ * counts.
+ */
+const activeSinceOf = (
+  state: ShowState,
+  lastWatchedAt: number,
+  nextAirDates: NextAirDates,
+) => {
+  const aired = nextAiredAt(state, nextAirDates);
+  return Number.isNaN(aired) ? lastWatchedAt : Math.max(lastWatchedAt, aired);
+};
+
+/**
+ * Whether reading the next episode's air date (its season, cached) can take
+ * the show out of Paused: stale by what the facts know, the next episode's
+ * date not in them, and something aired within the 3 months (else no
+ * next episode can be recent).
+ */
+export const needsNextAirDate = (state: ShowState, now: number) => {
+  if (state.lastWatchedAt === null || !state.nextUp) return false;
+  if (!isStale(activeSinceOf(state, state.lastWatchedAt, NO_DATES), now)) {
+    return false;
+  }
+  const next = state.nextUp;
+  const nextAt = { episodeNumber: next.episode, seasonNumber: next.season };
+  if (isSeasonPremiere(nextAt, state.facts.seasons) || nextIsLatest(state)) {
+    return false;
+  }
+  const latest = state.latest?.airDate ?? state.facts.lastEpisodeToAir?.airDate;
+  return latest !== undefined && !isStale(Date.parse(latest), now);
 };
 
 export const buildPaused = (
   states: ReadonlyArray<ShowState>,
   now: number,
+  nextAirDates: NextAirDates = NO_DATES,
 ): PausedItem[] =>
   states
     .filter((state) => {
       if (state.lastWatchedAt === null || !state.lastWatched) return false;
-      const activeSince = activeSinceOf(state, state.lastWatchedAt);
+      const activeSince = activeSinceOf(
+        state,
+        state.lastWatchedAt,
+        nextAirDates,
+      );
       if (!isStale(activeSince, now)) return false;
       if (state.paused === 'hide') return false;
       // Keep asks again only once the show was watched after Keep and went stale again

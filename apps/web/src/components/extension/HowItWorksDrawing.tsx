@@ -376,7 +376,7 @@ export default function HowItWorksDrawing() {
             envelope encryption
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="466" y="99">
-            context: userId, service
+            tied to you + the service
           </text>
         </g>
         <g className={cn(styles.node, styles.s3)}>
@@ -405,7 +405,7 @@ export default function HowItWorksDrawing() {
             Database
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="466" y="215">
-            SSE at rest
+            encrypted at rest
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="466" y="231">
             AES-256-GCM ciphertext
@@ -560,8 +560,8 @@ export default function HowItWorksDrawing() {
             fill="#15191a"
             height="20"
             rx="10"
-            width="52.6"
-            x="392.7"
+            width="58.0"
+            x="390.0"
             y="198.0"
           />
           <text
@@ -572,7 +572,7 @@ export default function HowItWorksDrawing() {
             x="419"
             y="212.0"
           >
-            PutItem
+            stores it
           </text>
         </g>
         <g className={cn(styles.fade, styles.s4)}>
@@ -632,7 +632,7 @@ export default function HowItWorksDrawing() {
             x="770"
             y="182.0"
           >
-            same context
+            only here
           </text>
         </g>
         <g className={cn(styles.fade, styles.s5)}>
@@ -1029,10 +1029,10 @@ export default function HowItWorksDrawing() {
             envelope encryption
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="197" y="363">
-            encryption context:
+            tied to you
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="197" y="379">
-            userId + service
+            + the service
           </text>
         </g>
         <g className={cn(styles.node, styles.s3)}>
@@ -1061,7 +1061,7 @@ export default function HowItWorksDrawing() {
             Database
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="24" y="347">
-            SSE at rest
+            encrypted at rest
           </text>
           <text fill="rgba(255,255,255,.62)" fontSize="11" x="24" y="363">
             AES-256-GCM
@@ -1193,8 +1193,8 @@ export default function HowItWorksDrawing() {
             fill="#15191a"
             height="20"
             rx="10"
-            width="52.6"
-            x="93.7"
+            width="58.0"
+            x="91.0"
             y="270.0"
           />
           <text
@@ -1205,7 +1205,7 @@ export default function HowItWorksDrawing() {
             x="120"
             y="284.0"
           >
-            PutItem
+            stores it
           </text>
         </g>
         <g className={cn(styles.fade, styles.s2)}>

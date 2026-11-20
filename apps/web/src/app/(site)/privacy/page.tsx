@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Page from '@/components/background/Page';
 import {
   downloadGlyph,
+  extensionGlyph,
   globeGlyph,
   helpGlyph,
   inboxGlyph,
@@ -58,6 +59,10 @@ export default function PrivacyPage() {
                 With an import: only the episodes your browser matches in the
                 file, plus a note to undo it.
               </li>
+              <li>
+                With a connected streaming service: its sign-in, encrypted, the
+                profile it reads, and entries the sync couldn’t match.
+              </li>
             </ul>
             <p>
               Other signed-in people see your profile: what you watch, your
@@ -83,6 +88,45 @@ export default function PrivacyPage() {
               </li>
             </ul>
             <p>No ads, no tracking cookies.</p>
+          </PrivacySection>
+
+          <PrivacySection
+            icon={extensionGlyph}
+            id="extension"
+            title="The Chrome extension"
+          >
+            <ul>
+              <li>
+                It acts only when you press Connect on a service in{' '}
+                <Link href="/settings/connected-apps">
+                  Settings › Connected apps
+                </Link>{' '}
+                and then Continue in its popup.
+              </li>
+              <li>
+                Then it sends that service’s sign-in cookies (Netflix, BBC
+                iPlayer or Prime Video) to us once, over HTTPS, with a one-time
+                code. Never your password.
+              </li>
+              <li>
+                We check they work, encrypt them (AES-256-GCM, with a key held
+                in AWS KMS) and store them in London.
+              </li>
+              <li>
+                Only the nightly sync can decrypt them. It reads your watch
+                history on that service and marks the episodes you finished. It
+                never plays, changes or buys anything there.
+              </li>
+              <li>
+                The extension keeps only the last result per service in this
+                browser. It doesn’t read your browsing.
+              </li>
+            </ul>
+            <p>
+              Disconnect deletes the stored sign-in at once; your synced
+              episodes stay, and where the sync got to, so connecting again
+              carries on.
+            </p>
           </PrivacySection>
 
           <PrivacySection
@@ -125,6 +169,10 @@ export default function PrivacyPage() {
               </li>
               <li>OMDb, for IMDb ratings. We ask about series, never you.</li>
               <li>Plex, if connected: it sends us your plays.</li>
+              <li>
+                Netflix, BBC iPlayer and Prime Video, if connected: our sync
+                reads your watch history there, signed in as you.
+              </li>
             </ul>
           </PrivacySection>
 

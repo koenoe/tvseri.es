@@ -19,6 +19,9 @@ const MTIME = new Date('2026-01-01T00:00:00Z');
  */
 export const DEV_FOLDER = 'dev-build';
 
+/** Where `--store` writes the store's upload; never inside a zip */
+export const STORE_FOLDER = 'store-build';
+
 /** Sorted, `/`-separated, without dotfiles or the dev copy, so the zip is stable */
 function filesIn(dir: string): ReadonlyArray<string> {
   return readdirSync(dir, { recursive: true, withFileTypes: true })
@@ -30,6 +33,7 @@ function filesIn(dir: string): ReadonlyArray<string> {
         .relative(dir, path.join(entry.parentPath, entry.name))
         .split(path.sep);
       return parts[0] === DEV_FOLDER ||
+        parts[0] === STORE_FOLDER ||
         parts.some((part) => part.startsWith('.'))
         ? []
         : [parts.join('/')];
@@ -37,28 +41,53 @@ function filesIn(dir: string): ReadonlyArray<string> {
     .sort();
 }
 
-/**
- * The manual install's zip. No wrapper folder, so the unzipped folder is the
- * one Load unpacked takes.
- */
-export function buildExtensionZip(
+type Zip = Readonly<{ bytes: Uint8Array; fileName: string }>;
+
+/** Every file, the manifest through `manifest` (as written, or changed) */
+function zipExtension(
   dir: string,
-): Readonly<{ bytes: Uint8Array; fileName: string }> {
-  const { version } = JSON.parse(
-    readFileSync(path.join(dir, 'manifest.json'), 'utf8'),
-  ) as Readonly<{ version?: unknown }>;
+  manifest: (text: string) => string,
+  name: (version: string) => string,
+): Zip {
+  const text = readFileSync(path.join(dir, 'manifest.json'), 'utf8');
+  const { version } = JSON.parse(text) as Readonly<{ version?: unknown }>;
   if (typeof version !== 'string') {
     throw new Error('The extension’s manifest has no version');
   }
   const entries: Zippable = {};
   for (const file of filesIn(dir)) {
-    entries[file] = [
-      readFileSync(path.join(dir, file)),
-      { level: 9, mtime: MTIME },
-    ];
+    const bytes =
+      file === 'manifest.json'
+        ? strToU8(manifest(text))
+        : readFileSync(path.join(dir, file));
+    entries[file] = [bytes, { level: 9, mtime: MTIME }];
   }
-  return { bytes: zipSync(entries), fileName: extensionZipName(version) };
+  return { bytes: zipSync(entries), fileName: name(version) };
 }
+
+/**
+ * The manual install's zip. No wrapper folder, so the unzipped folder is the
+ * one Load unpacked takes.
+ */
+export const buildExtensionZip = (dir: string): Zip =>
+  zipExtension(dir, (text) => text, extensionZipName);
+
+/**
+ * The Chrome Web Store's upload: the same files without the manifest's
+ * `key`, which the store refuses (a listed extension gets the store's id)
+ */
+export const buildStoreZip = (dir: string): Zip =>
+  zipExtension(
+    dir,
+    (text) => {
+      const { key: _key, ...manifest } = JSON.parse(text) as Record<
+        string,
+        unknown
+      >;
+      return `${JSON.stringify(manifest, null, 2)}\n`;
+    },
+    (version) => extensionZipName(version).replace(/\.zip$/, '-store.zip'),
+  );
 
 /** What origins.js says in the source, and what the dev copy says instead */
 const SITE_LINE = 'export const SITE_ORIGIN = PRODUCTION_ORIGIN;';

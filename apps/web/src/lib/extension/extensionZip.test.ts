@@ -13,6 +13,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildExtensionZip,
+  buildStoreZip,
   DEV_FOLDER,
   writeDevExtension,
 } from './extensionZip';
@@ -63,6 +64,20 @@ describe('buildExtensionZip', () => {
       name: 'tvseri.es',
       version: '0.1.0',
     });
+  });
+
+  it('builds the store’s upload without the key: the store gives its own', () => {
+    const { bytes, fileName } = buildStoreZip(extensionFolder('0.1.0'));
+    expect(fileName).toBe('tvseries-extension-0.1.0-store.zip');
+    const files = unzipSync(bytes);
+    expect(Object.keys(files).sort()).toEqual([
+      'icons/services/bbc.svg',
+      'manifest.json',
+      'popup.js',
+    ]);
+    expect(
+      JSON.parse(strFromU8(files['manifest.json'] ?? new Uint8Array())),
+    ).toEqual({ name: 'tvseri.es', version: '0.1.0' });
   });
 
   it('names no local server anywhere in the real extension’s shipped manifest', () => {

@@ -84,3 +84,5 @@ playwright/.cache/
 apps/web/public/tvseries-extension-*.zip
 # the extension's dev copy (localhost:3000), written by `pnpm dev`
 apps/extension/dev-build/
+# the Chrome Web Store's upload, written by `extension-zip.ts --store`
+apps/extension/store-build/

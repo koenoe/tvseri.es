@@ -60,8 +60,9 @@ beforeEach(() => {
 
 const setup = () => {
   seedUser({ country: 'NL' });
-  // 1: season 2 fully aired, two episodes left; its lengths vary
+  // 1: season 2 fully aired a week ago, two episodes left; its lengths vary
   fakeShow({
+    extra: { last_episode_to_air: episode(2, 4, '2026-11-05') },
     id: 1,
     seasons: [
       { airDate: '2025-01-01', episodes: 4 },

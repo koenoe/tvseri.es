@@ -27,7 +27,8 @@ import { codeOf, type EpisodeRef, type ShowState } from './analyze';
 
 const PAUSED_AFTER = 90 * DAY_MS;
 const ALMOST_DONE_MAX = 2;
-const SEASON_COMPLETE_DAYS = 14;
+/** How long an aired episode or season is Out now */
+const OUT_NOW_DAYS = 14;
 const WINDOW_DAYS = 30;
 
 /** A finished show back within Coming up's window: a ticket, not a Later row */
@@ -208,6 +209,10 @@ export const buildAlmostDone = (
   };
 };
 
+/** Out now: the latest episode aired within the last 14 days */
+const isOutNow = (latest: NonNullable<ShowState['latest']>, now: number) =>
+  now - Date.parse(latest.airDate) <= OUT_NOW_DAYS * DAY_MS;
+
 /**
  * The season that finished airing within the last 14 days and has 3+
  * unwatched episodes: its last episode is the latest to air.
@@ -219,10 +224,8 @@ const completeSeason = (state: ShowState, now: number) => {
   }
   const isLast =
     latest.episode === seasonBounds(state.facts.seasons, latest.season).last;
-  const recent =
-    now - Date.parse(latest.airDate) <= SEASON_COMPLETE_DAYS * DAY_MS;
   return isLast &&
-    recent &&
+    isOutNow(latest, now) &&
     seasonToWatch(state, latest.season) >= CATCHING_UP_MIN
     ? latest
     : null;
@@ -256,7 +259,12 @@ export const buildOutNow = (
       (episode) =>
         episode.season === latest.season && episode.episode === latest.episode,
     );
-    if (waiting > 0 && waiting < CATCHING_UP_MIN && latestIsWaiting) {
+    if (
+      waiting > 0 &&
+      waiting < CATCHING_UP_MIN &&
+      latestIsWaiting &&
+      isOutNow(latest, now)
+    ) {
       rows.push({
         ...identity(state),
         airDate: latest.airDate,

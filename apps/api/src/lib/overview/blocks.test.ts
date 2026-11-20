@@ -298,6 +298,29 @@ describe('Out now, Season complete, Catching up', () => {
     expect(buildOutNow([stuck], NOW)).toEqual([]);
   });
 
+  it('has no row for an episode that aired more than 14 days ago', () => {
+    // An ended show, stopped two episodes before its end years ago
+    const old = state({
+      facts: facts({
+        lastEpisodeToAir: ep(2, 8, '2019-06-01'),
+        status: 'Ended',
+      }),
+      watched: watched([...range(1, 1, 8), ...range(2, 1, 6)]),
+    });
+    const recent = state({
+      facts: facts({ lastEpisodeToAir: ep(2, 8, day(-13)) }),
+      watched: watched([...range(1, 1, 8), ...range(2, 1, 7)]),
+    });
+    const older = state({
+      facts: facts({ lastEpisodeToAir: ep(2, 8, day(-15)) }),
+      watched: watched([...range(1, 1, 8), ...range(2, 1, 7)]),
+    });
+
+    expect(buildOutNow([old], NOW)).toEqual([]);
+    expect(buildOutNow([recent], NOW)).toHaveLength(1);
+    expect(buildOutNow([older], NOW)).toEqual([]);
+  });
+
   it('has nothing when the latest episode is watched', () => {
     expect(
       buildOutNow(

@@ -744,3 +744,50 @@ describe('episodes numbered on across seasons', () => {
     ]);
   });
 });
+
+// TMDB's season count trails a running season: S2 lists 8, all 8 aired, E09
+// airs next week. The count alone would call the season done.
+describe('a season whose count trails its episodes', () => {
+  const trailing = facts({
+    lastEpisodeToAir: ep(2, 8, day(-1)),
+    nextEpisodeToAir: ep(2, 9, day(6)),
+  });
+
+  it('Up next: its eighth episode is no season finale', () => {
+    const [item] = buildUpNext([
+      state({
+        facts: trailing,
+        watched: watched([...range(1, 1, 8), ...range(2, 1, 7)]),
+      }),
+    ]);
+    expect(item).toMatchObject({ code: 'S02E08', seasonFinale: false });
+  });
+
+  it('Almost done: one episode left of a running season is not almost done', () => {
+    const oneLeft = state({
+      facts: trailing,
+      watched: watched([...range(1, 1, 8), ...range(2, 1, 7)]),
+    });
+    expect(buildAlmostDone([oneLeft])).toEqual({ closest: null, items: [] });
+  });
+
+  it('Out now: a running season is no Season complete', () => {
+    const behind = state({ facts: trailing, watched: watched(range(1, 1, 8)) });
+    expect(buildOutNow([behind], NOW)).toEqual([]);
+    expect(buildCatchingUp([behind], NOW)).toHaveLength(1);
+  });
+
+  it('a finale on its own air day, still TMDB’s next episode, is the finale', () => {
+    const finaleDay = facts({
+      lastEpisodeToAir: ep(2, 7, day(-7)),
+      nextEpisodeToAir: ep(2, 8, day(0)),
+    });
+    const [item] = buildUpNext([
+      state({
+        facts: finaleDay,
+        watched: watched([...range(1, 1, 8), ...range(2, 1, 7)]),
+      }),
+    ]);
+    expect(item).toMatchObject({ code: 'S02E08', seasonFinale: true });
+  });
+});

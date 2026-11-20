@@ -1,5 +1,10 @@
 import { episodeCode, type UpNextItem } from '@tvseri.es/schemas';
-import { episodeMinutes, firstEpisodeOf, minutesFor } from '@tvseri.es/utils';
+import {
+  episodeMinutes,
+  firstEpisodeOf,
+  isSeasonFullyAired,
+  minutesFor,
+} from '@tvseri.es/utils';
 
 import {
   airedInSeason,
@@ -55,6 +60,7 @@ function lastWatched(view: SeriesBase) {
 export function liveUpNext(
   item: UpNextItem,
   view: SeriesBase | undefined,
+  now: number,
 ): UpNextItem | null {
   if (!view) {
     return item;
@@ -78,11 +84,22 @@ export function liveUpNext(
     (candidate) => candidate.seasonNumber === next.seasonNumber,
   );
   const seasonTotal = season?.episodeCount ?? 0;
+  const upcoming = item.nextToAir;
   const seasonFinale =
     season !== undefined &&
-    seasonTotal > 0 &&
     next.episodeNumber === firstEpisodeOf(season) + seasonTotal - 1 &&
-    inSeason.length === seasonTotal;
+    isSeasonFullyAired(
+      {
+        ...season,
+        airedCount: inSeason.length,
+        next: upcoming && {
+          airDate: upcoming.airDate,
+          episodeNumber: upcoming.episode,
+          seasonNumber: upcoming.season,
+        },
+      },
+      now,
+    );
   const first = season ? firstEpisodeOf(season) : 1;
   const last = lastWatched(view);
   // Time by the overview's rule (each episode's own runtime), from the

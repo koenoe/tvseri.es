@@ -70,7 +70,7 @@ export {
   minutesFor,
   resolveSeasonMinutes,
 } from './runtime/minutesFor';
-export { hasAiredAt } from './series/aired';
+export { hasAiredAt, isSeasonFullyAired } from './series/aired';
 export {
   episodeNumbersOf,
   firstEpisodeNumbers,

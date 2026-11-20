@@ -4,7 +4,11 @@ import {
   type SeriesPrefs,
   type SeriesRuntimes,
 } from '@tvseri.es/schemas';
-import { hasAiredAt, type ShowProgress } from '@tvseri.es/utils';
+import {
+  hasAiredAt,
+  isSeasonFullyAired,
+  type ShowProgress,
+} from '@tvseri.es/utils';
 
 import { airedEpisodesAt, progressAt } from '@/lib/seriesFacts/aired';
 
@@ -36,6 +40,8 @@ export type ShowState = Readonly<{
   runtimes: SeriesRuntimes;
   /** Aired regular episodes per season */
   aired: Readonly<Record<number, number>>;
+  /** The seasons that finished airing (`isSeasonFullyAired`, the one rule) */
+  airedInFull: ReadonlySet<number>;
   /** The show's progress by the shared rule (`showProgress`) */
   progress: ShowProgress;
   /** Aired, not watched, not skipped; in order */
@@ -105,8 +111,24 @@ export const analyzeShow = (input: ShowInput, now: number): ShowState => {
       : null;
   const dated = input.watched.filter((item) => !item.dateUnknown);
 
+  const airedInFull = new Set(
+    facts.seasons
+      .filter((season) =>
+        isSeasonFullyAired(
+          {
+            ...season,
+            airedCount: aired[season.seasonNumber] ?? 0,
+            next: facts.nextEpisodeToAir,
+          },
+          now,
+        ),
+      )
+      .map((season) => season.seasonNumber),
+  );
+
   return {
     aired,
+    airedInFull,
     facts,
     lastWatched,
     lastWatchedAt: dated.length

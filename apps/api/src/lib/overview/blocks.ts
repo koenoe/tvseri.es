@@ -114,9 +114,7 @@ export const buildUpNext = (states: ReadonlyArray<ShowState>): UpNextItem[] =>
       const bounds = seasonBounds(state.facts.seasons, next.season);
       const upcoming = state.facts.nextEpisodeToAir;
       const seasonFinale =
-        total > 0 &&
-        next.episode === bounds.last &&
-        (state.aired[next.season] ?? 0) === total;
+        next.episode === bounds.last && state.airedInFull.has(next.season);
       // The latest aired regular episode (TMDB's latest can be a special)
       const latest = state.progress.aired.at(-1);
 
@@ -168,7 +166,7 @@ export const buildAlmostDone = (
       const season = (state.nextUp as EpisodeRef).season;
       return {
         // Only a season that has fully aired is close to its end
-        done: (state.aired[season] ?? 0) === seasonTotal(state, season),
+        done: state.airedInFull.has(season),
         season,
         state,
         toGo: seasonToWatch(state, season),
@@ -216,10 +214,7 @@ export const buildAlmostDone = (
  */
 const completeSeason = (state: ShowState, now: number) => {
   const latest = state.latest;
-  if (
-    !latest ||
-    (state.aired[latest.season] ?? 0) !== seasonTotal(state, latest.season)
-  ) {
+  if (!latest || !state.airedInFull.has(latest.season)) {
     return null;
   }
   const isLast =

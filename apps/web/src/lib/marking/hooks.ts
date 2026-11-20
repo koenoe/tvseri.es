@@ -114,18 +114,18 @@ export function useLiveUpNext(
     ),
   );
   const hidden = useHiddenShows();
-  return useMemo(
-    () =>
-      items.flatMap((item, index) => {
-        // hidden from in progress here: it leaves (the next show takes its place)
-        if (hidden[item.seriesId] === true) {
-          return [];
-        }
-        const live = liveUpNext(item, views[index]);
-        return live ? [live] : [];
-      }),
-    [hidden, items, views],
-  );
+  return useMemo(() => {
+    // the air-day rule's clock: the views changed, so it is read again
+    const now = Date.now();
+    return items.flatMap((item, index) => {
+      // hidden from in progress here: it leaves (the next show takes its place)
+      if (hidden[item.seriesId] === true) {
+        return [];
+      }
+      const live = liveUpNext(item, views[index], now);
+      return live ? [live] : [];
+    });
+  }, [hidden, items, views]);
 }
 
 /** Shows this tab hid (`true`) or brought back (`false`) from in progress */

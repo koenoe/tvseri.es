@@ -53,11 +53,11 @@ const item: UpNextItem = {
 
 describe('liveUpNext', () => {
   it('keeps the server item while the show is not seeded', () => {
-    expect(liveUpNext(item, undefined)).toBe(item);
+    expect(liveUpNext(item, undefined, NOW)).toBe(item);
   });
 
   it('is the server item while its episode is not marked', () => {
-    expect(liveUpNext(item, view())).toBe(item);
+    expect(liveUpNext(item, view(), NOW)).toBe(item);
   });
 
   it('moves on to the next episode after a mark', () => {
@@ -67,7 +67,7 @@ describe('liveUpNext', () => {
         S02E02: { runtime: 0, watchedAt: NOW },
       },
     });
-    expect(liveUpNext(item, marked)).toEqual({
+    expect(liveUpNext(item, marked, NOW)).toEqual({
       ...item,
       airDate: undefined,
       code: 'S02E03',
@@ -89,7 +89,7 @@ describe('liveUpNext', () => {
       watched: { ...view().watched, S02E02: { runtime: 0, watchedAt: NOW } },
     });
     const { seasonRuntimes: _, ...older } = item;
-    expect(liveUpNext(older, marked)).toMatchObject({
+    expect(liveUpNext(older, marked, NOW)).toMatchObject({
       runtime: null,
       timeLeftMinutes: null,
     });
@@ -104,7 +104,7 @@ describe('liveUpNext', () => {
       ],
       watched: { ...view().watched, S02E02: { runtime: 0, watchedAt: NOW } },
     });
-    expect(liveUpNext(item, marked)).toMatchObject({
+    expect(liveUpNext(item, marked, NOW)).toMatchObject({
       code: 'S03E01',
       runtime: null,
       seasonRuntimes: undefined,
@@ -120,7 +120,7 @@ describe('liveUpNext', () => {
         S02E03: { runtime: 0, watchedAt: NOW },
       },
     });
-    expect(liveUpNext(item, marked)).toMatchObject({
+    expect(liveUpNext(item, marked, NOW)).toMatchObject({
       code: 'S02E04',
       isLatest: true,
       seasonFinale: false,
@@ -139,11 +139,30 @@ describe('liveUpNext', () => {
         S02E02: { runtime: 0, watchedAt: NOW },
       },
     });
-    expect(liveUpNext({ ...item, seasonTotal: 3 }, aired)).toMatchObject({
+    expect(
+      liveUpNext({ ...item, nextToAir: null, seasonTotal: 3 }, aired, NOW),
+    ).toMatchObject({
       code: 'S02E03',
       seasonFinale: true,
       seasonTotal: 3,
     });
+  });
+
+  it('flags no finale while the season’s next episode is still to air (TMDB’s count trails)', () => {
+    const trailing = view({
+      seasons: [
+        { airedEpisodeCount: 3, episodeCount: 3, seasonNumber: 1 },
+        { airedEpisodeCount: 3, episodeCount: 3, seasonNumber: 2 },
+      ],
+      watched: {
+        ...view().watched,
+        S02E02: { runtime: 0, watchedAt: NOW },
+      },
+    });
+    const next = { airDate: '2026-11-15', episode: 4, season: 2 };
+    expect(
+      liveUpNext({ ...item, nextToAir: next, seasonTotal: 3 }, trailing, NOW),
+    ).toMatchObject({ code: 'S02E03', seasonFinale: false });
   });
 
   it('flags the finale of a season TMDB numbers on from the last', () => {
@@ -164,8 +183,14 @@ describe('liveUpNext', () => {
         S02E05: { runtime: 0, watchedAt: NOW },
       },
     });
-    const onS2 = { ...item, code: 'S02E05', episode: 5, seasonTotal: 3 };
-    expect(liveUpNext(onS2, aired)).toMatchObject({
+    const onS2 = {
+      ...item,
+      code: 'S02E05',
+      episode: 5,
+      nextToAir: null,
+      seasonTotal: 3,
+    };
+    expect(liveUpNext(onS2, aired, NOW)).toMatchObject({
       code: 'S02E06',
       seasonFinale: true,
       // S02E01 (a made-up code from the fixture's watched) isn't S2's own
@@ -187,6 +212,7 @@ describe('liveUpNext', () => {
     const moved = liveUpNext(
       onS1,
       view({ seasons, watched: { S01E03: { runtime: 0, watchedAt: NOW } } }),
+      NOW,
     );
     expect(moved).toMatchObject({ code: 'S02E04', firstEpisodeNumber: 4 });
     const back = liveUpNext(
@@ -200,6 +226,7 @@ describe('liveUpNext', () => {
           S02E06: { runtime: 0, watchedAt: NOW },
         },
       }),
+      NOW,
     );
     expect(back?.code).toBe('S03E01');
     expect(back?.firstEpisodeNumber).toBeUndefined();
@@ -214,7 +241,7 @@ describe('liveUpNext', () => {
         S02E03: { runtime: 0, watchedAt: NOW },
       },
     });
-    expect(liveUpNext(item, caughtUp)).toBeNull();
+    expect(liveUpNext(item, caughtUp, NOW)).toBeNull();
   });
 
   it('never moves on a seed alone, even one that disagrees', () => {
@@ -227,7 +254,7 @@ describe('liveUpNext', () => {
       ],
       watched: {},
     });
-    expect(liveUpNext(item, disagrees)).toBe(item);
+    expect(liveUpNext(item, disagrees, NOW)).toBe(item);
   });
 
   it('skips past episodes already marked after the item', () => {
@@ -238,7 +265,7 @@ describe('liveUpNext', () => {
         S02E02: { runtime: 0, watchedAt: NOW },
       },
     });
-    expect(liveUpNext(item, marked)).toMatchObject({
+    expect(liveUpNext(item, marked, NOW)).toMatchObject({
       code: 'S02E04',
       toWatch: 1,
     });

@@ -1,12 +1,9 @@
 import type { SeriesRuntimes } from '@tvseri.es/schemas';
 
 import { getCacheEntries, setCacheItems } from '@/lib/db/cache';
-import { refreshWaitMs } from '@/lib/deadline';
+import { loadMissingAndStale } from '@/lib/db/cache/loadMissingAndStale';
 import { fetchTvSeriesRuntimes } from '@/lib/tmdb/seasons';
-import { atLowPriority, TMDB_CONCURRENCY } from '@/lib/upstream/budget';
-import { createLimiter } from '@/utils/limit';
 import { logWarn } from '@/utils/logWarn';
-import { within } from '@/utils/within';
 
 /**
  * A show's episode runtimes (every regular season, index = episode − 1, 0
@@ -98,41 +95,22 @@ export const getSeriesRuntimes = async (
     }
   }
 
-  const fetchMany = (batch: ReadonlyArray<Request>) => {
-    const limit = createLimiter(TMDB_CONCURRENCY);
-    return Promise.all(
-      batch.map((request) =>
-        limit(async () => {
-          try {
-            const runtimes =
-              (await fetchTvSeriesRuntimes(request.id, request.seasons)) ??
-              null;
-            return [request.id, runtimes] as const;
-          } catch (error) {
-            logWarn(`Series runtimes fetch failed for ${request.id}`, error);
-            return undefined;
-          }
-        }),
-      ),
-    ).then(async (fetched) => {
-      const fresh = fetched.filter((entry) => entry !== undefined);
-      await writeCache(fresh);
-      return fresh;
-    });
-  };
-
-  // Only missing runtimes hold the answer; stale ones (served) get a short
-  // budget, as series facts' refreshes do (see getSeriesFacts)
-  const refreshing = atLowPriority(() => fetchMany(stale));
-  refreshing.catch(() => undefined);
-  const [fresh, refreshed] = await Promise.all([
-    fetchMany(missing),
-    within(refreshing, refreshWaitMs()).catch(() => undefined),
-  ]);
-  for (const [id, runtimes] of [
-    ...fresh,
-    ...(refreshed && !refreshed.timedOut ? refreshed.value : []),
-  ]) {
+  const loaded = await loadMissingAndStale({
+    load: async (request: Request) => {
+      try {
+        const runtimes =
+          (await fetchTvSeriesRuntimes(request.id, request.seasons)) ?? null;
+        return [request.id, runtimes] as const;
+      } catch (error) {
+        logWarn(`Series runtimes fetch failed for ${request.id}`, error);
+        return undefined;
+      }
+    },
+    missing,
+    stale,
+    store: writeCache,
+  });
+  for (const [id, runtimes] of loaded) {
     if (runtimes) {
       found.set(id, runtimes);
     }

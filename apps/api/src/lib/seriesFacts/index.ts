@@ -6,13 +6,13 @@ import type {
 import { firstEpisodeNumbers, toSlug } from '@tvseri.es/utils';
 
 import { getCacheEntries, setCacheItems } from '@/lib/db/cache';
+import { loadMissingAndStale } from '@/lib/db/cache/loadMissingAndStale';
 import { claim } from '@/lib/db/cache/singleFlight';
-import { hasTimeForAnother, refreshWaitMs } from '@/lib/deadline';
+import { hasTimeForAnother } from '@/lib/deadline';
 import { fetchRawTvSeries } from '@/lib/tmdb/series';
-import { atLowPriority, TMDB_CONCURRENCY } from '@/lib/upstream/budget';
+import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { createLimiter } from '@/utils/limit';
 import { logWarn } from '@/utils/logWarn';
-import { within } from '@/utils/within';
 
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -299,48 +299,26 @@ export const getSeriesFacts = async (
       .map((hit) => hit.id),
   );
 
-  const fetchMany = (ids: ReadonlyArray<number>) => {
-    const limit = createLimiter(TMDB_CONCURRENCY);
-    return Promise.all(
-      ids.map((id) =>
-        limit(async () => {
-          if (!hasTimeForAnother()) {
-            return undefined;
-          }
-          try {
-            return await fetchFacts(id);
-          } catch (error) {
-            // A missing show stays absent; a stale one keeps its entry
-            logWarn(`Series facts fetch failed for ${id}`, error);
-            return undefined;
-          }
-        }),
-      ),
-    ).then(async (fetched) => {
-      const found = fetched.filter((entry) => entry !== undefined);
-      await store(found, now);
-      return found;
-    });
-  };
-
-  // Only missing facts hold the answer. Refreshes of stale ones (served
-  // already) get what is left of the request's refresh wait
-  // (`refreshWaitMs`): what ends by then is used, the rest
-  // stores when it ends. On Lambda that may be on a later invocation: the
-  // environment is frozen once the handler returns and thawed on the next
-  // one (docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html),
-  // and Hono on Lambda has no waitUntil. A refresh that never ends is lost,
-  // which costs nothing: its claim lapses and a later read refreshes.
-  const refreshing = atLowPriority(() => fetchMany(refresh));
-  refreshing.catch(() => undefined);
-  const [found, refreshed] = await Promise.all([
-    fetchMany(missing.slice(0, MAX_MISSING)),
-    within(refreshing, refreshWaitMs()).catch(() => undefined),
-  ]);
-  for (const entry of [
-    ...found,
-    ...(refreshed && !refreshed.timedOut ? refreshed.value : []),
-  ]) {
+  // A refresh that never ends costs nothing: its claim lapses and a later
+  // read refreshes
+  const loaded = await loadMissingAndStale({
+    load: async (id: number) => {
+      if (!hasTimeForAnother()) {
+        return undefined;
+      }
+      try {
+        return await fetchFacts(id);
+      } catch (error) {
+        // A missing show stays absent; a stale one keeps its entry
+        logWarn(`Series facts fetch failed for ${id}`, error);
+        return undefined;
+      }
+    },
+    missing: missing.slice(0, MAX_MISSING),
+    stale: refresh,
+    store: (found) => store(found, now),
+  });
+  for (const entry of loaded) {
     facts.set(entry.id, entry);
   }
 

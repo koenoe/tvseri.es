@@ -1,6 +1,6 @@
 import type { TvSeries } from '@tvseri.es/schemas';
 
-import { fetchDiscoverTvSeries } from '@/lib/tmdb';
+import { fetchDiscoverTvSeries } from '@/lib/tmdb/discover';
 
 /** A series that first aired in the window: its first season */
 export type NewSeriesDraft = Readonly<{

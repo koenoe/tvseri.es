@@ -5,7 +5,7 @@ import type {
 } from '@tvseri.es/schemas';
 
 import { getAllListItems } from '@/lib/db/list';
-import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
+import { fetchTvSeriesWatchProvider } from '@/lib/tmdb/watchProviders';
 import { orLeaveOut } from '@/utils/orLeaveOut';
 
 /**

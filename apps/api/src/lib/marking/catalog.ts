@@ -1,47 +1,19 @@
-import type { Season, TvSeries } from '@tvseri.es/schemas';
-
-import { readStored, readThroughStale } from '@/lib/db/cache/readThroughStale';
-import {
-  fetchTvSeriesBase,
-  fetchTvSeriesSeason,
-  fetchTvSeriesSeasons,
-} from '@/lib/tmdb';
+import type { Season } from '@tvseri.es/schemas';
+import { MARK_COPY, readShow } from '@/lib/catalogue';
+import { readThroughStale } from '@/lib/db/cache/readThroughStale';
+import { pathId } from '@/lib/tmdb/client';
+import { fetchTvSeriesSeason, fetchTvSeriesSeasons } from '@/lib/tmdb/seasons';
 
 /**
- * What season and show marks and unmarks read from TMDB (the show, and each
- * season's episodes), stored per show and season. Fresh for an hour, so
- * a new episode is markable within the hour, and then kept a month: when TMDB
- * can't be asked, a mark or unmark of a show someone marked in the last month
- * works from the stored copy. When the copy is older than an hour, TMDB gets
- * at most WAIT_MS to refresh it before the copy is used. Episode marks never
- * read TMDB (the web sends the episodes).
+ * `readShow(id, 'mark')` for routes/user/index.ts, which still passes the
+ * route's id text while it is reworked. Remove with that use.
  */
-const FRESH_SECONDS = 60 * 60;
-const KEEP_SECONDS = 30 * 24 * 60 * 60;
-/**
- * With a stored copy, a mark waits at most this long for TMDB to refresh it,
- * then uses the copy (the refresh still stores when it ends)
- */
-const WAIT_MS = 1000;
+export const seriesForMark = (id: number | string) =>
+  readShow(pathId(id), 'mark');
 
-const seriesKey = (id: number | string) => `mark-series:v1:${id}`;
-
-/** The stored show, however old, without asking TMDB (placing a show) */
-export const storedSeriesForMark = async (
-  id: number | string,
-): Promise<TvSeries | undefined> =>
-  (await readStored<TvSeries | null>(seriesKey(id))) ?? undefined;
-
-export const seriesForMark = async (
-  id: number | string,
-): Promise<TvSeries | undefined> =>
-  (await readThroughStale(
-    seriesKey(id),
-    FRESH_SECONDS,
-    KEEP_SECONDS,
-    async () => (await fetchTvSeriesBase(id)) ?? null,
-    { waitMs: WAIT_MS },
-  )) ?? undefined;
+/** Each season a mark reads, stored as the show is (`MARK_COPY`) */
+const { freshSeconds: FRESH_SECONDS, keepSeconds: KEEP_SECONDS } = MARK_COPY;
+const WAIT_MS = MARK_COPY.waitMs;
 
 const seasonKey = (id: number | string, seasonNumber: number) =>
   `mark-season:v1:${id}:${seasonNumber}`;
@@ -54,7 +26,7 @@ export const seasonForMark = async (
     seasonKey(id, seasonNumber),
     FRESH_SECONDS,
     KEEP_SECONDS,
-    async () => (await fetchTvSeriesSeason(id, seasonNumber)) ?? null,
+    async () => (await fetchTvSeriesSeason(pathId(id), seasonNumber)) ?? null,
     { waitMs: WAIT_MS },
   )) ?? undefined;
 
@@ -77,7 +49,7 @@ export const seasonsForMark = async (
         FRESH_SECONDS,
         KEEP_SECONDS,
         async () => {
-          batch ??= fetchTvSeriesSeasons(id, numbers);
+          batch ??= fetchTvSeriesSeasons(pathId(id), numbers);
           return (await batch)?.get(number) ?? null;
         },
         { waitMs: WAIT_MS },

@@ -1,6 +1,6 @@
 import type { SeriesFacts, SeriesPrefs, TvSeries } from '@tvseri.es/schemas';
 import { lastWatchOf } from '@tvseri.es/utils';
-
+import { readShow } from '@/lib/catalogue';
 import {
   addToList,
   getAllListItems,
@@ -23,7 +23,6 @@ import {
   type SeriesWatchSummary,
 } from '@/lib/db/watched';
 import { runWithDeadline } from '@/lib/deadline';
-import { storedSeriesForMark } from '@/lib/marking/catalog';
 import {
   healWatchedCounters,
   readWatchedCounters,
@@ -36,7 +35,6 @@ import { createLimiter } from '@/utils/limit';
 import { logWarn } from '@/utils/logWarn';
 import { within } from '@/utils/within';
 import type { ChangeBudget } from './budget';
-import { cachedTvSeries } from './cachedTvSeries';
 import { decideListState, type ListState } from './state';
 import {
   listPlaceOf,
@@ -90,16 +88,16 @@ const fromFacts = (facts: SeriesFacts): PlacementSeries => {
 };
 
 /**
- * The show for placing it: TMDB (cached per container 15 minutes), else,
- * when TMDB fails, the stored show facts (the same aired rule) so a TMDB
- * outage doesn't drop the sync. Throws only when neither has the show.
+ * The show for placing it: TMDB (the container's copy), else, when TMDB
+ * fails, the stored show facts (the same aired rule) so a TMDB outage
+ * doesn't drop the sync. Throws only when neither has the show.
  * Null: TMDB doesn't know it.
  */
 const placementSeries = async (
   seriesId: number,
 ): Promise<PlacementSeries | null> => {
   try {
-    return await cachedTvSeries(seriesId);
+    return (await readShow(seriesId, 'placement')) ?? null;
   } catch (error) {
     const facts = (await getSeriesFacts([seriesId])).get(seriesId);
     if (!facts) {
@@ -124,15 +122,15 @@ const placementForMark = async (
   if (facts) {
     return fromFacts(facts);
   }
-  const stored = await storedSeriesForMark(seriesId);
+  const stored = await readShow(seriesId, 'stored');
   if (stored) {
     return stored;
   }
-  const lookup = cachedTvSeries(seriesId);
-  // Its late outcome only fills the container's cache
+  const lookup = readShow(seriesId, 'placement');
+  // Its late outcome only fills the container's copy
   lookup.catch(() => undefined);
   const outcome = await within(lookup, ms);
-  return outcome.timedOut ? undefined : outcome.value;
+  return outcome.timedOut ? undefined : (outcome.value ?? null);
 };
 
 /**
@@ -633,7 +631,7 @@ const checkFinishedShows = async (
   await Promise.all(
     finished.map((item) =>
       limit(async () => {
-        const tvSeries = await cachedTvSeries(item.id);
+        const tvSeries = await readShow(item.id, 'placement');
         if (!tvSeries) {
           console.warn(
             `[SKIP] | ${userId} | No TV series found for ID "${item.id}"`,

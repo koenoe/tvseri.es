@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({ fetchDiscoverTvSeries: vi.fn() }));
 
-vi.mock('@/lib/tmdb', () => ({
+vi.mock('@/lib/tmdb/discover', () => ({
   fetchDiscoverTvSeries: mocks.fetchDiscoverTvSeries,
 }));
 

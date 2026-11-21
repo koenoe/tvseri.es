@@ -4,15 +4,12 @@ import type {
   ConnectedPath,
   TvSeries,
 } from '@tvseri.es/schemas';
-
+import { getShow } from '@/lib/catalogue';
 import { DAY_BUILD_TTL, readDayBuild } from '@/lib/db/cache/readThroughDay';
 import { hasTimeForAnother } from '@/lib/deadline';
 import { fetchTrending } from '@/lib/mdblist';
-import {
-  fetchPersonTvCredits,
-  fetchTvSeriesBase,
-  fetchTvSeriesCredits,
-} from '@/lib/tmdb';
+import { fetchPersonTvCredits } from '@/lib/tmdb/person';
+import { fetchTvSeriesCredits } from '@/lib/tmdb/series';
 import { PARTIAL_TTL } from '@/utils/cacheHeader';
 import { logWarn } from '@/utils/logWarn';
 
@@ -80,7 +77,7 @@ const trendingIds = async (): Promise<ReadonlySet<number> | undefined> => {
 
 const build = async (from: number, date: string): Promise<Cached> => {
   const [start, trending] = await Promise.all([
-    fetchTvSeriesBase(from).catch((error: unknown) => {
+    getShow(from).catch((error: unknown) => {
       logWarn(`Connected by: show ${from} failed`, error);
       return null;
     }),

@@ -31,8 +31,8 @@ const NOT_RUN: ReadonlyArray<
     resources: ReadonlyArray<string>;
   }>
 > = [
-  // Only the API functions call MDBList; the rest reach it through the TMDB
-  // module's imports (mdblistLink.test.ts runs them without the link)
+  // Only the API functions call MDBList; the rest reach it through the show
+  // catalogue's imports (mdblistLink.test.ts runs them without the link)
   {
     handlers: [
       lambda('connectionSync'),

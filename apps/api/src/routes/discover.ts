@@ -18,12 +18,9 @@ import { readThroughDay } from '@/lib/db/cache/readThroughDay';
 import { detectDominantColorsFromImages } from '@/lib/detectDominantColorFromImage';
 import { buildGoDeeper } from '@/lib/goDeeper';
 import { getLandingCounts, getLandingFacts } from '@/lib/landingFacts';
-import {
-  fetchCountries,
-  fetchDiscoverTvSeries,
-  fetchLanguages,
-  fetchWatchProviders,
-} from '@/lib/tmdb';
+import { fetchDiscoverTvSeries } from '@/lib/tmdb/discover';
+import { fetchCountries, fetchLanguages } from '@/lib/tmdb/reference';
+import { fetchWatchProviders } from '@/lib/tmdb/watchProviders';
 import { cacheHeader, PARTIAL_CACHE_CONTROL } from '@/utils/cacheHeader';
 import { DayQuerySchema } from '@/utils/dayParam';
 import { WatchProvidersQuerySchema } from '@/utils/params';

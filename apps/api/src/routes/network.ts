@@ -1,6 +1,6 @@
 import { vValidator } from '@hono/valibot-validator';
 import { Hono } from 'hono';
-import { fetchNetwork } from '@/lib/tmdb';
+import { fetchNetwork } from '@/lib/catalogue';
 import { cachedNotFound } from '@/middleware/cacheControl';
 import { cacheHeader } from '@/utils/cacheHeader';
 import { IdParamSchema } from '@/utils/params';

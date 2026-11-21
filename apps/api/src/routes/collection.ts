@@ -3,7 +3,7 @@ import {
   fetchMostPopularTvSeriesThisMonth,
   fetchTopRatedTvSeries,
   fetchTrendingTvSeries,
-} from '@/lib/tmdb';
+} from '@/lib/catalogue';
 import { cacheHeader } from '@/utils/cacheHeader';
 
 const app = new Hono();

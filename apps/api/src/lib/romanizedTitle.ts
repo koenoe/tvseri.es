@@ -9,7 +9,7 @@
  */
 
 import { readThroughMany } from '@/lib/db/cache/readThrough';
-import { fetchTvSeriesTitles } from '@/lib/tmdb';
+import { fetchTvSeriesTitles } from '@/lib/tmdb/series';
 import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 
 const CACHE_TTL = 30 * 24 * 60 * 60; // 30 days
@@ -25,8 +25,9 @@ const ROMANISATION_TYPE = /romaji|romani[sz]|translit/i;
 type TitleInput = Readonly<{
   originalName: string;
   originCountry: ReadonlyArray<string>;
+  /** As TMDB's spec types them: every field may be missing */
   alternativeTitles: ReadonlyArray<
-    Readonly<{ iso_3166_1: string; title: string; type: string }>
+    Readonly<{ iso_3166_1?: string; title?: string; type?: string }>
   >;
 }>;
 
@@ -51,10 +52,12 @@ export const pickRomanizedTitle = ({
   );
 
   const typed = latin.find((alternative) =>
-    ROMANISATION_TYPE.test(alternative.type),
+    ROMANISATION_TYPE.test(alternative.type ?? ''),
   );
-  const fromOwnCountry = latin.find((alternative) =>
-    originCountry.includes(alternative.iso_3166_1),
+  const fromOwnCountry = latin.find(
+    (alternative) =>
+      alternative.iso_3166_1 !== undefined &&
+      originCountry.includes(alternative.iso_3166_1),
   );
 
   return (typed ?? fromOwnCountry)?.title ?? null;

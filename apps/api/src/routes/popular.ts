@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { fetchPopularTvSeriesByYear } from '@/lib/tmdb';
+import { fetchPopularTvSeriesByYear } from '@/lib/tmdb/discover';
 import { cachedNotFound } from '@/middleware/cacheControl';
 import { cacheHeader } from '@/utils/cacheHeader';
 

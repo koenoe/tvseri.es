@@ -8,7 +8,7 @@ import type {
 import { addDaysUtc, leadFirst, todayUtc } from '@tvseri.es/utils';
 import { readDayBuild } from '@/lib/db/cache/readThroughDay';
 import { getSeriesFactsReport } from '@/lib/seriesFacts';
-import { fetchGenresForTvSeries } from '@/lib/tmdb';
+import { fetchGenresForTvSeries } from '@/lib/tmdb/reference';
 import { mapSettledPartial } from '@/utils/limit';
 import { withTitleTreatment } from './artwork';
 import { discoverWindow } from './discoverWindow';

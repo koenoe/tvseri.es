@@ -6,8 +6,8 @@
  * of every user and year share them; only misses go to TMDB.
  */
 
+import { getShow } from '@/lib/catalogue';
 import { readThroughMany } from '@/lib/db/cache/readThrough';
-import { fetchTvSeriesBase } from '@/lib/tmdb';
 import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 
 import type { StatsSeriesMeta } from './aggregations';
@@ -30,7 +30,7 @@ export const fetchStatsSeriesMeta = async (
     failures: 'reject',
     key: cacheKey,
     load: async (id) => {
-      const series = await fetchTvSeriesBase(id);
+      const series = await getShow(id);
       return (
         series && {
           countries: (series.countries ?? []).map(({ code, name }) => ({

@@ -13,16 +13,12 @@ import {
   todayUtc,
   toyKindOfDay,
 } from '@tvseri.es/utils';
+import { fetchNetwork, getShow } from '@/lib/catalogue';
 import { hasTimeForAnother } from '@/lib/deadline';
 import { fetchTrending } from '@/lib/mdblist';
-import {
-  fetchDiscoverTvSeries,
-  fetchNetwork,
-  fetchTvSeriesArtwork,
-  fetchTvSeriesBase,
-  fetchTvSeriesRecommendations,
-  fetchWatchProviders,
-} from '@/lib/tmdb';
+import { fetchDiscoverTvSeries } from '@/lib/tmdb/discover';
+import { fetchTvSeriesRecommendations } from '@/lib/tmdb/series';
+import { fetchWatchProviders } from '@/lib/tmdb/watchProviders';
 import { mapSettledPartial } from '@/utils/limit';
 import { logWarn } from '@/utils/logWarn';
 import { hasArtwork } from './artwork';
@@ -110,7 +106,7 @@ const whatsOn = async (
       // logo, the admin's picks), else the discover item as it was
       const [logo, artwork] = await Promise.all([
         marks(network.id),
-        fetchTvSeriesArtwork(pick.id).catch((error: unknown) => {
+        getShow(pick.id, { artwork: true }).catch((error: unknown) => {
           logWarn(`What’s on: artwork for ${pick.id} failed`, error);
           report(1);
           return undefined;
@@ -142,7 +138,7 @@ const whereSet = async (
       // with artwork: the place's show is drawn with its logo when it has one
       const { failed: othersFailed, values: shows } = await mapSettledPartial(
         ids,
-        (id) => fetchTvSeriesArtwork(id),
+        (id) => getShow(id, { artwork: true }),
       );
       report(othersFailed);
       const [series, ...others] = shows.filter((show) => !!show.backdropImage);
@@ -204,7 +200,7 @@ const connectedBy = async (
 };
 
 const versusSource: VersusSource = {
-  details: (id) => fetchTvSeriesBase(id),
+  details: (id) => getShow(id),
   hasTime: hasTimeForAnother,
   // the most popular well-known series today: one discover page
   seeds: async () =>

@@ -8,13 +8,11 @@ import type {
   TvSeries,
 } from '@tvseri.es/schemas';
 import { rotationIndex } from '@tvseri.es/utils';
+import { getShow } from '@/lib/catalogue';
 import { readThrough, readThroughMany } from '@/lib/db/cache/readThrough';
-import {
-  fetchDiscoverTvSeries,
-  fetchGenresForTvSeries,
-  fetchTvSeriesBase,
-  fetchTvSeriesForPicks,
-} from '@/lib/tmdb';
+import { fetchDiscoverTvSeries } from '@/lib/tmdb/discover';
+import { fetchGenresForTvSeries } from '@/lib/tmdb/reference';
+import { fetchTvSeriesForPicks } from '@/lib/tmdb/series';
 import { isDrawablePick, withGenreNames } from './pickItems';
 
 const MAX_ITEMS = 12;
@@ -175,8 +173,7 @@ const genreIdsOf = async (
     concurrency: GENRES_CONCURRENCY,
     failures: 'tolerate',
     key: (id) => `home:genres:v1:${id}`,
-    load: async (id) =>
-      (await fetchTvSeriesBase(id))?.genres.map((genre) => genre.id),
+    load: async (id) => (await getShow(id))?.genres.map((genre) => genre.id),
     // A show TMDB doesn't know is asked again next time
     ttl: (value) => (value ? GENRES_TTL : false),
   });

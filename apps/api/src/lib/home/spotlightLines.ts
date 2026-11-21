@@ -9,7 +9,7 @@ import { fetchTrending } from '@/lib/mdblist';
 import { analyzeShow } from '@/lib/overview/analyze';
 import { readShowItems } from '@/lib/rollups';
 import { getSeriesFacts } from '@/lib/seriesFacts';
-import { fetchTvSeriesForPicks } from '@/lib/tmdb';
+import { fetchTvSeriesForPicks } from '@/lib/tmdb/series';
 import { logWarn } from '@/utils/logWarn';
 
 const SHARED_TTL = 7 * 86400;

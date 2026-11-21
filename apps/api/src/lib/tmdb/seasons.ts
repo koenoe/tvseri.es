@@ -13,7 +13,7 @@ import {
   chunk,
   hasAiredAt,
 } from '@tvseri.es/utils';
-import { hasFilePath, tmdbFetch } from '@/lib/tmdb/client';
+import { tmdbFetch } from '@/lib/tmdb/client';
 import { normalizeTvSeriesEpisode } from '@/lib/tmdb/helpers';
 import { fetchRawTvSeries } from '@/lib/tmdb/series';
 
@@ -199,7 +199,7 @@ export async function fetchTvSeriesEpisodeStills(
     `/3/tv/${id}/season/${season}/episode/${episode}/images`,
   );
 
-  return (response?.stills ?? []).filter(hasFilePath).map((still) => ({
+  return (response?.stills ?? []).map((still) => ({
     aspectRatio: still.aspect_ratio,
     height: still.height,
     path: still.file_path,

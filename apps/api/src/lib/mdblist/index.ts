@@ -25,8 +25,8 @@ const breaker = breakerFor('mdblist');
 
 /**
  * The key, read on first use: Lambdas that import this module only through
- * `lib/tmdb` and never call MDBList (the watched stream, the Plex queue, the
- * nightly job) then don't need the `MdblistApiKey` link.
+ * `lib/catalogue` and never call MDBList (the watched stream, the Plex
+ * queue, the nightly job) then don't need the `MdblistApiKey` link.
  */
 const apiKey = () => {
   const key = Resource.MdblistApiKey.value;

@@ -167,6 +167,21 @@ export type TmdbFindByIdResults = Omit<
 
 export type TmdbNetwork = SpecResponse<`/3/network/${number}`>;
 
+type TmdbEpisodeImagesSpec =
+  SpecResponse<`/3/tv/${number}/season/${number}/episode/${number}/images`>;
+
+/**
+ * An episode's images. The spec leaves a still's `file_path` optional; an
+ * image is its file.
+ */
+type TmdbEpisodeImages = Omit<TmdbEpisodeImagesSpec, 'stills'> & {
+  stills?: ReadonlyArray<
+    NonNullable<TmdbEpisodeImagesSpec['stills']>[number] & {
+      file_path: string;
+    }
+  >;
+};
+
 /** Whether two types are the same (pattern paths compared both ways) */
 type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 
@@ -187,7 +202,12 @@ export type TmdbResponse<P extends TmdbPath> =
             ? TmdbTvSeriesWatchProviders
             : Same<P, '/3/watch/providers/tv'> extends true
               ? TmdbWatchProviders
-              : SpecResponse<P>;
+              : Same<
+                    P,
+                    `/3/tv/${number}/season/${number}/episode/${number}/images`
+                  > extends true
+                ? TmdbEpisodeImages
+                : SpecResponse<P>;
 
 /**
  * What `append_to_response` can add to a path's answer: its sub-resources

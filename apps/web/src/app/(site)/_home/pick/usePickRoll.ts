@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { nextPick } from './deck';
 
@@ -26,39 +26,38 @@ export type PickRoll = Readonly<{
  */
 export function usePickRoll(size: number): PickRoll {
   const [pick, setPick] = useState(0);
+  const [next, setNext] = useState(0);
   const [phase, setPhase] = useState<RollPhase>('rest');
   const [seed, setSeed] = useState(1);
-  const busy = useRef(false);
-  const timers = useRef<number[]>([]);
 
-  // A roll in flight stops with the deck (navigating away mid-roll)
-  useEffect(
-    () => () => {
-      for (const timer of timers.current) {
-        window.clearTimeout(timer);
-      }
-    },
-    [],
-  );
-
-  const roll = () => {
-    if (busy.current || size < 2) {
+  // Each step is scheduled by the phase it ends, not by the press: Next
+  // keeps a left page mounted but hidden, which clears the timer and keeps
+  // the phase, so showing the page again runs that step again and finishes
+  useEffect(() => {
+    if (phase === 'rest') {
       return;
     }
-    busy.current = true;
-    const next = nextPick(pick, size, Math.random());
+    const timer = window.setTimeout(
+      () => {
+        if (phase === 'shuffle') {
+          setPick(next);
+          setPhase('settle');
+        } else {
+          setPhase('rest');
+        }
+      },
+      phase === 'shuffle' ? SHUFFLE_MS : SETTLE_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [next, phase]);
+
+  const roll = () => {
+    if (phase !== 'rest' || size < 2) {
+      return;
+    }
+    setNext(nextPick(pick, size, Math.random()));
     setSeed((value) => value + 1);
     setPhase('shuffle');
-    const settle = () => {
-      setPhase('rest');
-      busy.current = false;
-    };
-    const land = () => {
-      setPick(next);
-      setPhase('settle');
-      timers.current = [window.setTimeout(settle, SETTLE_MS)];
-    };
-    timers.current = [window.setTimeout(land, SHUFFLE_MS)];
   };
 
   return { phase, pick, roll, seed };

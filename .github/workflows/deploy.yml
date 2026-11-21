@@ -29,26 +29,12 @@ jobs:
       # releases; unauthenticated, runners share a 60-an-hour limit and a
       # deploy fails on a 403. The job's own read-only token lifts that.
       GITHUB_TOKEN: ${{ github.token }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_TEAM_ID }}
       VERCEL_TELEMETRY_DISABLED: 1
       NEXT_TELEMETRY_DISABLED: 1
 
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN_PROD }}
-          aws-region: eu-west-2
-
-      - name: Setup AWS Profile
-        run: |
-          aws configure set region eu-west-2 --profile tvseries-production
-          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" --profile tvseries-production
-          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" --profile tvseries-production
-          aws configure set aws_session_token "$AWS_SESSION_TOKEN" --profile tvseries-production
-
       - name: Install pnpm
         uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
         with:
@@ -63,7 +49,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Gate: nothing below runs (no secrets, no deploy) unless these pass.
+      # Gate: the AWS role and the deploy secrets are only obtained after
+      # these pass.
       - name: Format and lint
         run: pnpm format-and-lint
 
@@ -75,6 +62,23 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+      # The role is assumed only now: dependencies' install scripts and the
+      # checks above run without AWS access (none of them needs it), and a
+      # failed check stops the job before it.
+      - name: Configure AWS Credentials
+        id: aws
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_PROD }}
+          aws-region: eu-west-2
+
+      - name: Setup AWS Profile
+        run: |
+          aws configure set region eu-west-2 --profile tvseries-production
+          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" --profile tvseries-production
+          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" --profile tvseries-production
+          aws configure set aws_session_token "$AWS_SESSION_TOKEN" --profile tvseries-production
 
       - name: Add SST bin to PATH (workaround for SST issue #6314)
         run: echo "$HOME/.config/sst/bin" >> $GITHUB_PATH
@@ -100,9 +104,12 @@ jobs:
           ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
           AWS_HOSTED_ZONE_ID_PROD: ${{ secrets.AWS_HOSTED_ZONE_ID_PROD }}
           VERCEL_API_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_TEAM_ID }}
           VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
         run: pnpm sst deploy --stage production
 
+      # Only once there are credentials to unlock with: a failed check never
+      # took the lock
       - name: Unlock SST on failure
-        if: ${{ failure() || cancelled() }}
+        if: ${{ (failure() || cancelled()) && steps.aws.outcome == 'success' }}
         run: pnpm sst unlock --stage production

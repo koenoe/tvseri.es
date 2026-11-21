@@ -30,26 +30,12 @@ jobs:
       # releases; unauthenticated, runners share a 60-an-hour limit and a
       # deploy fails on a 403. The job's own read-only token lifts that.
       GITHUB_TOKEN: ${{ github.token }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_TEAM_ID }}
       VERCEL_TELEMETRY_DISABLED: 1
       NEXT_TELEMETRY_DISABLED: 1
 
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN_DEV }}
-          aws-region: eu-west-2
-
-      - name: Setup AWS Profile
-        run: |
-          aws configure set region eu-west-2 --profile tvseries-dev
-          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" --profile tvseries-dev
-          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" --profile tvseries-dev
-          aws configure set aws_session_token "$AWS_SESSION_TOKEN" --profile tvseries-dev
-
       - name: Install pnpm
         uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
         with:
@@ -63,6 +49,22 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # The role is assumed only after the install: dependencies' install
+      # scripts run without AWS access (sst install doesn't need it).
+      - name: Configure AWS Credentials
+        id: aws
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_DEV }}
+          aws-region: eu-west-2
+
+      - name: Setup AWS Profile
+        run: |
+          aws configure set region eu-west-2 --profile tvseries-dev
+          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" --profile tvseries-dev
+          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" --profile tvseries-dev
+          aws configure set aws_session_token "$AWS_SESSION_TOKEN" --profile tvseries-dev
 
       - name: Add SST bin to PATH (workaround for SST issue #6314)
         run: echo "$HOME/.config/sst/bin" >> $GITHUB_PATH
@@ -89,6 +91,7 @@ jobs:
         env:
           AWS_HOSTED_ZONE_ID_DEV: ${{ secrets.AWS_HOSTED_ZONE_ID_DEV }}
           VERCEL_API_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_TEAM_ID }}
           VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
           GODEBUG: asyncpreemptoff=1
         run: |
@@ -100,8 +103,10 @@ jobs:
                     echo "")
           echo "web_url=$WEB_URL" >> $GITHUB_OUTPUT
 
+      # Only once there are credentials to unlock with: an install failure
+      # never took the lock
       - name: Unlock SST on failure
-        if: ${{ failure() || cancelled() }}
+        if: ${{ (failure() || cancelled()) && steps.aws.outcome == 'success' }}
         run: pnpm sst unlock --stage pr-${{ github.event.pull_request.number }}
 
       - name: Update PR with Preview URL

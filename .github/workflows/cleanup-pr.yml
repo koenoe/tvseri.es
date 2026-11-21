@@ -28,19 +28,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN_DEV }}
-          aws-region: eu-west-2
-
-      - name: Setup AWS Profile
-        run: |
-          aws configure set region eu-west-2 --profile tvseries-dev
-          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" --profile tvseries-dev
-          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" --profile tvseries-dev
-          aws configure set aws_session_token "$AWS_SESSION_TOKEN" --profile tvseries-dev
-
       - name: Install pnpm
         uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
         with:
@@ -54,6 +41,21 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # The role is assumed only after the install: dependencies' install
+      # scripts run without AWS access (sst install doesn't need it).
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_DEV }}
+          aws-region: eu-west-2
+
+      - name: Setup AWS Profile
+        run: |
+          aws configure set region eu-west-2 --profile tvseries-dev
+          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" --profile tvseries-dev
+          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" --profile tvseries-dev
+          aws configure set aws_session_token "$AWS_SESSION_TOKEN" --profile tvseries-dev
 
       - name: Remove PR Environment
         env:

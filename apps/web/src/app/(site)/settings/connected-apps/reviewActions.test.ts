@@ -7,6 +7,7 @@ const refresh = vi.fn();
 const searchSeries = vi.fn();
 const loadSeriesForWrite = vi.fn();
 const loadSeason = vi.fn();
+const revalidateViewerStats = vi.fn();
 
 vi.mock('@/auth/viewer', () => ({ getViewer: () => getViewer() }));
 vi.mock('next/cache', () => ({ refresh: () => refresh() }));
@@ -19,6 +20,9 @@ vi.mock('@/lib/import/loaders', () => ({
 }));
 vi.mock('@/lib/series/forWrite', () => ({
   loadSeriesForWrite: (...args: unknown[]) => loadSeriesForWrite(...args),
+}));
+vi.mock('@/lib/stats/revalidateViewerStats', () => ({
+  revalidateViewerStats: (...args: unknown[]) => revalidateViewerStats(...args),
 }));
 vi.mock('@/lib/series/loaders', () => ({
   loadSeason: (...args: unknown[]) => loadSeason(...args),
@@ -63,6 +67,7 @@ beforeEach(() => {
     searchSeries,
     loadSeriesForWrite,
     loadSeason,
+    revalidateViewerStats,
   ]) {
     mock.mockReset();
   }
@@ -144,6 +149,17 @@ describe('resolveEntries', () => {
     ]);
     expect(result.data.open[0]?.episodes).toHaveLength(2);
     expect(refresh).toHaveBeenCalledTimes(1);
+    // the watched history changed: the viewer's stats catch up
+    expect(revalidateViewerStats).toHaveBeenCalledWith('U1');
+  });
+
+  it('leaves the stats alone when the API wrote nothing new', async () => {
+    apiFetch.mockResolvedValue({ written: 0 });
+    await resolveEntries('netflix', {
+      entries: [entry('11', 'One')],
+      pick: { kind: 'series', seriesId: 7 },
+    });
+    expect(revalidateViewerStats).not.toHaveBeenCalled();
   });
 
   it('writes the exact episode picked by hand', async () => {
@@ -227,6 +243,7 @@ describe('resolveEntries', () => {
     expect(result.data.failed).toBe('failed');
     expect(result.data.written).toBe(100);
     expect(refresh).toHaveBeenCalledTimes(1);
+    expect(revalidateViewerStats).toHaveBeenCalledTimes(1);
   });
 
   it('says failed when the write fails', async () => {

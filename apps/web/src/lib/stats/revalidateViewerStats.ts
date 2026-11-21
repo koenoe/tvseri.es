@@ -6,8 +6,9 @@ import { tags } from '@/lib/cache/tags';
 
 /**
  * Call after the viewer's own watched history changed (a mark, unmark,
- * re-date, skip, import or Undo succeeded; from a server action, or the
- * import status route once an Undo is done): their Stats pages and share
+ * re-date, skip, import, Undo or review fix succeeded; from a server action,
+ * the import status route once an Undo is done, or a service's status route
+ * once a sync that wrote episodes ended): their Stats pages and share
  * cards refresh soon instead of up to a day later (the `stats` profile).
  *
  * It marks the `stats:{id}` tag stale (`revalidateTag(tag, 'max')`): the

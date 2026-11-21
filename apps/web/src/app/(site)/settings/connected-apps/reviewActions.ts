@@ -27,6 +27,7 @@ import { apiFetch } from '@/lib/api/client';
 import { searchSeries } from '@/lib/import/loaders';
 import { loadSeriesForWrite } from '@/lib/series/forWrite';
 import { loadSeason } from '@/lib/series/loaders';
+import { revalidateViewerStats } from '@/lib/stats/revalidateViewerStats';
 
 import {
   CursorSchema,
@@ -209,6 +210,9 @@ export async function resolveEntries(
       return reply.written;
     },
   );
+  if (written > 0) {
+    revalidateViewerStats(viewer.id);
+  }
   if (failed && closed.length === 0) {
     return actionError(failed);
   }

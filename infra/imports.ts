@@ -46,5 +46,14 @@ undoImportQueue.subscribe(
       partialResponses: true, // handler returns batchItemFailures per message
       size: 1,
     },
+    transform: {
+      eventSourceMapping: (args) => {
+        // The poller takes no more batches than the function may run, so
+        // none is throttled and burns a receive towards the DLQ. The
+        // reservation above stays: it keeps these slots free when the API
+        // is busy, which maximum concurrency doesn't.
+        args.scalingConfig = { maximumConcurrency: 2 };
+      },
+    },
   },
 );

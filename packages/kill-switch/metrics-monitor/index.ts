@@ -8,14 +8,18 @@ import {
   GetMetricDataCommand,
 } from '@aws-sdk/client-cloudwatch';
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
+import { awsHttpOptions } from '@tvseri.es/constants';
 import { Resource } from 'sst';
-
 import { checkUsage } from './checkUsage';
 import { LIMITS } from './limits';
 
-const cloudFrontClient = new CloudFrontClient();
-const cloudWatchClient = new CloudWatchClient();
-const snsClient = new SNSClient();
+// Connection timeout only: the Lambda's 5 s timeout already bounds a slow
+// call, and a request timeout tight enough to leave room for a retry would
+// cut CloudFront control-plane calls that are only slow
+const requestHandler = awsHttpOptions(0);
+const cloudFrontClient = new CloudFrontClient({ requestHandler });
+const cloudWatchClient = new CloudWatchClient({ requestHandler });
+const snsClient = new SNSClient({ requestHandler });
 
 /** Hourly: disables every CloudFront distribution once a monthly limit is reached */
 export async function handler() {

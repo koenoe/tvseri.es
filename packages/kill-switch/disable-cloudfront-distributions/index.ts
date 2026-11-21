@@ -5,10 +5,14 @@ import {
   ListDistributionsCommand,
   UpdateDistributionCommand,
 } from '@aws-sdk/client-cloudfront';
-
+import { awsHttpOptions } from '@tvseri.es/constants';
 import { disableAll } from './disableAll';
 
-const cloudFrontClient = new CloudFrontClient();
+// Connection timeout only: the Lambda's 5 s timeout already bounds a slow
+// call, and a request timeout tight enough to leave room for a retry would
+// cut CloudFront control-plane calls that are only slow
+const requestHandler = awsHttpOptions(0);
+const cloudFrontClient = new CloudFrontClient({ requestHandler });
 
 /** The kill switch: invoked by the budget or usage alert (SNS) */
 export async function handler() {

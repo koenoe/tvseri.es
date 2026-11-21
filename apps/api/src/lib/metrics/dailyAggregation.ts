@@ -1,10 +1,10 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
-
+import { awsHttpOptions } from '@tvseri.es/constants';
 import { AGGREGATE_RETRY, batchWrite } from '@/lib/db/batch';
 import { fetchRawMetrics } from '@/lib/metrics/rawShards';
 
-const dynamoClient = new DynamoDBClient({});
+const dynamoClient = new DynamoDBClient({ requestHandler: awsHttpOptions() });
 
 /** How much a sampled count is scaled back up by: 10 for a 10% sample */
 export const sampleMultiplier = (sampleRate: number) =>

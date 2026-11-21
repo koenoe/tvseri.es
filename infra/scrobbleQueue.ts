@@ -57,5 +57,14 @@ scrobbleQueue.subscribe(
       size: 2,
       window: '30 seconds',
     },
+    transform: {
+      eventSourceMapping: (args) => {
+        // The poller takes no more batches than the function may run, so
+        // none is throttled and burns a receive towards the DLQ. The
+        // reservation above stays: it keeps these slots free when the API
+        // is busy, which maximum concurrency doesn't.
+        args.scalingConfig = { maximumConcurrency: 25 };
+      },
+    },
   },
 );

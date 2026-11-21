@@ -656,6 +656,9 @@ importers:
       '@aws-sdk/client-sns':
         specifier: ^3.1169.0
         version: 3.1169.0
+      '@tvseri.es/constants':
+        specifier: workspace:*
+        version: link:../constants
       sst:
         specifier: 'catalog:'
         version: 4.17.2

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Suspense, ViewTransition } from 'react';
+import { Suspense } from 'react';
 
 import { entityMetadata } from '@/lib/routing/entityRoute';
 import ShowRoute from './_components/ShowRoute';
@@ -56,21 +56,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 export default function Page({ params, searchParams }: Props) {
   return (
-    <>
-      {/* Opening a show from a card that hands over (`SHOW_OPEN_TYPES`):
-          the route's first, top-level boundary is what makes React start
-          the browser's view transition at all (a nested one's enter never
-          fires). It names only an empty marker, so the page itself isn't
-          captured: the card's parts and the hero's logo, named by
-          `showMorph`, are what move. Any other navigation: nothing. */}
-      <ViewTransition default="none" enter={SHOW_OPEN_ENTER}>
-        <span aria-hidden="true" className="block size-0" />
-      </ViewTransition>
-      <Suspense fallback={<ShowSkeleton />}>
-        <ShowRoute params={params} searchParams={searchParams} />
-      </Suspense>
-    </>
+    <Suspense fallback={<ShowSkeleton />}>
+      <ShowRoute params={params} searchParams={searchParams} />
+    </Suspense>
   );
 }
-
-const SHOW_OPEN_ENTER = { default: 'none', 'show-open': 'show-start' };

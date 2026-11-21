@@ -13,6 +13,8 @@ import type {
 import type { ReactElement } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { spokenLine } from '@/test/spoken';
+
 import { appToggleId } from './AppsAccordion';
 import { ServiceProvider } from './ServiceContext';
 import ServiceReview from './ServiceReview';
@@ -99,6 +101,10 @@ beforeEach(() => {
   }
 });
 
+/** The count line as read out (its drawn digits roll beside it, hidden) */
+const countLine = (count: number, noun: string) =>
+  `${count} ${noun} the sync couldn’t match · fix them here, or skip`;
+
 describe('ServiceReview', () => {
   it('draws nothing when nothing needs checking', () => {
     const { container } = render(
@@ -107,23 +113,12 @@ describe('ServiceReview', () => {
     expect(container.innerHTML).toBe('');
   });
 
-  /** The count line as read out: its drawn digits roll beside, hidden (`RollingCount`) */
-  const countLine = () => {
-    const line = screen
-      .getByText(/the sync couldn’t match/)
-      .cloneNode(true) as HTMLElement;
-    for (const hidden of line.querySelectorAll('[aria-hidden="true"]')) {
-      hidden.remove();
-    }
-    return line.textContent;
-  };
-
   it('lists the entries in the importer’s groups with the count', () => {
     render(
       <ServiceReview count={2} overflow={0} page={page([TOP_BOY, LOST])} />,
     );
     expect(screen.getByText('To review')).toBeTruthy();
-    expect(countLine()).toMatch(/^2 entries the sync/);
+    expect(screen.getByText(spokenLine(countLine(2, 'entries')))).toBeTruthy();
     expect(screen.getByText('Which series?')).toBeTruthy();
     expect(
       screen.getByRole('button', { name: '2011 · Channel 4' }),
@@ -147,7 +142,7 @@ describe('ServiceReview', () => {
     });
     // Optimistic: gone, and counted out, before the action answers
     expect(screen.queryByText('Which series?')).toBeNull();
-    expect(countLine()).toMatch(/^1 entry the sync/);
+    expect(screen.getByText(spokenLine(countLine(1, 'entry')))).toBeTruthy();
 
     await act(async () => {
       answer.release({
@@ -424,7 +419,7 @@ describe('ServiceReview', () => {
     // The entry is back, now asking for its episode
     expect(screen.queryByText('Which series?')).toBeNull();
     expect(screen.getByText('Not found')).toBeTruthy();
-    expect(countLine()).toMatch(/^1 entry the sync/);
+    expect(screen.getByText(spokenLine(countLine(1, 'entry')))).toBeTruthy();
   });
 });
 

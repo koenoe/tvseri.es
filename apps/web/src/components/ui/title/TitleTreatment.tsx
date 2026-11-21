@@ -1,6 +1,4 @@
 import Image from 'next/image';
-import type { CSSProperties } from 'react';
-import { showMorphClass } from '@/components/ui/tile/showMorphNames';
 
 /** The common fit: the logo contained, on its box's bottom left */
 export const TITLE_LOGO_FIT = 'object-contain object-left-bottom';
@@ -40,27 +38,9 @@ type LogoProps = Readonly<{
   draggable?: boolean;
   loading?: 'eager' | 'lazy';
   look: TitleLogoLook;
-  /**
-   * The logo is the card's part in the hand-off to the show page
-   * (`showMorph.ts`): marks the drawn box, the element that glides
-   */
-  morph?: boolean;
-  /**
-   * The page's half of a hand-off (`showMorph.ts`): the drawn box's
-   * view-transition name, there from the first render so the browser's
-   * snapshot of the new page has it
-   */
-  morphName?: string;
   src: string;
   title: string;
 }>;
-
-/** The logo's part in a hand-off: its name and the hand-off's class */
-const namedStyle = (name: string) =>
-  ({
-    viewTransitionClass: showMorphClass('logo'),
-    viewTransitionName: name,
-  }) as CSSProperties;
 
 /**
  * The show's logo as one place draws it (`look`), its alt the title. For a
@@ -73,49 +53,37 @@ export function TitleTreatmentLogo({
   draggable,
   loading,
   look,
-  morph = false,
-  morphName,
   src,
   title,
 }: LogoProps) {
-  const named = morphName === undefined ? undefined : namedStyle(morphName);
   const logoAlt = alt ?? title;
-  const part = morph ? 'logo' : undefined;
-  // the box glides where there is one, else the image itself
-  const imagePart = look.box === undefined ? part : undefined;
   const image =
     look.width === undefined ? (
       <Image
         alt={logoAlt}
         className={look.logo}
-        data-show-morph={imagePart}
         draggable={draggable}
         fill
         loading={loading}
         sizes={look.sizes}
         src={src}
-        style={look.box === undefined ? named : undefined}
       />
     ) : (
       <Image
         alt={logoAlt}
         className={look.logo}
-        data-show-morph={imagePart}
         draggable={draggable}
         height={look.height}
         loading={loading}
         sizes={look.sizes}
         src={src}
-        style={look.box === undefined ? named : undefined}
         width={look.width}
       />
     );
   return look.box === undefined ? (
     image
   ) : (
-    <Box className={look.box} data-show-morph={part} style={named}>
-      {image}
-    </Box>
+    <Box className={look.box}>{image}</Box>
   );
 }
 

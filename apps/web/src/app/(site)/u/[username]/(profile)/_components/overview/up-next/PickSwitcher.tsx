@@ -1,12 +1,13 @@
 'use client';
 
-import { type ReactNode, useState } from 'react';
+import { type MouseEvent, type ReactNode, useState } from 'react';
 
 import CrossFade from '@/components/motion/CrossFade';
 import CircleButton from '@/components/ui/button/CircleButton';
 import { closeGlyph } from '@/components/ui/icon/glyphs';
 import { UP_NEXT_ACTIONS_OVER } from '@/components/up-next/upNextLayout';
 import cn from '@/lib/cn';
+import { focusLaneHeading, headingOf } from '../../blocks/rowFocus';
 
 /** Over the card, where its controls sit */
 const NOT_NOW = cn(UP_NEXT_ACTIONS_OVER, 'z-30');
@@ -27,7 +28,8 @@ const takeDroppedFocus = (node: HTMLElement | null) => {
  * (`CrossFade`: they share one size) while the × stays put and keeps focus.
  * Each card arrives rendered; this only chooses. Out of picks, the ×
  * goes with the last card, so focus moves to what replaces it rather than
- * falling to the page.
+ * falling to the page: the empty line, or with none (an empty shelf, its
+ * own empty line already above) the heading of the section it is in.
  */
 export default function PickSwitcher({
   cards,
@@ -40,13 +42,24 @@ export default function PickSwitcher({
   const [index, setIndex] = useState(0);
   const card = cards[index];
   if (!card) {
-    return (
+    return fallback === null ? null : (
       <div className="outline-none" ref={takeDroppedFocus} tabIndex={-1}>
         {fallback}
       </div>
     );
   }
-  const next = () => setIndex((current) => current + 1);
+  const next = (event: MouseEvent<HTMLButtonElement>) => {
+    const button = event.currentTarget;
+    // nothing takes the ×'s place: hand its focus on while it is still here
+    if (
+      fallback === null &&
+      index + 1 >= cards.length &&
+      document.activeElement === button
+    ) {
+      focusLaneHeading(headingOf(button));
+    }
+    setIndex((current) => current + 1);
+  };
   return (
     <div className="relative">
       <CrossFade swapKey={index}>{card}</CrossFade>

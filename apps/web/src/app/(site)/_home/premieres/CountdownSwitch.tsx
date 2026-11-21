@@ -98,7 +98,6 @@ export default function CountdownSwitch({
             key={slide.key}
             on={on}
             onLoaded={loaded}
-            seriesId={slide.key}
           />
         ) : null;
       })}
@@ -116,7 +115,6 @@ export default function CountdownSwitch({
             aria-hidden={off}
             className={layer}
             data-countdown-body={index}
-            data-show-morph-id={slide.key}
             inert={off}
             key={slide.key}
           >

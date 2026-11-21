@@ -62,7 +62,6 @@ function ArtworkLayers({
         onLoaded={onLoaded}
         onSettled={onSettled}
         priority={priority}
-        seriesId={item.id}
       />
     ) : null;
   });
@@ -115,8 +114,7 @@ function TextLayers({
  * artwork, the text and the page colour (the ground's 600ms) start in the
  * same frame and end together, once the next backdrop is decoded (it is
  * preloaded during the countdown and on a pager line's hover or focus).
- * The artwork and the title link to the show, and open it whole: the
- * slide hands its art and logo over to the show page (`showMorph.ts`).
+ * The artwork and the title link to the show, and open it whole.
  */
 export default function SpotlightCarousel({
   slides,
@@ -170,7 +168,6 @@ export default function SpotlightCarousel({
         aria-roledescription="carousel"
         // phone: the stage (553px of page) and the 23px pager under it
         className={SPOTLIGHT_STAGE}
-        data-show-morph-scope=""
         data-slot="spotlight"
         ref={attach}
         style={PAN_STYLE}

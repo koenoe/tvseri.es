@@ -10,6 +10,7 @@ import {
 import cn from '@/lib/cn';
 
 import { DIARY_POSTER } from './diaryStyles';
+import evenPixels from './evenPixels';
 import glowPosterLoader from './glowPosterLoader';
 import saturatePixels from './saturatePixels';
 
@@ -49,6 +50,8 @@ function paintGlow(canvas: HTMLCanvasElement, image: HTMLImageElement) {
     return;
   }
   saturatePixels(pixels.data, GLOW_SATURATION);
+  // every row's glow at one brightness: a pale poster no longer outshines
+  evenPixels(pixels.data);
   context.putImageData(pixels, 0, 0);
 }
 

@@ -1,10 +1,10 @@
+import { CROSSFADE } from '@/components/motion/lateFade';
 import ExpandChevron from '@/components/ui/icon/ExpandChevron';
 import type { IconSize } from '@/components/ui/icon/types';
 import cn from '@/lib/cn';
 
-/** Both words in one grid cell (one width); the leaving one fades out in 120ms */
-const WORD =
-  'col-start-1 row-start-1 transition-[opacity,visibility] duration-120';
+/** Both words in one grid cell (one width), swapping as two layers (`CROSSFADE`) */
+const WORD = cn('col-start-1 row-start-1', CROSSFADE);
 const HIDDEN = cn(WORD, 'invisible opacity-0');
 
 type Words = Readonly<{
@@ -17,7 +17,8 @@ type Words = Readonly<{
 
 /**
  * A fold's two labels in one grid cell, so the control keeps its width when
- * it flips: the leaving word fades out while the new one is there at once.
+ * it flips: the leaving word fades out while the new one fades in, both in
+ * 150ms (`CROSSFADE`), and only the shown one is read out.
  * For a control with its own icon (Edit / Hide columns); with the turning
  * chevron, `FoldLabel`.
  */

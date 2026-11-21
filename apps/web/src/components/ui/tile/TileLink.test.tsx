@@ -22,12 +22,10 @@ vi.mock('next/link', () => ({
   default: ({
     children,
     prefetch: policy,
-    transitionTypes: _types,
     ...rest
   }: Readonly<{
     children?: ReactNode;
     prefetch?: unknown;
-    transitionTypes?: unknown;
   }>) => (
     <a data-prefetch={String(policy)} {...rest}>
       {children}
@@ -162,6 +160,22 @@ describe('TileLink', () => {
           countFetch(`${href}?_rsc=${fetch}`, 'fetch', window.location);
         }
       });
+      expect(show().dataset.prefetch).toBe('true');
+    });
+
+    // On Vercel a show without its own prerender answers its static prefetch
+    // with the route's fallback shell, which Next re-requests every 2s: the
+    // budget runs out before any hover, and the click showed the skeleton
+    it('still opens whole on a first intent once the prefetch budget ran out', () => {
+      const href = '/990078/fallback-show';
+      act(() => {
+        for (let fetch = 0; fetch < PREFETCH_FETCH_LIMIT; fetch++) {
+          countFetch(`${href}?_rsc=${fetch}`, 'fetch', window.location);
+        }
+      });
+      renderShow(href);
+      expect(show().dataset.prefetch).toBe('false');
+      rest(show());
       expect(show().dataset.prefetch).toBe('true');
     });
 

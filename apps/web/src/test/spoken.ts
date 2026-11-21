@@ -1,8 +1,11 @@
 /**
  * An element's text as a screen reader reads it: what is `aria-hidden`
- * (a rolling count's drawn digits) is left out
+ * (a rolling count's drawn digits) is left out, the element itself too
  */
 const spoken = (element: Element) => {
+  if (element.closest('[aria-hidden="true"]')) {
+    return '';
+  }
   const copy = element.cloneNode(true) as Element;
   for (const hidden of copy.querySelectorAll('[aria-hidden="true"]')) {
     hidden.remove();

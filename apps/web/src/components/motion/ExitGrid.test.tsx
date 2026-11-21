@@ -40,7 +40,7 @@ const EMPTY = <p>No service matches</p>;
 
 let narrow: (items: ReadonlyArray<Item>) => void = () => {};
 /** A grid whose press takes the item out, as Popular's Add does */
-function Grid() {
+function Grid({ className = 'grid' }: Readonly<{ className?: string }>) {
   const [items, setItems] = useState(ITEMS);
   narrow = (next) => act(() => setItems(next));
   const take = useCallback(
@@ -52,7 +52,7 @@ function Grid() {
     <section aria-label="Popular">
       <input aria-label="Filter services" />
       <ExitGrid
-        className="grid"
+        className={className}
         empty={EMPTY}
         items={items}
         keyOf={keyOf}
@@ -101,5 +101,42 @@ describe('ExitGrid', () => {
     await waitFor(() =>
       expect(screen.getByText('No service matches')).toBeTruthy(),
     );
+  });
+});
+
+describe('ExitGrid, folded to its first cells (Popular capped at 7)', () => {
+  let fold: HTMLStyleElement;
+  beforeAll(() => {
+    MotionGlobalConfig.skipAnimations = false;
+    fold = document.createElement('style');
+    fold.textContent = '.folded > :nth-child(n+3) { display: none; }';
+    document.head.append(fold);
+  });
+  afterAll(() => {
+    MotionGlobalConfig.skipAnimations = true;
+    fold.remove();
+  });
+
+  /** A cell, shown or folded away */
+  const cellOf = (name: string) =>
+    screen.getByRole('button', { hidden: true, name })
+      .parentElement as HTMLElement;
+  const shown = (cell: HTMLElement) =>
+    getComputedStyle(cell).display !== 'none';
+
+  it('the cell that comes into view as one leaves rises in; the rest stay put', async () => {
+    render(<Grid className="grid folded" />);
+    const max = cellOf('Add Max');
+    const disney = cellOf('Add Disney+');
+    expect(shown(max)).toBe(false);
+    await userEvent.click(button('Add Netflix'));
+    // folded away while Netflix leaves, it waits at the rise's start
+    await waitFor(() => expect(max.style.opacity).toBe('0'));
+    expect(disney.style.opacity).not.toBe('0');
+    // real 200ms motions: room for a busy machine
+    await waitFor(() => expect(shown(max)).toBe(true), { timeout: 3000 });
+    await waitFor(() => expect(max.style.opacity).toBe('1'), {
+      timeout: 3000,
+    });
   });
 });

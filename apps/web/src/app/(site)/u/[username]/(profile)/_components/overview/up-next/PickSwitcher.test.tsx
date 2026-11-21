@@ -46,4 +46,22 @@ describe('PickSwitcher', () => {
     rerender(switcher(['The Bear']));
     expect(document.activeElement?.textContent).toBe('Elsewhere');
   });
+
+  it('without an empty line, hands focus to the section’s heading and leaves no box', () => {
+    const { container } = render(
+      <MotionProvider>
+        <section aria-labelledby="shelf-title">
+          <h2 id="shelf-title">Watching</h2>
+          <PickSwitcher cards={[<p key="bear">The Bear</p>]} fallback={null} />
+        </section>
+      </MotionProvider>,
+    );
+    const notNow = screen.getByRole('button', NOT_NOW);
+    notNow.focus();
+    fireEvent.click(notNow);
+    expect(document.activeElement).toBe(
+      screen.getByRole('heading', { name: 'Watching' }),
+    );
+    expect(container.querySelector('section')?.children).toHaveLength(1);
+  });
 });

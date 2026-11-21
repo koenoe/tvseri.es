@@ -27,7 +27,6 @@ export default function UpNextItemCard({
   href,
   item,
   loading,
-  morph,
   now,
   onClick,
   onIntent,
@@ -45,8 +44,6 @@ export default function UpNextItemCard({
   href: string;
   item: UpNextItem;
   loading?: 'eager' | 'lazy';
-  /** Opening the show hands the card's art over (`UpNextCard`) */
-  morph?: boolean;
   now: number;
   onClick?: MouseEventHandler<HTMLAnchorElement>;
   onIntent?: () => void;
@@ -75,7 +72,6 @@ export default function UpNextItemCard({
       label={label}
       loading={loading}
       logo={art?.titleTreatmentImage}
-      morph={morph}
       onClick={onClick}
       onIntent={onIntent}
       pill={pill}

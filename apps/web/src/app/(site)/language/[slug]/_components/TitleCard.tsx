@@ -17,8 +17,8 @@ import showPath from '@/lib/routing/showPath';
 
 import { cardTitles, type Script, type TitleCard } from '../_data/language';
 
-/** The other title's place under the title */
-const OTHER_PLACE = 'mt-1 md:mt-2';
+/** The other title, in its place under the title */
+const OTHER_LINE = 'mt-1 block truncate text-meta text-white/60 md:mt-2';
 
 /** The Watched label's corner (it arrives after the first paint: fades in) */
 const LABEL_CORNER = cn('absolute top-4 right-4', LATE_FADE);
@@ -35,11 +35,14 @@ type Props = Readonly<{
  * coloured top rule, the title in the chosen script (title-2, two lines at
  * most), the other title below (always), then
  * year · Animation/Live action (the phone keeps the year). A script switch
- * cross-fades both titles in place.
+ * cross-fades the two titles in place, as one.
  */
 function TitleWallCard({ card, lang, script }: Props) {
   const watched = useIsWatched(card.id);
   const titles = cardTitles(card, script, lang);
+  // both lines swap as one (one fade per card); a card whose titles read the
+  // same in both scripts stays still
+  const swapKey = `${titles.title}\n${titles.other}`;
   const rule: CSSProperties = { background: card.color };
   const href = showPath(card.id, card.slug);
   return (
@@ -54,19 +57,14 @@ function TitleWallCard({ card, lang, script }: Props) {
           className="absolute inset-x-0 top-0 h-1"
           style={rule}
         />
-        <CrossFade swapKey={titles.title}>
+        <CrossFade swapKey={swapKey}>
           <span
             className="line-clamp-2 text-title-2 text-white"
             lang={titles.lang}
           >
             {titles.title}
           </span>
-        </CrossFade>
-        <CrossFade frame={OTHER_PLACE} swapKey={titles.other}>
-          <span
-            className="block truncate text-meta text-white/60"
-            lang={titles.otherLang}
-          >
+          <span className={OTHER_LINE} lang={titles.otherLang}>
             {titles.other}
           </span>
         </CrossFade>

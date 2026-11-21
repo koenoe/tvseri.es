@@ -5,6 +5,7 @@ import * as m from 'motion/react-m';
 import {
   type Key,
   type ReactNode,
+  type RefObject,
   useCallback,
   useLayoutEffect,
   useRef,
@@ -13,14 +14,16 @@ import {
 
 import { FOCUSABLE } from '@/lib/a11y/focusable';
 
-import { GRID_EXIT, GRID_TRANSITION } from './gridExit';
+import { GRID_ENTER, GRID_EXIT, GRID_TRANSITION } from './gridExit';
 import MaxMotion from './MaxMotion';
 
 /** Anything else takes it out at once (a filter, Show fewer): never typing */
 const AT_ONCE = { opacity: 0, transition: { duration: 0 } } as const;
 const VARIANTS = {
   gone: (asked: boolean) => (asked ? GRID_EXIT : AT_ONCE),
-  here: { opacity: 1, scale: 1 },
+  here: { ...GRID_ENTER.animate, scale: 1 },
+  /** Folded away, held where the rise starts: see `useRiseIntoView` */
+  waiting: { ...GRID_ENTER.initial, transition: { duration: 0 } },
 } as const;
 /** The tile stretches to its cell, as it did as the grid's own item */
 const CELL = 'grid min-w-0';
@@ -64,6 +67,29 @@ function handOnFocus(cell: Element) {
   cell.closest('section')?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
 }
 
+/**
+ * A grid folded to its first cells (Popular capped at 7) shows the next
+ * one as a tile leaves: a cell folded away at the press waits at the
+ * rise's start, so when the leaving tile goes and it comes into view, it
+ * rises in (`GRID_ENTER`) rather than appearing at once. A cell still
+ * folded rises unseen. Only on a press: a filter or Show all lands at once.
+ */
+function useRiseIntoView(
+  ref: RefObject<HTMLDivElement | null>,
+  moving: boolean,
+) {
+  const [waiting, setWaiting] = useState(false);
+  useLayoutEffect(() => {
+    const cell = ref.current;
+    if (!moving) {
+      setWaiting(false);
+    } else if (cell && getComputedStyle(cell).display === 'none') {
+      setWaiting(true);
+    }
+  }, [moving, ref]);
+  return waiting ? 'waiting' : 'here';
+}
+
 function ExitCell({
   children,
   moving,
@@ -77,10 +103,11 @@ function ExitCell({
       handOnFocus(cell);
     }
   }, [present]);
+  const variant = useRiseIntoView(ref, moving);
   const layout = moving ? 'position' : false;
   return (
     <m.div
-      animate="here"
+      animate={variant}
       className={CELL}
       exit="gone"
       inert={!present}

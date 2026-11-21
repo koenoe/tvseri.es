@@ -1,7 +1,7 @@
 'use client';
 
 import { episodeCode } from '@tvseri.es/schemas';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 import {
   chipStyles,
@@ -24,19 +24,43 @@ const PRIMARY = chipStyles({
 const LINK = textLinkStyles({ className: 'ml-1.5 text-caption' });
 
 /**
+ * Every answer takes the ask away with the button pressed, so focus held in
+ * it moves back to the chip it asked about (in the same season) rather than
+ * falling to the page. Run before the ask goes, while focus is still in it.
+ */
+const focusAskedChip = (ask: HTMLElement | null, chipIndex: number) => {
+  if (!ask || chipIndex < 0 || !ask.contains(document.activeElement)) {
+    return;
+  }
+  ask
+    .closest('section')
+    ?.querySelector<HTMLElement>(`[data-chip="${chipIndex}"]`)
+    ?.focus({ preventScroll: true });
+};
+
+/**
  * "Mark the 3 before S03E08 too?" inline under the season: Yes, just now · Yes, release dates · No · Never for this show.
  * The count is live: it hides once nothing before is open.
  */
 export default function BeforeAsk({
+  chipIndex,
   target,
-}: Readonly<{ target: EpisodeRef }>) {
+}: Readonly<{
+  /** The asked-about chip's place in the season's grid (`data-chip`) */
+  chipIndex: number;
+  target: EpisodeRef;
+}>) {
   const show = useShow();
   const view = useSeriesView(show.id);
   const marking = useMarking();
   const store = useSheetUiStore();
   const before = view ? openBefore(view, target) : [];
 
-  const dismiss = useCallback(() => store.setState({ ask: null }), [store]);
+  const ask = useRef<HTMLDivElement>(null);
+  const dismiss = useCallback(() => {
+    focusAskedChip(ask.current, chipIndex);
+    store.setState({ ask: null });
+  }, [chipIndex, store]);
   const yes = useCallback(() => {
     dismiss();
     marking.markEpisodes(
@@ -67,6 +91,7 @@ export default function BeforeAsk({
     <div
       aria-label="Mark the ones before too?"
       className="flex flex-col gap-2.5 rounded-12 bg-black/22 px-3 py-2.5"
+      ref={ask}
       role="group"
     >
       <b className="text-body-sm font-semibold">

@@ -1,7 +1,7 @@
 'use client';
 
 import { firstEpisodeOf } from '@tvseri.es/utils';
-import { type MouseEvent, memo, useCallback } from 'react';
+import { memo } from 'react';
 
 import SwapIn from '@/components/motion/SwapIn';
 import { PULSE, TextLine } from '@/components/ui/ghost/ghosts';
@@ -34,26 +34,6 @@ const scrollToSection = (node: HTMLElement | null) => {
     scroller.scrollTop +=
       node.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
   }
-};
-
-/**
- * Every answer to "before too?" takes the ask away with the button pressed,
- * so focus moves back to the chip it asked about rather than falling to the
- * page. Run on the answer's click, while the button is still there to say
- * focus was in the ask.
- */
-const focusChipPastAsk = (
-  event: MouseEvent<HTMLElement>,
-  chipIndex: number,
-) => {
-  const slot = event.currentTarget;
-  if (chipIndex < 0 || !slot.contains(document.activeElement)) {
-    return;
-  }
-  slot
-    .closest('section')
-    ?.querySelector<HTMLElement>(`[data-chip="${chipIndex}"]`)
-    ?.focus({ preventScroll: true });
 };
 
 /**
@@ -93,10 +73,6 @@ function SeasonSection({
   const askChip = ask
     ? chips.findIndex((chip) => chip.ref.episodeNumber === ask.episodeNumber)
     : -1;
-  const handOverFocus = useCallback(
-    (event: MouseEvent<HTMLElement>) => focusChipPastAsk(event, askChip),
-    [askChip],
-  );
 
   return (
     <section
@@ -148,22 +124,19 @@ function SeasonSection({
         seasonNumber={seasonNumber}
       />
       {/* the ask swaps in for the detail line (or for nothing) and back;
-          a tap that only changes the detail plays nothing. A box-less
-          wrapper, so an answer's click reaches the focus hand-over */}
-      <div className="contents" onClick={handOverFocus}>
-        <SwapIn className={FOOT} swapKey={ask ? 'ask' : 'detail'}>
-          {ask ? (
-            <BeforeAsk target={ask} />
-          ) : detail ? (
-            <DetailLine
-              airDate={lastEpisode?.airDate}
-              episode={last}
-              state={lastChip.state}
-              title={lastEpisode?.title}
-            />
-          ) : null}
-        </SwapIn>
-      </div>
+          a tap that only changes the detail plays nothing */}
+      <SwapIn className={FOOT} swapKey={ask ? 'ask' : 'detail'}>
+        {ask ? (
+          <BeforeAsk chipIndex={askChip} target={ask} />
+        ) : detail ? (
+          <DetailLine
+            airDate={lastEpisode?.airDate}
+            episode={last}
+            state={lastChip.state}
+            title={lastEpisode?.title}
+          />
+        ) : null}
+      </SwapIn>
     </section>
   );
 }

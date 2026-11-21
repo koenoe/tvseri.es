@@ -20,13 +20,14 @@ import { PROGRESSIVE_BLUR } from '@/components/background/progressiveBlur';
 export const phoneHeroShade = (color: string) => {
   const rgb = hexToRgb(color).join(',');
   return {
-    background: `linear-gradient(180deg, rgba(20,17,13,0.65) 0px, rgba(20,17,13,0.5) 82px, rgba(20,17,13,0) 245px), linear-gradient(0deg, rgb(${rgb}) 0px, rgba(${rgb},0.85) 326px, rgba(${rgb},0.45) 490px, rgba(${rgb},0) 632px), ${heroShade(color)}`,
+    background: `linear-gradient(180deg, rgba(20,17,13,0.65) 0px, rgba(20,17,13,0.5) 82px, rgba(20,17,13,0) 200px), linear-gradient(0deg, rgb(${rgb}) 0px, rgba(${rgb},0.85) 70px, rgba(${rgb},0.45) 140px, rgba(${rgb},0) 230px), ${heroShade(color)}`,
   };
 };
 
 /**
- * The phone hero's backdrop: 1080px of art from the top of the screen, behind
- * the header, the hero and the cast, faded into the page colour (`shade`),
+ * The phone hero's backdrop: 440px of art from the top of the screen, behind
+ * the header and the title, faded into the page colour at its foot, where
+ * the title sits (`shade`),
  * instead of the page's full-screen one (hidden below 768px on this page).
  * Reads the background store, so an admin's live pick and Back restores
  * show here too. Same `src`/`srcSet`/`sizes` as the page backdrop: one
@@ -43,12 +44,12 @@ export default function PhoneBackdrop() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-[1080px] overflow-hidden md:hidden"
+      className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-[440px] overflow-hidden md:hidden"
     >
       {/* biome-ignore lint/performance/noImgElement: the page backdrop's own srcset through the TMDB loader */}
       <img
         alt=""
-        className="size-full object-cover object-[center_22%]"
+        className="size-full object-cover object-top"
         decoding="async"
         fetchPriority="high"
         sizes={props.sizes}
@@ -56,7 +57,7 @@ export default function PhoneBackdrop() {
         srcSet={props.srcSet}
       />
       <span
-        className="absolute inset-x-0 top-[427px] bottom-0"
+        className="absolute inset-x-0 top-[250px] bottom-0"
         style={PROGRESSIVE_BLUR}
       />
       <span className="absolute inset-0" style={shadeStyle} />

@@ -83,7 +83,6 @@ export default function CountdownBody({
       >
         <TitleTreatment
           look={COUNTDOWN_TITLE_LOOK}
-          morph
           src={series.titleTreatmentImage}
           title={series.title}
         />

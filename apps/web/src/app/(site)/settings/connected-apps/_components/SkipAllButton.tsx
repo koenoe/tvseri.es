@@ -1,13 +1,12 @@
 'use client';
 
 import type { UnresolvedGroup } from '@tvseri.es/schemas';
-import { formatGrouped } from '@tvseri.es/utils';
+import { plural } from '@tvseri.es/utils';
 import { useTransition } from 'react';
 
-import Button from '@/components/ui/button/Button';
 import { showToast } from '@/components/ui/toast/showToast';
 
-import { SMALL_BUTTON } from '../../_components/problems/styles';
+import SkipAll from '../../_components/problems/SkipAll';
 import { appErrorText } from '../_lib/appState';
 import { skipAllEntries } from '../reviewActions';
 import ConfirmRow from './ConfirmRow';
@@ -43,21 +42,12 @@ export default function SkipAllButton({
       onSkipped(result.data.closed);
       close();
       showToast({
-        title: `Skipped ${formatGrouped(result.data.closed)} ${result.data.closed === 1 ? 'entry' : 'entries'}`,
+        title: `Skipped ${plural(result.data.closed, 'entry', 'entries')}`,
       });
     });
   if (!asking) {
     return (
-      <Button
-        aria-label={`Skip all in ${groupName}`}
-        className={SMALL_BUTTON}
-        onClick={askSkip}
-        ref={skipTrigger}
-        size="xs"
-        variant="tonal"
-      >
-        <span className="text-body-sm">Skip all</span>
-      </Button>
+      <SkipAll groupName={groupName} onClick={askSkip} ref={skipTrigger} />
     );
   }
   // The confirm row Disconnect uses, on its own line under the header. It

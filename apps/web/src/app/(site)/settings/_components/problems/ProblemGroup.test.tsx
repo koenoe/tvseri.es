@@ -3,6 +3,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCallback, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
+
+import { spokenLine } from '@/test/spoken';
+
 import AmbiguousItem from './AmbiguousItem';
 import FixDone from './FixDone';
 import type { Fix } from './fix';
@@ -78,7 +81,7 @@ describe('ProblemGroup', () => {
     expect(header.getAttribute('aria-expanded')).toBe('true');
     expect(screen.getByText('items')).toBeTruthy();
     // the number read out; the drawn digits roll beside it (`RollingCount`)
-    expect(screen.getByText('13', { selector: '.sr-only' })).toBeTruthy();
+    expect(screen.getByText(spokenLine('13'))).toBeTruthy();
 
     // Shutting plays the shared fold, so the items leave once it has
     rerender(

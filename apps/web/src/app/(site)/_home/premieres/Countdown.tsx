@@ -35,7 +35,7 @@ export const COUNTDOWN_TITLE = 'Next big premiere';
  * and bottom right up to three pills that crossfade between the next big
  * premieres; with one, "Open" in their place. Rendered here on the server;
  * only the switch is a client island. The logo and "Open" open the show
- * whole, the card handing its art and logo over (`showMorph.ts`).
+ * whole.
  */
 export default function Countdown({
   premieres,
@@ -72,7 +72,7 @@ export default function Countdown({
   return (
     <MomentFrame name="feature">
       <section aria-labelledby={COUNTDOWN_LABEL_ID} className={PAGE_COLUMN}>
-        <div className={COUNTDOWN_CARD} data-show-morph-scope="">
+        <div className={COUNTDOWN_CARD}>
           <CountdownSwitch open={open} slides={slides} />
           <div className={COUNTDOWN_LABEL}>
             <MomentLabel

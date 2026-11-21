@@ -52,8 +52,8 @@ export default function UpNextArt({
       onIntent={onIntent}
     >
       {/* the backdrop and its shades: one layer, clipped once by the
-          card's corners; the art a card hands over to the show page */}
-      <span aria-hidden="true" className={PICTURE_LAYER} data-show-morph="art">
+          card's corners */}
+      <span aria-hidden="true" className={PICTURE_LAYER}>
         {backdrop ? (
           <Image
             alt=""

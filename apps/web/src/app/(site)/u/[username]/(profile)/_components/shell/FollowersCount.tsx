@@ -1,6 +1,6 @@
 'use client';
 
-import { formatGrouped } from '@tvseri.es/utils';
+import { formatGrouped, pluralNoun } from '@tvseri.es/utils';
 
 import RollingCount from '@/components/motion/RollingCount';
 
@@ -16,7 +16,7 @@ export default function FollowersCount({
   userId,
 }: Readonly<{ followers: number; following: number; userId: string }>) {
   const shown = useFollowersShown(userId, followers);
-  const noun = shown === 1 ? 'follower' : 'followers';
+  const noun = pluralNoun(shown, 'follower');
   return (
     <>
       <RollingCount value={shown} />

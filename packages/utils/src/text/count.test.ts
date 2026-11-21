@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatGrouped, plural } from './count';
+import { formatGrouped, plural, pluralNoun } from './count';
 
 describe('formatGrouped', () => {
   it('groups thousands with a comma', () => {
@@ -18,5 +18,13 @@ describe('plural', () => {
 
   it('groups a large count', () => {
     expect(plural(4812, 'episode')).toBe('4,812 episodes');
+  });
+});
+
+describe('pluralNoun', () => {
+  it('says the noun alone, one or many', () => {
+    expect(pluralNoun(1, 'follower')).toBe('follower');
+    expect(pluralNoun(0, 'follower')).toBe('followers');
+    expect(pluralNoun(2, 'entry', 'entries')).toBe('entries');
   });
 });

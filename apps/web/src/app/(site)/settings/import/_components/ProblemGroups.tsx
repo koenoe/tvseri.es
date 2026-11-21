@@ -1,5 +1,6 @@
 'use client';
 
+import { pluralNoun } from '@tvseri.es/utils';
 import { useMemo, useState } from 'react';
 import RollingCount from '@/components/motion/RollingCount';
 import ProblemGroup, {
@@ -62,7 +63,7 @@ export default function ProblemGroups({
   const showAmbiguous = () =>
     setExpanded((was) => ({ ...was, ambiguous: true }));
   const showNotFound = () => setExpanded((was) => ({ ...was, notFound: true }));
-  const rows = total === 1 ? 'row' : 'rows';
+  const rows = pluralNoun(total, 'row');
   const filmRows = rowCount(films);
 
   return (

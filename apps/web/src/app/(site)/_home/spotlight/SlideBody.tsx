@@ -138,7 +138,6 @@ function SlideBody({
       aria-label={label}
       aria-roledescription="slide"
       className={bodyClasses}
-      data-show-morph-id={slide.id}
       inert={leaving}
       role="group"
     >
@@ -167,8 +166,6 @@ function SlideBody({
             <Image
               alt={slide.title}
               className={LOGO}
-              // the part that glides into the show page's title
-              data-show-morph="logo"
               // The 460 × 150 cap at 2×; CSS holds the box (`LOGO_HELD`)
               height={300}
               loading="eager"

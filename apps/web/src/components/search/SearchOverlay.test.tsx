@@ -30,13 +30,11 @@ vi.mock('next/link', () => ({
     children,
     onClick,
     prefetch: policy,
-    transitionTypes: _types,
     ...rest
   }: Readonly<{
     children?: ReactNode;
     onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
     prefetch?: unknown;
-    transitionTypes?: unknown;
   }>) => {
     const click = (event: MouseEvent<HTMLAnchorElement>) => {
       onClick?.(event);

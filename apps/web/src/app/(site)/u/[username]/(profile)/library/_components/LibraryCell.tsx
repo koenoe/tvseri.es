@@ -3,16 +3,14 @@
 import * as m from 'motion/react-m';
 import { memo } from 'react';
 
-import { GRID_EXIT, GRID_TRANSITION } from '@/components/motion/gridExit';
+import {
+  GRID_ENTER,
+  GRID_EXIT,
+  GRID_TRANSITION,
+} from '@/components/motion/gridExit';
 import type { TileView } from '@/lib/profile/tileView';
 import { LIBRARY_CELL, TILE_SIZES } from './gridStyles';
 import LibraryTile from './LibraryTile';
-
-/** A new tile: opacity 0 → 1, translateY 8 → 0 (on the exit's 200ms fade) */
-const ENTER = {
-  animate: { opacity: 1, y: 0 },
-  initial: { opacity: 0, y: 8 },
-} as const;
 
 /**
  * One grid cell: the Motion `li` (its exit and its FLIP while something
@@ -37,7 +35,7 @@ function LibraryCell({
       exit={GRID_EXIT}
       layout={layout}
       transition={GRID_TRANSITION}
-      {...ENTER}
+      {...GRID_ENTER}
     >
       <LibraryTile eager={eager} sizes={TILE_SIZES} tile={tile} />
     </m.li>

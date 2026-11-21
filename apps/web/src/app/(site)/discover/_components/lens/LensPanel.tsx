@@ -1,25 +1,11 @@
 'use client';
 
-import { type ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
 
-import useTabArrival from '@/components/motion/useTabArrival';
 import type { LensKey } from '../../_data/hubTiles';
 import { lensPanelId, lensTabId, useLens } from './LensProvider';
 import { LENS_GRID } from './tileStyles';
-
-/**
- * How many times the viewer has switched to this grid. Every lens's grid
- * stays mounted, so each showing needs its own arrival: a grid only settles
- * its own rise, never while hidden. Adjusted while rendering (React's
- * pattern for it), so no effect.
- */
-function useShowings(shown: boolean): number {
-  const [seen, setSeen] = useState({ showings: 0, shown });
-  if (seen.shown !== shown) {
-    setSeen({ showings: seen.showings + (shown ? 1 : 0), shown });
-  }
-  return seen.showings + (shown && !seen.shown ? 1 : 0);
-}
+import useShownArrival from './useShownArrival';
 
 /**
  * One lens's tile grid. Every lens is in the page already, so a tab switch
@@ -35,8 +21,7 @@ export default function LensPanel({
   lens,
 }: Readonly<{ children: ReactNode; lens: LensKey }>) {
   const shown = useLens((state) => state.lens === lens);
-  const showing = useShowings(shown);
-  const arrival = useTabArrival(String(showing));
+  const arrival = useShownArrival(shown);
   const tabId = lensTabId(lens);
   const fading = arrival.arriving || undefined;
   const hidden = !shown;

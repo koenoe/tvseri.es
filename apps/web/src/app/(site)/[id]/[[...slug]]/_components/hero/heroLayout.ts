@@ -4,18 +4,19 @@
  * title group (title, facts, progress line), the first-tracking prompt, the
  * synopsis, then the rating and actions.
  * The spacer has a set height, so what streams into the title group never
- * moves the page below. Desktop: rows 1 and 2 share it (at least 550px),
- * and on a tall window it grows with it (72% of its height): the title's
- * foot lands where the site before the redesign had it (65vh less 128px). Phones: row 1
- * alone (590px), which puts a treatment's top about 450px under the header,
- * where the backdrop's fade and blur begin (`PhoneBackdrop`);
+ * moves the page below. Desktop: rows 1 and 2 share it, 72% of the window
+ * (the title's foot where the site before the redesign had it), at least
+ * 460px so a 720px laptop keeps the actions in the first screen. Phones:
+ * row 1 alone (456px), so the title starts about 314px down, on the foot of
+ * the 440px band of art (`PhoneBackdrop`), with the art's faces above it
+ * (the phone framing study on the REDESIGN canvas, `EPHeroBackdrop`);
  * the prompt and synopsis follow it, so a hidden or leaving prompt never
  * moves the title. `md:row-start-1` again after `md:row-span-2`: the span is a
  * `grid-row` shorthand, which would otherwise reset the start and place the
  * spacer after the content.
  */
 export const HERO_SPACER =
-  'pointer-events-none col-start-1 row-start-1 min-h-[590px] md:row-span-2 md:row-start-1 md:h-[max(550px,calc(72svh-80px))] md:min-h-0 md:group-data-docked/hero:h-[calc(100svh-var(--admin-tray-height,240px)-63px)]';
+  'pointer-events-none col-start-1 row-start-1 min-h-[456px] md:row-span-2 md:row-start-1 md:h-[max(460px,calc(72svh-80px))] md:min-h-0 md:group-data-docked/hero:h-[calc(100svh-var(--admin-tray-height,240px)-63px)]';
 
 /**
  * The phone hero's rhythm: 16px from the title to the facts and from the

@@ -51,3 +51,16 @@ describe('YearsFold', () => {
     expect(years()).toEqual([2026, 2025, 2024, 2023, 2022, 2010]);
   });
 });
+
+it('keeps a row (and its focus) when the selected year changes with the list open', () => {
+  const { rerender } = render(
+    <YearsFold className="" rows={rowsOf(21)} selected={2026} />,
+  );
+  fireEvent.click(screen.getByRole('button', { name: /^Show all/ }));
+  const older = screen.getByRole('link', { name: '2015' });
+  older.focus();
+  rerender(<YearsFold className="" rows={rowsOf(21)} selected={2015} />);
+  expect(screen.getByRole('link', { name: '2015' })).toBe(older);
+  expect(document.activeElement).toBe(older);
+  cleanup();
+});

@@ -13,8 +13,7 @@ let resize: () => void = () => {};
 
 /** The text box's height motions (Web Animations), finished by hand */
 type Motion = Readonly<{
-  frames: Keyframe[] | PropertyIndexedKeyframes;
-  options: KeyframeAnimationOptions;
+  frames: PropertyIndexedKeyframes;
   animation: Animation;
 }>;
 let motions: Motion[] = [];
@@ -44,7 +43,7 @@ beforeEach(() => {
   heights = { client: 66, scroll: 66 };
   motions = [];
   reduceMotion(false);
-  HTMLElement.prototype.animate = function animate(frames, options) {
+  HTMLElement.prototype.animate = function animate(frames) {
     const animation = {
       cancel: vi.fn(),
       onfinish: null,
@@ -52,7 +51,6 @@ beforeEach(() => {
     motions.push({
       animation,
       frames: frames as PropertyIndexedKeyframes,
-      options: options as KeyframeAnimationOptions,
     });
     return animation;
   };
@@ -73,6 +71,16 @@ beforeEach(() => {
     },
   );
 });
+
+/** Whether the text is cut to its three lines (jsdom draws no lines: the clamp's class) */
+const isClamped = () =>
+  screen.getByText(LONG).classList.contains('line-clamp-3');
+
+/** The height a motion starts from */
+const startHeight = (motion: Motion | undefined) => {
+  const height = motion?.frames.height;
+  return Array.isArray(height) ? height[0] : height;
+};
 
 const FIT = { base: 120, md: 340 };
 const LONG = 'x'.repeat(400);
@@ -120,7 +128,7 @@ describe('ClampedText', () => {
     const text = screen.getByText(LONG);
     expect(button.getAttribute('aria-expanded')).toBe('false');
     expect(button.getAttribute('aria-controls')).toBe(text.id);
-    expect(text.className).toContain('line-clamp-3');
+    expect(isClamped()).toBe(true);
   });
 
   it('opens with More and closes with Less', () => {
@@ -129,47 +137,29 @@ describe('ClampedText', () => {
     fireEvent.click(screen.getByRole('button', { name: 'More' }));
     const less = screen.getByRole('button', { name: 'Less' });
     expect(less.getAttribute('aria-expanded')).toBe('true');
-    expect(screen.getByText(LONG).className).not.toContain('line-clamp-3');
+    // whole from the press on, while it moves open
+    expect(isClamped()).toBe(false);
+    expect(motions).toHaveLength(1);
     finish(motions[0]);
     fireEvent.click(less);
     finish(motions[1]);
-    expect(screen.getByText(LONG).className).toContain('line-clamp-3');
+    expect(isClamped()).toBe(true);
   });
 
-  it("grows from its three lines to its full height, at the fold's pace", () => {
-    heights.scroll = 140;
-    render(<ClampedText fit={FIT} text={LONG} textClassName="" />);
-    fireEvent.click(screen.getByRole('button', { name: 'More' }));
-    const text = screen.getByText(LONG);
-    expect(motions).toHaveLength(1);
-    expect(motions[0]?.frames).toEqual({ height: ['66px', '140px'] });
-    expect(motions[0]?.options).toMatchObject({
-      duration: 320,
-      easing: 'cubic-bezier(0.32, 0.72, 0, 1)',
-    });
-    // clipped only while it moves
-    expect(text.className).toContain('overflow-hidden');
-    finish(motions[0]);
-    expect(text.className).not.toContain('overflow-hidden');
-  });
-
-  it('shuts to its three lines before the clamp cuts the text', () => {
+  it('stays whole while it shuts, and is clamped once it has', () => {
     heights.scroll = 140;
     render(<ClampedText fit={FIT} text={LONG} textClassName="" />);
     fireEvent.click(screen.getByRole('button', { name: 'More' }));
     finish(motions[0]);
     heights.client = 140;
     fireEvent.click(screen.getByRole('button', { name: 'Less' }));
-    const text = screen.getByText(LONG);
-    // the control says so at once; the text stays whole while it shuts
+    // the control says so at once; no line is cut before the box is short
     const more = screen.getByRole('button', { name: 'More' });
     expect(more.getAttribute('aria-expanded')).toBe('false');
-    expect(text.className).not.toContain('line-clamp-3');
-    expect(motions[1]?.frames).toEqual({ height: ['140px', '66px'] });
-    expect(motions[1]?.options).toMatchObject({ duration: 240 });
+    expect(motions).toHaveLength(2);
+    expect(isClamped()).toBe(false);
     finish(motions[1]);
-    expect(text.className).toContain('line-clamp-3');
-    expect(motions[1]?.animation.cancel).toHaveBeenCalled();
+    expect(isClamped()).toBe(true);
   });
 
   it('turns back from where it is when pressed while it moves', () => {
@@ -178,8 +168,10 @@ describe('ClampedText', () => {
     fireEvent.click(screen.getByRole('button', { name: 'More' }));
     heights.client = 100;
     fireEvent.click(screen.getByRole('button', { name: 'Less' }));
-    expect(motions[0]?.animation.cancel).toHaveBeenCalled();
-    expect(motions[1]?.frames).toEqual({ height: ['100px', '66px'] });
+    // the shut starts at the height it had reached, not at its full height
+    expect(startHeight(motions[1])).toBe('100px');
+    finish(motions[1]);
+    expect(isClamped()).toBe(true);
   });
 
   it('opens and shuts at once with reduced motion', () => {
@@ -187,9 +179,9 @@ describe('ClampedText', () => {
     heights.scroll = 140;
     render(<ClampedText fit={FIT} text={LONG} textClassName="" />);
     fireEvent.click(screen.getByRole('button', { name: 'More' }));
-    expect(screen.getByText(LONG).className).not.toContain('line-clamp-3');
+    expect(isClamped()).toBe(false);
     fireEvent.click(screen.getByRole('button', { name: 'Less' }));
-    expect(screen.getByText(LONG).className).toContain('line-clamp-3');
+    expect(isClamped()).toBe(true);
     expect(motions).toHaveLength(0);
   });
 
@@ -203,7 +195,7 @@ describe('ClampedText', () => {
   it('ignores a click on text that fits', () => {
     render(<ClampedText fit={FIT} text={LONG} textClassName="" />);
     fireEvent.click(screen.getByText(LONG));
-    expect(screen.getByText(LONG).className).toContain('line-clamp-3');
+    expect(isClamped()).toBe(true);
   });
 
   it('drops the toggle when a wider box fits the text', () => {

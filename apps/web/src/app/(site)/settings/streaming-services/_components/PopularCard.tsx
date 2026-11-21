@@ -29,7 +29,8 @@ export const POPULAR_GRID_CLASS =
 const PHONE_FOLDED = 'max-md:[&>:nth-child(n+8)]:hidden';
 /**
  * Folded everywhere (capped at 7): while an added tile leaves, the next one
- * waits behind it, so the row never grows an eighth cell for the exit
+ * waits behind it, so the row never grows an eighth cell for the exit, then
+ * rises into the place it leaves (`ExitGrid`)
  */
 const FOLDED = '[&>:nth-child(n+8)]:hidden';
 /** "Show all 16" / "Show fewer": the fold control every Show all uses (`FoldLabel`, the chevron turns) */

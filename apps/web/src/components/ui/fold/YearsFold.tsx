@@ -11,6 +11,7 @@ import {
 } from 'react';
 
 import FoldPresence from '@/components/motion/FoldPresence';
+import useMaxFeatures from '@/components/motion/useMaxFeatures';
 import { HIT_Y } from '@/components/ui/button/hitArea';
 import { visibleYears } from '@/lib/fold';
 
@@ -64,6 +65,10 @@ export default function YearsFold({
   const [revealed, setRevealed] = useState<number | null>(null);
   // only the button's press folds; a reveal opens the list at once
   const [asked, setAsked] = useState(false);
+  // without its renderer (a page's lazy Motion features, still loading) a
+  // row opened shut would stay shut: then it just appears
+  const live = useMaxFeatures() !== null;
+  const folds = asked && live;
   const toggle = useCallback(() => {
     setAsked(true);
     startTransition(() => setOpen((value) => !value));
@@ -85,25 +90,22 @@ export default function YearsFold({
   return (
     <>
       <ul className={className} id={listId}>
-        <AnimatePresence custom={asked} initial={false}>
-          {shown.map((item) =>
-            !folded.hidden || folded.years.includes(item.year) ? (
-              <li className={ROW} key={item.year}>
-                {item.row}
-              </li>
-            ) : (
-              <FoldPresence
-                appear={asked}
-                as="li"
-                className={ROW}
-                key={item.year}
-                spacing
-                whenAsked
-              >
-                {item.row}
-              </FoldPresence>
-            ),
-          )}
+        {/* every row the same fold, so a row never changes kind (and
+            loses its focus) when the selected year moves; only the rows
+            the button reveals or hides ever fold */}
+        <AnimatePresence custom={folds} initial={false}>
+          {shown.map((item) => (
+            <FoldPresence
+              appear={folds}
+              as="li"
+              className={ROW}
+              key={item.year}
+              spacing
+              whenAsked
+            >
+              {item.row}
+            </FoldPresence>
+          ))}
         </AnimatePresence>
       </ul>
       {folded.hidden ? (

@@ -1,7 +1,7 @@
 'use client';
 
 import type { ConnectionUnresolvedPage } from '@tvseri.es/schemas';
-import { formatGrouped } from '@tvseri.es/utils';
+import { formatGrouped, pluralNoun } from '@tvseri.es/utils';
 import { useId, useMemo, useRef } from 'react';
 
 import RollingCount from '@/components/motion/RollingCount';
@@ -99,7 +99,7 @@ export default function ServiceReview({
     review.sweep(items);
   };
 
-  const noun = remaining === 1 ? 'entry' : 'entries';
+  const noun = pluralNoun(remaining, 'entry', 'entries');
   return (
     <section
       aria-labelledby={headingId}

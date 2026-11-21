@@ -25,8 +25,8 @@ export function focusLaneHeading(heading: HTMLElement | null) {
   heading.focus({ preventScroll: true });
 }
 
-/** The heading of the lane (`Lane`'s labelled section) an element is in */
-function headingOf(element: Element): HTMLElement | null {
+/** The heading of the labelled section an element is in (a `Lane`, a page) */
+export function headingOf(element: Element): HTMLElement | null {
   const id = element
     .closest('section[aria-labelledby]')
     ?.getAttribute('aria-labelledby');

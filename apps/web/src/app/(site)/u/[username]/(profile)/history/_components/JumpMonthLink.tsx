@@ -30,12 +30,12 @@ function JumpMonthLink({
   const href = `${basePath}?month=${month.key}`;
   const label = `${month.title}, ${plural(month.episodes, 'episode')}`;
   const linkClasses = cn(
-    'relative text-meta text-white/80 transition-colors hover:bg-white/6',
+    'relative text-meta text-white/80 transition-colors hover:bg-white/6 max-lg:text-body',
     JUMP_MONTH,
     on && 'font-semibold text-[#171717] hover:bg-transparent',
   );
   const countClasses = cn(
-    'relative ml-auto tabular-nums',
+    'relative ml-auto tabular-nums max-lg:text-body-sm',
     on ? 'font-normal text-[rgb(23_23_23/0.6)]' : 'text-white/60',
   );
   return (

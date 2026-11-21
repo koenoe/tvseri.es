@@ -13,7 +13,7 @@ import type { MonthKey, JumpYear as Year } from '@/lib/profile/diary';
 import JumpMonthLink from './JumpMonthLink';
 import { JUMP_MONTHS, JUMP_YEAR } from './jumpStyles';
 
-const YEAR_ROW = `group/year ${JUMP_YEAR} text-body-sm font-medium text-white/80 transition-colors hover:bg-white/5 aria-expanded:font-semibold aria-expanded:text-white`;
+const YEAR_ROW = `group/year ${JUMP_YEAR} text-body-sm max-lg:text-body font-medium text-white/80 transition-colors hover:bg-white/5 aria-expanded:font-semibold aria-expanded:text-white`;
 
 /**
  * A year in Jump to and, open, its months. Once the viewer has opened a year
@@ -66,7 +66,7 @@ function JumpYear({
           size={16}
         />
         {year.year}
-        <span className="ml-auto text-meta font-normal tabular-nums text-white/60">
+        <span className="ml-auto text-meta font-normal tabular-nums text-white/60 max-lg:text-body-sm">
           {formatGrouped(year.episodes)}
         </span>
       </button>

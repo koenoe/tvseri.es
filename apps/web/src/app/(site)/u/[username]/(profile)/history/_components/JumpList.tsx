@@ -25,7 +25,7 @@ import { JUMP_WEEK, JUMP_YEARS, JUMP_YEARS_FOLD } from './jumpStyles';
 
 type Week = Readonly<{ episodes: number; last: string | null }>;
 
-const WEEK = `${JUMP_WEEK} bg-[rgb(0_255_255/0.07)] text-body-sm font-semibold text-white shadow-[inset_0_0_0_1px_rgb(0_255_255/0.18)]`;
+const WEEK = `${JUMP_WEEK} bg-[rgb(0_255_255/0.07)] text-body-sm font-semibold text-white shadow-[inset_0_0_0_1px_rgb(0_255_255/0.18)] max-lg:text-body`;
 
 const weekLine = ({ episodes, last }: Week) =>
   last ? `${plural(episodes, 'episode')} · ${last}` : 'No episodes yet';
@@ -116,7 +116,7 @@ export default function JumpList({
         <Link className={WEEK} href={basePath} onClick={pick}>
           <Icon className="text-cyan" glyph={calendarGlyph} size={16} />
           This week
-          <span className="ml-auto text-meta font-medium text-white/60">
+          <span className="ml-auto text-meta font-medium text-white/60 max-lg:text-body-sm">
             {weekLine(week)}
           </span>
         </Link>

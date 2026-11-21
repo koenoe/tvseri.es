@@ -12,10 +12,9 @@ import {
 import showPath from '@/lib/routing/showPath';
 
 /**
- * Your own Up next: the shared card with the ⋯ Remote; it opens the show,
- * handing its art and logo over to the show page. Its line slides as you
- * mark; `finishing` (your mark finished the show) draws it complete and
- * dims its art, before the next show takes its place.
+ * Your own Up next: the shared card with the ⋯ Remote; it opens the show.
+ * Its line slides as you mark; `finishing` (your mark finished the show)
+ * draws it complete and dims its art, before the next show takes its place.
  */
 export default function OwnerHero({
   finishing = false,
@@ -50,7 +49,6 @@ export default function OwnerHero({
       href={href}
       item={item}
       loading="eager"
-      morph
       now={now}
       slide
     />

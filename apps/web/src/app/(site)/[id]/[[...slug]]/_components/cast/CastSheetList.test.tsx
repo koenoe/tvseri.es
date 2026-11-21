@@ -164,8 +164,13 @@ describe('CastSheetList', () => {
     fireEvent.click(within(section).getByRole('button', { name: /Show all/ }));
     await within(section).findByRole('button', { expanded: true });
     fireEvent.click(within(section).getByRole('button', { name: /Show/ }));
-    await within(section).findByRole('button', { expanded: false });
-    return within(section).getAllByRole('listitem');
+    // read in the click's own commit: a fold is still under way then,
+    // whatever the machine's load (waiting first raced the 240ms fold)
+    const rows = within(section).getAllByRole('listitem');
+    expect(
+      within(section).getByRole('button', { expanded: false }),
+    ).toBeTruthy();
+    return rows;
   };
 
   it('folds a short rest away, out of reach while it goes', async () => {

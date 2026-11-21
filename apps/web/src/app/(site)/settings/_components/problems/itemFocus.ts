@@ -11,6 +11,14 @@ const GROUP = '[data-problem-group]';
 const itemsIn = (list: Element) =>
   Array.from(list.querySelectorAll(ITEM_FRAME));
 
+/** Focuses the header (the disclosure) of the group `inside` is in */
+export function focusGroupHeader(inside: Element) {
+  inside
+    .closest(GROUP)
+    ?.querySelector<HTMLElement>('button[aria-expanded]')
+    ?.focus();
+}
+
 /**
  * The first control in the items from `index` on, else the group's
  * header: an item with nothing left to press (a pick already sent) is
@@ -24,10 +32,7 @@ function focusFromItem(list: Element, index: number) {
       return;
     }
   }
-  list
-    .closest(GROUP)
-    ?.querySelector<HTMLElement>('button[aria-expanded]')
-    ?.focus();
+  focusGroupHeader(list);
 }
 
 /**

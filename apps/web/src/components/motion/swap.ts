@@ -2,7 +2,9 @@
  * Something that replaces something else in place (a card's status line, a
  * body that swaps): the new one rises 6px into place and fades in over
  * 200ms; the old one fades out in 120ms. Reduced motion drops the rise
- * (`MotionProvider`); the fade stays.
+ * (`MotionProvider`); the fade stays. A tab panel whose body swaps (bodies
+ * of different heights) takes `SwapIn`; a tab's rail or grid of tiles takes
+ * `TAB_ARRIVE` (`tabArrive.ts`).
  */
 export const SWAP_FROM = { opacity: 0, y: 6 } as const;
 

@@ -10,14 +10,13 @@ import Icon from '@/components/ui/icon/Icon';
 import { EXTENSION_VERSION, extensionZipName } from '@/lib/extension/release';
 
 import { EXTENSION_ZIP_HREF } from '../_lib/zip';
+import FinalSteps from './FinalSteps';
 import InstallStep, { STEP_GRID } from './InstallStep';
 import {
-  ConnectPicture,
   DeveloperModePicture,
   DownloadPicture,
   ExtensionsPagePicture,
   LoadUnpackedPicture,
-  PinPicture,
   UnzipPicture,
 } from './StepPictures';
 
@@ -129,16 +128,7 @@ export default function ManualInstall({ open }: Readonly<{ open: boolean }>) {
             Click Load unpacked and pick the folder. Or drag the folder onto the
             page.
           </InstallStep>
-          <InstallStep number={6} picture={<PinPicture />} title="Pin it">
-            Click the puzzle piece, then the pin next to tvseri.es.
-          </InstallStep>
-          <InstallStep
-            number={7}
-            picture={<ConnectPicture />}
-            title="Press Connect"
-          >
-            Come back here and press Connect on the service you want.
-          </InstallStep>
+          <FinalSteps first={6} />
         </ol>
         <p className="flex items-center gap-2.5 rounded-12 bg-white/5 px-4 py-3 font-medium text-[15px] text-white leading-6">
           <Icon className="text-white/80" glyph={toggleGlyph} size={18} />

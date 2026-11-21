@@ -1,13 +1,8 @@
 import { extensionInstall } from '@/lib/extension/extension';
-
+import FinalSteps from './FinalSteps';
 import InstallStep, { STEP_GRID } from './InstallStep';
 import ManualInstall from './ManualInstall';
-import {
-  AddExtensionPicture,
-  ConnectPicture,
-  PinPicture,
-  StorePicture,
-} from './StepPictures';
+import { AddExtensionPicture, StorePicture } from './StepPictures';
 
 function StoreSteps() {
   return (
@@ -22,16 +17,7 @@ function StoreSteps() {
       >
         Chrome asks if you’re sure. Click Add extension.
       </InstallStep>
-      <InstallStep number={3} picture={<PinPicture />} title="Pin it">
-        Click the puzzle piece, then the pin next to tvseri.es.
-      </InstallStep>
-      <InstallStep
-        number={4}
-        picture={<ConnectPicture />}
-        title="Press Connect"
-      >
-        Come back here and press Connect on the service you want.
-      </InstallStep>
+      <FinalSteps first={3} />
     </ol>
   );
 }

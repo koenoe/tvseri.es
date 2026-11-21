@@ -29,7 +29,7 @@ const tint = (ink: string, percent: number) =>
 
 /** Where the card's words sit (its ghost uses the same) */
 export const PICK_CONTENT =
-  'absolute inset-y-0 left-0 z-3 flex w-full flex-col items-start justify-end px-5 pt-7 pb-[84px] xl:w-[540px] xl:pr-0 xl:pb-[30px] xl:pl-9';
+  'absolute inset-y-0 left-0 z-3 flex w-full flex-col items-start justify-end px-5 pt-7 pb-6 xl:w-[540px] xl:pr-0 xl:pb-[30px] xl:pl-9';
 
 /** The words arrive behind the picture when the pick changes (`PickStage`) */
 const CONTENT = `pointer-events-none ${PICK_CONTENT} ${TEXT_ARRIVAL}`;

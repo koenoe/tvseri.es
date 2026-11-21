@@ -29,14 +29,12 @@ import {
 } from '@/lib/db/connections/unresolved';
 import { getMarksByProvider } from '@/lib/db/watched';
 import { writeWatchedBatch } from '@/lib/imports/write';
-import { requireAuth, type SignedInVariables } from '@/middleware/auth';
+import type { SignedInVariables } from '@/middleware/auth';
 import { SERVICE_PARAM, serviceParam } from '@/routes/serviceParam';
 
 /** Every service has the same routes under `/:service` */
-// Every route is behind requireAuth() (below, and /me's own)
+// Mounted under /me, behind its requireAuth()
 const app = new Hono<{ Variables: SignedInVariables }>();
-
-app.use(requireAuth());
 
 app.post('/link-code', vValidator('json', LinkCodeRequestSchema), async (c) => {
   const { user } = c.get('auth');

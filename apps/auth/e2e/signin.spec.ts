@@ -263,6 +263,35 @@ test.describe('start page errors', () => {
     ).toBeFocused();
   });
 
+  test('stops email sign-in for the address after 20 wrong codes in a day', async ({
+    page,
+  }) => {
+    const email = address('ivo');
+    await page.goto('/start');
+    const origin = new URL(page.url()).origin;
+    const post = (form: Record<string, string>) =>
+      page.request.post('/code/authorize', { form, headers: { origin } });
+    // 19 wrong tries over four codes, posted directly
+    for (const tries of [5, 5, 5, 4]) {
+      await post({ action: 'request', email, verify_email: '' });
+      const wrong = wrongOf(await codeFor(page.request, email));
+      for (let i = 0; i < tries; i++) {
+        await post({ action: 'verify', code: wrong });
+      }
+    }
+    // The 20th in the page itself: its script swaps in the start page
+    const code = await requestCode(page, email);
+    await page.getByLabel('6-digit code').pressSequentially(wrongOf(code));
+    await expect(page.getByRole('status')).toHaveText(
+      'Too many tries. Try again tomorrow, or continue with Google to sign in now.',
+    );
+    await expect(
+      page.getByRole('link', { name: 'Continue with Google' }),
+    ).toBeVisible();
+    // ...with the start page's own styles, not the code page's
+    await expect(page.locator('.a-acts')).toHaveCSS('display', 'flex');
+  });
+
   test('takes more providers as a 2-column grid with short names', async ({
     page,
   }) => {

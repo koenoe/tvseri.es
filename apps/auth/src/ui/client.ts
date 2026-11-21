@@ -13,7 +13,9 @@
  * digits (red, drawn selected) but the field itself starts empty: wherever
  * a click puts the caret, typing or pasting is a new code, and nothing is
  * sent until six new digits are in. The server's page still carries the
- * digits in the field, so without the script they stay to correct. It runs
+ * digits in the field, so without the script they stay to correct. A
+ * verify answer replaces the body in place; when it's another page (the
+ * start page after too many tries) its style comes along. It runs
  * in <head>, so the `js` class is set before the first paint. Forms carry an input named `action` (OpenAuth's
  * field), so `form.action` is that input: read the attribute instead.
  */
@@ -40,7 +42,7 @@ function submit(){var s=st();if(s==='checking'||s==='ok')return;if(i.value.lengt
 fetch(f.getAttribute('action'),{method:'POST',body:new FormData(f),credentials:'same-origin',redirect:'manual',headers:{'x-tvs-js':'1'}}).then(function(r){
 if(r.type==='opaqueredirect'){f.submit();return}
 if((r.headers.get('content-type')||'').indexOf('json')>-1)return r.json().then(function(j){st('ok');busy(b,'ok');say('Signed in. Taking you back.');location.replace(j.next)});
-return r.text().then(function(h){var n=new DOMParser().parseFromString(h,'text/html');d.title=n.title;d.body.replaceWith(d.adoptNode(n.body));init()})}).catch(function(){f.submit()})}
+return r.text().then(function(h){var n=new DOMParser().parseFromString(h,'text/html'),os=d.querySelector('style'),ns=n.querySelector('style');d.title=n.title;if(os&&ns&&os.textContent!==ns.textContent)os.textContent=ns.textContent;d.body.replaceWith(d.adoptNode(n.body));init()})}).catch(function(){f.submit()})}
 i.addEventListener('input',function(){var s=st();if(s==='checking'||s==='ok'){i.value=last;return}
 var v=i.value.replace(/\D/g,'').slice(0,N),grew=v.length>last.length;if(i.value!==v)i.value=v;if(s==='wrong')fresh();last=v;paint(grew?v.length-1:-1);if(v.length===N)submit()});
 i.addEventListener('keydown',function(e){if(st()==='wrong'&&(e.key==='Backspace'||e.key==='Delete')){fresh();paint(-1)}});

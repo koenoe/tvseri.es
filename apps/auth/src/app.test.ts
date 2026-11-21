@@ -568,8 +568,7 @@ describe('limits beyond one code', () => {
         'new@example.com',
       );
       expect(refused).toContain('Email codes are paused for now.');
-      // Without CloudFront's header (a request that didn't come through it)
-      // the ceiling still holds
+      // Without CloudFront's header the ceiling still holds
       expect(await (await visitor(test)).request('new@example.com')).toContain(
         'Email codes are paused for now.',
       );

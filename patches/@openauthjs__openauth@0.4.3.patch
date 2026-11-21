@@ -322,7 +322,7 @@ index 1ae89f6ae3050c194cefd4667cf9d58c892144bd..0a84ef549f5056df994ef4d85862f7e5
      type: config.type || "oidc",
      init(routes, ctx) {
 diff --git a/dist/esm/storage/dynamo.js b/dist/esm/storage/dynamo.js
-index 3b7a2bbf3f248780743949c1535e43ac2c05b63f..0bb3d1dadd5edabe1582da430739507e9f87c4d1 100644
+index 3b7a2bbf3f248780743949c1535e43ac2c05b63f..4b8f410447718d9645ed9b0d348d75c61403f25a 100644
 --- a/dist/esm/storage/dynamo.js
 +++ b/dist/esm/storage/dynamo.js
 @@ -1,4 +1,6 @@
@@ -353,7 +353,7 @@ index 3b7a2bbf3f248780743949c1535e43ac2c05b63f..0bb3d1dadd5edabe1582da430739507e
          Key: {
            [pk]: { S: keyPk },
            [sk]: { S: keySk }
-@@ -74,9 +83,57 @@ function DynamoStorage(options) {
+@@ -74,9 +83,58 @@ function DynamoStorage(options) {
          Key: {
            [pk]: { S: keyPk },
            [sk]: { S: keySk }
@@ -390,7 +390,8 @@ index 3b7a2bbf3f248780743949c1535e43ac2c05b63f..0bb3d1dadd5edabe1582da430739507e
 +    // attribute `n` while it's below `max`, creating the item (with its
 +    // expiry) when it's missing. Returns the new count, or undefined
 +    // (nothing written) at the limit. Counter items only hold `n`: keep them
-+    // out of any partition `get` or `scan` reads.
++    // out of any partition `get` or `scan` reads. ALL_NEW (the item is a
++    // few bytes) so `n` comes back even when a step of 0 changed nothing.
 +    async count(key, max, expiry, step = 1) {
 +      const parsed = parseKey(key);
 +      const result = await dynamo("UpdateItem", {
@@ -407,13 +408,13 @@ index 3b7a2bbf3f248780743949c1535e43ac2c05b63f..0bb3d1dadd5edabe1582da430739507e
 +          ":max": { N: String(max) },
 +          ":expiry": { N: Math.floor(expiry.getTime() / 1000).toString() }
 +        },
-+        ReturnValues: "UPDATED_NEW"
++        ReturnValues: "ALL_NEW"
 +      });
-+      return result ? Number(result.Attributes.n.N) : undefined;
++      return result ? Number(result.Attributes?.n?.N ?? 0) : undefined;
      },
      async* scan(prefix) {
        const prefixPk = prefix.length >= 2 ? joinKey(prefix.slice(0, 2)) : prefix[0];
-@@ -87,6 +144,8 @@ function DynamoStorage(options) {
+@@ -87,6 +145,8 @@ function DynamoStorage(options) {
          const params = {
            TableName: tableName,
            ExclusiveStartKey: lastEvaluatedKey,

@@ -418,6 +418,7 @@ describe('DynamoStorage.count hunk (the send and try caps)', () => {
           ':step': { N: '1' },
         },
         Key: { pk: { S: 'oauth:otp-day' }, sk: { S: '19675' } },
+        ReturnValues: 'ALL_NEW',
         TableName: 'auth',
         UpdateExpression:
           'ADD #n :step SET #ttl = if_not_exists(#ttl, :expiry)',

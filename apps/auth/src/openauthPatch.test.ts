@@ -428,3 +428,38 @@ describe('DynamoStorage.count hunk (the send and try caps)', () => {
     }
   });
 });
+
+describe('the code send caps never touch other sign-ins', () => {
+  it('a spent daily budget leaves token refreshes and Google sign-in working', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const google = await startGoogle();
+    try {
+      const key = fakeGoogleKey(google.issuer);
+      google.useKeys([key]);
+      // One code email a day: the session below spends it
+      const test = createTestApp({
+        dailySends: 1,
+        googleIssuer: google.issuer,
+      });
+      const tokens = await session(test);
+
+      // Email codes are paused now...
+      const b = browser(test.app);
+      await b.get(authorizeUrl(ORIGIN));
+      const refused = await b.post('/code/authorize', {
+        action: 'request',
+        email: 'ben@example.com',
+        verify_email: '',
+      });
+      expect(await refused.text()).toContain('Email codes are paused for now.');
+
+      // ...but a signed-in session still refreshes, and Google still signs in
+      expect((await refresh(test, tokens.refresh_token)).status).toBe(200);
+      expect((await googleSignIn(test, key)).location).toMatch(
+        /^http:\/\/localhost\/api\/auth\/callback\?code=/,
+      );
+    } finally {
+      await google.close();
+    }
+  });
+});

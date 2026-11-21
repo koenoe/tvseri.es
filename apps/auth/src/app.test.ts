@@ -547,33 +547,49 @@ describe('limits beyond one code', () => {
       expect(resend).toContain('id="cf"');
     });
 
-    it('counts every request that didn’t come through the edge as one network', async () => {
+    it('without the edge key, counts by the connection, not by the stated address', async () => {
       vi.useFakeTimers({ now: midday(), toFake: ['Date'] });
       const test = createTestApp();
-      // A stated address without the edge key isn't believed
-      for (let i = 0; i < 10; i++) {
-        const b = browser(test.app);
+      // The Lambda adapter's env: who opened the connection
+      const from = (ip: string) => ({
+        requestContext: { http: { sourceIp: ip } },
+      });
+      const send = async (ip: string, email: string, stated: string) => {
+        const b = browser(test.app, from(ip));
         await b.get(authorizeUrl(ORIGIN));
-        await b.post(
-          '/code/authorize',
-          {
-            action: 'request',
-            email: `user${i}@example.com`,
-            verify_email: '',
-          },
-          { 'cloudfront-viewer-address': `198.51.100.${i}:1` },
-        );
+        return (
+          await b.post(
+            '/code/authorize',
+            { action: 'request', email, verify_email: '' },
+            // A stated address (and a stated connection) isn't believed
+            {
+              'cloudfront-viewer-address': stated,
+              'x-tvs-connection-ip': stated,
+            },
+          )
+        ).text();
+      };
+      for (let i = 0; i < 10; i++) {
+        await send('203.0.113.9', `user${i}@example.com`, `198.51.100.${i}`);
       }
       expect(test.mail).toHaveLength(10);
-      expect(await (await visitor(test)).request('new@example.com')).toContain(
-        'Email codes are paused for now.',
-      );
-      // Through the edge, people still get their codes
       expect(
-        await (await visitor(test, '203.0.113.7:443')).request(
-          'new@example.com',
-        ),
+        await send('203.0.113.9', 'new@example.com', '198.51.100.99'),
+      ).toContain('Email codes are paused for now.');
+      // Another connection (CloudFront has many) still sends
+      expect(
+        await send('203.0.113.10', 'new@example.com', '198.51.100.99'),
       ).toContain('Check your email');
+    });
+
+    it('without the edge key or a known connection, has no per-network cap', async () => {
+      vi.useFakeTimers({ now: midday(), toFake: ['Date'] });
+      const test = createTestApp();
+      for (let i = 0; i < 12; i++) {
+        expect(
+          await (await visitor(test)).request(`user${i}@example.com`),
+        ).toContain('Check your email');
+      }
     });
 
     it('doesn’t count requests that send nothing (honeypot, not an address)', async () => {
@@ -613,6 +629,22 @@ describe('limits beyond one code', () => {
         'Check your email',
       );
     });
+  });
+});
+
+describe('the router’s edge key', () => {
+  it('says once in the log when CloudFront’s headers arrive without it, on any page', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const test = createTestApp();
+    const page = () =>
+      test.app.request(authorizeUrl(ORIGIN), {
+        headers: { 'cloudfront-viewer-address': '198.51.100.10:443' },
+      });
+    expect((await page()).status).toBe(200);
+    await page();
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(String(warn.mock.calls[0]?.[0])).toContain('AUTH EDGE KEY MISSING');
+    warn.mockRestore();
   });
 });
 

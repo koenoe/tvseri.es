@@ -13,7 +13,18 @@ import { CODE_TTL } from './lib/codeLifetime';
 import { createUser, findUser } from './lib/db/user';
 import { sendEmail } from './lib/email';
 import { createRefreshProperties } from './lib/refresh';
-import { DAILY_SENDS, sendSourceFor } from './lib/sendLimits';
+import { DAILY_SENDS } from './lib/sendLimits';
+
+// The edge key only sharpens the code send cap: if its link doesn't resolve,
+// sign-in still works (sends count by connection, and the app logs
+// AUTH EDGE KEY MISSING) instead of the issuer failing to start.
+const readEdgeKey = () => {
+  try {
+    return Resource.AuthEdgeKey.value;
+  } catch {
+    return '';
+  }
+};
 
 const ttl =
   Resource.App.stage !== 'production'
@@ -55,6 +66,7 @@ const app = createApp({
   allow: allowClient,
   codeTtl: CODE_TTL,
   dailySends: DAILY_SENDS,
+  edgeKey: readEdgeKey(),
   findOrCreateUser,
   formTargets: CLIENT_ORIGINS,
   google: GoogleOidcProvider({
@@ -67,8 +79,6 @@ const app = createApp({
   sendEmail: ({ html, recipient, subject, text }) =>
     sendEmail({ html, recipient, sender: 'auth', subject, text }),
   site: SITE_URL,
-  // Only requests that carry the router's edge key are counted by network
-  source: sendSourceFor(Resource.AuthEdgeKey.value),
   ttl,
 });
 

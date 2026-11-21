@@ -24,9 +24,6 @@ export function createHarness(origin: string) {
     googleIssuer,
     issuer: origin,
     site: `${origin}/site`,
-    // Every browser here is one local address: the per-network cap would
-    // stop the suite, so it's left to the unit tests (app.test.ts)
-    source: () => undefined,
   });
 
   const { idToken, jwk } = fakeGoogleKey(googleIssuer);

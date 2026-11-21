@@ -9,6 +9,11 @@ import { Hono } from 'hono';
 import { csrf } from 'hono/csrf';
 
 import { renderCodeEmail } from './lib/codeEmail';
+import {
+  CONNECTION_IP_HEADER,
+  edgeKeyCheck,
+  sendSourceFor,
+} from './lib/sendLimits';
 import { contentSecurityPolicy, FONT } from './ui/assets';
 import { CodeUI } from './ui/code';
 import { lostStateResponse } from './ui/error';
@@ -54,10 +59,11 @@ export type AppConfig = Readonly<{
     }>,
   ) => Promise<Record<string, unknown> | undefined>;
   /**
-   * Where a code request comes from, for the per-source send cap
-   * (`sendSourceFor`); undefined means no per-source cap
+   * The auth router's edge key: a request carrying it came through
+   * CloudFront, so its viewer address counts for the code send cap
+   * (`sendSourceFor`). Empty when there's no router (tests, local runs).
    */
-  source: (req: Request) => string | undefined;
+  edgeKey: string;
   sendEmail: (
     message: Readonly<{
       html: string;
@@ -87,13 +93,29 @@ const YEAR = 60 * 60 * 24 * 365;
  * by our CloudFront function; a forged port would end up in a cached
  * discovery document and break token checks for every new web and API
  * instance. So the issuer always sees its configured origin.
+ *
+ * It also gets the connection's own address (the function URL event's
+ * `requestContext.http.sourceIp`, from the Lambda adapter's env) for the
+ * code send cap, replacing any copy a caller sent.
  */
-const atOrigin = (origin: URL) => (req: Request) => {
+const atOrigin = (origin: URL) => (req: Request, env: unknown) => {
   const headers = new Headers(req.headers);
   headers.set('x-forwarded-host', origin.host);
   headers.set('x-forwarded-proto', origin.protocol.slice(0, -1));
   headers.delete('x-forwarded-port');
+  headers.delete(CONNECTION_IP_HEADER);
+  const connection = connectionIp(env);
+  if (connection) {
+    headers.set(CONNECTION_IP_HEADER, connection);
+  }
   return new Request(req, { headers });
+};
+
+const connectionIp = (env: unknown): string | undefined => {
+  const sourceIp = (
+    env as { requestContext?: { http?: { sourceIp?: unknown } } } | undefined
+  )?.requestContext?.http?.sourceIp;
+  return typeof sourceIp === 'string' ? sourceIp : undefined;
 };
 
 /**
@@ -107,6 +129,7 @@ export function createApp(config: AppConfig) {
   const providers = { code: 'code', google: 'google' } as const;
   const csp = contentSecurityPolicy(config.formTargets);
   const toIssuer = atOrigin(new URL(config.issuer));
+  const checkEdgeKey = edgeKeyCheck(config.edgeKey);
 
   const issuerApp = issuer({
     allow: config.allow,
@@ -126,7 +149,7 @@ export function createApp(config: AppConfig) {
         }),
         // The patch's send caps beyond one address: per network and per day
         dailySends: config.dailySends,
-        source: config.source,
+        source: sendSourceFor(config.edgeKey),
         // The patch's expiry: the same value the email and the page say
         ttl: config.codeTtl,
       }),
@@ -181,6 +204,9 @@ export function createApp(config: AppConfig) {
   return (
     new Hono()
       .use('*', async (c, next) => {
+        // A cheap header check on every request, so any page shows whether
+        // the router's edge key arrives
+        checkEdgeKey(c.req.raw);
         await next();
         if (c.res.headers.get('content-type')?.startsWith('text/html')) {
           c.res.headers.set('Content-Security-Policy', csp);
@@ -245,6 +271,8 @@ export function createApp(config: AppConfig) {
         });
       })
       // `mount` (not `route`) keeps the issuer's own error handling
-      .mount('/', (req, ...rest) => issuerApp.fetch(toIssuer(req), ...rest))
+      .mount('/', (req, ...rest) =>
+        issuerApp.fetch(toIssuer(req, rest[0]), ...rest),
+      )
   );
 }

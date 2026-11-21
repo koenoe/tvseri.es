@@ -2,11 +2,18 @@
 export const ORIGIN = 'http://localhost';
 
 type App = Readonly<{
-  request: (input: string, init?: RequestInit) => Response | Promise<Response>;
+  request: (
+    input: string,
+    init?: RequestInit,
+    env?: unknown,
+  ) => Response | Promise<Response>;
 }>;
 
-/** A tiny cookie jar around the app: what a browser would send back */
-export function browser(app: App) {
+/**
+ * A tiny cookie jar around the app: what a browser would send back. `env`
+ * stands in for the Lambda adapter's (the connection's address).
+ */
+export function browser(app: App, env?: unknown) {
   const jar = new Map<string, string>();
   const keep = (res: Response) => {
     for (const line of res.headers.getSetCookie()) {
@@ -23,9 +30,13 @@ export function browser(app: App) {
   return {
     get: async (path: string, headers: Readonly<Record<string, string>> = {}) =>
       keep(
-        await app.request(new URL(path, ORIGIN).toString(), {
-          headers: { cookie: cookie(), ...headers },
-        }),
+        await app.request(
+          new URL(path, ORIGIN).toString(),
+          {
+            headers: { cookie: cookie(), ...headers },
+          },
+          env,
+        ),
       ),
     jar,
     post: async (
@@ -34,12 +45,16 @@ export function browser(app: App) {
       headers: Readonly<Record<string, string>> = {},
     ) =>
       keep(
-        await app.request(new URL(path, ORIGIN).toString(), {
-          body: new URLSearchParams(fields),
-          // What a browser sends with a form post from the auth pages
-          headers: { cookie: cookie(), origin: ORIGIN, ...headers },
-          method: 'POST',
-        }),
+        await app.request(
+          new URL(path, ORIGIN).toString(),
+          {
+            body: new URLSearchParams(fields),
+            // What a browser sends with a form post from the auth pages
+            headers: { cookie: cookie(), origin: ORIGIN, ...headers },
+            method: 'POST',
+          },
+          env,
+        ),
       ),
   };
 }

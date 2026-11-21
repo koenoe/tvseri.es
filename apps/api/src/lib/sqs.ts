@@ -1,4 +1,5 @@
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
+import { awsHttpOptions } from '@tvseri.es/constants';
 import type {
   Context,
   SQSBatchResponse,
@@ -7,7 +8,7 @@ import type {
 } from 'aws-lambda';
 
 /** The one SQS client of every Lambda (the SDK keeps its connections alive) */
-export const sqs = new SQSClient({});
+export const sqs = new SQSClient({ requestHandler: awsHttpOptions() });
 
 /** Sends one JSON message to a queue, after `delaySeconds` when given */
 export const sendMessage = (

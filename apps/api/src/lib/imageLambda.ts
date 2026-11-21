@@ -1,17 +1,13 @@
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
+import { awsHttpOptions } from '@tvseri.es/constants';
 import { Resource } from 'sst';
 
 // Bound the time the request path waits for the DominantColor Lambda: one
-// attempt (a timeout would otherwise be retried as transient), and make
-// requestTimeout throw instead of only logging a warning. 8s leaves room for a
-// cold start (sharp + image fetch) and stays under the API's 14s timeout.
+// attempt (a timeout would otherwise be retried as transient). 8s leaves room
+// for a cold start (sharp + image fetch) and stays under the API's 14s timeout.
 const lambda = new LambdaClient({
   maxAttempts: 1,
-  requestHandler: {
-    connectionTimeout: 1000,
-    requestTimeout: 8000,
-    throwOnRequestTimeout: true,
-  },
+  requestHandler: awsHttpOptions(8_000),
 });
 
 /**

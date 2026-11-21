@@ -1,12 +1,14 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-
+import { awsHttpOptions } from '@tvseri.es/constants';
 import { queryAll } from '@/lib/db/query';
 
 /**
  * The metrics reads' own client: reading the metrics is not recorded as a
  * dependency metric itself (the app's client is instrumented)
  */
-export const metricsDynamo = new DynamoDBClient({});
+export const metricsDynamo = new DynamoDBClient({
+  requestHandler: awsHttpOptions(),
+});
 
 /**
  * Generate date strings for a range of days ending yesterday.

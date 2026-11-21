@@ -4,6 +4,7 @@ export {
   GOOGLE_UNVERIFIED_DESCRIPTION,
   isAuthNotice,
 } from './authNotice';
+export { awsHttpOptions } from './awsHttp';
 export { CACHE_LIFE, type CacheLifeProfile } from './cacheLife';
 export { DASHBOARD_READ } from './dashboardRead';
 export {

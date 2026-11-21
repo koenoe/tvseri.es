@@ -4,6 +4,7 @@ import {
   GenerateDataKeyCommand,
   KMSClient,
 } from '@aws-sdk/client-kms';
+import { awsHttpOptions } from '@tvseri.es/constants';
 import { Resource } from 'sst';
 
 /**
@@ -21,7 +22,7 @@ const VERSION = 'v1';
 const IV_BYTES = 12;
 const TAG_BYTES = 16;
 
-const kms = new KMSClient({});
+const kms = new KMSClient({ requestHandler: awsHttpOptions() });
 const context = (userId: string, service: string) => ({ service, userId });
 const additionalData = (userId: string, service: string) =>
   Buffer.from(`${userId}\n${service}`);

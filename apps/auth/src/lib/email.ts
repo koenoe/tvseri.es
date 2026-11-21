@@ -1,7 +1,10 @@
 import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
+import { awsHttpOptions } from '@tvseri.es/constants';
 import { Resource } from 'sst';
 
-const client = new SESv2Client();
+// A retry after a send that timed out but went through sends the code twice;
+// 5 s leaves SES's slower moments alone
+const client = new SESv2Client({ requestHandler: awsHttpOptions(5_000) });
 
 // Without a charset SES treats the content as 7-bit ASCII; the copy has
 // typographic quotes and a middle dot.

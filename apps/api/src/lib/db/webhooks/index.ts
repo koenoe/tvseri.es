@@ -16,7 +16,7 @@ import {
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { WEBHOOK_TOKEN_KV_PREFIX } from '@tvseri.es/constants';
+import { awsHttpOptions, WEBHOOK_TOKEN_KV_PREFIX } from '@tvseri.es/constants';
 import type {
   ScrobbleAccount,
   UpdateWebhookSettings,
@@ -24,12 +24,14 @@ import type {
 } from '@tvseri.es/schemas';
 import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
-
 import client from '../client';
 import { queryAll } from '../query';
 import { userTypeIndexPk, webhookPk } from './keys';
 
-const kvs = new CloudFrontKeyValueStoreClient({});
+// A global endpoint (SigV4a), further away than the regional services
+const kvs = new CloudFrontKeyValueStoreClient({
+  requestHandler: awsHttpOptions(5_000),
+});
 
 /** 12 random bytes, hex: matches WEBHOOK_TOKEN_PATTERN_SOURCE */
 const generateToken = () => randomBytes(12).toString('hex');

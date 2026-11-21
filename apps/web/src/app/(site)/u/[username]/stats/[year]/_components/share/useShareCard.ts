@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import statsPath from '@/lib/routing/statsPath';
 import {
   type CardFormat,
@@ -8,7 +8,14 @@ import {
   cardPath,
 } from '../../_card/cardRequest';
 import type { CardTheme } from '../../_card/theme';
-import { prefetchCard, readyCard, saveCard, shareCard } from './cardFiles';
+import {
+  cardPending,
+  prefetchCard,
+  readyCard,
+  saveCard,
+  shareCard,
+  subscribeCards,
+} from './cardFiles';
 import type { ShareCard } from './shareCard';
 
 /**
@@ -35,6 +42,14 @@ export default function useShareCard(
   const path = cardPath(username, year, { format, theme });
   const fileName = cardFileName(username, year, format, theme);
   const pagePath = statsPath(username, year);
+  // Share… hands over the file from the tap (iOS won't wait for it), so it
+  // waits while the sheet's file is still coming; once that settles, even
+  // failed, it shares (the link alone without a file)
+  const fileComing = useSyncExternalStore(
+    subscribeCards,
+    () => prefetch && cardPending(path),
+    () => false,
+  );
 
   const choose = (nextFormat: CardFormat, nextTheme: CardTheme) => {
     if (prefetch) {
@@ -59,10 +74,17 @@ export default function useShareCard(
     chooseTheme: (next: CardTheme) => choose(format, next),
     copied,
     copyLink,
+    fileComing,
     fileName,
     format,
     pagePath,
     path,
+    /** The preview's Try again: the sheet fetches its file again too */
+    retry: () => {
+      if (prefetch) {
+        prefetchCard(path);
+      }
+    },
     save: () => saveCard(path, fileName),
     share: () => {
       const url = `${window.location.origin}${pagePath}`;

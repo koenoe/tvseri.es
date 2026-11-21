@@ -9,6 +9,24 @@ type Entry = { blob: Blob | null; promise: Promise<Blob | null> };
 
 const files = new Map<string, Entry>();
 
+/** Who redraws when a fetch starts or settles (Share… waits on it) */
+const listeners = new Set<() => void>();
+
+const notify = () => {
+  for (const listener of listeners) {
+    listener();
+  }
+};
+
+export function subscribeCards(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+/** The card at `path` is on its way: fetching, not yet settled */
+export const cardPending = (path: string): boolean =>
+  files.get(path)?.blob === null;
+
 /** Starts (once) fetching the card at `path` */
 export function prefetchCard(path: string): Promise<Blob | null> {
   const known = files.get(path);
@@ -23,13 +41,16 @@ export function prefetchCard(path: string): Promise<Blob | null> {
       if (!blob) {
         files.delete(path);
       }
+      notify();
       return blob;
     })
     .catch(() => {
       files.delete(path);
+      notify();
       return null;
     });
   files.set(path, entry);
+  notify();
   return entry.promise;
 }
 

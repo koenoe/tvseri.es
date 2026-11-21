@@ -8,8 +8,8 @@ import { PHONE_MOTION } from '@/components/ui/dialog/dialogMotion';
 import ModalShell from '@/components/ui/dialog/ModalShell';
 import SheetHandle from '@/components/ui/dialog/SheetHandle';
 import { downloadGlyph, shareGlyph } from '@/components/ui/icon/glyphs';
+import CardPreview from './CardPreview';
 import {
-  CardPreview,
   CopyLinkButton,
   FormatSwitch,
   PublicNote,
@@ -70,7 +70,9 @@ export default function ShareSheet({
       <div className="flex h-[420px] shrink-0 items-center justify-center rounded-16 bg-[#121718]">
         <CardPreview
           alt={card.description}
+          format={share.format}
           ground={ground}
+          onRetry={share.retry}
           path={share.path}
           size={preview}
         />
@@ -84,6 +86,7 @@ export default function ShareSheet({
         icon={shareGlyph}
         iconSize={15}
         onClick={share.share}
+        pending={share.fileComing}
         variant="primary"
       >
         Share…

@@ -156,7 +156,7 @@ export function pickerModel(
   const alt = [
     option('unknown', 'I don’t remember', '', { kind: 'unknown' }),
     option('skip', 'Skipped', '', { kind: 'skip' }),
-    ...(request.kind !== 'run' && hasSomething
+    ...(hasSomething
       ? [option('unmark', 'Not watched', '', { kind: 'unmark' })]
       : []),
   ];

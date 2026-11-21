@@ -131,7 +131,7 @@ describe('pickerModel: a set and a run', () => {
     expect(model.title).toBe('When did you watch The Bear?');
   });
 
-  it('never offers Not watched for a run', () => {
+  it('offers Not watched for a run holding a watched episode', () => {
     const model = pickerModel({
       now,
       request: {
@@ -144,6 +144,25 @@ describe('pickerModel: a set and a run', () => {
       view: view({ watched: { S02E06: { runtime: 0, watchedAt: now } } }),
     });
     expect(model.title).toBe('When did you watch E6–E9?');
+    expect(model.alt.map((option) => option.label)).toEqual([
+      'I don’t remember',
+      'Skipped',
+      'Not watched',
+    ]);
+  });
+
+  it('leaves Not watched out of a run with nothing to clear', () => {
+    const model = pickerModel({
+      now,
+      request: {
+        kind: 'run',
+        refs: refs.slice(5, 9),
+        seriesId: 1,
+        what: 'E6–E9',
+      },
+      showTitle: 'The Bear',
+      view: view(),
+    });
     expect(model.alt.map((option) => option.label)).toEqual([
       'I don’t remember',
       'Skipped',

@@ -20,7 +20,7 @@ import { PROGRESSIVE_BLUR } from '@/components/background/progressiveBlur';
 export const phoneHeroShade = (color: string) => {
   const rgb = hexToRgb(color).join(',');
   return {
-    background: `linear-gradient(180deg, rgba(20,17,13,0.65) 0px, rgba(20,17,13,0.5) 82px, rgba(20,17,13,0) 200px), linear-gradient(0deg, rgb(${rgb}) 0px, rgba(${rgb},0.85) 70px, rgba(${rgb},0.45) 140px, rgba(${rgb},0) 230px), ${heroShade(color)}`,
+    background: `linear-gradient(180deg, rgba(20,17,13,0.65) 0px, rgba(20,17,13,0.5) 82px, rgba(20,17,13,0) 200px), linear-gradient(0deg, rgb(${rgb}) 0px, rgba(${rgb},0.85) 60px, rgba(${rgb},0.45) 120px, rgba(${rgb},0) 190px), ${heroShade(color)}`,
   };
 };
 

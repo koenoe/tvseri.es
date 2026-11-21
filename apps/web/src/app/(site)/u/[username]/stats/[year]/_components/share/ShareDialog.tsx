@@ -14,8 +14,8 @@ import {
 import Icon from '@/components/ui/icon/Icon';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
+import CardPreview from './CardPreview';
 import {
-  CardPreview,
   CopyLinkButton,
   FormatSwitch,
   PublicNote,
@@ -69,7 +69,9 @@ export default function ShareDialog({
       <div className="flex h-[640px] items-center justify-center bg-[#121718]">
         <CardPreview
           alt={card.description}
+          format={share.format}
           ground={ground}
+          onRetry={share.retry}
           path={share.path}
           size={preview}
         />

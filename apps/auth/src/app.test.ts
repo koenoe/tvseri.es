@@ -350,6 +350,239 @@ describe('email code flow', () => {
   });
 });
 
+describe('limits beyond one code', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const DAY = 24 * 60 * 60 * 1000;
+  // The start of a UTC day, so a test never crosses midnight by accident
+  const midday = () => Math.floor(Date.now() / DAY) * DAY + DAY / 2;
+
+  /** A sign-in in its own browser, posting from `address` (CloudFront's header) */
+  const visitor = async (
+    test: ReturnType<typeof createTestApp>,
+    address?: string,
+  ) => {
+    const b = browser(test.app);
+    await b.get(authorizeUrl(ORIGIN));
+    const headers: Record<string, string> = address
+      ? { 'cloudfront-viewer-address': address }
+      : {};
+    return {
+      request: async (email: string) =>
+        (
+          await b.post(
+            '/code/authorize',
+            { action: 'request', email, verify_email: '' },
+            headers,
+          )
+        ).text(),
+      verify: async (code: string) =>
+        (
+          await b.post('/code/authorize', { action: 'verify', code }, headers)
+        ).text(),
+    };
+  };
+
+  const wrongFor = (code: string | undefined) =>
+    code === '000000' ? '111111' : '000000';
+
+  describe('wrong codes per address in a day', () => {
+    it('stops email sign-in for the address on the 20th wrong code, until the next day', async () => {
+      vi.useFakeTimers({ now: midday(), toFake: ['Date'] });
+      const test = createTestApp();
+      const ana = await visitor(test);
+      const tries = async (count: number) => {
+        let html = '';
+        for (let i = 0; i < count; i++) {
+          html = await ana.verify(wrongFor(test.lastCode('ana@example.com')));
+        }
+        return html;
+      };
+
+      // Four codes, 19 wrong tries: still the ordinary messages
+      for (const count of [5, 5, 5, 4]) {
+        await ana.request('ana@example.com');
+        const html = await tries(count);
+        expect(html).not.toContain('Too many tries.');
+      }
+      // The 20th wrong try says so at once, and offers Google instead
+      const locked = await tries(1);
+      expect(locked).toContain('Too many tries.');
+      expect(locked).toContain(
+        'Try again tomorrow, or continue with Google to sign in now.',
+      );
+      expect(locked).toMatch(
+        /<a autofocus="" class="a-btn w"[^>]*href="\/google\/authorize"/,
+      );
+      expect(locked).not.toContain('Send a new code');
+
+      // No new code for the address today, from any browser
+      const sent = test.mail.length;
+      const again = await (await visitor(test)).request('ana@example.com');
+      expect(again).toContain('Too many tries.');
+      expect(test.mail).toHaveLength(sent);
+
+      // Another address is unaffected
+      expect(await (await visitor(test)).request('ben@example.com')).toContain(
+        'Check your email',
+      );
+
+      // The next day the address can sign in again
+      vi.setSystemTime(Date.now() + DAY);
+      const tomorrow = await visitor(test);
+      await tomorrow.request('ana@example.com');
+      const res = await tomorrow.verify(test.lastCode('ana@example.com') ?? '');
+      expect(res).not.toContain('Too many tries.');
+    });
+
+    it('counts tries for the address, not the browser or the code', async () => {
+      vi.useFakeTimers({ now: midday(), toFake: ['Date'] });
+      const test = createTestApp();
+      // 19 wrong tries spread over two browsers
+      for (const count of [5, 5, 5, 4]) {
+        const v = await visitor(test);
+        await v.request('Ana@Example.com');
+        for (let i = 0; i < count; i++) {
+          await v.verify(wrongFor(test.lastCode('Ana@Example.com')));
+        }
+      }
+      // The 20th, from a third browser, stops the address
+      const last = await visitor(test);
+      await last.request('ana@example.com');
+      await last.verify(wrongFor(test.lastCode('ana@example.com')));
+      expect(await (await visitor(test)).request('ana@example.com')).toContain(
+        'Too many tries.',
+      );
+    });
+  });
+
+  describe('codes sent from one network', () => {
+    it('sends 10 codes an hour from one IP address, then asks it to wait', async () => {
+      vi.useFakeTimers({ now: midday(), toFake: ['Date'] });
+      const test = createTestApp();
+      const ip = '198.51.100.10:46532';
+      for (let i = 0; i < 10; i++) {
+        const html = await (await visitor(test, ip)).request(
+          `user${i}@example.com`,
+        );
+        expect(html, `send ${i + 1}`).toContain('Check your email');
+      }
+
+      // Another port is the same address
+      const refused = await (await visitor(test, '198.51.100.10:1')).request(
+        'new@example.com',
+      );
+      expect(refused).toContain('Email codes are paused for now.');
+      expect(refused).toContain(
+        'Continue with Google to sign in now, or try email again later.',
+      );
+      // The address is put back, and nothing says whether it has an account
+      expect(refused).toContain('value="new@example.com"');
+      expect(test.mail).toHaveLength(10);
+
+      // Another IP address still gets its code
+      expect(
+        await (await visitor(test, '203.0.113.7:443')).request(
+          'new@example.com',
+        ),
+      ).toContain('Check your email');
+
+      // An hour later the first one may send again
+      vi.setSystemTime(Date.now() + 60 * 60 * 1000);
+      expect(
+        await (await visitor(test, ip)).request('later@example.com'),
+      ).toContain('Check your email');
+    });
+
+    it('counts an IPv6 /64 as one network', async () => {
+      vi.useFakeTimers({ now: midday(), toFake: ['Date'] });
+      const test = createTestApp();
+      for (let i = 0; i < 10; i++) {
+        await (await visitor(test, `2001:db8:85a3:1::${i + 1}:443`)).request(
+          `user${i}@example.com`,
+        );
+      }
+      const refused = await (
+        await visitor(test, '2001:0db8:85a3:0001:ffff::1:443')
+      ).request('new@example.com');
+      expect(refused).toContain('Email codes are paused for now.');
+      expect(
+        await (await visitor(test, '2001:db8:85a3:2::1:443')).request(
+          'new@example.com',
+        ),
+      ).toContain('Check your email');
+    });
+
+    it('says so on the code page when a resend is refused', async () => {
+      vi.useFakeTimers({ now: midday(), toFake: ['Date'] });
+      const test = createTestApp();
+      const ip = '198.51.100.10:46532';
+      const b = browser(test.app);
+      await b.get(authorizeUrl(ORIGIN));
+      const headers = { 'cloudfront-viewer-address': ip };
+      await b.post(
+        '/code/authorize',
+        { action: 'request', email: 'ana@example.com', verify_email: '' },
+        headers,
+      );
+      for (let i = 0; i < 9; i++) {
+        await (await visitor(test, ip)).request(`user${i}@example.com`);
+      }
+      const resend = await (
+        await b.post(
+          '/code/authorize',
+          { action: 'resend', email: 'ana@example.com', verify_email: '' },
+          headers,
+        )
+      ).text();
+      expect(resend).toContain('We can’t send more codes right now.');
+      expect(resend).toContain('Use the newest one, or try again later.');
+      expect(resend).toContain('id="cf"');
+    });
+
+    it('doesn’t count requests that send nothing (honeypot, not an address)', async () => {
+      vi.useFakeTimers({ now: midday(), toFake: ['Date'] });
+      const test = createTestApp();
+      const ip = '198.51.100.10:46532';
+      for (let i = 0; i < 10; i++) {
+        await (await visitor(test, ip)).request('not-an-address');
+      }
+      expect(
+        await (await visitor(test, ip)).request('ana@example.com'),
+      ).toContain('Check your email');
+    });
+  });
+
+  describe('codes sent in a day', () => {
+    it('stops all code emails at the daily ceiling, until the next day', async () => {
+      vi.useFakeTimers({ now: midday(), toFake: ['Date'] });
+      const test = createTestApp({ dailySends: 3 });
+      for (let i = 0; i < 3; i++) {
+        await (await visitor(test, `198.51.100.${i}:1`)).request(
+          `user${i}@example.com`,
+        );
+      }
+      const refused = await (await visitor(test, '203.0.113.7:1')).request(
+        'new@example.com',
+      );
+      expect(refused).toContain('Email codes are paused for now.');
+      // Without CloudFront's header (a request that didn't come through it)
+      // the ceiling still holds
+      expect(await (await visitor(test)).request('new@example.com')).toContain(
+        'Email codes are paused for now.',
+      );
+      expect(test.mail).toHaveLength(3);
+
+      vi.setSystemTime(Date.now() + DAY);
+      expect(await (await visitor(test)).request('new@example.com')).toContain(
+        'Check your email',
+      );
+    });
+  });
+});
+
 describe('cross-site posts to the code form', () => {
   it('takes a post from the auth pages by Origin, or by Sec-Fetch-Site without one', async () => {
     const { b, mail } = await startSignIn();

@@ -4,6 +4,7 @@ import type { StorageAdapter } from '@openauthjs/openauth/storage/storage';
 
 import { type AppConfig, createApp } from '../app';
 import { CODE_TTL } from '../lib/codeLifetime';
+import { DAILY_SENDS } from '../lib/sendLimits';
 import { FAKE_GOOGLE_CLIENT_ID } from './fakeGoogle';
 
 export type SentMail = Readonly<{
@@ -29,6 +30,8 @@ const allowLocal: AppConfig['allow'] = async ({ redirectURI }) => {
  */
 export function createTestApp(
   options: Readonly<{
+    /** The daily ceiling on code emails (`DAILY_SENDS` otherwise) */
+    dailySends?: number;
     /** Addresses whose send throws (SES down) */
     failFor?: (email: string) => boolean;
     googleIssuer?: string;
@@ -49,6 +52,7 @@ export function createTestApp(
   const app = createApp({
     allow: allowLocal,
     codeTtl: CODE_TTL,
+    dailySends: options.dailySends ?? DAILY_SENDS,
     findOrCreateUser: async ({ email }) => {
       const key = email.trim().toLowerCase();
       let user = users.get(key);

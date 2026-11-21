@@ -9,6 +9,7 @@ import { Hono } from 'hono';
 import { csrf } from 'hono/csrf';
 
 import { renderCodeEmail } from './lib/codeEmail';
+import { sendSource } from './lib/sendLimits';
 import { contentSecurityPolicy, FONT } from './ui/assets';
 import { CodeUI } from './ui/code';
 import { lostStateResponse } from './ui/error';
@@ -43,6 +44,8 @@ export type AppConfig = Readonly<{
   google: ReturnType<typeof OidcProvider>;
   /** How long a sent code works, in seconds (`CODE_TTL`) */
   codeTtl: number;
+  /** The ceiling on code emails per UTC day (`DAILY_SENDS`) */
+  dailySends: number;
   /** OpenAuth's refresh hook (our patch): re-reads the user's role on a refresh */
   refresh?: (
     input: Readonly<{
@@ -117,6 +120,9 @@ export function createApp(config: AppConfig) {
           },
           site: config.site,
         }),
+        // The patch's send caps beyond one address: per network and per day
+        dailySends: config.dailySends,
+        source: sendSource,
         // The patch's expiry: the same value the email and the page say
         ttl: config.codeTtl,
       }),

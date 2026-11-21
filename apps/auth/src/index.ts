@@ -13,6 +13,7 @@ import { CODE_TTL } from './lib/codeLifetime';
 import { createUser, findUser } from './lib/db/user';
 import { sendEmail } from './lib/email';
 import { createRefreshProperties } from './lib/refresh';
+import { DAILY_SENDS } from './lib/sendLimits';
 
 const ttl =
   Resource.App.stage !== 'production'
@@ -53,6 +54,7 @@ const findOrCreateUser = async (
 const app = createApp({
   allow: allowClient,
   codeTtl: CODE_TTL,
+  dailySends: DAILY_SENDS,
   findOrCreateUser,
   formTargets: CLIENT_ORIGINS,
   google: GoogleOidcProvider({

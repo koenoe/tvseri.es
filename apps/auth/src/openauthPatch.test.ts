@@ -1,9 +1,11 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
+import { DynamoStorage } from '@openauthjs/openauth/storage/dynamo';
 import { MemoryStorage } from '@openauthjs/openauth/storage/memory';
 import {
   joinKey,
+  Storage,
   type StorageAdapter,
 } from '@openauthjs/openauth/storage/storage';
 import { authRefreshPartition, authSubject } from '@tvseri.es/utils';
@@ -89,6 +91,7 @@ async function session(test: TestApp) {
 afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
+  vi.unstubAllEnvs();
 });
 
 describe('/authorize: provider hunk', () => {
@@ -339,6 +342,88 @@ describe('Google provider hunks', () => {
       expect((await googleSignIn(test, newKey)).location).toContain('?code=');
     } finally {
       await google.close();
+    }
+  });
+});
+
+describe('DynamoStorage.count hunk (the send and try caps)', () => {
+  /** A stand-in DynamoDB endpoint: records each call, answers from `reply` */
+  async function startDynamo(reply: () => readonly [number, unknown]) {
+    const calls: { body: Record<string, unknown>; target: string }[] = [];
+    const server: Server = createServer((req, res) => {
+      let raw = '';
+      req.on('data', (chunk) => {
+        raw += chunk;
+      });
+      req.on('end', () => {
+        calls.push({
+          body: JSON.parse(raw),
+          target: String(req.headers['x-amz-target']),
+        });
+        const [status, body] = reply();
+        res.writeHead(status, { 'content-type': 'application/x-amz-json-1.0' });
+        res.end(JSON.stringify(body));
+      });
+    });
+    await new Promise<void>((resolve) =>
+      server.listen(0, '127.0.0.1', resolve),
+    );
+    const endpoint = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    return {
+      calls,
+      close: () => new Promise((resolve) => server.close(resolve)),
+      endpoint,
+    };
+  }
+
+  it('adds under the cap in one conditional write that creates the item with its expiry', async () => {
+    vi.stubEnv('AWS_ACCESS_KEY_ID', 'test');
+    vi.stubEnv('AWS_SECRET_ACCESS_KEY', 'test');
+    vi.stubEnv('AWS_REGION', 'eu-west-2');
+    vi.useFakeTimers({ now: 1_700_000_000_000, toFake: ['Date'] });
+    let full = false;
+    const dynamo = await startDynamo(() =>
+      full
+        ? [
+            400,
+            {
+              __type:
+                'com.amazonaws.dynamodb.v20120810#ConditionalCheckFailedException',
+            },
+          ]
+        : [200, { Attributes: { n: { N: '3' } } }],
+    );
+    try {
+      const storage = DynamoStorage({
+        endpoint: dynamo.endpoint,
+        table: 'auth',
+      });
+
+      expect(
+        await Storage.count(storage, ['oauth:otp-day', '19675'], 500, 86_400),
+      ).toBe(3);
+      full = true;
+      expect(
+        await Storage.count(storage, ['oauth:otp-day', '19675'], 500, 86_400),
+      ).toBeUndefined();
+
+      const [call] = dynamo.calls;
+      expect(call?.target).toBe('DynamoDB_20120810.UpdateItem');
+      expect(call?.body).toMatchObject({
+        ConditionExpression: 'attribute_not_exists(#n) OR #n < :max',
+        ExpressionAttributeNames: { '#n': 'n', '#ttl': 'expiry' },
+        ExpressionAttributeValues: {
+          ':expiry': { N: String(1_700_000_000 + 86_400) },
+          ':max': { N: '500' },
+          ':step': { N: '1' },
+        },
+        Key: { pk: { S: 'oauth:otp-day' }, sk: { S: '19675' } },
+        TableName: 'auth',
+        UpdateExpression:
+          'ADD #n :step SET #ttl = if_not_exists(#ttl, :expiry)',
+      });
+    } finally {
+      await dynamo.close();
     }
   });
 });

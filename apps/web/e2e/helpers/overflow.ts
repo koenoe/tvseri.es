@@ -1,5 +1,7 @@
 import type { Page } from '@playwright/test';
 
+import { layoutSettled } from './viewport';
+
 /**
  * Text that does not fit, found in the rendered page (any page, any width):
  *
@@ -442,6 +444,13 @@ export async function openCappedLists(page: Page): Promise<void> {
   for (let index = 0; index < count; index += 1) {
     await buttons.first().click();
   }
+  // The lanes fold open: measured mid-fold, a row still reads as cut
+  await page.evaluate(() =>
+    Promise.all(
+      document.getAnimations().map((animation) => animation.finished),
+    ),
+  );
+  await layoutSettled(page);
 }
 
 /** One line per problem, for a readable assertion message */

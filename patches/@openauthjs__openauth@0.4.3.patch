@@ -138,10 +138,10 @@ index 1b18009bfeaa09f2222e9df760dde0e4eb1d4326..3d58daef39c716cfbce3b98ec84626aa
      url.searchParams.set("error_description", oauth.description);
      return c.redirect(url.toString());
 diff --git a/dist/esm/provider/code.js b/dist/esm/provider/code.js
-index 7cee307550b3d50b49bd3054b517da0d9bd037f8..721c78247bd90e729507b6e2fdc7dbe38f5d8eb7 100644
+index 7cee307550b3d50b49bd3054b517da0d9bd037f8..c299caf514cb00a853528747514cb972f0e2ed92 100644
 --- a/dist/esm/provider/code.js
 +++ b/dist/esm/provider/code.js
-@@ -1,13 +1,36 @@
+@@ -1,13 +1,56 @@
  // src/provider/code.ts
 +// tvseri.es patch: every sent code is an item in the issuer storage,
 +// ["oauth:otp", claim, nonce] = { code, issuedAt } plus an attempt counter;
@@ -155,12 +155,32 @@ index 7cee307550b3d50b49bd3054b517da0d9bd037f8..721c78247bd90e729507b6e2fdc7dbe3
 +// successful send, so they also count the sends: MAX_SENDS per window.
 +// The code's lifetime is `config.ttl` (seconds; CODE_TTL by default), so the
 +// app can say it in its copy from the same value.
++// Beyond one code and one send window, counters in the same storage (atomic,
++// one item per window, so a window never depends on the TTL sweep):
++// - tries per claim per UTC day (MAX_DAILY_TRIES): 5 tries per code and 5
++//   codes per 15 minutes alone would allow thousands of guesses a day; at
++//   the cap the claim gets no code and no try until the next day;
++// - sends per source per hour (MAX_SOURCE_SENDS), the source being what
++//   `config.source(req)` names (the app: the viewer's IP address);
++// - sends per UTC day in all (`config.dailySends`), so nobody can have us
++//   mail any number of addresses.
 +import { Storage } from "../storage/storage.js";
  import { generateUnbiasedDigits, timingSafeCompare } from "../random.js";
 +var CODE_TTL = 60 * 10;
 +var SEND_WINDOW = 60 * 15;
 +var MAX_SENDS = 5;
 +var MAX_ATTEMPTS = 5;
++var DAY = 60 * 60 * 24;
++var MAX_DAILY_TRIES = 20;
++var SOURCE_WINDOW = 60 * 60;
++var MAX_SOURCE_SENDS = 10;
++// The current fixed window of `seconds`, for a counter's key
++function windowOf(seconds) {
++  return String(Math.floor(Date.now() / (seconds * 1e3)));
++}
++function triesKey(id) {
++  return ["oauth:otp-tries", id, windowOf(DAY)];
++}
 +function claimKey(claims) {
 +  return (claims.email ?? claims.phone ?? "").trim().toLowerCase();
 +}
@@ -178,24 +198,36 @@ index 7cee307550b3d50b49bd3054b517da0d9bd037f8..721c78247bd90e729507b6e2fdc7dbe3
        async function transition(c, next, fd, err) {
          await ctx.set(c, "provider", 60 * 60 * 24, next);
          const resp = ctx.forward(c, await config.request(c.req.raw, next, fd, err));
-@@ -27,25 +50,62 @@ function CodeProvider(config) {
+@@ -27,25 +70,83 @@ function CodeProvider(config) {
          if (action === "request" || action === "resend") {
            const claims = Object.fromEntries(fd);
            delete claims.action;
 +          const id = claimKey(claims);
 +          // A failed resend keeps the user on the code form.
 +          const fallback = action === "resend" && state?.type === "code" ? state : { type: "start" };
-+          // Checked before anything is written, so over the cap (or for the
-+          // honeypot, an invalid claim or a failed send) nothing is written.
++          // tvseri.es patch: a claim the app refuses (honeypot, not an
++          // address) is answered before anything is counted or sent
++          const invalid = await config.checkClaims?.(claims);
++          if (invalid)
++            return transition(c, fallback, fd, invalid);
++          // No new code for a claim that used up today's tries (a step of 0
++          // reads the count under the same condition). Before the send
++          // window, so the page says the cap that actually lasts.
++          if (await Storage.count(storage, triesKey(id), MAX_DAILY_TRIES, DAY, 0) === undefined)
++            return transition(c, { type: "start" }, fd, { type: "too_many_tries" });
++          // Checked before anything is written, so over the cap (or for a
++          // failed send) nothing is written.
 +          // Parallel requests can overshoot the cap a little (accepted).
 +          const sent = await Array.fromAsync(Storage.scan(storage, ["oauth:otp", id]));
 +          if (sent.length >= MAX_SENDS)
 +            return transition(c, fallback, fd, { type: "rate_limited" });
-+          // tvseri.es patch: a claim the app refuses (honeypot, not an
-+          // address) is answered before anything is sent
-+          const invalid = await config.checkClaims?.(claims);
-+          if (invalid)
-+            return transition(c, fallback, fd, invalid);
++          // Each send is reserved before it's made, so parallel requests
++          // can't overshoot; a send that then fails still counts.
++          const source = config.source?.(c.req.raw);
++          if (source && await Storage.count(storage, ["oauth:otp-source", source, windowOf(SOURCE_WINDOW)], MAX_SOURCE_SENDS, SOURCE_WINDOW) === undefined)
++            return transition(c, fallback, fd, { type: "send_limited" });
++          if (config.dailySends !== undefined && await Storage.count(storage, ["oauth:otp-day", windowOf(DAY)], config.dailySends, DAY) === undefined)
++            return transition(c, fallback, fd, { type: "send_limited" });
            const err = await config.sendCode(claims, code);
            if (err)
 -            return transition(c, { type: "start" }, fd, err);
@@ -218,7 +250,6 @@ index 7cee307550b3d50b49bd3054b517da0d9bd037f8..721c78247bd90e729507b6e2fdc7dbe3
 -              ...state,
 -              resend: false
 -            }, fd2, { type: "invalid_code" });
--          }
 +        if (action === "verify" && state?.type === "code") {
 +          const id = claimKey(state.claims);
 +          const key = ["oauth:otp", id, state.nonce];
@@ -235,12 +266,21 @@ index 7cee307550b3d50b49bd3054b517da0d9bd037f8..721c78247bd90e729507b6e2fdc7dbe3
 +          const attempts = await Storage.incr(storage, key, MAX_ATTEMPTS);
 +          if (attempts === undefined)
 +            return fail("code_expired");
++          // The claim's tries today, whichever code or browser: at the cap
++          // even the right code is refused. Never reset by a sign-in.
++          const locked = () => transition(c, { type: "start" }, fd, { type: "too_many_tries" });
++          const tries = await Storage.count(storage, triesKey(id), MAX_DAILY_TRIES, DAY);
++          if (tries === undefined)
++            return locked();
 +          // tvseri.es patch: a pasted code may carry spaces, dashes or text.
 +          const compare = fd.get("code")?.toString().replace(/\D/g, "");
 +          // The last allowed try was wrong: the code is used up now, so say
 +          // so now instead of inviting a try that can't work.
-+          if (!compare || !timingSafeCompare(stored.code, compare))
++          if (!compare || !timingSafeCompare(stored.code, compare)) {
++            if (tries >= MAX_DAILY_TRIES)
++              return locked();
 +            return fail(attempts >= MAX_ATTEMPTS ? "code_expired" : "invalid_code");
+           }
 +          // Single use: only the request that deletes the code logs in.
 +          if (!await Storage.remove(storage, key))
 +            return fail("code_expired");
@@ -282,7 +322,7 @@ index 1ae89f6ae3050c194cefd4667cf9d58c892144bd..0a84ef549f5056df994ef4d85862f7e5
      type: config.type || "oidc",
      init(routes, ctx) {
 diff --git a/dist/esm/storage/dynamo.js b/dist/esm/storage/dynamo.js
-index 3b7a2bbf3f248780743949c1535e43ac2c05b63f..f34b11e88e3640fe9e3f87d94ff876912141222b 100644
+index 3b7a2bbf3f248780743949c1535e43ac2c05b63f..4b8f410447718d9645ed9b0d348d75c61403f25a 100644
 --- a/dist/esm/storage/dynamo.js
 +++ b/dist/esm/storage/dynamo.js
 @@ -1,4 +1,6 @@
@@ -313,7 +353,7 @@ index 3b7a2bbf3f248780743949c1535e43ac2c05b63f..f34b11e88e3640fe9e3f87d94ff87691
          Key: {
            [pk]: { S: keyPk },
            [sk]: { S: keySk }
-@@ -74,9 +83,32 @@ function DynamoStorage(options) {
+@@ -74,9 +83,58 @@ function DynamoStorage(options) {
          Key: {
            [pk]: { S: keyPk },
            [sk]: { S: keySk }
@@ -345,10 +385,36 @@ index 3b7a2bbf3f248780743949c1535e43ac2c05b63f..f34b11e88e3640fe9e3f87d94ff87691
 +        ReturnValues: "UPDATED_NEW"
 +      });
 +      return result ? Number(result.Attributes.n.N) : undefined;
++    },
++    // tvseri.es patch: atomically adds `step` (default 1) to the numeric
++    // attribute `n` while it's below `max`, creating the item (with its
++    // expiry) when it's missing. Returns the new count, or undefined
++    // (nothing written) at the limit. Counter items only hold `n`: keep them
++    // out of any partition `get` or `scan` reads. ALL_NEW (the item is a
++    // few bytes) so `n` comes back even when a step of 0 changed nothing.
++    async count(key, max, expiry, step = 1) {
++      const parsed = parseKey(key);
++      const result = await dynamo("UpdateItem", {
++        TableName: tableName,
++        Key: {
++          [pk]: { S: parsed.pk },
++          [sk]: { S: parsed.sk }
++        },
++        UpdateExpression: "ADD #n :step SET #ttl = if_not_exists(#ttl, :expiry)",
++        ConditionExpression: "attribute_not_exists(#n) OR #n < :max",
++        ExpressionAttributeNames: { "#n": "n", "#ttl": ttl },
++        ExpressionAttributeValues: {
++          ":step": { N: String(step) },
++          ":max": { N: String(max) },
++          ":expiry": { N: Math.floor(expiry.getTime() / 1000).toString() }
++        },
++        ReturnValues: "ALL_NEW"
++      });
++      return result ? Number(result.Attributes?.n?.N ?? 0) : undefined;
      },
      async* scan(prefix) {
        const prefixPk = prefix.length >= 2 ? joinKey(prefix.slice(0, 2)) : prefix[0];
-@@ -87,6 +119,8 @@ function DynamoStorage(options) {
+@@ -87,6 +145,8 @@ function DynamoStorage(options) {
          const params = {
            TableName: tableName,
            ExclusiveStartKey: lastEvaluatedKey,
@@ -358,10 +424,10 @@ index 3b7a2bbf3f248780743949c1535e43ac2c05b63f..f34b11e88e3640fe9e3f87d94ff87691
            ExpressionAttributeNames: {
              "#pk": pk,
 diff --git a/dist/esm/storage/memory.js b/dist/esm/storage/memory.js
-index 4017390a80ddfd2868337ef51a72e6df136452ca..0dc232ac9cd4ca2195c648840e608b0ab2c2ed47 100644
+index 4017390a80ddfd2868337ef51a72e6df136452ca..4595e22f57a1a93c348cb0be0ab5d35190a01cf0 100644
 --- a/dist/esm/storage/memory.js
 +++ b/dist/esm/storage/memory.js
-@@ -69,6 +69,18 @@ function MemoryStorage(input) {
+@@ -69,6 +69,37 @@ function MemoryStorage(input) {
          store.splice(match.index, 1);
          await save();
        }
@@ -377,14 +443,33 @@ index 4017390a80ddfd2868337ef51a72e6df136452ca..0dc232ac9cd4ca2195c648840e608b0a
 +      entry.n = (entry.n ?? 0) + 1;
 +      await save();
 +      return entry.n;
++    },
++    // tvseri.es patch: see DynamoStorage.count
++    async count(key, max, expiry, step = 1) {
++      const joined = joinKey(key);
++      const match = search(joined);
++      let entry = match.found ? store[match.index][1] : undefined;
++      if (entry?.expiry && Date.now() >= entry.expiry) {
++        store.splice(match.index, 1);
++        entry = undefined;
++      }
++      if ((entry?.n ?? 0) >= max)
++        return;
++      if (!entry) {
++        entry = { value: undefined, expiry: expiry.getTime(), n: 0 };
++        store.splice(search(joined).index, 0, [joined, entry]);
++      }
++      entry.n += step;
++      await save();
++      return entry.n;
      },
      async* scan(prefix) {
        const now = Date.now();
 diff --git a/dist/esm/storage/storage.js b/dist/esm/storage/storage.js
-index 84f125dcad424beaf271142a53e313469a591e4e..6320fc62bcbf9fca322f758f7d961ce1897cf9e0 100644
+index 84f125dcad424beaf271142a53e313469a591e4e..2a16d5e0baedbc544e9f7a430d8b6489e7c81774 100644
 --- a/dist/esm/storage/storage.js
 +++ b/dist/esm/storage/storage.js
-@@ -28,6 +28,11 @@ var Storage;
+@@ -28,6 +28,17 @@ var Storage;
      return adapter.scan(encode(key));
    }
    Storage.scan = scan;
@@ -393,6 +478,12 @@ index 84f125dcad424beaf271142a53e313469a591e4e..6320fc62bcbf9fca322f758f7d961ce1
 +    return adapter.incr(encode(key), max);
 +  }
 +  Storage.incr = incr;
++  // tvseri.es patch: an atomic counter that creates itself, see
++  // DynamoStorage.count. `ttl` in seconds, like set.
++  function count(adapter, key, max, ttl, step) {
++    return adapter.count(encode(key), max, new Date(Date.now() + ttl * 1000), step);
++  }
++  Storage.count = count;
  })(Storage ||= {});
  export {
    splitKey,
@@ -440,10 +531,10 @@ index 904bb5a4c84e7ebd410cdcfd2fb43bb30aa93549..78db474a43f96d0c5eec94457fdf52b4
       * @internal
       */
 diff --git a/dist/types/provider/code.d.ts b/dist/types/provider/code.d.ts
-index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..c6d6c9c3f455ab44be963f524d12ec9aa79ea732 100644
+index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..4365ee5e6eb69dba589ae08fdb456a0dbdea23e2 100644
 --- a/dist/types/provider/code.d.ts
 +++ b/dist/types/provider/code.d.ts
-@@ -6,6 +6,15 @@ export interface CodeProviderConfig<Claims extends Record<string, string> = Reco
+@@ -6,6 +6,25 @@ export interface CodeProviderConfig<Claims extends Record<string, string> = Reco
       * @default 6
       */
      length?: number;
@@ -456,10 +547,20 @@ index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..c6d6c9c3f455ab44be963f524d12ec9a
 +     * error is answered like one from `sendCode`.
 +     */
 +    checkClaims?: (claims: Claims) => Promise<CodeProviderError | undefined>;
++    /**
++     * tvseri.es patch: who is asking for a code (an IP address, say); each
++     * source gets 10 sends an hour. Without one only `dailySends` applies.
++     */
++    source?: (req: Request) => string | undefined;
++    /**
++     * tvseri.es patch: the ceiling on sent codes per UTC day, all claims
++     * together. No ceiling when unset.
++     */
++    dailySends?: number;
      /**
       * The request handler to generate the UI for the code flow.
       *
-@@ -46,7 +55,8 @@ export type CodeProviderState = {
+@@ -46,7 +65,8 @@ export type CodeProviderState = {
  } | {
      type: "code";
      resend?: boolean;
@@ -469,17 +570,19 @@ index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..c6d6c9c3f455ab44be963f524d12ec9a
      claims: Record<string, string>;
  };
  /**
-@@ -56,6 +66,9 @@ export type CodeProviderState = {
+@@ -56,6 +76,11 @@ export type CodeProviderState = {
   * | ----- | ----------- |
   * | `invalid_code` | The code is invalid. |
   * | `invalid_claim` | The _claim_, email or phone number, is invalid. |
 + * | `rate_limited` | Too many codes sent for this claim (tvseri.es patch). |
 + * | `code_expired` | The code expired, was used, or had too many wrong attempts (tvseri.es patch). |
 + * | `send_failed` | The code couldn't be sent (tvseri.es patch). |
++ * | `send_limited` | Too many codes sent from this source or today (tvseri.es patch). |
++ * | `too_many_tries` | Too many wrong codes for this claim today (tvseri.es patch). |
   */
  export type CodeProviderError = {
      type: "invalid_code";
-@@ -63,6 +76,12 @@ export type CodeProviderError = {
+@@ -63,6 +88,16 @@ export type CodeProviderError = {
      type: "invalid_claim";
      key: string;
      value: string;
@@ -489,6 +592,26 @@ index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..c6d6c9c3f455ab44be963f524d12ec9a
 +    type: "code_expired";
 +} | {
 +    type: "send_failed";
++} | {
++    type: "send_limited";
++} | {
++    type: "too_many_tries";
  };
  export declare function CodeProvider<Claims extends Record<string, string> = Record<string, string>>(config: CodeProviderConfig<Claims>): Provider<{
      claims: Claims;
+diff --git a/dist/types/storage/storage.d.ts b/dist/types/storage/storage.d.ts
+index 6dfc5e2de18093fa6e8bfd5147034f6ff3df3784..a67a15494f397ce076c8c7a3cfe2476b6be210b1 100644
+--- a/dist/types/storage/storage.d.ts
++++ b/dist/types/storage/storage.d.ts
+@@ -11,5 +11,11 @@ export declare namespace Storage {
+     function set(adapter: StorageAdapter, key: string[], value: any, ttl?: number): Promise<void>;
+     function remove(adapter: StorageAdapter, key: string[]): Promise<void>;
+     function scan<T>(adapter: StorageAdapter, key: string[]): AsyncIterable<[string[], T]>;
++    /**
++     * tvseri.es patch: atomically adds `step` (default 1) to a counter below
++     * `max`, creating it with an expiry `ttl` seconds away. The new count, or
++     * undefined at the limit. Dynamo and memory adapters only.
++     */
++    function count(adapter: StorageAdapter, key: string[], max: number, ttl: number, step?: number): Promise<number | undefined>;
+ }
+ //# sourceMappingURL=storage.d.ts.map

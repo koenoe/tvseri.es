@@ -69,9 +69,11 @@ const checkClaims = (
  */
 export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
   const hasGoogle = Object.hasOwn(options.providers, 'google');
-  // Email refused (a failed send, then this address's 5 codes in 15
-  // minutes): say so plainly and lead with Google, which works now. The
-  // Google button, already first, takes the focus.
+  // Email refused (a failed send, this address's 5 codes in 15 minutes or
+  // 20 wrong codes today, the network's or the day's send cap): say so
+  // plainly and lead with Google, which works now. The Google button,
+  // already first, takes the focus. The send caps say nothing about the
+  // address, so they never tell whether it has an account.
   const startNotes: Partial<Record<CodeProviderError['type'], NoteCopy>> = {
     rate_limited: warn(
       'Email codes for this address are paused for 15 minutes.',
@@ -83,6 +85,18 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
         ? 'Continue with Google to sign in now, or try email again later.'
         : 'Try again in a few minutes.',
     ),
+    send_limited: warn(
+      'Email codes are paused for now.',
+      hasGoogle
+        ? 'Continue with Google to sign in now, or try email again later.'
+        : 'Try again later.',
+    ),
+    too_many_tries: warn(
+      'Too many tries.',
+      hasGoogle
+        ? 'Try again tomorrow, or continue with Google to sign in now.'
+        : 'Try again tomorrow.',
+    ),
   };
   // A failed resend keeps the person on the code page (our patch)
   const codeNotes: Partial<Record<CodeProviderError['type'], NoteCopy>> = {
@@ -93,6 +107,10 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
     send_failed: warn(
       'We couldn’t send a new code.',
       'Use the newest one, or try again in a minute.',
+    ),
+    send_limited: warn(
+      'We can’t send more codes right now.',
+      'Use the newest one, or try again later.',
     ),
   };
 
@@ -115,8 +133,8 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
 
       if (state.type === 'start') {
         const emailError = error?.type === 'invalid_claim';
-        const emailRefused =
-          error?.type === 'send_failed' || error?.type === 'rate_limited';
+        // Every start note is a refusal of email
+        const emailRefused = !!error && Object.hasOwn(startNotes, error.type);
         return htmlPage(
           <StartPage
             email={formValue(form, 'email')}
@@ -165,7 +183,9 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
       });
     },
     // Returning an error means nothing was sent: the provider then records
-    // nothing, so the honeypot and failures don't use up anyone's limit.
+    // no code, so a failure doesn't use up the address's 5 sends. (The
+    // network's and the day's caps were reserved before the send and keep
+    // it; the honeypot is turned away before any of them.)
     sendCode: async (claims, code) => {
       const invalid = checkClaims(claims);
       if (invalid) {

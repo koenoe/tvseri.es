@@ -43,6 +43,8 @@ export type AppConfig = Readonly<{
   google: ReturnType<typeof OidcProvider>;
   /** How long a sent code works, in seconds (`CODE_TTL`) */
   codeTtl: number;
+  /** The ceiling on code emails per UTC day (`DAILY_SENDS`) */
+  dailySends: number;
   /** OpenAuth's refresh hook (our patch): re-reads the user's role on a refresh */
   refresh?: (
     input: Readonly<{
@@ -51,6 +53,11 @@ export type AppConfig = Readonly<{
       type: string;
     }>,
   ) => Promise<Record<string, unknown> | undefined>;
+  /**
+   * Where a code request comes from, for the per-source send cap
+   * (`sendSourceFor`); undefined means no per-source cap
+   */
+  source: (req: Request) => string | undefined;
   sendEmail: (
     message: Readonly<{
       html: string;
@@ -117,6 +124,9 @@ export function createApp(config: AppConfig) {
           },
           site: config.site,
         }),
+        // The patch's send caps beyond one address: per network and per day
+        dailySends: config.dailySends,
+        source: config.source,
         // The patch's expiry: the same value the email and the page say
         ttl: config.codeTtl,
       }),

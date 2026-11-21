@@ -27,6 +27,10 @@ declare module "sst" {
       "type": "sst.aws.Auth"
       "url": string
     }
+    "AuthEdgeKey": {
+      "type": "sst.sst.Linkable"
+      "value": string
+    }
     "AuthEmail": {
       "sender": string
       "type": "sst.sst.Linkable"

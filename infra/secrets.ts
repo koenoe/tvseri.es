@@ -21,3 +21,21 @@ export const apiKeyRandom = new random.RandomPassword('ApiKeyRandom', {
 export const apiKey = new sst.Linkable('ApiKey', {
   properties: { value: apiKeyRandom.result },
 });
+
+// Shared only between the auth router's edge function and the issuer, which
+// update in the same deploy. Until both have a new value, requests only
+// count as one network for the code send cap.
+export const authEdgeKeyRandom = new random.RandomPassword(
+  'AuthEdgeKeyRandom',
+  {
+    keepers: {
+      version: '1',
+    },
+    length: 32,
+    special: false,
+  },
+);
+
+export const authEdgeKey = new sst.Linkable('AuthEdgeKey', {
+  properties: { value: authEdgeKeyRandom.result },
+});

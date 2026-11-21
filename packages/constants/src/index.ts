@@ -1,4 +1,5 @@
 export { API_METRICS_SAMPLE_RATE } from './apiMetrics';
+export { AUTH_EDGE_KEY_HEADER } from './authEdge';
 export {
   type AuthNotice,
   GOOGLE_UNVERIFIED_DESCRIPTION,

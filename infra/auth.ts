@@ -1,5 +1,6 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
+import { AUTH_EDGE_KEY_HEADER } from '../packages/constants/src/authEdge';
 import { productionReserved } from './concurrency';
 import { domain, zone } from './dns';
 import * as dynamo from './dynamo';
@@ -61,7 +62,7 @@ export const auth = new sst.aws.Auth('Auth', {
       BASE_DOMAIN: domain,
     },
     handler: 'apps/auth/src/index.handler',
-    link: [authEmail, authUsers, secrets.googleClientId],
+    link: [authEmail, authUsers, secrets.authEdgeKey, secrets.googleClientId],
     memory: '1024 MB',
     nodejs: {
       loader: {
@@ -71,5 +72,21 @@ export const auth = new sst.aws.Auth('Auth', {
       },
     },
     timeout: '15 seconds',
+  },
+  transform: {
+    // The edge key on every request through CloudFront, replacing any copy
+    // the browser sent: the issuer then believes CloudFront-Viewer-Address
+    // (forwarded by SST's origin request policy) for its code send cap
+    // (apps/auth/src/lib/sendLimits.ts).
+    router: (args) => {
+      args.edge = {
+        viewerRequest: {
+          injection: $resolve([secrets.authEdgeKeyRandom.result]).apply(
+            ([key]) =>
+              `event.request.headers[${JSON.stringify(AUTH_EDGE_KEY_HEADER)}] = { value: ${JSON.stringify(key)} };`,
+          ),
+        },
+      };
+    },
   },
 });

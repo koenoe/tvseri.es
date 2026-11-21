@@ -4,7 +4,7 @@ import type { StorageAdapter } from '@openauthjs/openauth/storage/storage';
 
 import { type AppConfig, createApp } from '../app';
 import { CODE_TTL } from '../lib/codeLifetime';
-import { DAILY_SENDS } from '../lib/sendLimits';
+import { DAILY_SENDS, sendSourceFor } from '../lib/sendLimits';
 import { FAKE_GOOGLE_CLIENT_ID } from './fakeGoogle';
 
 export type SentMail = Readonly<{
@@ -15,6 +15,9 @@ export type SentMail = Readonly<{
 }>;
 
 const LOCAL = new Set(['localhost', '127.0.0.1']);
+
+/** The edge key the test app trusts, as the auth router would send it */
+export const TEST_EDGE_KEY = 'test-edge-key';
 
 /** Any local callback at `/api/auth/callback`, like a non-production stage */
 const allowLocal: AppConfig['allow'] = async ({ redirectURI }) => {
@@ -42,6 +45,8 @@ export function createTestApp(
     site?: string;
     /** The issuer storage (a fresh memory storage otherwise) */
     storage?: StorageAdapter;
+    /** Where a code request counts (`sendSourceFor(TEST_EDGE_KEY)` otherwise) */
+    source?: AppConfig['source'];
   }> = {},
 ) {
   const mail: SentMail[] = [];
@@ -87,6 +92,7 @@ export function createTestApp(
       mail.push(message);
     },
     site,
+    source: options.source ?? sendSourceFor(TEST_EDGE_KEY),
     storage,
     ttl: { access: 600, refresh: 86_400, reuse: 300 },
   });

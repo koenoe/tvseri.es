@@ -9,7 +9,6 @@ import { Hono } from 'hono';
 import { csrf } from 'hono/csrf';
 
 import { renderCodeEmail } from './lib/codeEmail';
-import { sendSource } from './lib/sendLimits';
 import { contentSecurityPolicy, FONT } from './ui/assets';
 import { CodeUI } from './ui/code';
 import { lostStateResponse } from './ui/error';
@@ -54,6 +53,11 @@ export type AppConfig = Readonly<{
       type: string;
     }>,
   ) => Promise<Record<string, unknown> | undefined>;
+  /**
+   * Where a code request comes from, for the per-source send cap
+   * (`sendSourceFor`); undefined means no per-source cap
+   */
+  source: (req: Request) => string | undefined;
   sendEmail: (
     message: Readonly<{
       html: string;
@@ -122,7 +126,7 @@ export function createApp(config: AppConfig) {
         }),
         // The patch's send caps beyond one address: per network and per day
         dailySends: config.dailySends,
-        source: sendSource,
+        source: config.source,
         // The patch's expiry: the same value the email and the page say
         ttl: config.codeTtl,
       }),

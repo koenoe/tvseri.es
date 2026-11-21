@@ -1,10 +1,11 @@
 import { createHash } from 'node:crypto';
+import { AUTH_EDGE_KEY_HEADER as EDGE_KEY_HEADER } from '@tvseri.es/constants';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { SCRIPT_HEADER } from './app';
 import { CODE_TTL, formatCodeLifetime } from './lib/codeLifetime';
 import { browser, ORIGIN } from './testing/browser';
-import { authorizeUrl, createTestApp } from './testing/testApp';
+import { authorizeUrl, createTestApp, TEST_EDGE_KEY } from './testing/testApp';
 import { FONT } from './ui/assets';
 
 const startSignIn = async (extra: Readonly<Record<string, string>> = {}) => {
@@ -359,16 +360,20 @@ describe('limits beyond one code', () => {
   // The start of a UTC day, so a test never crosses midnight by accident
   const midday = () => Math.floor(Date.now() / DAY) * DAY + DAY / 2;
 
-  /** A sign-in in its own browser, posting from `address` (CloudFront's header) */
+  /** What the auth router adds: the edge key and the viewer's address */
+  const viaEdge = (address: string) => ({
+    'cloudfront-viewer-address': address,
+    [EDGE_KEY_HEADER]: TEST_EDGE_KEY,
+  });
+
+  /** A sign-in in its own browser, through the edge from `address` */
   const visitor = async (
     test: ReturnType<typeof createTestApp>,
     address?: string,
   ) => {
     const b = browser(test.app);
     await b.get(authorizeUrl(ORIGIN));
-    const headers: Record<string, string> = address
-      ? { 'cloudfront-viewer-address': address }
-      : {};
+    const headers: Record<string, string> = address ? viaEdge(address) : {};
     return {
       request: async (email: string) =>
         (
@@ -521,7 +526,7 @@ describe('limits beyond one code', () => {
       const ip = '198.51.100.10:46532';
       const b = browser(test.app);
       await b.get(authorizeUrl(ORIGIN));
-      const headers = { 'cloudfront-viewer-address': ip };
+      const headers = viaEdge(ip);
       await b.post(
         '/code/authorize',
         { action: 'request', email: 'ana@example.com', verify_email: '' },
@@ -540,6 +545,35 @@ describe('limits beyond one code', () => {
       expect(resend).toContain('We can’t send more codes right now.');
       expect(resend).toContain('Use the newest one, or try again later.');
       expect(resend).toContain('id="cf"');
+    });
+
+    it('counts every request that didn’t come through the edge as one network', async () => {
+      vi.useFakeTimers({ now: midday(), toFake: ['Date'] });
+      const test = createTestApp();
+      // A stated address without the edge key isn't believed
+      for (let i = 0; i < 10; i++) {
+        const b = browser(test.app);
+        await b.get(authorizeUrl(ORIGIN));
+        await b.post(
+          '/code/authorize',
+          {
+            action: 'request',
+            email: `user${i}@example.com`,
+            verify_email: '',
+          },
+          { 'cloudfront-viewer-address': `198.51.100.${i}:1` },
+        );
+      }
+      expect(test.mail).toHaveLength(10);
+      expect(await (await visitor(test)).request('new@example.com')).toContain(
+        'Email codes are paused for now.',
+      );
+      // Through the edge, people still get their codes
+      expect(
+        await (await visitor(test, '203.0.113.7:443')).request(
+          'new@example.com',
+        ),
+      ).toContain('Check your email');
     });
 
     it('doesn’t count requests that send nothing (honeypot, not an address)', async () => {
@@ -568,7 +602,7 @@ describe('limits beyond one code', () => {
         'new@example.com',
       );
       expect(refused).toContain('Email codes are paused for now.');
-      // Without CloudFront's header the ceiling still holds
+      // Requests from outside the edge meet the same ceiling
       expect(await (await visitor(test)).request('new@example.com')).toContain(
         'Email codes are paused for now.',
       );

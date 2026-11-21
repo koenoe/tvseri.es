@@ -44,7 +44,9 @@ export function useSelectedServices(
 
   const apply = useCallback(
     (action: WatchProviderAction, toastFor: ToggleAction | null) => {
-      const { list, seq } = ledger.want(action);
+      const { seq, value: list } = ledger.want((wanted) =>
+        servicesReducer(wanted, action),
+      );
       startSaving(async () => {
         applyOptimistic(action);
         // A thrown action (offline, a server error) is a failed save too:

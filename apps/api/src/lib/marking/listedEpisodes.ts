@@ -1,6 +1,7 @@
 import { parseEpisodeCode } from '@tvseri.es/schemas';
 
-import { seasonsForMark, seriesForMark } from './catalog';
+import { readShow } from '@/lib/catalogue';
+import { seasonsForMark } from './catalog';
 
 /**
  * The codes of episodes TMDB lists for a show, in the order given: each is
@@ -18,7 +19,7 @@ export const listedEpisodeCodes = async <Code extends string>(
   // Only the show's own seasons are fetched: codes for seasons it doesn't
   // have (S000…S999 in a crafted request) would each cost TMDB a read and
   // store a null
-  const series = await seriesForMark(seriesId);
+  const series = await readShow(seriesId, 'mark');
   const own = new Set([
     ...(series?.seasons ?? []).map((season) => season.seasonNumber),
     ...(series?.specials ? [0] : []),

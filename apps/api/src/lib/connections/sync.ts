@@ -12,7 +12,7 @@ import {
   syncTagPrefix,
 } from '@tvseri.es/schemas';
 import { chunk, sleep } from '@tvseri.es/utils';
-
+import { readShow } from '@/lib/catalogue';
 import { type OpenedSecret, openSecret } from '@/lib/connections/crypto';
 import {
   type Connection,
@@ -32,7 +32,7 @@ import {
   openEntriesAfter,
 } from '@/lib/db/connections/unresolved';
 import { writeWatchedBatch } from '@/lib/imports/write';
-import { seasonForMark, seriesForMark } from '@/lib/marking/catalog';
+import { seasonForMark } from '@/lib/marking/catalog';
 import { searchTvSeries } from '@/lib/tmdb/discover';
 import { asBrowser, readFailure } from './http';
 import { humanPauseMs } from './pace';
@@ -79,7 +79,7 @@ export const syncTag = (service: ConnectionService, id: string) =>
 
 const apiCatalog: Catalog = {
   getSeason: seasonForMark,
-  getTvSeries: seriesForMark,
+  getTvSeries: (id) => readShow(id, 'mark'),
   searchTvSeries: (title) => searchTvSeries(title),
 };
 

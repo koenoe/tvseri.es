@@ -1,6 +1,6 @@
 import type { WatchProvider } from '@tvseri.es/schemas';
 
-import { seriesForMark } from '@/lib/marking/catalog';
+import { readShow } from '@/lib/catalogue';
 import { fetchTvSeriesEpisode } from '@/lib/tmdb/seasons';
 
 import { request } from './request';
@@ -16,7 +16,7 @@ type EpisodeRef = Readonly<{
 /** The show and episode as the web sends them, read from (fake) TMDB */
 const catalogue = async ({ episode, season = 1, show }: EpisodeRef) => {
   const [tvSeries, details] = await Promise.all([
-    seriesForMark(show),
+    readShow(show, 'mark'),
     fetchTvSeriesEpisode(show, season, episode),
   ]);
   if (!tvSeries || !details) {

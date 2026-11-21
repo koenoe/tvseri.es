@@ -33,16 +33,16 @@ export default function NotFoundView({
   shows?: ReadonlyArray<NotFoundShow>;
   still: NotFoundStill;
 }>) {
-  const pool = shows.map(({ id, slug }) => ({ id, slug }));
+  // the same array as the posters' pool, so the payload carries it once
   const actions = (
     <>
-      {pool.length > 0 ? <PickOneButton shows={pool} /> : null}
+      {shows.length > 0 ? <PickOneButton shows={shows} /> : null}
       <HomeButton />
     </>
   );
   const discovery =
     shows.length > 0 ? <NotFoundPosters pool={shows} /> : undefined;
-  const body = pool.length > 0 ? BODY_WITH_PICK : BODY;
+  const body = shows.length > 0 ? BODY_WITH_PICK : BODY;
   return (
     <ErrorState
       actions={actions}

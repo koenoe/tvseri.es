@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  MAX_DAY_REVALIDATE_SECONDS,
+  MAX_DAY_LATENESS_SECONDS,
   secondsUntilNextUtcDay,
   untilUtcMidnight,
 } from './untilUtcMidnight';
@@ -16,10 +16,10 @@ describe('secondsUntilNextUtcDay', () => {
 });
 
 describe('untilUtcMidnight', () => {
-  it('revalidates within 15 minutes, the client keeps it until midnight', () => {
+  it('revalidates halfway to 15 minutes past midnight, the client keeps it until midnight', () => {
     expect(untilUtcMidnight(new Date('2026-11-11T18:00:00Z'))).toEqual({
       expire: 6 * 3600 + 86_400,
-      revalidate: MAX_DAY_REVALIDATE_SECONDS,
+      revalidate: (6 * 3600 + MAX_DAY_LATENESS_SECONDS) / 2,
       stale: 6 * 3600,
     });
   });
@@ -44,13 +44,29 @@ describe('untilUtcMidnight', () => {
       worst = Math.max(worst, dayLateness(made));
     }
     // uncapped, an entry made at 00:30 would keep Friday until 23:30 on Saturday
-    expect(worst).toBeLessThanOrEqual(MAX_DAY_REVALIDATE_SECONDS);
+    expect(worst).toBeLessThanOrEqual(MAX_DAY_LATENESS_SECONDS);
   });
 
-  it('never goes under the 5-minute prerender floor', () => {
+  /**
+   * How often a page with steady visits regenerates in a day when the day
+   * entry drives its life: each regeneration makes a new entry (the old one
+   * is stale), and the page lives that entry's `revalidate`.
+   */
+  it('regenerates Home at most 8 times a day, not every 15 minutes', () => {
+    const midnight = Date.UTC(2026, 10, 13);
+    let at = midnight;
+    let regenerations = 0;
+    while (at < midnight + 86_400_000) {
+      regenerations++;
+      at += untilUtcMidnight(new Date(at)).revalidate * 1000;
+    }
+    expect(regenerations).toBeLessThanOrEqual(8);
+  });
+
+  it('keeps the client life over the 5-minute prerender floor', () => {
     expect(untilUtcMidnight(new Date('2026-11-11T23:59:00Z'))).toEqual({
       expire: 300 + 86_400,
-      revalidate: 300,
+      revalidate: (60 + MAX_DAY_LATENESS_SECONDS) / 2,
       stale: 300,
     });
   });

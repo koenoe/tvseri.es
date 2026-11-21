@@ -66,8 +66,9 @@ const PICK_POOL_SIZE = 21;
 
 /**
  * Today (UTC, `YYYY-MM-DD`): the entry turns over at midnight
- * (`untilUtcMidnight`, the one life that isn't a CACHE_LIFE profile), so
- * Home regenerates once a day, when its copy changes.
+ * (`untilUtcMidnight`, the one life that isn't a CACHE_LIFE profile). It is
+ * Home's shortest life, so the page regenerates about 8 times a day, and
+ * names the new day by 00:15 at the latest.
  */
 export async function getHomeDay(): Promise<string> {
   'use cache';

@@ -29,22 +29,23 @@ import {
 } from '@/lib/db/connections/unresolved';
 import { getMarksByProvider } from '@/lib/db/watched';
 import { writeWatchedBatch } from '@/lib/imports/write';
-import { requireAuth, type Variables } from '@/middleware/auth';
+import { requireAuth, type SignedInVariables } from '@/middleware/auth';
 import { SERVICE_PARAM, serviceParam } from '@/routes/serviceParam';
 
 /** Every service has the same routes under `/:service` */
-const app = new Hono<{ Variables: Variables }>();
+// Every route is behind requireAuth() (below, and /me's own)
+const app = new Hono<{ Variables: SignedInVariables }>();
 
 app.use(requireAuth());
 
 app.post('/link-code', vValidator('json', LinkCodeRequestSchema), async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const { service } = c.req.valid('json');
   return c.json(await mintLinkCode(user.id, service), 201);
 });
 
 app.delete('/link-code', async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   await revokeLinkCode(user.id);
   return c.body(null, 204);
 });
@@ -68,7 +69,7 @@ const NOT_CONNECTED: ConnectionStatus = {
 // DynamoDB only, so it sits on the write function and reflects a link the
 // moment it lands
 app.get(SERVICE, serviceParam, async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const { service } = c.req.valid('param');
   const connection = await getConnection(user.id, service);
   if (!connection) {
@@ -117,7 +118,7 @@ app.get(SERVICE, serviceParam, async (c) => {
 // Syncs run nightly; a viewer may sync now only until the first has
 // finished (to see the connection work), admins any time
 app.post(`${SERVICE}/sync`, serviceParam, async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const { service } = c.req.valid('param');
   // Consistent: the claim holds only while the stored run is the one read
   const connection = await getConnection(user.id, service, true);
@@ -167,7 +168,7 @@ app.get(
   serviceParam,
   vValidator('query', UnresolvedQuerySchema),
   async (c) => {
-    const { user } = c.get('auth')!;
+    const { user } = c.get('auth');
     const { cursor } = c.req.valid('query');
     return c.json(
       await listUnresolved(
@@ -184,7 +185,7 @@ app.post(
   serviceParam,
   vValidator('json', ConnectionResolveRequestSchema),
   async (c) => {
-    const { user } = c.get('auth')!;
+    const { user } = c.get('auth');
     const { service } = c.req.valid('param');
     const { items, keys } = c.req.valid('json');
     const result = await writeWatchedBatch(
@@ -204,7 +205,7 @@ app.post(
   serviceParam,
   vValidator('query', ConnectionDismissAllQuerySchema),
   async (c) => {
-    const { user } = c.get('auth')!;
+    const { user } = c.get('auth');
     const { group } = c.req.valid('query');
     const closed = await dismissAllUnresolved(
       user.id,
@@ -220,7 +221,7 @@ app.post(
   serviceParam,
   vValidator('json', ConnectionDismissRequestSchema),
   async (c) => {
-    const { user } = c.get('auth')!;
+    const { user } = c.get('auth');
     const { keys } = c.req.valid('json');
     const closed = await closeUnresolved(
       user.id,
@@ -233,7 +234,7 @@ app.post(
 );
 
 app.delete(SERVICE, serviceParam, async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   await deleteConnection(user.id, c.req.valid('param').service);
   return c.body(null, 204);
 });

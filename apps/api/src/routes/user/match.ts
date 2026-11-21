@@ -34,7 +34,7 @@ const NEW_TO_YOU = 6;
 // to the viewer, where the tastes split, and the follow flags. Signed-in
 // viewers only.
 app.get('/:id/match', user(), requireAuth(), async (c) => {
-  const { user: viewer } = c.get('auth')!;
+  const { user: viewer } = c.get('auth');
   const owner = c.get('user');
 
   if (owner.id === viewer.id) {

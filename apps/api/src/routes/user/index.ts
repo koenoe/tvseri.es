@@ -619,7 +619,7 @@ app.delete(
 );
 
 app.post('/:id/follow', user(), requireAuth(), async (c) => {
-  const { user: userFromSession } = c.get('auth')!;
+  const { user: userFromSession } = c.get('auth');
   const user = c.get('user');
 
   if (user.id === userFromSession.id) {
@@ -637,7 +637,7 @@ app.post('/:id/follow', user(), requireAuth(), async (c) => {
 });
 
 app.delete('/:id/unfollow', user(), requireAuth(), async (c) => {
-  const { user: userFromSession } = c.get('auth')!;
+  const { user: userFromSession } = c.get('auth');
   const user = c.get('user');
 
   if (user.id === userFromSession.id) {
@@ -688,8 +688,7 @@ app.get(
   requireAuth(),
   vValidator('query', FollowListQuerySchema),
   async (c) => {
-    const auth = c.get('auth');
-    const userFromSession = auth?.user;
+    const { user: userFromSession } = c.get('auth');
 
     const user = c.get('user');
     const limit = parseLimit(c.req.valid('query').limit, { max: 100 });
@@ -701,14 +700,14 @@ app.get(
         sortDirection: c.req.valid('query').sort_direction,
       },
       userId: user.id,
-      viewerId: userFromSession?.id,
+      viewerId: userFromSession.id,
     });
 
     const enrichedUsers = enrichUsersWithFollowInfo(
       items,
       statuses,
       userFromSession,
-      { hideIsFollower: userFromSession?.id === user.id },
+      { hideIsFollower: userFromSession.id === user.id },
     );
 
     return c.json({
@@ -724,8 +723,7 @@ app.get(
   requireAuth(),
   vValidator('query', FollowListQuerySchema),
   async (c) => {
-    const auth = c.get('auth');
-    const userFromSession = auth?.user;
+    const { user: userFromSession } = c.get('auth');
 
     const user = c.get('user');
     const limit = parseLimit(c.req.valid('query').limit, { max: 100 });
@@ -737,7 +735,7 @@ app.get(
         sortDirection: c.req.valid('query').sort_direction,
       },
       userId: user.id,
-      viewerId: userFromSession?.id,
+      viewerId: userFromSession.id,
     });
 
     const enrichedUsers = enrichUsersWithFollowInfo(

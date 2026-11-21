@@ -5,13 +5,14 @@ import * as v from 'valibot';
 import { getLibraryIds } from '@/lib/db/list';
 import { becauseYouWatched, moreGenre } from '@/lib/home/picks';
 import { spotlightLines } from '@/lib/home/spotlightLines';
-import type { Variables } from '@/middleware/auth';
+import type { SignedInVariables } from '@/middleware/auth';
 
 const DateQuerySchema = v.object({
   date: v.optional(v.pipe(v.string(), v.isoDate())),
 });
 
-const app = new Hono<{ Variables: Variables }>();
+// Mounted under /me, behind its requireAuth()
+const app = new Hono<{ Variables: SignedInVariables }>();
 
 // Personal rows picked per UTC day: only the viewer's browser keeps them, a day
 const HOME_CACHE_CONTROL = 'private, max-age=86400';
@@ -26,7 +27,7 @@ app.get(
   '/because-you-watched',
   vValidator('query', DateQuerySchema),
   async (c) => {
-    const { user } = c.get('auth')!;
+    const { user } = c.get('auth');
     const date = c.req.valid('query').date ?? todayUtc();
     const ids = await getLibraryIds(user.id);
 
@@ -48,7 +49,7 @@ app.get(
 
 // "If you liked <a show you finished>": a different pick than the row above
 app.get('/if-you-liked', vValidator('query', DateQuerySchema), async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const date = c.req.valid('query').date ?? todayUtc();
   const ids = await getLibraryIds(user.id);
 
@@ -59,14 +60,14 @@ app.get('/if-you-liked', vValidator('query', DateQuerySchema), async (c) => {
 
 // "More <genre>": the watchlist's most common genre
 app.get('/more-genre', async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
 
   return c.json(await moreGenre(await getLibraryIds(user.id)));
 });
 
 // The signed-in line under each spotlight show: "Like Severance, which you favourited"
 app.get('/spotlight-lines', async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
 
   return c.json(await spotlightLines(user.id, await getLibraryIds(user.id)));
 });

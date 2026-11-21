@@ -31,7 +31,7 @@ const providerParam = (c: Context) => c.req.param('type') as ScrobbleProvider;
 
 /** The user's token for a provider, or `{ token: null }` when they have none */
 app.get(TYPE_PATH, requireAuth(), async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const webhookToken = await findWebhookTokenByUserAndType({
     type: providerParam(c),
     userId: user.id,
@@ -44,7 +44,7 @@ app.get(TYPE_PATH, requireAuth(), async (c) => {
 
 /** Generates the user's token for a provider; an existing one is revoked */
 app.post(TYPE_PATH, requireAuth(), async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const webhookToken = await generateWebhookToken({
     type: providerParam(c),
     userId: user.id,
@@ -84,7 +84,7 @@ const toStatus = async (
 
 /** Connected or not, last scrobble, recent marks, pause, whose plays count */
 app.get(`${TYPE_PATH}/status`, requireAuth(), async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const provider = providerParam(c);
   const webhookToken = await findWebhookTokenByUserAndType({
     type: provider,
@@ -103,7 +103,7 @@ app.patch(
   requireAuth(),
   vValidator('json', UpdateWebhookSettingsSchema),
   async (c) => {
-    const { user } = c.get('auth')!;
+    const { user } = c.get('auth');
     const provider = providerParam(c);
     const updated = await updateWebhookSettings({
       ...c.req.valid('json'),
@@ -128,7 +128,7 @@ app.patch(
 
 /** Disconnect: the URL stops working; what's marked stays */
 app.delete(TYPE_PATH, requireAuth(), async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   await deleteWebhookToken({ type: providerParam(c), userId: user.id });
   return c.json({ message: 'OK' });
 });

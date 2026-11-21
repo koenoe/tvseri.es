@@ -20,7 +20,7 @@ app.get(
   vValidator('query', ViewerRegionQuerySchema),
   async (c) => {
     const owner = c.get('user');
-    const { user: viewer } = c.get('auth')!;
+    const { user: viewer } = c.get('auth');
     const { region } = c.req.valid('query');
     const calendar = await getCalendar(
       owner.id,

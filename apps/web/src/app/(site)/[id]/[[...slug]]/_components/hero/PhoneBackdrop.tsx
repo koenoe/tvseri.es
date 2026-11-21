@@ -20,7 +20,7 @@ import { PROGRESSIVE_BLUR } from '@/components/background/progressiveBlur';
 export const phoneHeroShade = (color: string) => {
   const rgb = hexToRgb(color).join(',');
   return {
-    background: `linear-gradient(180deg, rgba(20,17,13,0.65) 0px, rgba(20,17,13,0.5) 82px, rgba(20,17,13,0) 200px), linear-gradient(0deg, rgb(${rgb}) 0px, rgba(${rgb},0.85) 60px, rgba(${rgb},0.45) 120px, rgba(${rgb},0) 190px), ${heroShade(color)}`,
+    background: `linear-gradient(180deg, rgba(20,17,13,0.65) 0px, rgba(20,17,13,0.5) 82px, rgba(20,17,13,0) 200px), linear-gradient(0deg, rgb(${rgb}) 0px, rgba(${rgb},0.85) 50px, rgba(${rgb},0.45) 100px, rgba(${rgb},0) 150px), ${heroShade(color)}`,
   };
 };
 
@@ -57,7 +57,7 @@ export default function PhoneBackdrop() {
         srcSet={props.srcSet}
       />
       <span
-        className="absolute inset-x-0 top-[250px] bottom-0"
+        className="absolute inset-x-0 top-[290px] bottom-0"
         style={PROGRESSIVE_BLUR}
       />
       <span className="absolute inset-0" style={shadeStyle} />

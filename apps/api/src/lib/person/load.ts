@@ -99,7 +99,7 @@ type StoredCredits = Readonly<{
  * shows (from series facts), stored once per person and shared by Shows,
  * Career, Collaborators and the signed-in Watched line
  */
-const personCredits = (id: number | string) =>
+const personCredits = (id: number) =>
   readThroughStale<StoredCredits | null>(
     `person-credits:v3:${id}`,
     (stored) => (stored ? PERSON_FRESH : UNKNOWN_PERSON_FRESH),
@@ -125,7 +125,7 @@ const personCredits = (id: number | string) =>
  * Undefined for a person TMDB doesn't know.
  */
 export const fetchPersonShows = async (
-  id: number | string,
+  id: number,
 ): Promise<PersonShows | undefined> => {
   const stored = await personCredits(id);
   return stored
@@ -137,7 +137,7 @@ export const fetchPersonShows = async (
  * The Career chart: per series the first and last air year and the seasons'
  * years, from the shows' facts; stored in the Cache table (PERSON_FRESH).
  */
-export const fetchPersonCareer = (id: number | string) =>
+export const fetchPersonCareer = (id: number) =>
   readThroughStale(
     `person-career:v3:${id}`,
     PERSON_FRESH,
@@ -164,7 +164,7 @@ export const fetchPersonCareer = (id: number | string) =>
  * People in 2+ of the person's 15 biggest shows (intersected `aggregate_credits`),
  * stored in the Cache table (PERSON_FRESH).
  */
-export const fetchPersonCollaborators = (id: number | string) =>
+export const fetchPersonCollaborators = (id: number) =>
   readThroughStale(
     `person-collaborators:v3:${id}`,
     PERSON_FRESH,

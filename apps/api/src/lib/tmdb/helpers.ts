@@ -6,10 +6,11 @@ import type {
   TmdbDiscoverMovieQuery,
   TmdbDiscoverTvSeriesQuery,
   TmdbMovie,
+  TmdbMovieListItem,
   TmdbNetwork,
   TmdbTvSeries,
   TmdbTvSeriesCredits,
-  TmdbTvSeriesEpisode,
+  TmdbTvSeriesListItem,
   TvSeries,
 } from '@tvseri.es/schemas';
 import {
@@ -116,8 +117,15 @@ export function pickAutomaticImages(images: RawImages) {
   };
 }
 
-function extractImages(item: TmdbTvSeries | TmdbMovie) {
-  const images = item.images ?? {};
+function extractImages(
+  item: Readonly<{
+    backdrop_path?: string;
+    images?: TmdbTvSeries['images'];
+    poster_path?: string;
+  }>,
+) {
+  const images: Partial<NonNullable<TmdbTvSeries['images']>> =
+    item.images ?? {};
   const automatic = pickAutomaticImages(images);
   const backdrop = automatic.backdropPath ?? item.backdrop_path;
   const poster = item.poster_path ?? images.posters?.[0]?.file_path;
@@ -141,7 +149,9 @@ function extractImages(item: TmdbTvSeries | TmdbMovie) {
 }
 
 /** A genre's slug is its landing's; a film genre without one gets its name's */
-function normalizeGenres(genres: TmdbTvSeries['genres']) {
+function normalizeGenres(
+  genres: TmdbTvSeries['genres'] | TmdbTvSeriesListItem['genre_ids'],
+) {
   return (genres ?? []).map((genre) =>
     typeof genre === 'number'
       ? {
@@ -207,7 +217,14 @@ const formatReleaseYearForTvSeries = (
   status: TvSeries['status'],
 ) => formatSeriesYears({ firstAirDate, lastAirDate, status }) || 'TBA';
 
-export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
+/**
+ * A show's details (`/3/tv/:id`) or a list's item (search, discover,
+ * credits…), which has none of the details: they read as absent.
+ */
+export function normalizeTvSeries(
+  item: TmdbTvSeries | TmdbTvSeriesListItem,
+): TvSeries {
+  const series: Partial<TmdbTvSeries> & TmdbTvSeriesListItem = item;
   const images = extractImages(series);
   const status = series.status
     ? (series.status as TvSeries['status'])
@@ -226,8 +243,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
   const slug = toSlug(series.name ?? '', series.languages?.[0]);
 
   const lastEpisodeToAir = series.last_episode_to_air;
-  const nextEpisodeToAir =
-    series.next_episode_to_air as typeof lastEpisodeToAir;
+  const nextEpisodeToAir = series.next_episode_to_air;
   const nextHasAired = (seasonNumber: number) =>
     !!nextEpisodeToAir?.air_date &&
     nextEpisodeToAir.season_number === seasonNumber &&
@@ -366,23 +382,20 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
       externalIds: { imdbId: series.external_ids.imdb_id || null },
     }),
     firstAirDate,
-    // @ts-expect-error genre_ids is not defined in the type
-    genres: normalizeGenres(series.genres ?? series.genre_ids),
+    genres: normalizeGenres(
+      series.genres ?? ('genre_ids' in item ? item.genre_ids : undefined),
+    ),
     hasAired: hasAiredAt(firstAirDate, Date.now()),
     id: series.id,
     isAdult: series.adult,
     languages,
     lastAirDate,
     lastEpisodeToAir: series.last_episode_to_air
-      ? normalizeTvSeriesEpisode(
-          series.last_episode_to_air as unknown as TmdbTvSeriesEpisode,
-        )
+      ? normalizeTvSeriesEpisode(series.last_episode_to_air)
       : null,
     network,
     nextEpisodeToAir: series.next_episode_to_air
-      ? normalizeTvSeriesEpisode(
-          series.next_episode_to_air as unknown as TmdbTvSeriesEpisode,
-        )
+      ? normalizeTvSeriesEpisode(series.next_episode_to_air)
       : null,
     numberOfAiredEpisodes,
     numberOfEpisodes: series.number_of_episodes ?? 0,
@@ -407,12 +420,27 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
 }
 
 /**
- * TMDB's `episode_type` (`standard`, `finale`, `mid_season`; not in its
- * OpenAPI types): only the breaks we show, anything else is standard
+ * An episode as TMDB gives it anywhere: a season's, an episode's details, a
+ * show's last or next one, a find result. `episode_type` is only on some of
+ * them in the spec.
  */
-const episodeTypeOf = (episode: TmdbTvSeriesEpisode) => {
-  const type: unknown = (episode as Readonly<{ episode_type?: unknown }>)
-    .episode_type;
+type TmdbEpisodeFields = Readonly<{
+  air_date?: string | null;
+  episode_number: number;
+  episode_type?: unknown;
+  id: number;
+  name?: string;
+  overview?: string;
+  runtime?: number | null;
+  season_number: number;
+  still_path?: string | null;
+}>;
+
+/**
+ * TMDB's `episode_type` (`standard`, `finale`, `mid_season`): only the
+ * breaks we show, anything else is standard
+ */
+const episodeTypeOf = ({ episode_type: type }: TmdbEpisodeFields) => {
   return type === 'finale'
     ? ('finale' as const)
     : type === 'mid_season' || type === 'mid-season'
@@ -420,7 +448,7 @@ const episodeTypeOf = (episode: TmdbTvSeriesEpisode) => {
       : undefined;
 };
 
-export function normalizeTvSeriesEpisode(episode: TmdbTvSeriesEpisode) {
+export function normalizeTvSeriesEpisode(episode: TmdbEpisodeFields) {
   const airDate = episode.air_date
     ? new Date(episode.air_date).toISOString()
     : '';
@@ -442,7 +470,9 @@ export function normalizeTvSeriesEpisode(episode: TmdbTvSeriesEpisode) {
   };
 }
 
-export function normalizeMovie(movie: TmdbMovie): Movie {
+/** A film's details, or a list's item (no details: they read as absent) */
+export function normalizeMovie(item: TmdbMovie | TmdbMovieListItem): Movie {
+  const movie: Partial<TmdbMovie> & TmdbMovieListItem = item;
   const images = extractImages(movie);
 
   const slug = toSlug(movie.title ?? '');

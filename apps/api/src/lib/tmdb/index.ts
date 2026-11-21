@@ -1,4 +1,3 @@
-import type { BetterFetchOption } from '@better-fetch/fetch';
 import { CACHE_LIFE, WATCH_PROVIDER_PRIORITY } from '@tvseri.es/constants';
 import type {
   CountryOrLanguage,
@@ -16,29 +15,18 @@ import type {
   Season,
   SeriesImages,
   SeriesRuntimes,
-  TmdbCountries,
-  TmdbDiscoverTvSeries,
+  TmdbAppendable,
+  TmdbAppended,
   TmdbDiscoverTvSeriesQuery,
   TmdbExternalSource,
-  TmdbFindByIdResults,
-  TmdbGenresForTvSeries,
-  TmdbLanguages,
-  TmdbMovie,
   TmdbNetwork,
+  TmdbPath,
   TmdbPerson,
   TmdbPersonTvCredits,
-  TmdbSearchPerson,
-  TmdbSearchTvSeries,
-  TmdbTvSeries,
-  TmdbTvSeriesContentRatings,
-  TmdbTvSeriesCredits,
-  TmdbTvSeriesEpisode,
+  TmdbResponse,
   TmdbTvSeriesImages,
-  TmdbTvSeriesKeywords,
-  TmdbTvSeriesRecommendations,
   TmdbTvSeriesSeason,
   TmdbTvSeriesWatchProviders,
-  TmdbWatchProviders,
   TvSeries,
   WatchProvider,
 } from '@tvseri.es/schemas';
@@ -101,7 +89,6 @@ import {
   normalizeTvSeriesEpisode,
   pickAutomaticImages,
   pickCreatorOf,
-  type TmdbCastCredits,
   topCastNames,
 } from './helpers';
 
@@ -137,44 +124,62 @@ const $fetch = createInstrumentedFetch(
 /** A TMDB watch provider (a show's offer or the region's list) as served */
 const fromTmdbProvider = (
   provider: Readonly<{
-    logo_path?: string;
+    logo_path: string;
     provider_id: number;
-    provider_name?: string;
+    provider_name: string;
   }>,
 ): WatchProvider =>
   toWatchProvider({
     id: provider.provider_id,
-    logoPath: provider.logo_path!,
-    name: provider.provider_name as string,
+    logoPath: provider.logo_path,
+    name: provider.provider_name,
   });
 
-async function tmdbFetch(path: string, options?: BetterFetchOption) {
+/**
+ * An id the mark routes still pass as the text their `{[0-9]+}` matched: it
+ * goes into the TMDB path as it is (the URL and the cache keys stay what
+ * they were), typed as a number for the path patterns. Gone once those
+ * routes pass their validated number.
+ */
+export const pathId = (id: number | string): number => id as number;
+
+type TmdbFetchOptions<A extends string> = Readonly<{
+  /** Sub-resources in the same call (`append_to_response`), in this order */
+  append?: ReadonlyArray<A>;
+  query?: Readonly<Record<string, boolean | number | string | undefined>>;
+  /** A query string already built (`?…`), sent as it is after the path */
+  search?: string;
+}>;
+
+/**
+ * A GET of a TMDB path, typed by its pattern (`/3/tv/${number}`): its JSON
+ * and the appended sub-resources; undefined on a 404.
+ */
+export async function tmdbFetch<
+  P extends TmdbPath,
+  A extends TmdbAppendable<P> = never,
+>(
+  path: P,
+  { append, query: params, search = '' }: TmdbFetchOptions<A> = {},
+): Promise<(TmdbResponse<P> & TmdbAppended<P, A>) | undefined> {
+  const url = `${path}${search}`;
+  const query = append
+    ? { ...params, append_to_response: append.join(',') }
+    : params;
   // Dedupe concurrent requests to the same path within a Lambda invocation
-  const cacheKey = `${path}${options?.query ? JSON.stringify(options.query) : ''}`;
+  const cacheKey = `${url}${query ? JSON.stringify(query) : ''}`;
 
   return dedupe(cacheKey, async () => {
     takeCappedCall('tmdb');
-    const { accessToken, apiKey } = credentials();
-    const headers = {
-      'content-type': 'application/json',
-      ...(path.startsWith('/4/') && {
-        Authorization: `Bearer ${accessToken}`,
-      }),
-    };
+    const { apiKey } = credentials();
 
-    const { data, error } = await $fetch(path, {
-      ...options,
-      headers: {
-        ...headers,
-        ...options?.headers,
+    const { data, error } = await $fetch<TmdbResponse<P> & TmdbAppended<P, A>>(
+      url,
+      {
+        headers: { 'content-type': 'application/json' },
+        query: { ...query, api_key: apiKey },
       },
-      query: {
-        ...options?.query,
-        ...(path.startsWith('/3/') && {
-          api_key: apiKey,
-        }),
-      },
-    });
+    );
 
     if (error?.status === 404) {
       return undefined;
@@ -184,68 +189,61 @@ async function tmdbFetch(path: string, options?: BetterFetchOption) {
       throw new Error(`HTTP error status: ${error.status}`);
     }
 
-    return data;
+    // A 200 always has a body; null only when there was none
+    return data ?? undefined;
   });
 }
 
 const fetchRawTvSeries = async (
-  id: number | string,
+  id: number,
   includeImages = false,
   includeCredits = false,
-): Promise<(TmdbTvSeries & { credits?: TmdbCastCredits }) | undefined> => {
+) => {
   // One request: the external ids (IMDb), and the cast when asked, ride
   // along with the show
-  const series = (await tmdbFetch(`/3/tv/${id}`, {
-    query: {
-      append_to_response: includeCredits
-        ? 'external_ids,credits'
-        : 'external_ids',
-    },
-  })) as (TmdbTvSeries & { credits?: TmdbCastCredits }) | undefined;
+  const series = await tmdbFetch(`/3/tv/${id}`, {
+    append: includeCredits ? ['external_ids', 'credits'] : ['external_ids'],
+  });
 
   if (!series || !includeImages) {
     return series;
   }
 
-  const images = (await tmdbFetch(`/3/tv/${series.id}/images`, {
+  const images = await tmdbFetch(`/3/tv/${series.id}/images`, {
     query: {
       include_image_language: `en,null,${series.original_language ?? ''}`,
     },
-  })) as TmdbTvSeriesImages | undefined;
+  });
 
   return images ? { ...series, images } : series;
 };
 
 /** The raw TMDB details of a show (with external ids), undefined when unknown */
-export const fetchRawTvSeriesDetails = (id: number | string) =>
-  fetchRawTvSeries(id);
+export const fetchRawTvSeriesDetails = (id: number) => fetchRawTvSeries(id);
 
 /**
  * The show, its keywords and its recommendations in one TMDB call
  * (append_to_response), for the home picks.
  */
-export async function fetchTvSeriesForPicks(id: number | string) {
-  const response = (await tmdbFetch(`/3/tv/${id}`, {
-    query: { append_to_response: 'keywords,recommendations' },
-  })) as
-    | (TmdbTvSeries & {
-        keywords?: Readonly<{ results?: ReadonlyArray<Keyword> }>;
-        recommendations?: TmdbTvSeriesRecommendations;
-      })
-    | undefined;
+export async function fetchTvSeriesForPicks(id: number) {
+  const response = await tmdbFetch(`/3/tv/${id}`, {
+    append: ['keywords', 'recommendations'],
+  });
 
   if (!response) {
     return undefined;
   }
 
   return {
-    keywords: (response.keywords?.results ?? []).map((keyword) => ({
-      id: keyword.id,
-      name: String(keyword.name),
-    })) as ReadonlyArray<Keyword>,
+    keywords: (response.keywords?.results ?? []).map(
+      (keyword): Keyword => ({
+        id: keyword.id,
+        name: String(keyword.name),
+      }),
+    ),
     recommendations: (response.recommendations?.results ?? [])
       .filter((item) => !!item.poster_path)
-      .map((item) => normalizeTvSeries(item as TmdbTvSeries)),
+      .map((item) => normalizeTvSeries(item)),
     series: normalizeTvSeries(response),
   };
 }
@@ -256,7 +254,7 @@ export async function fetchTvSeriesForPicks(id: number | string) {
  * mutations): it saves 1-2 DynamoDB reads and possibly a Lambda invoke.
  */
 export async function fetchTvSeriesBase(
-  id: number | string,
+  id: number,
 ): Promise<TvSeries | undefined> {
   const series = await fetchRawTvSeries(id);
   return series ? normalizeTvSeries(series) : undefined;
@@ -294,7 +292,7 @@ const withPreferredImages = (
   tvSeries: TvSeries,
   preferredImages: PreferredImages | null | undefined,
   backdropColor: string | undefined,
-  images: TmdbTvSeries['images'],
+  images: TmdbTvSeriesImages | undefined,
 ): TvSeries => {
   if (preferredImages?.backdropImagePath) {
     const { titleTreatmentImagePath } = preferredImages;
@@ -345,7 +343,7 @@ const needsBackdropColor = (
 ) => !preferredImages?.backdropImagePath && !!tvSeries.backdropPath;
 
 export async function fetchTvSeries(
-  id: number | string,
+  id: number,
   options: Readonly<{ includeImages?: boolean }> = { includeImages: false },
 ): Promise<TvSeries | undefined> {
   const [series, preferredImages] = await Promise.all([
@@ -444,20 +442,25 @@ async function fetchTvSeriesListWithImages(ids: ReadonlyArray<number>) {
 const fetchTvSeriesPosterList = (ids: ReadonlyArray<number>) =>
   mapSettled(ids, (id) => fetchTvSeriesBase(id), TMDB_CONCURRENCY);
 
+/** An image TMDB gave a file for (the spec leaves `file_path` optional) */
+const hasFilePath = <T extends Readonly<{ file_path?: string | null }>>(
+  image: T,
+): image is T & Readonly<{ file_path: string }> => !!image.file_path;
+
 /**
  * A show's images on TMDB: text-free backdrops and every logo in TMDB's vote
  * order (logos with size and language), and the images the series object
  * uses when no admin pick is saved (`automatic`).
  */
 export async function fetchTvSeriesImages(
-  id: number | string,
+  id: number,
   originalLanguage?: string,
 ): Promise<Omit<SeriesImages, 'preferred'> | undefined> {
-  const response = (await tmdbFetch(`/3/tv/${id}/images`, {
+  const response = await tmdbFetch(`/3/tv/${id}/images`, {
     query: {
       include_image_language: `en,null,${originalLanguage ?? ''}`,
     },
-  })) as TmdbTvSeriesImages | undefined;
+  });
 
   if (!response) {
     return undefined;
@@ -471,20 +474,21 @@ export async function fetchTvSeriesImages(
   return {
     automatic: pickAutomaticImages(response),
     backdrops: (response.backdrops ?? [])
-      .filter((backdrop) => !!backdrop.file_path && backdrop.iso_639_1 === null)
+      .filter(hasFilePath)
+      .filter((backdrop) => backdrop.iso_639_1 === null)
       .sort(byVotes)
       .map((backdrop) => ({
-        path: backdrop.file_path!,
-        url: buildBackdropImageUrl(backdrop.file_path!),
+        path: backdrop.file_path,
+        url: buildBackdropImageUrl(backdrop.file_path),
       })),
     titleTreatment: (response.logos ?? [])
-      .filter((logo) => !!logo.file_path)
+      .filter(hasFilePath)
       .sort(byVotes)
       .map((logo) => ({
         height: logo.height ?? 0,
         language: typeof logo.iso_639_1 === 'string' ? logo.iso_639_1 : null,
-        path: logo.file_path!,
-        url: buildTitleTreatmentImageUrl(logo.file_path!),
+        path: logo.file_path,
+        url: buildTitleTreatmentImageUrl(logo.file_path),
         width: logo.width ?? 0,
       })),
   };
@@ -495,7 +499,7 @@ export async function fetchTvSeriesImages(
  * (without its key and bookkeeping), so the strips can mark it.
  */
 export async function fetchTvSeriesImageChoices(
-  id: number | string,
+  id: number,
   originalLanguage?: string,
 ): Promise<SeriesImages | undefined> {
   const [images, preferred] = await Promise.all([
@@ -521,12 +525,10 @@ export async function fetchTvSeriesImageChoices(
 }
 
 export async function fetchTvSeriesContentRating(
-  id: number | string,
+  id: number,
   region = 'US',
 ): Promise<string | undefined | null> {
-  const contentRatings = (await tmdbFetch(`/3/tv/${id}/content_ratings`)) as
-    | TmdbTvSeriesContentRatings
-    | undefined;
+  const contentRatings = await tmdbFetch(`/3/tv/${id}/content_ratings`);
 
   const contentRating =
     contentRatings?.results?.find((rating) => rating.iso_3166_1 === region)
@@ -535,68 +537,56 @@ export async function fetchTvSeriesContentRating(
   return contentRating;
 }
 
-type RegionProviders = NonNullable<
-  TmdbTvSeriesWatchProviders['results']
->[keyof NonNullable<TmdbTvSeriesWatchProviders['results']>];
-
 /**
  * A show's where-to-watch for every region, as TMDB gives it (only the
  * flat-rate, free and ad-supported offers we show), stored per show for a
  * day: the same for every viewer, so the profile's tickets, the
  * single-episode mark and the show page share one TMDB call per show a day.
  */
-const watchProvidersOf = (id: number | string) =>
+const watchProvidersOf = (id: number) =>
   readThroughStale<TmdbTvSeriesWatchProviders | null>(
     `tmdb-watch-providers:v3:${id}`,
     CACHE_LIFE.short.sMaxAge,
     // Kept a week to stand in; with a stored copy, a read waits on the
     // (low-priority) refresh only for what is left of its refresh wait
     7 * 24 * 60 * 60,
-    async () => {
-      const response = (await tmdbFetch(`/3/tv/${id}/watch/providers`)) as
-        | TmdbTvSeriesWatchProviders
-        | undefined;
+    async (): Promise<TmdbTvSeriesWatchProviders | null> => {
+      const response = await tmdbFetch(`/3/tv/${id}/watch/providers`);
       if (!response) {
         return null;
       }
       const results = Object.fromEntries(
         Object.entries(response.results ?? {}).map(([region, offers]) => {
-          const { ads, flatrate, free } = (offers ?? {}) as RegionProviders &
-            Readonly<{ ads?: unknown; free?: unknown }>;
+          const { ads, flatrate, free } = offers ?? {};
           return [region, { ads, flatrate, free }];
         }),
       );
-      return { ...response, results } as TmdbTvSeriesWatchProviders;
+      return { ...response, results };
     },
     { lowPriority: true, waitMs: refreshWaitMs },
   );
 
 export async function fetchTvSeriesWatchProviders(
-  id: number | string,
+  id: number,
   region = 'US',
 ): Promise<WatchProvider[]> {
   const watchProviders = (await watchProvidersOf(id)) ?? undefined;
 
-  const regionProviders =
-    watchProviders?.results?.[
-      region as keyof NonNullable<TmdbTvSeriesWatchProviders['results']>
-    ];
+  const regionProviders = watchProviders?.results?.[region];
   const flatrate = regionProviders?.flatrate ?? [];
   // Free and ad-supported services are shown like subscription ones
   const offersOf = (kind: 'ads' | 'free') => {
-    const offers = (regionProviders as Record<string, unknown> | undefined)?.[
-      kind
-    ];
-    return Array.isArray(offers) ? (offers as typeof flatrate) : [];
+    const offers = regionProviders?.[kind];
+    return Array.isArray(offers) ? offers : [];
   };
   const providers = [...offersOf('free'), ...offersOf('ads'), ...flatrate];
 
   return providers
     .sort((a, b) => {
       const aPriority =
-        WATCH_PROVIDER_PRIORITY[a.provider_name!] ?? a.display_priority ?? 0;
+        WATCH_PROVIDER_PRIORITY[a.provider_name] ?? a.display_priority ?? 0;
       const bPriority =
-        WATCH_PROVIDER_PRIORITY[b.provider_name!] ?? b.display_priority ?? 0;
+        WATCH_PROVIDER_PRIORITY[b.provider_name] ?? b.display_priority ?? 0;
       return aPriority - bPriority;
     })
     .map(fromTmdbProvider);
@@ -606,18 +596,16 @@ export async function fetchTvSeriesWatchProvider(
   id: number | string,
   region = 'US',
 ): Promise<WatchProvider | null> {
-  const watchProviders = await fetchTvSeriesWatchProviders(id, region);
+  const watchProviders = await fetchTvSeriesWatchProviders(pathId(id), region);
   const watchProvider = watchProviders[0] ?? null;
 
   return watchProvider;
 }
 
 export async function fetchTvSeriesCredits(
-  id: number | string,
+  id: number,
 ): Promise<Readonly<{ cast: Person[]; crew: CrewCredit[] }>> {
-  const credits = (await tmdbFetch(`/3/tv/${id}/aggregate_credits`)) as
-    | TmdbTvSeriesCredits
-    | undefined;
+  const credits = await tmdbFetch(`/3/tv/${id}/aggregate_credits`);
 
   if (!credits?.cast) {
     return {
@@ -638,37 +626,23 @@ export async function fetchTvSeriesCredits(
 }
 
 export async function fetchTvSeriesRecommendations(
-  id: number | string,
+  id: number,
 ): Promise<TvSeries[]> {
-  const response = (await tmdbFetch(`/3/tv/${id}/recommendations`)) as
-    | TmdbTvSeriesRecommendations
-    | undefined;
+  const response = await tmdbFetch(`/3/tv/${id}/recommendations`);
 
   return (response?.results ?? [])
     .filter((series) => !!series.poster_path)
-    .map((series) => {
-      return normalizeTvSeries(series as TmdbTvSeries);
-    });
+    .map((series) => normalizeTvSeries(series));
 }
 
 /**
  * What's needed to pick a Latin-script title: the original name, the origin
  * countries and the alternative titles, in one request.
  */
-export async function fetchTvSeriesTitles(id: number | string) {
-  const response = (await tmdbFetch(`/3/tv/${id}`, {
-    query: { append_to_response: 'alternative_titles' },
-  })) as
-    | Readonly<{
-        alternative_titles?: Readonly<{
-          results?: ReadonlyArray<
-            Readonly<{ iso_3166_1: string; title: string; type: string }>
-          >;
-        }>;
-        origin_country?: ReadonlyArray<string>;
-        original_name?: string;
-      }>
-    | undefined;
+export async function fetchTvSeriesTitles(id: number) {
+  const response = await tmdbFetch(`/3/tv/${id}`, {
+    append: ['alternative_titles'],
+  });
 
   return response
     ? {
@@ -680,11 +654,9 @@ export async function fetchTvSeriesTitles(id: number | string) {
 }
 
 export async function fetchTvSeriesKeywords(
-  id: number | string,
+  id: number,
 ): Promise<Keyword[] | undefined> {
-  const response = (await tmdbFetch(`/3/tv/${id}/keywords`)) as
-    | TmdbTvSeriesKeywords
-    | undefined;
+  const response = await tmdbFetch(`/3/tv/${id}/keywords`);
 
   return response?.results?.map((keyword) => ({
     id: keyword.id,
@@ -693,12 +665,10 @@ export async function fetchTvSeriesKeywords(
 }
 
 export async function fetchTvSeriesSeason(
-  id: number | string,
-  season: number | string,
+  id: number,
+  season: number,
 ): Promise<Season | undefined> {
-  const response = (await tmdbFetch(
-    `/3/tv/${id}/season/${season}`,
-  )) as TmdbTvSeriesSeason;
+  const response = await tmdbFetch(`/3/tv/${id}/season/${season}`);
 
   return response ? toSeason(response) : undefined;
 }
@@ -706,27 +676,24 @@ export async function fetchTvSeriesSeason(
 /** TMDB answers at most 20 appended sub-requests per call. */
 const APPEND_LIMIT = 20;
 
+/** A show with up to 20 of its seasons appended (`season/N`) */
+const fetchWithSeasons = (id: number, numbers: ReadonlyArray<number>) =>
+  tmdbFetch(`/3/tv/${id}`, {
+    append: numbers.map((number) => `season/${number}` as const),
+  });
+
 /**
  * Several seasons of a show with their episodes (as `fetchTvSeriesSeason`),
  * in one `/tv/:id` call per 20 seasons (`append_to_response=season/N,…`).
  * A season TMDB doesn't list is absent; undefined for an unknown show.
  */
 export async function fetchTvSeriesSeasons(
-  id: number | string,
+  id: number,
   seasonNumbers: ReadonlyArray<number>,
 ): Promise<ReadonlyMap<number, Season> | undefined> {
   const chunks = chunk([...new Set(seasonNumbers)], APPEND_LIMIT);
   const pages = await Promise.all(
-    chunks.map(
-      (numbers) =>
-        tmdbFetch(`/3/tv/${id}`, {
-          query: {
-            append_to_response: numbers
-              .map((number) => `season/${number}`)
-              .join(','),
-          },
-        }) as Promise<Record<string, unknown> | undefined>,
-    ),
+    chunks.map((numbers) => fetchWithSeasons(id, numbers)),
   );
   if (pages.some((page) => !page)) {
     return undefined;
@@ -734,9 +701,7 @@ export async function fetchTvSeriesSeasons(
   const seasons = new Map<number, Season>();
   for (const [index, numbers] of chunks.entries()) {
     for (const number of numbers) {
-      const season = pages[index]?.[`season/${number}`] as
-        | TmdbTvSeriesSeason
-        | undefined;
+      const season = pages[index]?.[`season/${number}`];
       if (season) {
         seasons.set(
           number,
@@ -753,7 +718,7 @@ export async function fetchTvSeriesSeasons(
 
 const toSeason = (response: TmdbTvSeriesSeason): Season => {
   const episodes = (response?.episodes ?? []).map((episode) =>
-    normalizeTvSeriesEpisode(episode as unknown as TmdbTvSeriesEpisode),
+    normalizeTvSeriesEpisode(episode),
   );
   const numberOfEpisodes = episodes.length;
   const numberOfAiredEpisodes =
@@ -791,11 +756,6 @@ const toSeason = (response: TmdbTvSeriesSeason): Season => {
   };
 };
 
-type TmdbRuntimeEpisode = Readonly<{
-  episode_number: number;
-  runtime?: number | null;
-}>;
-
 /**
  * Every regular season's episode runtimes in minutes (0 where TMDB has
  * none), by season number, index = episode number − 1: the show page's time
@@ -804,7 +764,7 @@ type TmdbRuntimeEpisode = Readonly<{
  * Specials (season 0) are left out. Undefined for an unknown show.
  */
 export async function fetchTvSeriesRuntimes(
-  id: number | string,
+  id: number,
   /** The regular season numbers when the caller knows them (no details call) */
   seasonNumbers?: ReadonlyArray<number>,
 ): Promise<SeriesRuntimes | undefined> {
@@ -821,24 +781,12 @@ export async function fetchTvSeriesRuntimes(
   const all = numbers;
   const chunks = chunk(all, APPEND_LIMIT);
   const pages = await Promise.all(
-    chunks.map(
-      (seasonNumbers) =>
-        tmdbFetch(`/3/tv/${id}`, {
-          query: {
-            append_to_response: seasonNumbers
-              .map((number) => `season/${number}`)
-              .join(','),
-          },
-        }) as Promise<Record<string, unknown> | undefined>,
-    ),
+    chunks.map((seasonNumbers) => fetchWithSeasons(id, seasonNumbers)),
   );
   const runtimes: Record<number, number[]> = {};
   for (const [index, seasonNumbers] of chunks.entries()) {
     for (const number of seasonNumbers) {
-      const season = pages[index]?.[`season/${number}`] as
-        | Readonly<{ episodes?: ReadonlyArray<TmdbRuntimeEpisode> }>
-        | undefined;
-      const episodes = season?.episodes ?? [];
+      const episodes = pages[index]?.[`season/${number}`]?.episodes ?? [];
       const length = Math.max(
         0,
         ...episodes.map((episode) => episode.episode_number),
@@ -878,38 +826,27 @@ const normalizeEpisodePeople = (
 
 /** A season's poster (the season details carry it; the Season type doesn't) */
 export async function fetchTvSeriesSeasonPoster(
-  id: number | string,
-  season: number | string,
+  id: number,
+  season: number,
 ): Promise<string | undefined> {
-  const response = (await tmdbFetch(`/3/tv/${id}/season/${season}`)) as
-    | TmdbTvSeriesSeason
-    | undefined;
+  const response = await tmdbFetch(`/3/tv/${id}/season/${season}`);
 
   return response?.poster_path
     ? buildPosterImageUrl(response.poster_path)
     : undefined;
 }
 
-type TmdbStill = Readonly<{
-  aspect_ratio: number;
-  file_path: string;
-  height: number;
-  vote_average: number;
-  vote_count: number;
-  width: number;
-}>;
-
 /** The stills (episode images) TMDB has for one episode, with size and votes */
 export async function fetchTvSeriesEpisodeStills(
-  id: number | string,
-  season: number | string,
-  episode: number | string,
+  id: number,
+  season: number,
+  episode: number,
 ): Promise<ReadonlyArray<EpisodeStill>> {
-  const response = (await tmdbFetch(
+  const response = await tmdbFetch(
     `/3/tv/${id}/season/${season}/episode/${episode}/images`,
-  )) as Readonly<{ stills?: ReadonlyArray<TmdbStill> }> | undefined;
+  );
 
-  return (response?.stills ?? []).map((still) => ({
+  return (response?.stills ?? []).filter(hasFilePath).map((still) => ({
     aspectRatio: still.aspect_ratio,
     height: still.height,
     path: still.file_path,
@@ -920,34 +857,27 @@ export async function fetchTvSeriesEpisodeStills(
 }
 
 export async function fetchTvSeriesEpisode(
-  id: number | string,
-  season: number | string,
-  episode: number | string,
+  id: number,
+  season: number,
+  episode: number,
 ): Promise<Episode | undefined> {
-  const response = (await tmdbFetch(
+  const response = await tmdbFetch(
     `/3/tv/${id}/season/${season}/episode/${episode}`,
-  )) as TmdbTvSeriesEpisode | undefined;
+  );
 
   return response ? normalizeTvSeriesEpisode(response) : undefined;
 }
 
 /** The episode plus its guest stars and crew, in the same TMDB call */
 export async function fetchTvSeriesEpisodeWithCredits(
-  id: number | string,
-  season: number | string,
-  episode: number | string,
+  id: number,
+  season: number,
+  episode: number,
 ): Promise<EpisodeWithCredits | undefined> {
-  const response = (await tmdbFetch(
+  const response = await tmdbFetch(
     `/3/tv/${id}/season/${season}/episode/${episode}`,
-    { query: { append_to_response: 'credits' } },
-  )) as
-    | (TmdbTvSeriesEpisode & {
-        credits?: Readonly<{
-          crew?: ReadonlyArray<TmdbEpisodePerson>;
-          guest_stars?: ReadonlyArray<TmdbEpisodePerson>;
-        }>;
-      })
-    | undefined;
+    { append: ['credits'] },
+  );
 
   if (!response) {
     return undefined;
@@ -967,20 +897,19 @@ export async function fetchTvSeriesEpisodeWithCredits(
 export async function fetchDiscoverTvSeries(query?: TmdbDiscoverTvSeriesQuery) {
   const queryString = toQueryString(buildDiscoverQuery(query));
 
-  const response =
-    ((await tmdbFetch(
-      `/3/discover/tv${queryString}`,
-    )) as TmdbDiscoverTvSeries) ?? [];
+  const response = await tmdbFetch('/3/discover/tv', {
+    search: queryString,
+  });
 
-  const items = (response.results ?? []).map((series) =>
-    normalizeTvSeries(series as TmdbTvSeries),
+  const items = (response?.results ?? []).map((series) =>
+    normalizeTvSeries(series),
   );
 
   return {
     items,
     queryString: query ? toQueryString(query) : '',
-    totalNumberOfItems: response.total_results,
-    totalNumberOfPages: response.total_pages,
+    totalNumberOfItems: response?.total_results,
+    totalNumberOfPages: response?.total_pages,
   };
 }
 
@@ -994,9 +923,7 @@ export async function fetchDiscoverCount(
   const queryString = toQueryString(
     buildDiscoverQuery({ ...query, 'vote_count.gte': 0 }),
   );
-  const response = (await tmdbFetch(`/3/discover/tv${queryString}`)) as
-    | TmdbDiscoverTvSeries
-    | undefined;
+  const response = await tmdbFetch('/3/discover/tv', { search: queryString });
 
   return response?.total_results ?? 0;
 }
@@ -1029,7 +956,7 @@ export async function fetchPopularTvSeriesByYear(year: number | string) {
   ]);
   const additionalPages = otherPages.flatMap((page, i) =>
     // Past the last page (or no page count at all)
-    page && i + 2 <= firstPage.totalNumberOfPages ? [page] : [],
+    page && i + 2 <= (firstPage.totalNumberOfPages ?? 0) ? [page] : [],
   );
 
   return deduplicateDiscoverItems([firstPage, ...additionalPages]).filter(
@@ -1046,13 +973,10 @@ export async function fetchPopularTvSeriesByYear(year: number | string) {
  */
 export async function fetchGenresForTvSeries() {
   const genresResponse =
-    (await readThrough<TmdbGenresForTvSeries | null>(
+    (await readThrough(
       'tmdb-genres:v1',
       CACHE_LIFE.long.sMaxAge,
-      async () =>
-        ((await tmdbFetch('/3/genre/tv/list')) as
-          | TmdbGenresForTvSeries
-          | undefined) ?? null,
+      async () => (await tmdbFetch('/3/genre/tv/list')) ?? null,
     )) ?? {};
   const genres = (genresResponse.genres ?? []).filter(
     (genre) => !GLOBAL_GENRES_TO_IGNORE.includes(genre.id),
@@ -1075,47 +999,42 @@ export async function searchTvSeries(
     query,
     ...(year && { year: `${year}` }),
   });
-  const tvSeriesResponse =
-    ((await tmdbFetch(
-      `/3/search/tv?${params.toString()}`,
-    )) as TmdbSearchTvSeries) ?? [];
+  const tvSeriesResponse = await tmdbFetch('/3/search/tv', {
+    search: `?${params.toString()}`,
+  });
 
-  return (tvSeriesResponse.results ?? [])
+  return (tvSeriesResponse?.results ?? [])
     .filter((series) => !!series.poster_path)
-    .map((series) => {
-      return normalizeTvSeries(series as TmdbTvSeries);
-    });
+    .map((series) => normalizeTvSeries(series));
 }
 
 export async function fetchWatchProviders(
   region = 'US',
 ): Promise<WatchProvider[]> {
-  const watchProviders = (await tmdbFetch('/3/watch/providers/tv', {
+  const watchProviders = await tmdbFetch('/3/watch/providers/tv', {
     query: { watch_region: region },
-  })) as TmdbWatchProviders | undefined;
+  });
 
-  return (watchProviders?.results ?? [])
+  return [...(watchProviders?.results ?? [])]
     .sort((a, b) => {
-      const sortKey = region as keyof TmdbWatchProviders['results'];
-      const priorityA = a.display_priorities?.[sortKey] ?? a.display_priority;
-      const priorityB = b.display_priorities?.[sortKey] ?? b.display_priority;
+      const priorityA = a.display_priorities?.[region] ?? a.display_priority;
+      const priorityB = b.display_priorities?.[region] ?? b.display_priority;
       return priorityA - priorityB;
     })
     .map(fromTmdbProvider);
 }
 
 export async function fetchCountries() {
-  const response =
-    ((await tmdbFetch('/3/configuration/countries')) as TmdbCountries) ?? [];
+  const response = await tmdbFetch('/3/configuration/countries');
 
   return (response ?? [])
-    .map((country) => {
-      return {
+    .map(
+      (country): CountryOrLanguage => ({
         code: String(country.iso_3166_1),
         englishName: String(country.english_name),
         name: String(country.native_name),
-      } as CountryOrLanguage;
-    })
+      }),
+    )
     .sort((a, b) => {
       const key = a.englishName && b.englishName ? 'englishName' : 'name';
       return a[key].localeCompare(b[key]);
@@ -1123,17 +1042,16 @@ export async function fetchCountries() {
 }
 
 export async function fetchLanguages() {
-  const response =
-    ((await tmdbFetch('/3/configuration/languages')) as TmdbLanguages) ?? [];
+  const response = await tmdbFetch('/3/configuration/languages');
 
   return (response ?? [])
-    .map((language) => {
-      return {
+    .map(
+      (language): CountryOrLanguage => ({
         code: String(language.iso_639_1),
         englishName: String(language.english_name),
         name: String(language.name),
-      } as CountryOrLanguage;
-    })
+      }),
+    )
     .sort((a, b) => {
       const key = a.englishName && b.englishName ? 'englishName' : 'name';
       return a[key].localeCompare(b[key]);
@@ -1146,15 +1064,11 @@ export async function fetchLanguages() {
  * every day, TMDB is asked once a month per network), and whether its logo
  * reads as a white silhouette (checked once per logo, stored for good)
  */
-export async function fetchNetwork(
-  id: number | string,
-): Promise<Network | undefined> {
+export async function fetchNetwork(id: number): Promise<Network | undefined> {
   const response = await readThrough<TmdbNetwork | null>(
     `tmdb-network:v1:${id}`,
     (value) => (value ? CACHE_LIFE.long.sMaxAge : false),
-    async () =>
-      ((await tmdbFetch(`/3/network/${id}`)) as TmdbNetwork | undefined) ??
-      null,
+    async () => (await tmdbFetch(`/3/network/${id}`)) ?? null,
   );
   if (!response) {
     return undefined;
@@ -1169,9 +1083,9 @@ export async function fetchNetwork(
 }
 
 export async function searchPerson(query: string) {
-  const response = (await tmdbFetch('/3/search/person', {
+  const response = await tmdbFetch('/3/search/person', {
     query: { query },
-  })) as TmdbSearchPerson | undefined;
+  });
 
   return (response?.results ?? []).map((person) => {
     return {
@@ -1180,13 +1094,11 @@ export async function searchPerson(query: string) {
         ? buildProfileImageUrl(person.profile_path)
         : '',
       isAdult: person.adult,
-      knownFor: (person.known_for ?? []).map((item) => {
-        if (item.media_type === 'tv') {
-          return normalizeTvSeries(item as unknown as TmdbTvSeries) as TvSeries;
-        } else {
-          return normalizeMovie(item as TmdbMovie) as Movie;
-        }
-      }) as ReadonlyArray<TvSeries | Movie>,
+      knownFor: (person.known_for ?? []).map((item): TvSeries | Movie =>
+        item.media_type === 'tv'
+          ? normalizeTvSeries(item)
+          : normalizeMovie(item),
+      ),
       knownForDepartment: person.known_for_department,
       name: person.name ?? '',
       popularity: person.popularity ?? 0,
@@ -1204,13 +1116,12 @@ const TMDB_GENDERS: Readonly<Record<number, NonNullable<Person['gender']>>> = {
 // A person's details are read by several routes of the person page, each in
 // its own Lambda: one stored copy (lifetime: lib/person/lifetime.ts)
 
-export async function fetchPerson(id: number | string) {
+export async function fetchPerson(id: number) {
   const person = await readThroughStale<TmdbPerson | null>(
     `tmdb-person:v2:${id}`,
     (found) => (found ? PERSON_FRESH : UNKNOWN_PERSON_FRESH),
     PERSON_KEEP,
-    async () =>
-      ((await tmdbFetch(`/3/person/${id}`)) as TmdbPerson | undefined) ?? null,
+    async () => (await tmdbFetch(`/3/person/${id}`)) ?? null,
     { singleFlightSeconds: REFRESH_CLAIM_SECONDS },
   );
 
@@ -1256,12 +1167,10 @@ export async function fetchPersonKnownFor(
  * `/person/:id/tv_credits` as TMDB answers it: the person page, Go deeper,
  * Connected by and the created-shows lookup each shape it their own way
  */
-const fetchRawPersonTvCredits = async (id: number | string) =>
-  (await tmdbFetch(`/3/person/${id}/tv_credits`)) as
-    | TmdbPersonTvCredits
-    | undefined;
+const fetchRawPersonTvCredits = (id: number) =>
+  tmdbFetch(`/3/person/${id}/tv_credits`);
 
-export async function fetchPersonTvCredits(id: number | string) {
+export async function fetchPersonTvCredits(id: number) {
   const credits = await fetchRawPersonTvCredits(id);
 
   if (!credits) {
@@ -1290,11 +1199,11 @@ export async function fetchPersonTvCredits(id: number | string) {
         if (!a.first_air_date) return -1;
         if (!b.first_air_date) return 1;
 
-        const dateA = new Date(a.first_air_date as string);
-        const dateB = new Date(b.first_air_date as string);
+        const dateA = new Date(a.first_air_date);
+        const dateB = new Date(b.first_air_date);
         return dateB.getTime() - dateA.getTime();
       })
-      .map((series) => normalizeTvSeries(series as unknown as TmdbTvSeries));
+      .map((series) => normalizeTvSeries(series));
 
     const upcoming = normalizedResults.filter((series) => {
       if (!series.firstAirDate) return true;
@@ -1314,10 +1223,10 @@ export async function fetchPersonTvCredits(id: number | string) {
   return { cast, crew };
 }
 
-export async function fetchPersonExternalIds(id: number | string) {
-  return (await tmdbFetch(`/3/person/${id}/external_ids`)) as
-    | TmdbPersonExternalIds
-    | undefined;
+export async function fetchPersonExternalIds(
+  id: number,
+): Promise<TmdbPersonExternalIds | undefined> {
+  return tmdbFetch(`/3/person/${id}/external_ids`);
 }
 
 /**
@@ -1326,7 +1235,7 @@ export async function fetchPersonExternalIds(id: number | string) {
  * undefined for a person TMDB doesn't know.
  */
 export async function fetchPersonCredits(
-  id: number | string,
+  id: number,
 ): Promise<PersonTvCredits | undefined> {
   const credits: PersonTvCredits | undefined =
     await fetchRawPersonTvCredits(id);
@@ -1350,10 +1259,10 @@ export async function fetchPersonCredits(
 }
 
 /** `/tv/:id/aggregate_credits`: everyone who worked on a show, with counts */
-export async function fetchTvSeriesAggregateCredits(id: number) {
-  return (await tmdbFetch(`/3/tv/${id}/aggregate_credits`)) as
-    | TmdbAggregateCredits
-    | undefined;
+export async function fetchTvSeriesAggregateCredits(
+  id: number,
+): Promise<TmdbAggregateCredits | undefined> {
+  return tmdbFetch(`/3/tv/${id}/aggregate_credits`);
 }
 
 export async function findByExternalId({
@@ -1363,23 +1272,19 @@ export async function findByExternalId({
   externalId: string;
   externalSource: TmdbExternalSource;
 }>) {
-  const response = (await tmdbFetch(
+  const response = await tmdbFetch(
     `/3/find/${encodeURIComponent(externalId)}`,
     { query: { external_source: externalSource } },
-  )) as TmdbFindByIdResults | undefined;
+  );
 
-  const tvSeries = (response?.tv_results ?? []).map((series) => {
-    return normalizeTvSeries(series as TmdbTvSeries);
-  });
-  const episodes = (response?.tv_episode_results ?? []).map((episode) => {
-    return {
-      ...normalizeTvSeriesEpisode(episode as TmdbTvSeriesEpisode),
-      // biome-ignore lint/suspicious/noExplicitAny: sort out one day
-      tvSeriesId: (episode as any).show_id,
-    };
-  });
-  const seasons = (response?.tv_season_results ?? []).map((_season) => {
-    const season = _season as TmdbTvSeriesSeason;
+  const tvSeries = (response?.tv_results ?? []).map((series) =>
+    normalizeTvSeries(series),
+  );
+  const episodes = (response?.tv_episode_results ?? []).map((episode) => ({
+    ...normalizeTvSeriesEpisode(episode),
+    tvSeriesId: episode.show_id,
+  }));
+  const seasons = (response?.tv_season_results ?? []).map((season) => {
     return {
       airDate: season.air_date ? new Date(season.air_date).toISOString() : '',
       description: season.overview ?? '',

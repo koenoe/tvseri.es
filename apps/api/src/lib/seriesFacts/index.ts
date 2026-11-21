@@ -69,12 +69,8 @@ const average = (values: ReadonlyArray<number>) =>
     : null;
 
 const toSeriesFacts = (series: TmdbTvSeries): SeriesFacts => {
-  const lastEpisodeToAir = toEpisode(
-    series.last_episode_to_air as TmdbEpisode | null,
-  );
-  const nextEpisodeToAir = toEpisode(
-    series.next_episode_to_air as TmdbEpisode | null,
-  );
+  const lastEpisodeToAir = toEpisode(series.last_episode_to_air);
+  const nextEpisodeToAir = toEpisode(series.next_episode_to_air);
   const counted = (series.seasons ?? [])
     .filter((season) => season.season_number > 0 && season.episode_count > 0)
     .map((season) => ({

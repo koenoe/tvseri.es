@@ -5,6 +5,7 @@ import {
   fetchTvSeriesBase,
   fetchTvSeriesSeason,
   fetchTvSeriesSeasons,
+  pathId,
 } from '@/lib/tmdb';
 
 /**
@@ -39,7 +40,7 @@ export const seriesForMark = async (
     seriesKey(id),
     FRESH_SECONDS,
     KEEP_SECONDS,
-    async () => (await fetchTvSeriesBase(id)) ?? null,
+    async () => (await fetchTvSeriesBase(pathId(id))) ?? null,
     { waitMs: WAIT_MS },
   )) ?? undefined;
 
@@ -54,7 +55,7 @@ export const seasonForMark = async (
     seasonKey(id, seasonNumber),
     FRESH_SECONDS,
     KEEP_SECONDS,
-    async () => (await fetchTvSeriesSeason(id, seasonNumber)) ?? null,
+    async () => (await fetchTvSeriesSeason(pathId(id), seasonNumber)) ?? null,
     { waitMs: WAIT_MS },
   )) ?? undefined;
 
@@ -77,7 +78,7 @@ export const seasonsForMark = async (
         FRESH_SECONDS,
         KEEP_SECONDS,
         async () => {
-          batch ??= fetchTvSeriesSeasons(id, numbers);
+          batch ??= fetchTvSeriesSeasons(pathId(id), numbers);
           return (await batch)?.get(number) ?? null;
         },
         { waitMs: WAIT_MS },

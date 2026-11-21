@@ -1,7 +1,7 @@
 import type { SeriesFacts, TasteSplitGenre } from '@tvseri.es/schemas';
 
 import { getListItems } from '@/lib/db/list';
-import { fetchGenresForTvSeries } from '@/lib/tmdb';
+import { fetchGenresForTvSeries } from '@/lib/tmdb/reference';
 import { logWarn } from '@/utils/logWarn';
 
 /** Shows per library the genre comparisons read (bounds the facts lookups) */

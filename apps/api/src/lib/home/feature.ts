@@ -8,14 +8,14 @@ import {
   rotationIndex,
   todayUtc,
 } from '@tvseri.es/utils';
+import { getShow } from '@/lib/catalogue';
 import { hasTimeForAnother } from '@/lib/deadline';
+import { fetchDiscoverTvSeries } from '@/lib/tmdb/discover';
 import {
-  fetchDiscoverTvSeries,
-  fetchTvSeriesBase,
   fetchTvSeriesEpisodeStills,
   fetchTvSeriesSeason,
   fetchTvSeriesSeasonPoster,
-} from '@/lib/tmdb';
+} from '@/lib/tmdb/seasons';
 import { mapSettledPartial } from '@/utils/limit';
 import { logWarn } from '@/utils/logWarn';
 import { archiveStanding } from './archive';
@@ -84,14 +84,14 @@ const binge = async (
   const pool = await fetchTopPool();
   const picks = choicesFrom(pool, rotationIndex(date, pool.length, 'binge'));
   const [pick] = picks;
-  const series = pick && (await fetchTvSeriesBase(pick.id));
+  const series = pick && (await getShow(pick.id));
   if (!series || series.numberOfEpisodes === 0) {
     return undefined;
   }
   const episodeRuntime = runtimeOf(series);
   const merged = { ...pick, ...series, backdropImage: pick.backdropImage };
   const others = await mapSettledPartial(picks.slice(1), async (other) => {
-    const details = await fetchTvSeriesBase(other.id);
+    const details = await getShow(other.id);
     return details
       ? bingeShowOf(
           { ...other, ...details, backdropImage: other.backdropImage },
@@ -138,7 +138,7 @@ const didYouKnow = async (
   const [colors, details] = await Promise.all([
     backdropColorsOf(picks),
     mapSettledPartial(picks, async (pick) => {
-      const series = await fetchTvSeriesBase(pick.id);
+      const series = await getShow(pick.id);
       return series ? { pick, series } : undefined;
     }),
   ]);
@@ -163,7 +163,7 @@ const stillsFor = async (
   candidate: TvSeries,
   report: Report,
 ): Promise<Feature | undefined> => {
-  const series = await fetchTvSeriesBase(candidate.id);
+  const series = await getShow(candidate.id);
   // The newest season that has fully aired and has enough episodes
   const target = [...(series?.seasons ?? [])]
     .reverse()

@@ -14,13 +14,13 @@ import {
  */
 
 const fanOut = async (count: number) => {
-  const { fetchTvSeriesBase } = await import('@/lib/tmdb');
+  const { getShow } = await import('@/lib/catalogue');
   setUpstreamConditions({ latencyMs: 100 });
   for (let id = 1; id <= count; id++) {
     onTmdb(`/tv/${id}`, { id, name: `Show ${id}` });
   }
   const pending = Promise.all(
-    Array.from({ length: count }, (_, index) => fetchTvSeriesBase(index + 1)),
+    Array.from({ length: count }, (_, index) => getShow(index + 1)),
   );
   await vi.advanceTimersByTimeAsync(5000);
   await pending;

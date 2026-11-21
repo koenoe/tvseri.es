@@ -11,8 +11,10 @@ vi.mock('@/lib/db/cache', () => ({
   getCacheItem: async () => undefined,
   setCacheItem: async () => undefined,
 }));
-vi.mock('@/lib/tmdb', () => ({
+vi.mock('@/lib/tmdb/discover', () => ({
   fetchDiscoverTvSeries: mocks.fetchDiscoverTvSeries,
+}));
+vi.mock('@/lib/tmdb/reference', () => ({
   fetchGenresForTvSeries: async () => [],
 }));
 vi.mock('@/lib/seriesFacts', () => ({

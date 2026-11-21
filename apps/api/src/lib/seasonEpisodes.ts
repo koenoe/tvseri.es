@@ -2,7 +2,7 @@ import type { Episode, Season } from '@tvseri.es/schemas';
 
 import { readThroughStale } from '@/lib/db/cache/readThroughStale';
 import { refreshWaitMs } from '@/lib/deadline';
-import { fetchTvSeriesSeason, fetchTvSeriesSeasons } from '@/lib/tmdb';
+import { fetchTvSeriesSeason, fetchTvSeriesSeasons } from '@/lib/tmdb/seasons';
 
 /**
  * A season's episode titles and air dates change rarely: kept 6 hours in the

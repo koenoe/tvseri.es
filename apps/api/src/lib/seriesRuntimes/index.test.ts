@@ -10,7 +10,7 @@ vi.mock('@/lib/db/cache', () => ({
   getCacheEntries: mocks.getCacheEntries,
   setCacheItems: mocks.setCacheItems,
 }));
-vi.mock('@/lib/tmdb', () => ({
+vi.mock('@/lib/tmdb/seasons', () => ({
   fetchTvSeriesRuntimes: mocks.fetchTvSeriesRuntimes,
 }));
 vi.mock('@/utils/logWarn', () => ({ logWarn: () => undefined }));

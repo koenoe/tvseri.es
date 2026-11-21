@@ -3,7 +3,8 @@ import type { SearchPerson, SearchResults } from '@tvseri.es/schemas';
 import { normalizeSearchQuery } from '@tvseri.es/utils';
 import { Hono } from 'hono';
 import { bestBlock, rankByTier } from '@/lib/search/ranking';
-import { searchPerson, searchTvSeries } from '@/lib/tmdb';
+import { searchTvSeries } from '@/lib/tmdb/discover';
+import { searchPerson } from '@/lib/tmdb/person';
 import { cacheHeader } from '@/utils/cacheHeader';
 import { SearchQuerySchema, SeriesSearchQuerySchema } from '@/utils/params';
 

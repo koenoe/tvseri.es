@@ -79,9 +79,6 @@ export type TmdbSearchPerson = Omit<TmdbSearchPersonSpec, 'results'> & {
   >;
 };
 
-export type TmdbTvSeriesContentRatings =
-  SpecResponse<`/3/tv/${number}/content_ratings`>;
-
 /** A service offering a show, or listed for a region: TMDB always names it */
 type TmdbProviderOffer = Readonly<{
   display_priority: number;
@@ -115,16 +112,8 @@ export type TmdbTvSeriesWatchProviders = Readonly<{
 export type TmdbTvSeriesCredits =
   SpecResponse<`/3/tv/${number}/aggregate_credits`>;
 
-export type TmdbTvSeriesRecommendations =
-  SpecResponse<`/3/tv/${number}/recommendations`>;
-
-export type TmdbTvSeriesKeywords = SpecResponse<`/3/tv/${number}/keywords`>;
-
 export type TmdbTvSeriesSeason =
   SpecResponse<`/3/tv/${number}/season/${number}`>;
-
-export type TmdbTvSeriesEpisode =
-  SpecResponse<`/3/tv/${number}/season/${number}/episode/${number}`>;
 
 type TmdbDiscoverTvSeriesSpec = SpecResponse<'/3/discover/tv'>;
 
@@ -138,12 +127,6 @@ export type TmdbDiscoverMovieQuery =
 
 export type TmdbDiscoverTvSeriesQuery =
   paths['/3/discover/tv']['get']['parameters']['query'];
-
-export type TmdbCountries = SpecResponse<'/3/configuration/countries'>;
-
-export type TmdbLanguages = SpecResponse<'/3/configuration/languages'>;
-
-export type TmdbGenresForTvSeries = SpecResponse<'/3/genre/tv/list'>;
 
 /**
  * `/3/watch/providers/tv`. The spec lists `display_priorities` by region name;

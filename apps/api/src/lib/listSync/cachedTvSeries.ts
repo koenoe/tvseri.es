@@ -1,6 +1,6 @@
 import type { TvSeries } from '@tvseri.es/schemas';
 
-import { fetchTvSeriesBase } from '@/lib/tmdb';
+import { getShow } from '@/lib/catalogue';
 
 const TTL_MS = 15 * 60 * 1000;
 const MAX_ENTRIES = 500;
@@ -30,7 +30,7 @@ export const cachedTvSeries = async (id: number): Promise<TvSeries | null> => {
     return entry.tvSeries;
   }
 
-  const tvSeries = (await fetchTvSeriesBase(id)) ?? null;
+  const tvSeries = (await getShow(id)) ?? null;
 
   // Re-insert so Map order stays oldest-first, then evict the oldest if full.
   cache.delete(id);

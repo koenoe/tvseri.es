@@ -33,7 +33,7 @@ import {
 } from '@/lib/db/connections/unresolved';
 import { writeWatchedBatch } from '@/lib/imports/write';
 import { seasonForMark, seriesForMark } from '@/lib/marking/catalog';
-import { searchTvSeries } from '@/lib/tmdb';
+import { searchTvSeries } from '@/lib/tmdb/discover';
 import { asBrowser, readFailure } from './http';
 import { humanPauseMs } from './pace';
 import type {

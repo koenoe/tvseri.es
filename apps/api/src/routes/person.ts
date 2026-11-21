@@ -11,7 +11,7 @@ import {
   fetchPerson,
   fetchPersonExternalIds,
   fetchPersonKnownFor,
-} from '@/lib/tmdb';
+} from '@/lib/tmdb/person';
 import { fetchPersonFamilyAndAwards } from '@/lib/wikidata';
 import { cachedNotFound } from '@/middleware/cacheControl';
 import { cacheHeader } from '@/utils/cacheHeader';

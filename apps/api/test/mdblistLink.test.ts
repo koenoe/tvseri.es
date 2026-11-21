@@ -6,8 +6,8 @@ import { seedUser, USER_ID } from './seed';
 
 /**
  * The watched stream, the Plex scrobble queue and the nightly status queue
- * never call MDBList: they reach `lib/mdblist` only through `lib/tmdb`'s
- * imports. With the key read on first use, they load and run without the
+ * never call MDBList: they reach `lib/mdblist` only through
+ * `lib/catalogue`'s imports. With the key read on first use, they load and run without the
  * `MdblistApiKey` link (SST throws "not linked" for a resource a Lambda
  * doesn't link, which is what the missing entry below reproduces), and
  * infra doesn't link it to them. Only the API functions (catalogue:

@@ -7,23 +7,24 @@ import type {
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import * as v from 'valibot';
+import { fetchTvSeriesImageChoices, getShow } from '@/lib/catalogue';
 import { fetchSeasonRatings, fetchShowRating } from '@/lib/omdb';
 import { fetchRomanizedTitles } from '@/lib/romanizedTitle';
 import { getSeriesFactsReport } from '@/lib/seriesFacts';
 import { toSeriesSummary } from '@/lib/seriesFacts/summary';
 import { getSeriesRuntimesOf } from '@/lib/seriesRuntimes';
 import {
-  fetchTvSeries,
-  fetchTvSeriesContentRating,
-  fetchTvSeriesCredits,
   fetchTvSeriesEpisode,
   fetchTvSeriesEpisodeWithCredits,
-  fetchTvSeriesImageChoices,
+  fetchTvSeriesSeason,
+} from '@/lib/tmdb/seasons';
+import {
+  fetchTvSeriesContentRating,
+  fetchTvSeriesCredits,
   fetchTvSeriesKeywords,
   fetchTvSeriesRecommendations,
-  fetchTvSeriesSeason,
-  fetchTvSeriesWatchProviders,
-} from '@/lib/tmdb';
+} from '@/lib/tmdb/series';
+import { fetchTvSeriesWatchProviders } from '@/lib/tmdb/watchProviders';
 import { UpstreamUnavailableError } from '@/lib/upstream/errors';
 import { cachedNotFound } from '@/middleware/cacheControl';
 import { cacheHeader } from '@/utils/cacheHeader';
@@ -91,8 +92,9 @@ app.get(
   vValidator('param', IdParamSchema),
   vValidator('query', IncludeImagesQuerySchema),
   async (c) => {
-    const series = await fetchTvSeries(c.req.valid('param').id, {
-      includeImages: c.req.valid('query').include_images === 'true',
+    const series = await getShow(c.req.valid('param').id, {
+      artwork: c.req.valid('query').include_images === 'true',
+      colour: true,
     });
 
     c.header('Cache-Control', cacheHeader('short'));

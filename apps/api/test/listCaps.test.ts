@@ -1,12 +1,11 @@
 import { describe, expect, it } from 'vitest';
-
+import { fetchTrendingTvSeries } from '@/lib/catalogue';
 import {
   fetchImdbTopRatedTvSeries,
   fetchMostPopularThisMonth,
   fetchTrending,
   LIST_SIZES,
 } from '@/lib/mdblist';
-import { fetchTrendingTvSeries } from '@/lib/tmdb';
 
 import { db } from './db';
 import { onGet, onMatch, requestedUrls } from './fakeHttp';

@@ -8,7 +8,7 @@ import { firstEpisodeNumbers, toSlug } from '@tvseri.es/utils';
 import { getCacheEntries, setCacheItems } from '@/lib/db/cache';
 import { claim } from '@/lib/db/cache/singleFlight';
 import { hasTimeForAnother, refreshWaitMs } from '@/lib/deadline';
-import { fetchRawTvSeriesDetails } from '@/lib/tmdb';
+import { fetchRawTvSeries } from '@/lib/tmdb/series';
 import { atLowPriority, TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { createLimiter } from '@/utils/limit';
 import { logWarn } from '@/utils/logWarn';
@@ -142,7 +142,7 @@ const readCached = async (ids: ReadonlyArray<number>) =>
 
 /** One TMDB details call; undefined for a show TMDB doesn't know */
 const fetchFacts = async (id: number) => {
-  const series = await fetchRawTvSeriesDetails(id);
+  const series = await fetchRawTvSeries(id);
   return series ? toSeriesFacts(series) : undefined;
 };
 

@@ -5,9 +5,10 @@ import type {
   TvSeries,
 } from '@tvseri.es/schemas';
 import { addDaysUtc, daysBetweenUtc, todayUtc } from '@tvseri.es/utils';
+import { getShow } from '@/lib/catalogue';
 import { readDayBuild } from '@/lib/db/cache/readThroughDay';
 import { episodeKindOf } from '@/lib/episodeKind';
-import { fetchTvSeriesBase, fetchTvSeriesSeason } from '@/lib/tmdb';
+import { fetchTvSeriesSeason } from '@/lib/tmdb/seasons';
 import { mapSettledPartial } from '@/utils/limit';
 import { withTitleTreatment } from './artwork';
 import { discoverWindow } from './discoverWindow';
@@ -92,7 +93,7 @@ const compute = async (
   // a finale or a special
   const returning = discovered.airing.slice(0, MAX_DETAILS);
   const details = await mapSettledPartial(returning, async (item) => {
-    const series = await fetchTvSeriesBase(item.id);
+    const series = await getShow(item.id);
     const next = series?.nextEpisodeToAir;
     if (!series || !next?.airDate) {
       return undefined;

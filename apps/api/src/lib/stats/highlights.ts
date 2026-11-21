@@ -10,10 +10,9 @@ import type {
   WatchedItem,
 } from '@tvseri.es/schemas';
 import { buildStillImageUrl } from '@tvseri.es/utils';
-
+import { getShow } from '@/lib/catalogue';
 import { getListItemsCount } from '@/lib/db/list';
 import { getWatched } from '@/lib/db/watched';
-import { fetchTvSeries } from '@/lib/tmdb';
 
 import { getStatsCache, setStatsCache } from './cache';
 import { utcYear } from './data';
@@ -52,7 +51,10 @@ const toSpotlight = async (item: WatchedItem | undefined) => {
   if (!item) {
     return null;
   }
-  const tvSeries = await fetchTvSeries(item.seriesId, { includeImages: true });
+  const tvSeries = await getShow(item.seriesId, {
+    artwork: true,
+    colour: true,
+  });
   if (!tvSeries) {
     return null;
   }

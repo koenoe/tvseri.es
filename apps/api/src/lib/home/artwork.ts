@@ -1,7 +1,7 @@
 import type { TvSeries } from '@tvseri.es/schemas';
 
 import { detectDominantColorsFromImages } from '@/lib/detectDominantColorFromImage';
-import { fetchTvSeriesImages } from '@/lib/tmdb';
+import { fetchTvSeriesImages } from '@/lib/tmdb/series';
 import { logWarn } from '@/utils/logWarn';
 
 /** A show the home moments can draw: it has a poster and a backdrop */

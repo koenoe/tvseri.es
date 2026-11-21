@@ -5,7 +5,8 @@ import type {
   TvSeries,
 } from '@tvseri.es/schemas';
 
-import { fetchDiscoverTvSeries, fetchTvSeriesBase } from '@/lib/tmdb';
+import { getShow } from '@/lib/catalogue';
+import { fetchDiscoverTvSeries } from '@/lib/tmdb/discover';
 import { mapSettled } from '@/utils/limit';
 
 import {
@@ -121,7 +122,7 @@ const originals = async ({
 
   const shows = await mapSettled(
     ids,
-    (id) => limited(() => fetchTvSeriesBase(id)),
+    (id) => limited(() => getShow(id)),
     ids.length,
   );
   const found = shows.filter(

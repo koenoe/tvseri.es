@@ -3,7 +3,7 @@ import { addIsoWeeks, mondayOfIsoWeek } from '@tvseri.es/utils';
 
 import { getCacheItem } from '@/lib/db/cache';
 import { readThrough } from '@/lib/db/cache/readThrough';
-import { fetchDiscoverTvSeries } from '@/lib/tmdb';
+import { fetchDiscoverTvSeries } from '@/lib/tmdb/discover';
 
 import { pickHiddenGems } from './hiddenGemsPick';
 

@@ -6,7 +6,7 @@ import {
 import type { LandingCounts, LandingFacts } from '@tvseri.es/schemas';
 
 import { readThrough } from '@/lib/db/cache/readThrough';
-import { fetchDiscoverCount } from '@/lib/tmdb';
+import { fetchDiscoverCount } from '@/lib/tmdb/discover';
 import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { createLimiter } from '@/utils/limit';
 

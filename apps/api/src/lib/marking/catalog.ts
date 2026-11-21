@@ -1,12 +1,8 @@
 import type { Season, TvSeries } from '@tvseri.es/schemas';
-
+import { getShow } from '@/lib/catalogue';
 import { readStored, readThroughStale } from '@/lib/db/cache/readThroughStale';
-import {
-  fetchTvSeriesBase,
-  fetchTvSeriesSeason,
-  fetchTvSeriesSeasons,
-  pathId,
-} from '@/lib/tmdb';
+import { pathId } from '@/lib/tmdb/client';
+import { fetchTvSeriesSeason, fetchTvSeriesSeasons } from '@/lib/tmdb/seasons';
 
 /**
  * What season and show marks and unmarks read from TMDB (the show, and each
@@ -40,7 +36,7 @@ export const seriesForMark = async (
     seriesKey(id),
     FRESH_SECONDS,
     KEEP_SECONDS,
-    async () => (await fetchTvSeriesBase(pathId(id))) ?? null,
+    async () => (await getShow(pathId(id))) ?? null,
     { waitMs: WAIT_MS },
   )) ?? undefined;
 

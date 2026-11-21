@@ -1,7 +1,7 @@
 import type { WatchProvider } from '@tvseri.es/schemas';
 
 import { seriesForMark } from '@/lib/marking/catalog';
-import { fetchTvSeriesEpisode } from '@/lib/tmdb';
+import { fetchTvSeriesEpisode } from '@/lib/tmdb/seasons';
 
 import { request } from './request';
 import { USER_ID } from './seed';

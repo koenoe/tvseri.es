@@ -6,7 +6,7 @@ import { getSeriesPrefs } from '@/lib/db/prefs';
 import { getLedger, getShowHoles } from '@/lib/ledger';
 import { readShowItems } from '@/lib/rollups';
 import { getSeriesFacts } from '@/lib/seriesFacts';
-import { fetchTvSeriesSeason } from '@/lib/tmdb';
+import { fetchTvSeriesSeason } from '@/lib/tmdb/seasons';
 import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import type { Variables } from '@/middleware/auth';
 import { mapSettled } from '@/utils/limit';

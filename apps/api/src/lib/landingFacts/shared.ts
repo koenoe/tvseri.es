@@ -7,12 +7,9 @@ import {
 } from '@tvseri.es/constants';
 import type { LandingGenreShare, LandingThemeChip } from '@tvseri.es/schemas';
 
-import {
-  fetchDiscoverCount,
-  fetchDiscoverTvSeries,
-  fetchGenresForTvSeries,
-  fetchTvSeriesKeywords,
-} from '@/lib/tmdb';
+import { fetchDiscoverCount, fetchDiscoverTvSeries } from '@/lib/tmdb/discover';
+import { fetchGenresForTvSeries } from '@/lib/tmdb/reference';
+import { fetchTvSeriesKeywords } from '@/lib/tmdb/series';
 import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { createLimiter, mapSettled } from '@/utils/limit';
 

@@ -21,7 +21,7 @@ import {
 } from '@/lib/db/cache/readThroughDay';
 import { hasTimeForAnother } from '@/lib/deadline';
 import { getSeriesFactsReport } from '@/lib/seriesFacts';
-import { fetchDiscoverTvSeries } from '@/lib/tmdb';
+import { fetchDiscoverTvSeries } from '@/lib/tmdb/discover';
 
 import {
   BUCKETS,

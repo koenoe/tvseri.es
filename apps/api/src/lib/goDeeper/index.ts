@@ -7,15 +7,11 @@ import {
   themeBySlug,
 } from '@tvseri.es/constants';
 import type { GoDeeper, GoDeeperCard, TvSeries } from '@tvseri.es/schemas';
-
+import { getShow } from '@/lib/catalogue';
 import { fetchTrending } from '@/lib/mdblist';
-import {
-  fetchDiscoverCount,
-  fetchDiscoverTvSeries,
-  fetchPersonTvCredits,
-  fetchTvSeriesBase,
-  fetchTvSeriesKeywords,
-} from '@/lib/tmdb';
+import { fetchDiscoverCount, fetchDiscoverTvSeries } from '@/lib/tmdb/discover';
+import { fetchPersonTvCredits } from '@/lib/tmdb/person';
+import { fetchTvSeriesKeywords } from '@/lib/tmdb/series';
 import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { mapSettled } from '@/utils/limit';
 
@@ -178,7 +174,7 @@ const loadSeeds = async (ids: ReadonlyArray<number>): Promise<Seed[]> =>
     ids.map((id, index) => ({ id, rank: index + 1 })),
     async ({ id, rank }) => {
       const [series, keywords] = await Promise.all([
-        fetchTvSeriesBase(id),
+        getShow(id),
         fetchTvSeriesKeywords(id),
       ]);
       if (!series) {

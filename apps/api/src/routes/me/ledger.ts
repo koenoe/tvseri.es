@@ -8,21 +8,22 @@ import { readShowItems } from '@/lib/rollups';
 import { getSeriesFacts } from '@/lib/seriesFacts';
 import { fetchTvSeriesSeason } from '@/lib/tmdb';
 import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
-import type { Variables } from '@/middleware/auth';
+import type { SignedInVariables } from '@/middleware/auth';
 import { mapSettled } from '@/utils/limit';
 import { IdParamSchema } from '@/utils/params';
 
 /** `/me/ledger`: holes in the viewer's record */
-const app = new Hono<{ Variables: Variables }>();
+// Mounted under /me, behind its requireAuth()
+const app = new Hono<{ Variables: SignedInVariables }>();
 
 app.get('/', async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   return c.json(await getLedger(user.id, Date.now()));
 });
 
 // One show, the missing episodes named with their air dates
 app.get('/:id', vValidator('param', IdParamSchema), async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const { id } = c.req.valid('param');
 
   const [allFacts, prefs, watched] = await Promise.all([

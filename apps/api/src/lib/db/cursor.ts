@@ -1,10 +1,14 @@
 import { Buffer } from 'node:buffer';
 import type { AttributeValue } from '@aws-sdk/client-dynamodb';
-import { HTTPException } from 'hono/http-exception';
+
+/** A client's pagination cursor that isn't one of ours: a 400, not a 500 */
+export class InvalidCursorError extends Error {
+  override name = 'InvalidCursorError';
+}
 
 /**
- * Decodes a client-supplied pagination cursor. A malformed cursor is a 400,
- * not a 500. (A well-formed cursor for another index is rejected by DynamoDB
+ * Decodes a client-supplied pagination cursor; InvalidCursorError when it's
+ * malformed. (A well-formed cursor for another index is rejected by DynamoDB
  * and mapped to 400 in app.onError.)
  */
 export function decodeCursor(cursor: string | null | undefined) {
@@ -18,7 +22,7 @@ export function decodeCursor(cursor: string | null | undefined) {
     }
     return key as Record<string, AttributeValue>;
   } catch {
-    throw new HTTPException(400, { message: 'Invalid cursor' });
+    throw new InvalidCursorError('Invalid cursor');
   }
 }
 

@@ -5,17 +5,18 @@ import { getLibraryIds } from '@/lib/db/list';
 import { getWatchedCountForTvSeries } from '@/lib/db/watched';
 import { fetchPersonShows } from '@/lib/person/load';
 import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
-import type { Variables } from '@/middleware/auth';
+import type { SignedInVariables } from '@/middleware/auth';
 import { PRIVATE_NO_STORE } from '@/utils/cacheHeader';
 import { mapSettled } from '@/utils/limit';
 import { IdParamSchema } from '@/utils/params';
 
 /** `/me/person/:id/...`: the signed-in user's view of one person */
-const app = new Hono<{ Variables: Variables }>();
+// Mounted under /me, behind its requireAuth()
+const app = new Hono<{ Variables: SignedInVariables }>();
 
 // "Watched 74 episodes, 3 of 67 shows"
 app.get('/:id/watched', vValidator('param', IdParamSchema), async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const { id } = c.req.valid('param');
 
   const [credits, library] = await Promise.all([

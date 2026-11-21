@@ -26,7 +26,7 @@ import { getOverview } from '@/lib/overview';
 import { readStartedIds } from '@/lib/rollups';
 import { getSeriesStates } from '@/lib/seriesStates';
 import { toWatchProvider } from '@/lib/watchProviders';
-import { requireAuth, type Variables } from '@/middleware/auth';
+import { requireAuth, type SignedInVariables } from '@/middleware/auth';
 import { ViewerRegionQuerySchema } from '@/utils/params';
 import connections from './connections';
 import exportRoutes from './export';
@@ -37,12 +37,13 @@ import member from './member';
 import person from './person';
 import series from './series';
 
-const app = new Hono<{ Variables: Variables }>();
+// Every route, the sub-routers' too, is behind requireAuth()
+const app = new Hono<{ Variables: SignedInVariables }>();
 
 app.use(requireAuth());
 
 app.get('/', async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   return c.json(user);
 });
 
@@ -50,7 +51,7 @@ app.get('/', async (c) => {
 // `started`, so the page can hide "Seen it before?" before the first paint
 // for a show the viewer took out of In progress, not only for listed ones.
 app.get('/library-ids', async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const [library, started] = await Promise.all([
     getLibraryIds(user.id),
     readStartedIds(user.id),
@@ -64,7 +65,7 @@ app.get(
   '/series-states',
   vValidator('query', SeriesStatesQuerySchema),
   async (c) => {
-    const { user } = c.get('auth')!;
+    const { user } = c.get('auth');
     const { ids } = c.req.valid('query');
     return c.json(await getSeriesStates(user.id, ids, Date.now()));
   },
@@ -79,7 +80,7 @@ const OverviewQuerySchema = v.object({
 // Up next only (Home's Continue watching), without the watchlist, Waiting
 // for and the tickets' TMDB lookups. `?region=`: `ViewerRegionQuerySchema`
 app.get('/overview', vValidator('query', OverviewQuerySchema), async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const { region, view } = c.req.valid('query');
   return c.json(
     await getOverview(user.id, user.country || region, Date.now(), {
@@ -94,7 +95,7 @@ app.get(
   '/calendar',
   vValidator('query', ViewerRegionQuerySchema),
   async (c) => {
-    const { user } = c.get('auth')!;
+    const { user } = c.get('auth');
     const { region } = c.req.valid('query');
     return c.json(
       await getCalendar(user.id, user.country || region, Date.now()),
@@ -104,7 +105,7 @@ app.get(
 
 // From your circle: unseen shows from the people you follow
 app.get('/circle', async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const circle = await getCircle(user);
   return c.json(circle);
 });
@@ -112,19 +113,19 @@ app.get('/circle', async (c) => {
 // The Circle page: your follows ranked by match, then the
 // followers to follow back; one library read per person, no TMDB
 app.get('/circle/people', async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const people = await getCirclePeople(user);
   return c.json(people);
 });
 
 // The Get started card's steps; stamps getStartedDoneAt once all done
 app.get('/get-started', async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   return c.json(await getGetStartedStatus(user, Date.now()));
 });
 
 app.delete('/', vValidator('json', DeleteAccountSchema), async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
 
   if (c.req.valid('json').confirm !== user.username) {
     throw new HTTPException(400, { message: 'Type your username to confirm' });
@@ -154,7 +155,7 @@ app.delete('/', vValidator('json', DeleteAccountSchema), async (c) => {
 });
 
 app.put('/', vValidator('json', UpdateUserSchema), async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const body = c.req.valid('json');
 
   try {
@@ -176,7 +177,7 @@ app.put(
   '/watch-providers',
   vValidator('json', UpdateWatchProvidersForUserSchema),
   async (c) => {
-    const { user } = c.get('auth')!;
+    const { user } = c.get('auth');
     const body = c.req.valid('json');
 
     const updatedUser = await updateUser(user, {

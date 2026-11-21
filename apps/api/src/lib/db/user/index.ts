@@ -15,7 +15,6 @@ import {
   type WatchProviderInput,
 } from '@tvseri.es/schemas';
 import { DAY_MS, handleClaimKey, userKey, usernameKey } from '@tvseri.es/utils';
-import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
 import { readWatchProviders, toWatchProvider } from '@/lib/watchProviders';
 import client from '../client';
@@ -294,6 +293,11 @@ export const addWatchProvider = async (
   return true;
 };
 
+/** A profile update that lost a race with another one (its version moved) */
+export class ProfileUpdateConflictError extends Error {
+  override name = 'ProfileUpdateConflictError';
+}
+
 export const updateUser = async (
   user: User,
   updates: Readonly<{
@@ -408,10 +412,9 @@ export const updateUser = async (
       error instanceof ConditionalCheckFailedException ||
       error instanceof TransactionCanceledException
     ) {
-      throw new HTTPException(409, {
-        message:
-          "Looks like you're updating your profile on another device. Please try again.",
-      });
+      throw new ProfileUpdateConflictError(
+        "Looks like you're updating your profile on another device. Please try again.",
+      );
     }
     throw error;
   }

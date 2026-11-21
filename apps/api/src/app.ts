@@ -9,6 +9,7 @@ import { requireApiKey } from './middleware/apiKey';
 import type { Variables } from './middleware/auth';
 import { errorCacheControl } from './middleware/cacheControl';
 import { retryDeadline } from './middleware/deadline';
+import { toHttpException } from './middleware/domainErrors';
 import { metrics as metricsMiddleware, redactPath } from './middleware/metrics';
 import admin from './routes/admin';
 import collection from './routes/collection';
@@ -88,7 +89,9 @@ const isThrottlingError = (error: Error) =>
   THROTTLING_ERRORS.has(error.name) ||
   (error.cause instanceof Error && THROTTLING_ERRORS.has(error.cause.name));
 
-app.onError((error, c) => {
+app.onError((thrown, c) => {
+  // The data layer's own errors answer as the HTTPException they stand for
+  const error = toHttpException(thrown) ?? thrown;
   const isHttpException = error instanceof HTTPException;
 
   // Log server errors (incl. 5xx HTTPExceptions such as timeout()'s 504) - no

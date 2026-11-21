@@ -13,7 +13,6 @@ import type {
 } from '@tvseri.es/schemas';
 import { DURATION_BUCKETS } from '@tvseri.es/schemas';
 import { countryInSentence, regionName, todayUtc } from '@tvseri.es/utils';
-import { HTTPException } from 'hono/http-exception';
 import {
   DAY_BUILD_TTL,
   readDayBuild,
@@ -324,6 +323,14 @@ const startSource = (filter: WhereToStartFilter) => {
 };
 
 /**
+ * A pool with a show TMDB failed on: its pick could be wrong, so there is no
+ * answer (retryable, nothing cached)
+ */
+export class IncompletePoolError extends Error {
+  override name = 'IncompletePoolError';
+}
+
+/**
  * One pick for a night, a weekend and the long haul in a genre or a theme; for
  * a country the most-voted show replaces the night. `backups` are the next
  * best per slot, so a landing whose rows above show a pick can still fill
@@ -338,7 +345,7 @@ export const fetchWhereToStart = (
     // A pick says "the most-voted" or "the best rated": with a show missing
     // it could be wrong for a day. Fail (retryable, nothing cached) instead.
     if (pool.failed > 0) {
-      throw new HTTPException(503, { message: 'Try again shortly' });
+      throw new IncompletePoolError('Try again shortly');
     }
     const genre = 'genre' in filter ? genreName(filter.genre) : undefined;
 

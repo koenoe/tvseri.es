@@ -3,9 +3,10 @@ import { MemberLookupQuerySchema, type MemberMatch } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 
 import { findUser } from '@/lib/db/user';
-import type { Variables } from '@/middleware/auth';
+import type { SignedInVariables } from '@/middleware/auth';
 
-const app = new Hono<{ Variables: Variables }>();
+// Mounted under /me, behind its requireAuth()
+const app = new Hono<{ Variables: SignedInVariables }>();
 
 /**
  * Exact-handle member lookup for search (signed in: mounted under `/me`).

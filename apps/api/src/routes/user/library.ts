@@ -23,7 +23,7 @@ const app = new Hono<{ Variables: UserVariables }>();
 // `hidden` is null for a visitor.
 app.get('/:id/library', user(), requireAuth(), async (c) => {
   const owner = c.get('user');
-  const { user: viewer } = c.get('auth')!;
+  const { user: viewer } = c.get('auth');
   const counts = await getLibrarySummary(owner.id, {
     owner: viewer.id === owner.id,
   });
@@ -40,7 +40,7 @@ app.get(
   vValidator('query', LibraryQuerySchema),
   async (c) => {
     const owner = c.get('user');
-    const { user: viewer } = c.get('auth')!;
+    const { user: viewer } = c.get('auth');
     const shelf = c.req.param('shelf') as LibraryShelf;
     const query = c.req.valid('query');
     const isOwner = viewer.id === owner.id;

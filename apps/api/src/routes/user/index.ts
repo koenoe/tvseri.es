@@ -8,12 +8,11 @@ import {
   type DeleteWatchedItemBatch,
   DeleteWatchedItemBatchSchema,
   isSyncTag,
-  type TvSeries,
   type User,
   type WatchedItem,
 } from '@tvseri.es/schemas';
 import { pick } from '@tvseri.es/utils';
-import { type Context, Hono, type MiddlewareHandler } from 'hono';
+import { type Context, Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import * as v from 'valibot';
 
@@ -34,30 +33,22 @@ import {
   isInList,
   removeFromList,
 } from '@/lib/db/list';
-import { afterWatching, clearSkipped, getSeriesPrefs } from '@/lib/db/prefs';
 import { findUser } from '@/lib/db/user';
 import {
   getAllWatchedForTvSeries,
   getWatched,
   getWatchedCount,
-  markSeasonWatched,
-  markTvSeriesWatched,
-  markWatchedInBatch,
   PROGRESS_ATTRIBUTES,
-  unmarkSeasonWatched,
-  unmarkTvSeriesWatched,
-  unmarkWatchedInBatch,
 } from '@/lib/db/watched';
 import { isImportOpen } from '@/lib/imports';
 import { readWatchingNowMany } from '@/lib/library';
 import { withListFacts } from '@/lib/listFacts';
-import { syncListsForMark } from '@/lib/listSync';
-import { seriesForMark } from '@/lib/marking/catalog';
 import {
   getAllTimeWatchedCount,
   getAllTimeWatchedRuntime,
 } from '@/lib/profileCounters';
 import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
+import { eraseMarks, recordMarks, recordScopeMark } from '@/lib/watchLog';
 import { requireAuth } from '@/middleware/auth';
 import { cacheHeader } from '@/utils/cacheHeader';
 import {
@@ -72,7 +63,7 @@ import { parseDate, parseLimit } from '@/utils/query';
 import calendar from './calendar';
 import library from './library';
 import match from './match';
-import { requireIsMe, type UserVariables, user } from './middleware';
+import { requireIsMe, user } from './middleware';
 import overview from './overview';
 import {
   BatchMarkQuerySchema,
@@ -83,11 +74,6 @@ import {
   WatchedViewQuerySchema,
 } from './query';
 import stats from './stats';
-
-type Variables = {
-  series: TvSeries;
-  isMe: boolean;
-} & UserVariables;
 
 const app = new Hono();
 
@@ -128,27 +114,6 @@ const PUBLIC_USER_KEYS = [...MINIMAL_USER_KEYS, 'watchProviders'] as const;
 const toPublicUser = (
   user: Pick<User, (typeof PUBLIC_USER_KEYS)[number]>,
 ): Partial<User> => pick(user, PUBLIC_USER_KEYS);
-
-// The series, when it exists and has started airing
-const fetchAiredSeries = async (id: number | string) => {
-  const tvSeries = await seriesForMark(id);
-  return tvSeries?.firstAirDate && tvSeries.hasAired ? tvSeries : undefined;
-};
-
-const series = (): MiddlewareHandler<{ Variables: Variables }> => {
-  return async (c, next) => {
-    const id = c.req.param('series-id');
-    const tvSeries = id ? await fetchAiredSeries(id) : undefined;
-
-    if (!tvSeries) {
-      return c.notFound();
-    }
-
-    c.set('series', tvSeries);
-
-    return next();
-  };
-};
 
 /** A mark's answer: the written items, or only a view's fields of them */
 const markWatchedResponse = (
@@ -292,17 +257,8 @@ app.get(
   },
 );
 
-/**
- * The skips a scope mark leaves alone: read consistently, so a skip saved
- * just before the press is seen
- */
-const skippedFor = async (userId: string, seriesId: number) =>
-  new Set<string>(
-    (await getSeriesPrefs(userId, seriesId, { consistent: true })).skipped,
-  );
-
 // The mark-watched POSTs look the series up after validating the body, in
-// parallel with the reads that don't need it
+// parallel with the reads that don't need it (the watch provider too)
 app.post(
   '/:id/watched/series/:series-id{[0-9]+}',
   user(),
@@ -313,27 +269,19 @@ app.post(
   async (c) => {
     const body = c.req.valid('json');
     const user = c.get('user');
-    const { 'series-id': tvSeriesId } = c.req.valid('param');
-    const [tvSeries, watchProvider, skipped] = await Promise.all([
-      fetchAiredSeries(tvSeriesId),
-      parseWatchProviderFromBody(body, tvSeriesId),
-      skippedFor(user.id, tvSeriesId),
-    ]);
+    const { 'series-id': seriesId } = c.req.valid('param');
+    const watchedItems = await recordScopeMark(
+      user.id,
+      { seriesId },
+      {
+        watchProvider: parseWatchProviderFromBody(body, seriesId),
+        when: whenFromBody(body),
+      },
+    );
 
-    if (!tvSeries) {
+    if (!watchedItems) {
       return c.notFound();
     }
-
-    const watchedItems = await markTvSeriesWatched({
-      skipped,
-      tvSeries,
-      userId: user.id,
-      watchProvider,
-      when: whenFromBody(body),
-    });
-    await afterWatching(watchedItems);
-    await syncListsForMark(user.id, [tvSeries.id], tvSeries);
-
     return markWatchedResponse(c, watchedItems, c.req.valid('query').view);
   },
 );
@@ -348,30 +296,20 @@ app.post(
   async (c) => {
     const body = c.req.valid('json');
     const user = c.get('user');
-    const { 'series-id': tvSeriesId, season: seasonNumber } =
+    const { 'series-id': seriesId, season: seasonNumber } =
       c.req.valid('param');
+    const watchedItems = await recordScopeMark(
+      user.id,
+      { seasonNumber, seriesId },
+      {
+        watchProvider: parseWatchProviderFromBody(body, seriesId),
+        when: whenFromBody(body),
+      },
+    );
 
-    const [tvSeries, watchProvider, skipped] = await Promise.all([
-      fetchAiredSeries(tvSeriesId),
-      parseWatchProviderFromBody(body, tvSeriesId),
-      skippedFor(user.id, tvSeriesId),
-    ]);
-
-    if (!tvSeries) {
+    if (!watchedItems) {
       return c.notFound();
     }
-
-    const watchedItems = await markSeasonWatched({
-      seasonNumber,
-      skipped,
-      tvSeries,
-      userId: user.id,
-      watchProvider,
-      when: whenFromBody(body),
-    });
-    await afterWatching(watchedItems);
-    await syncListsForMark(user.id, [tvSeries.id], tvSeries);
-
     return markWatchedResponse(c, watchedItems, c.req.valid('query').view);
   },
 );
@@ -381,18 +319,11 @@ app.delete(
   user(),
   requireIsMe(),
   vValidator('param', MarkSeriesParamSchema),
-  series(),
   async (c) => {
-    const tvSeries = c.get('series');
-    const user = c.get('user');
-
-    await unmarkTvSeriesWatched({
-      tvSeries,
-      userId: user.id,
+    const found = await eraseMarks(c.get('user').id, {
+      seriesId: c.req.valid('param')['series-id'],
     });
-    await syncListsForMark(user.id, [tvSeries.id], tvSeries);
-
-    return c.json({ message: 'OK' });
+    return found ? c.json({ message: 'OK' }) : c.notFound();
   },
 );
 
@@ -401,20 +332,14 @@ app.delete(
   user(),
   requireIsMe(),
   vValidator('param', MarkSeasonParamSchema),
-  series(),
   async (c) => {
-    const tvSeries = c.get('series');
-    const user = c.get('user');
-    const { season: seasonNumber } = c.req.valid('param');
-
-    await unmarkSeasonWatched({
+    const { 'series-id': seriesId, season: seasonNumber } =
+      c.req.valid('param');
+    const found = await eraseMarks(c.get('user').id, {
       seasonNumber,
-      tvSeries,
-      userId: user.id,
+      seriesId,
     });
-    await syncListsForMark(user.id, [tvSeries.id], tvSeries);
-
-    return c.json({ message: 'OK' });
+    return found ? c.json({ message: 'OK' }) : c.notFound();
   },
 );
 
@@ -458,18 +383,15 @@ app.post(
     // An episode Undo puts back rejoins its import only while that import
     // can still be undone: otherwise it is restored as an ordinary mark. A
     // sync's tag has no Undo to protect, so it stays (the card reads by it)
-    const items = body.map(({ importId, ...item }) =>
+    const marks = body.map(({ importId, userId: _, ...mark }) =>
       importId &&
       (isSyncTag(importId) || isImportOpen(user.lastImport, importId))
-        ? { ...item, importId }
-        : item,
+        ? { ...mark, importId }
+        : mark,
     );
-    const watchedItems = await markWatchedInBatch(items);
-    await (restore ? clearSkipped : afterWatching)(watchedItems);
-    await syncListsForMark(
-      user.id,
-      body.map((item) => item.tvSeries.id),
-    );
+    const watchedItems = await recordMarks(user.id, marks, {
+      source: restore ? 'restore' : 'viewer',
+    });
     return c.json(watchedItems, 201);
   },
 );
@@ -488,11 +410,13 @@ app.post(
 
     validateBatchWatchedItemsOwnership(body, user.id);
 
-    await unmarkWatchedInBatch(body);
-    await syncListsForMark(
-      user.id,
-      body.map((item) => item.tvSeries.id),
-    );
+    await eraseMarks(user.id, {
+      episodes: body.map((item) => ({
+        episodeNumber: item.episodeNumber,
+        seasonNumber: item.seasonNumber,
+        seriesId: item.tvSeries.id,
+      })),
+    });
     return c.json({ message: 'OK' }, 201);
   },
 );
@@ -619,7 +543,7 @@ app.delete(
 );
 
 app.post('/:id/follow', user(), requireAuth(), async (c) => {
-  const { user: userFromSession } = c.get('auth')!;
+  const { user: userFromSession } = c.get('auth');
   const user = c.get('user');
 
   if (user.id === userFromSession.id) {
@@ -637,7 +561,7 @@ app.post('/:id/follow', user(), requireAuth(), async (c) => {
 });
 
 app.delete('/:id/unfollow', user(), requireAuth(), async (c) => {
-  const { user: userFromSession } = c.get('auth')!;
+  const { user: userFromSession } = c.get('auth');
   const user = c.get('user');
 
   if (user.id === userFromSession.id) {
@@ -688,8 +612,7 @@ app.get(
   requireAuth(),
   vValidator('query', FollowListQuerySchema),
   async (c) => {
-    const auth = c.get('auth');
-    const userFromSession = auth?.user;
+    const { user: userFromSession } = c.get('auth');
 
     const user = c.get('user');
     const limit = parseLimit(c.req.valid('query').limit, { max: 100 });
@@ -701,14 +624,14 @@ app.get(
         sortDirection: c.req.valid('query').sort_direction,
       },
       userId: user.id,
-      viewerId: userFromSession?.id,
+      viewerId: userFromSession.id,
     });
 
     const enrichedUsers = enrichUsersWithFollowInfo(
       items,
       statuses,
       userFromSession,
-      { hideIsFollower: userFromSession?.id === user.id },
+      { hideIsFollower: userFromSession.id === user.id },
     );
 
     return c.json({
@@ -724,8 +647,7 @@ app.get(
   requireAuth(),
   vValidator('query', FollowListQuerySchema),
   async (c) => {
-    const auth = c.get('auth');
-    const userFromSession = auth?.user;
+    const { user: userFromSession } = c.get('auth');
 
     const user = c.get('user');
     const limit = parseLimit(c.req.valid('query').limit, { max: 100 });
@@ -737,7 +659,7 @@ app.get(
         sortDirection: c.req.valid('query').sort_direction,
       },
       userId: user.id,
-      viewerId: userFromSession?.id,
+      viewerId: userFromSession.id,
     });
 
     const enrichedUsers = enrichUsersWithFollowInfo(

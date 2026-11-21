@@ -1,10 +1,11 @@
 import { todayUtc } from '@tvseri.es/utils';
 import { Hono } from 'hono';
 import { exportEverything, exportHistoryCsv } from '@/lib/export';
-import type { Variables } from '@/middleware/auth';
+import type { SignedInVariables } from '@/middleware/auth';
 import { fitsLambdaResponse } from '@/utils/lambdaResponse';
 
-const app = new Hono<{ Variables: Variables }>();
+// Mounted under /me, behind its requireAuth()
+const app = new Hono<{ Variables: SignedInVariables }>();
 
 const attachment = (
   c: { header: (name: string, value: string) => void },
@@ -17,7 +18,7 @@ const attachment = (
 
 // The watch history, in the columns the importer reads back
 app.get('/history.csv', async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const csv = await exportHistoryCsv(user.id);
 
   if (!fitsLambdaResponse(csv)) {
@@ -34,7 +35,7 @@ app.get('/history.csv', async (c) => {
 
 // Everything, as JSON
 app.get('/everything.json', async (c) => {
-  const { user } = c.get('auth')!;
+  const { user } = c.get('auth');
   const json = JSON.stringify(await exportEverything(user));
 
   if (!fitsLambdaResponse(json)) {

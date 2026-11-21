@@ -4,7 +4,11 @@ import { HTTPException } from 'hono/http-exception';
 import * as v from 'valibot';
 
 import { findUser, type UserRecord } from '@/lib/db/user';
-import { type Variables as AuthVariables, auth } from '@/middleware/auth';
+import {
+  type Variables as AuthVariables,
+  auth,
+  type SignedInGuard,
+} from '@/middleware/auth';
 import { UserRefSchema } from '@/utils/params';
 
 export type UserVariables = {
@@ -60,7 +64,7 @@ const checkIsMe = <T extends UserVariables>(): MiddlewareHandler<{
  * Requires that the authenticated user is the same as the :id user.
  * Automatically runs auth() first.
  */
-export const requireIsMe = () => every(auth(), checkIsMe());
+export const requireIsMe = (): SignedInGuard => every(auth(), checkIsMe());
 
 /** A stats year: four digits, 2000 to 2100 */
 const YearParamSchema = v.pipe(

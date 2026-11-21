@@ -2,12 +2,13 @@ import {
   episodeCode,
   type ImportBatch,
   type ImportBatchResult,
+  type WatchedItem,
   type WatchProvider,
 } from '@tvseri.es/schemas';
 
-import { clearSkipped, clearSkippedCodes } from '@/lib/db/prefs';
-import { getWatchedEpisodeKeys, markWatchedInBatch } from '@/lib/db/watched';
+import { getWatchedEpisodeKeys } from '@/lib/db/watched';
 import { episodeSk } from '@/lib/db/watched/keys';
+import { recordMarks } from '@/lib/watchLog';
 
 /** Apart from the import's own bookkeeping, so a sync's bundle carries none of it */
 
@@ -79,7 +80,7 @@ export const writeWatchedBatch = async (
     countOwnWrites?: boolean;
     /** The skips to clear, read with the prefs (default: every written episode's) */
     onWritten?: (
-      items: Awaited<ReturnType<typeof markWatchedInBatch>>,
+      items: ReadonlyArray<WatchedItem>,
     ) => Promise<ReadonlyMap<number, ReadonlySet<string>>>;
     /** A sync knows where it was watched */
     watchProvider?: WatchProvider;
@@ -93,19 +94,15 @@ export const writeWatchedBatch = async (
 
   if (toWrite.length > 0) {
     await beforeWrite?.();
-    const items = await markWatchedInBatch(
+    await recordMarks(
+      userId,
       toWrite.map((item) => ({
         ...item,
         importId,
-        userId,
         ...(watchProvider && { watchProvider }),
       })),
+      { source: 'import', unskipped: onWritten },
     );
-    if (onWritten) {
-      await clearSkippedCodes(userId, await onWritten(items));
-    } else {
-      await clearSkipped(items);
-    }
   }
 
   return {

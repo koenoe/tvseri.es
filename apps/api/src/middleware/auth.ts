@@ -11,11 +11,24 @@ import { enforcePrivateCache } from './cacheControl';
 
 export type Auth = Readonly<{
   user: User;
-}> | null;
+}>;
 
+/** What auth() leaves: `null` for an anonymous request */
 export type Variables = Readonly<{
+  auth: Auth | null;
+}>;
+
+/**
+ * What requireAuth() (and the other require* guards) leave: a signed-in
+ * viewer. A router whose every route sits behind one (`app.use`, or a parent
+ * router's) declares it, so its handlers read `auth.user` without a check.
+ */
+export type SignedInVariables = Readonly<{
   auth: Auth;
 }>;
+
+/** A guard that lets only a signed-in viewer through, typed so routes after it narrow */
+export type SignedInGuard = MiddlewareHandler<{ Variables: SignedInVariables }>;
 
 /**
  * `user` is set by routes/user/middleware.ts on /user/:id routes, which run it
@@ -135,9 +148,10 @@ const checkAuthAdmin = (): MiddlewareHandler<{ Variables: Variables }> => {
 /**
  * Requires authentication. Automatically runs auth() first.
  */
-export const requireAuth = () => every(auth(), checkAuth());
+export const requireAuth = (): SignedInGuard => every(auth(), checkAuth());
 
 /**
  * Requires admin role. Automatically runs auth() first.
  */
-export const requireAuthAdmin = () => every(auth(), checkAuthAdmin());
+export const requireAuthAdmin = (): SignedInGuard =>
+  every(auth(), checkAuthAdmin());

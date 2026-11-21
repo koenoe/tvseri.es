@@ -41,29 +41,38 @@ const recordClosingStrips = (page: Page) =>
     const frames: Strip[][] = [];
     (window as unknown as { __closingStrips: Strip[][] }).__closingStrips =
       frames;
+    const read = (dialog: Element) =>
+      [...dialog.querySelectorAll(':scope > [data-edge-tint]')].map((strip) => {
+        const style = getComputedStyle(strip);
+        return {
+          colour: style.backgroundColor,
+          edge: strip.getBoundingClientRect().top === 0 ? 'top' : 'bottom',
+          shown: style.display !== 'none',
+        };
+      });
     const sample = () => {
       const dialog = document.querySelector('dialog[aria-label="Search"]');
       if (!dialog) {
         return;
       }
       if (dialog.hasAttribute('data-closing')) {
-        frames.push(
-          [...dialog.querySelectorAll(':scope > [data-edge-tint]')].map(
-            (strip) => {
-              const style = getComputedStyle(strip);
-              return {
-                colour: style.backgroundColor,
-                edge:
-                  strip.getBoundingClientRect().top === 0 ? 'top' : 'bottom',
-                shown: style.display !== 'none',
-              };
-            },
-          ),
-        );
+        frames.push(read(dialog));
       }
       requestAnimationFrame(sample);
     };
     requestAnimationFrame(sample);
+    // and the moment the close starts, before any frame: a fast close on a
+    // slow runner (CI's WebKit) can end between two sampled frames
+    const dialog = document.querySelector('dialog[aria-label="Search"]');
+    if (dialog) {
+      const watch = new MutationObserver(() => {
+        if (dialog.hasAttribute('data-closing')) {
+          frames.push(read(dialog));
+          watch.disconnect();
+        }
+      });
+      watch.observe(dialog, { attributeFilter: ['data-closing'] });
+    }
   });
 
 const closingStrips = (page: Page) =>

@@ -42,31 +42,6 @@ const NOT_RUN: ReadonlyArray<
     ],
     resources: ['MdblistApiKey'],
   },
-  // Takes cache keys from lib/profileCounters, whose watched-store imports
-  // load the catalogue; deleting never fetches a show
-  {
-    handlers: [lambda('deleteAccount')],
-    resources: [
-      'DominantColor',
-      'MdblistApiKey',
-      'PreferredImages',
-      'TmdbApiAccessToken',
-      'TmdbApiKey',
-    ],
-  },
-  // Reads episode keys from the watched store, whose imports load the
-  // catalogue; undoing only queries and deletes watched items and prefs
-  {
-    handlers: [lambda('undoImport')],
-    resources: [
-      'Cache',
-      'DominantColor',
-      'MdblistApiKey',
-      'PreferredImages',
-      'TmdbApiAccessToken',
-      'TmdbApiKey',
-    ],
-  },
 ];
 
 const notRun = new Set(

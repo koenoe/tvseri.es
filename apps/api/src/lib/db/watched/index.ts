@@ -1,17 +1,10 @@
-import {
-  type AttributeValue,
-  PutItemCommand,
-  QueryCommand,
-} from '@aws-sdk/client-dynamodb';
+import { type AttributeValue, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { MAX_EPISODES_PER_SERIES_MARK } from '@tvseri.es/constants';
 import {
   type EpisodeForWatched,
   episodeCode,
   type PaginationOptions,
   type RecentScrobble,
-  type Season,
-  type TvSeries,
   type TvSeriesForWatched,
   type WatchedItem,
   type WatchProvider,
@@ -20,12 +13,8 @@ import {
   buildLogoImageUrl,
   buildPosterImageUrl,
   buildStillImageUrl,
-  hasAiredAt,
 } from '@tvseri.es/utils';
-import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
-import { seasonForMark } from '@/lib/marking/catalog';
-import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { createLimiter } from '@/utils/limit';
 import { batchWrite } from '../batch';
 import client from '../client';
@@ -94,7 +83,7 @@ const projection = (attributes: ReadonlyArray<keyof WatchedItem>) => ({
  * When an episode was watched: a date, or "I don't remember" (`dateUnknown`,
  * with `watchedAt` holding when it was marked).
  */
-type WatchedWhen = Readonly<{
+export type WatchedWhen = Readonly<{
   watchedAt: number;
   dateUnknown?: true;
 }>;
@@ -107,14 +96,7 @@ const createWatchedItem = ({
   userId,
   watchProvider,
   watchedAt,
-}: WatchedWhen &
-  Readonly<{
-    episode: EpisodeForWatched;
-    importId?: string;
-    tvSeries: TvSeriesForWatched;
-    userId: string;
-    watchProvider?: WatchProvider | null;
-  }>): WatchedItem => ({
+}: WatchedPut): WatchedItem => ({
   ...(dateUnknown && { dateUnknown }),
   ...(importId && { importId }),
   episodeAirDate: episode.airDate,
@@ -182,41 +164,57 @@ const normalizeWatchedItem = <T extends Partial<WatchedItem>>(
     : undefined,
 });
 
-export const markWatchedInBatch = async (
-  items: ReadonlyArray<
-    WatchedWhen &
-      Readonly<{
-        episode: EpisodeForWatched;
-        importId?: string;
-        tvSeries: TvSeriesForWatched;
-        userId: string;
-        watchProvider?: WatchProvider | null;
-      }>
-  >,
-) => {
-  const uniqueCompositeKeys = new Set<string>();
-  const uniqueItems = items.filter((item) => {
-    const compositeKey = `${watchedPk(item.userId)}#${episodeSk(item.tvSeries.id, item.episode.seasonNumber, item.episode.episodeNumber)}`;
+/** One episode's watched item to write */
+export type WatchedPut = WatchedWhen &
+  Readonly<{
+    episode: EpisodeForWatched;
+    importId?: string;
+    tvSeries: TvSeriesForWatched;
+    userId: string;
+    watchProvider?: WatchProvider | null;
+  }>;
 
-    if (uniqueCompositeKeys.has(compositeKey)) {
+/** One episode's watched item, by its key */
+export type WatchedKey = Readonly<{
+  episodeNumber: number;
+  seasonNumber: number;
+  seriesId: number;
+  userId: string;
+}>;
+
+const itemKey = (key: WatchedKey) => ({
+  pk: watchedPk(key.userId),
+  sk: episodeSk(key.seriesId, key.seasonNumber, key.episodeNumber),
+});
+
+// A batch write refuses two requests for one key: the first of each stays
+const uniqueByKey = <T>(
+  items: ReadonlyArray<T>,
+  keyOf: (item: T) => WatchedKey,
+) => {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const { pk, sk } = itemKey(keyOf(item));
+    const composite = `${pk}#${sk}`;
+    if (seen.has(composite)) {
       return false;
     }
-
-    uniqueCompositeKeys.add(compositeKey);
+    seen.add(composite);
     return true;
   });
+};
 
-  const watchedItems = uniqueItems.map((item) =>
-    createWatchedItem({
-      dateUnknown: item.dateUnknown,
-      episode: item.episode,
-      importId: item.importId,
-      tvSeries: item.tvSeries,
-      userId: item.userId,
-      watchedAt: item.watchedAt,
-      watchProvider: item.watchProvider,
-    }),
-  );
+/**
+ * Writes the episodes' watched items (an episode twice in `items` once) and
+ * returns them as written
+ */
+export const putWatchedItems = async (items: ReadonlyArray<WatchedPut>) => {
+  const watchedItems = uniqueByKey(items, (item) => ({
+    episodeNumber: item.episode.episodeNumber,
+    seasonNumber: item.episode.seasonNumber,
+    seriesId: item.tvSeries.id,
+    userId: item.userId,
+  })).map(createWatchedItem);
 
   await batchWrite(
     Resource.Watched.name,
@@ -228,350 +226,14 @@ export const markWatchedInBatch = async (
   return watchedItems;
 };
 
-export const markWatched = async ({
-  dateUnknown,
-  episode,
-  tvSeries,
-  userId,
-  watchedAt = Date.now(),
-  watchProvider,
-}: Partial<WatchedWhen> &
-  Readonly<{
-    episode: EpisodeForWatched;
-    tvSeries: TvSeriesForWatched;
-    userId: string;
-    watchProvider?: WatchProvider | null;
-  }>) => {
-  const watchedItem = createWatchedItem({
-    dateUnknown,
-    episode,
-    tvSeries,
-    userId,
-    watchedAt,
-    watchProvider,
-  });
-
-  await client.send(
-    new PutItemCommand({
-      Item: toWatchedRecord(watchedItem),
-      TableName: Resource.Watched.name,
-    }),
-  );
-
-  return watchedItem;
-};
-
-export const unmarkWatchedInBatch = async (
-  items: ReadonlyArray<{
-    userId: string;
-    tvSeries: TvSeriesForWatched;
-    seasonNumber: number;
-    episodeNumber: number;
-  }>,
-) => {
-  const uniqueCompositeKeys = new Set<string>();
-  const uniqueItems = items.filter((item) => {
-    const compositeKey = `${watchedPk(item.userId)}#${episodeSk(item.tvSeries.id, item.seasonNumber, item.episodeNumber)}`;
-
-    if (uniqueCompositeKeys.has(compositeKey)) {
-      return false;
-    }
-
-    uniqueCompositeKeys.add(compositeKey);
-    return true;
-  });
-
-  const deleteRequests = uniqueItems.map((item) => ({
-    DeleteRequest: {
-      Key: marshall({
-        pk: watchedPk(item.userId),
-        sk: episodeSk(item.tvSeries.id, item.seasonNumber, item.episodeNumber),
-      }),
-    },
-  }));
-
-  await batchWrite(Resource.Watched.name, deleteRequests);
-};
-
-// 400 for a season that hasn't started airing yet
-const fetchAiredSeason = async (
-  tvSeriesId: number | string,
-  seasonNumber: number,
-): Promise<Season> => {
-  const season = await seasonForMark(tvSeriesId, seasonNumber);
-
-  if (
-    !season?.numberOfAiredEpisodes ||
-    !hasAiredAt(season.airDate, Date.now())
-  ) {
-    throw new HTTPException(400, {
-      message: `Invalid season for ${tvSeriesId}`,
-    });
-  }
-
-  return season;
-};
-
-/** Episode codes (`S01E02`) the viewer skipped: a scope mark leaves them */
-type Skipped = ReadonlySet<string>;
-
-const NOTHING_SKIPPED: Skipped = new Set();
-
-// Builds the watched items (and their put requests) for a season's aired
-// episodes that are neither watched nor skipped
-const buildSeasonWrites = ({
-  existingWatched,
-  season,
-  seasonNumber,
-  skipped,
-  tvSeries,
-  userId,
-  watchProvider,
-  when,
-}: Readonly<{
-  existingWatched: ReadonlyArray<Pick<WatchedItem, 'episodeNumber'>>;
-  season: Season;
-  seasonNumber: number;
-  skipped: Skipped;
-  tvSeries: TvSeries;
-  userId: string;
-  watchProvider?: WatchProvider | null;
-  when: WatchedWhen;
-}>) => {
-  const existingEpisodeNumbers = new Set(
-    existingWatched.map((item) => item.episodeNumber),
-  );
-
-  const now = Date.now();
-  const episodes = season.episodes.filter(
-    (episode) =>
-      hasAiredAt(episode.airDate, now) &&
-      !existingEpisodeNumbers.has(episode.episodeNumber) &&
-      !skipped.has(
-        episodeCode({ episodeNumber: episode.episodeNumber, seasonNumber }),
-      ),
-  );
-
-  const watchedItems = episodes.map((episode) =>
-    createWatchedItem({
-      dateUnknown: when.dateUnknown,
-      episode: {
-        airDate: episode.airDate,
-        episodeNumber: episode.episodeNumber,
-        runtime: episode.runtime,
-        seasonNumber,
-        stillPath: episode.stillPath,
-        title: episode.title,
-      },
-      tvSeries,
-      userId,
-      watchedAt: when.watchedAt,
-      watchProvider,
-    }),
-  );
-
-  const writeRequests = watchedItems.map((item) => ({
-    PutRequest: { Item: toWatchedRecord(item) },
-  }));
-
-  return { watchedItems, writeRequests };
-};
-
-/**
- * Marks a season's aired episodes that are neither watched nor `skipped` as
- * watched: a skip stays a skip until that episode itself is marked. 400 when
- * the season hasn't started airing yet.
- */
-export const markSeasonWatched = async ({
-  seasonNumber,
-  skipped = NOTHING_SKIPPED,
-  tvSeries,
-  userId,
-  watchProvider,
-  when = { watchedAt: Date.now() },
-}: Readonly<{
-  seasonNumber: number;
-  skipped?: Skipped;
-  tvSeries: TvSeries;
-  userId: string;
-  watchProvider?: WatchProvider | null;
-  when?: WatchedWhen;
-}>) => {
-  const [season, existingWatched] = await Promise.all([
-    fetchAiredSeason(tvSeries.id, seasonNumber),
-    getWatchedForSeason({ seasonNumber, tvSeriesId: tvSeries.id, userId }),
-  ]);
-
-  const { watchedItems, writeRequests } = buildSeasonWrites({
-    existingWatched,
-    season,
-    seasonNumber,
-    skipped,
-    tvSeries,
-    userId,
-    watchProvider,
-    when,
-  });
-
-  if (writeRequests.length === 0) {
-    return existingWatched;
-  }
-
-  await batchWrite(Resource.Watched.name, writeRequests);
-
-  return [...existingWatched, ...watchedItems];
-};
-
-export const unmarkSeasonWatched = async (
-  input: Readonly<{
-    userId: string;
-    tvSeries: TvSeries;
-    seasonNumber: number;
-  }>,
-) => {
-  const items = await getWatchedForSeason({
-    attributes: ['episodeNumber'],
-    seasonNumber: input.seasonNumber,
-    tvSeriesId: input.tvSeries.id,
-    userId: input.userId,
-  });
-
-  if (!items.length) {
-    return;
-  }
-
-  const deleteRequests = items.map((item) => ({
-    DeleteRequest: {
-      Key: marshall({
-        pk: watchedPk(input.userId),
-        sk: episodeSk(
-          input.tvSeries.id,
-          input.seasonNumber,
-          item.episodeNumber,
-        ),
-      }),
-    },
-  }));
-
-  await batchWrite(Resource.Watched.name, deleteRequests);
-};
-
-/**
- * Marks every aired episode of every aired season as watched, skipped ones
- * left skipped. 413 above MAX_EPISODES_PER_SERIES_MARK aired episodes,
- * before anything is written.
- */
-export const markTvSeriesWatched = async ({
-  skipped = NOTHING_SKIPPED,
-  userId,
-  tvSeries,
-  watchProvider,
-  when = { watchedAt: Date.now() },
-}: Readonly<{
-  /** Skipped episode codes: left skipped, as the season mark leaves them */
-  skipped?: Skipped;
-  userId: string;
-  tvSeries: TvSeries;
-  watchProvider?: WatchProvider | null;
-  when?: WatchedWhen;
-}>) => {
-  if (!tvSeries.seasons) {
-    throw new HTTPException(400, {
-      message: `No seasons found for ${tvSeries.id}`,
-    });
-  }
-
-  // Too many writes for one request: the web marks season by season instead
-  if (tvSeries.numberOfAiredEpisodes > MAX_EPISODES_PER_SERIES_MARK) {
-    throw new HTTPException(413, {
-      message: `Too many episodes to mark at once (${tvSeries.numberOfAiredEpisodes}); mark seasons one by one`,
-    });
-  }
-
-  const now = Date.now();
-  const seasons = tvSeries.seasons.filter(
-    (season) => season.seasonNumber > 0 && hasAiredAt(season.airDate, now),
-  );
-
-  // Fetch and validate every season before writing anything, so an invalid
-  // season fails the whole request without a partial write
-  const limit = createLimiter(TMDB_CONCURRENCY);
-  const [airedSeasons, existingWatched] = await Promise.all([
-    Promise.all(
-      seasons.map(({ seasonNumber }) =>
-        limit(async () => ({
-          season: await fetchAiredSeason(tvSeries.id, seasonNumber),
-          seasonNumber,
-        })),
-      ),
-    ),
-    getAllWatchedForTvSeries({ tvSeriesId: tvSeries.id, userId }),
-  ]);
-
-  const perSeason = airedSeasons.map(({ season, seasonNumber }) => {
-    const existingForSeason = existingWatched.filter(
-      (item) => item.seasonNumber === seasonNumber,
-    );
-
-    return {
-      existingForSeason,
-      ...buildSeasonWrites({
-        existingWatched: existingForSeason,
-        season,
-        seasonNumber,
-        skipped,
-        tvSeries,
-        userId,
-        watchProvider,
-        when,
-      }),
-    };
-  });
-
+/** Deletes the episodes' watched items (a key twice in `keys` once) */
+export const deleteWatchedItems = async (keys: ReadonlyArray<WatchedKey>) => {
   await batchWrite(
     Resource.Watched.name,
-    perSeason.flatMap(({ writeRequests }) => writeRequests),
+    uniqueByKey(keys, (key) => key).map((key) => ({
+      DeleteRequest: { Key: marshall(itemKey(key)) },
+    })),
   );
-
-  return perSeason.flatMap(({ existingForSeason, watchedItems }) => [
-    ...existingForSeason,
-    ...watchedItems,
-  ]);
-};
-
-/**
- * Unmarks every regular episode. Specials (season 0) stay: they count
- * nowhere a whole-show unmark is about (progress, lists, stats), and are
- * unmarked one by one or by their season.
- */
-export const unmarkTvSeriesWatched = async (
-  input: Readonly<{
-    userId: string;
-    tvSeries: TvSeries;
-  }>,
-) => {
-  const items = (
-    await getAllWatchedForTvSeries({
-      attributes: ['episodeNumber', 'seasonNumber'],
-      tvSeriesId: input.tvSeries.id,
-      userId: input.userId,
-    })
-  ).filter((item) => item.seasonNumber > 0);
-
-  if (!items.length) {
-    return;
-  }
-
-  const deleteRequests = items.map((item) => ({
-    DeleteRequest: {
-      Key: marshall({
-        pk: watchedPk(input.userId),
-        sk: episodeSk(input.tvSeries.id, item.seasonNumber, item.episodeNumber),
-      }),
-    },
-  }));
-
-  await batchWrite(Resource.Watched.name, deleteRequests);
 };
 
 type SeriesInput = Readonly<{
@@ -827,7 +489,7 @@ export const getWatchedBySeries = async (
 /**
  * The watched episodes of one season (first 1000), as stored minus the keys.
  */
-const getWatchedForSeason = async <
+export const getWatchedForSeason = async <
   K extends keyof WatchedItem = keyof WatchedItem,
 >(
   input: SeriesInput &

@@ -16,8 +16,6 @@ import type {
 } from 'aws-lambda';
 import * as v from 'valibot';
 
-import { afterWatching } from '@/lib/db/prefs';
-import { markWatched } from '@/lib/db/watched';
 import { eachRecordInTime } from '@/lib/sqs';
 import {
   fetchTvSeriesBase,
@@ -25,6 +23,7 @@ import {
   findByExternalId,
   searchTvSeries,
 } from '@/lib/tmdb';
+import { recordMarks } from '@/lib/watchLog';
 
 type EpisodeWithTvSeriesId = Episode & { tvSeriesId: number };
 
@@ -151,23 +150,27 @@ const processScrobble = async (record: SQSRecord) => {
     return;
   }
 
-  const watchedItem = await markWatched({
-    episode: {
-      airDate: episode.airDate,
-      episodeNumber: episode.episodeNumber,
-      runtime: episode.runtime,
-      seasonNumber: episode.seasonNumber,
-      stillPath: episode.stillPath,
-      title: episode.title,
-    },
-    tvSeries: tvSeries,
-    userId: payload.userId,
-    // When the scrobble was queued, not processed: retries, duplicate
-    // deliveries and DLQ redrives keep the real date (and stay idempotent)
-    watchedAt: Number(record.attributes.SentTimestamp),
-    watchProvider: PLEX_WATCH_PROVIDER,
-  });
-  await afterWatching([watchedItem]);
+  await recordMarks(
+    payload.userId,
+    [
+      {
+        episode: {
+          airDate: episode.airDate,
+          episodeNumber: episode.episodeNumber,
+          runtime: episode.runtime,
+          seasonNumber: episode.seasonNumber,
+          stillPath: episode.stillPath,
+          title: episode.title,
+        },
+        tvSeries,
+        // When the scrobble was queued, not processed: retries, duplicate
+        // deliveries and DLQ redrives keep the real date (and stay idempotent)
+        watchedAt: Number(record.attributes.SentTimestamp),
+        watchProvider: PLEX_WATCH_PROVIDER,
+      },
+    ],
+    { source: 'scrobble' },
+  );
 
   console.log(
     `[SUCCESS] Plex | ${tvSeries.title} - ${episodeCode(episode)} "${episode.title}" | User: ${payload.userId}`,

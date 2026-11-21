@@ -4,11 +4,11 @@ import type { EpisodeRef } from '@tvseri.es/schemas';
 import { type RefObject, useCallback, useEffect } from 'react';
 
 import { getTopLayer } from '@/components/ui/layer/topLayer';
+import { prefetchEpisode } from '@/lib/series/useEpisodeData';
 import { requestSeason } from '@/lib/series/useSeasonEpisodes';
 import type { ShowSummary } from '../../_lib/show';
 import { openEpisode, toNumberParam } from '../../_lib/urlState';
 import { stepEpisode } from './episodeSteps';
-import { prefetchEpisode } from './useEpisodeData';
 
 /** The episode the URL shows now (`?season=N&episode=M`). */
 function urlEpisode(): EpisodeRef | null {

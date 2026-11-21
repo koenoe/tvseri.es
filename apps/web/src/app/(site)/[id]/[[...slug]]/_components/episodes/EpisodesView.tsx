@@ -62,6 +62,12 @@ function useWallView(seasonNumber: number) {
 }
 
 type Props = Readonly<{
+  /**
+   * The key of the moment the viewer's own mark completed this season here
+   * (`useCulmination`), or null: the season line's sweep, "Watched" rising
+   * in, the wall folding into its stacks. Null in the shell.
+   */
+  completed?: number | null;
   seriesId: number;
   seasonNumber: number;
   /** The season's episodes; undefined while they load, null when they failed. */
@@ -82,6 +88,7 @@ type Props = Readonly<{
  * shell's signed-out wall and the viewer's live wall are the same markup.
  */
 export default function EpisodesView({
+  completed = null,
   personal,
   season,
   seasonNumber,
@@ -110,6 +117,7 @@ export default function EpisodesView({
   return (
     <>
       <SeasonHeader
+        completed={completed}
         episodes={episodes}
         marked={marked}
         nextUp={nextUp}
@@ -121,6 +129,7 @@ export default function EpisodesView({
       {plan ? (
         <StillBackdrop value={backdropStandsIn}>
           <FocusWall
+            completed={completed}
             dispatch={dispatch}
             focusLayout={plan.focusLayout}
             seasonNumber={seasonNumber}

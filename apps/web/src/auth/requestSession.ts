@@ -2,6 +2,7 @@ import 'server-only';
 
 import { type Role, subjects } from '@tvseri.es/schemas';
 import { cookies } from 'next/headers';
+import { unstable_rethrow } from 'next/navigation';
 import type { NextRequest } from 'next/server';
 import { cache } from 'react';
 
@@ -56,6 +57,8 @@ export async function checkToken(accessToken: string): Promise<TokenCheck> {
   try {
     return { kind: 'verified', result: await verify(accessToken) };
   } catch (error) {
+    // a completed prerender's abandoned fetch is Next's, not the keys failing
+    unstable_rethrow(error);
     return { error, kind: 'unavailable' };
   }
 }

@@ -1,6 +1,8 @@
 'use client';
 
 import { type FocusEvent, type KeyboardEvent, use, useMemo } from 'react';
+
+import Sheen, { SEASON_SWEEP } from '@/components/motion/Sheen';
 import cn from '@/lib/cn';
 import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
 import { openUpTo, useDialogs } from '../../_lib/dialogs';
@@ -14,6 +16,8 @@ import styles from './seasonLine.module.css';
 import useLinePaint from './useLinePaint';
 
 type Props = Readonly<{
+  /** The viewer's mark completed it here: one light sweeps first to last */
+  completed: number | null;
   seriesId: number;
   seasonNumber: number;
   episodes: ReadonlyArray<ShowEpisode>;
@@ -45,9 +49,10 @@ const preloadOnKeyboardFocus = (event: FocusEvent<HTMLDivElement>) => {
  * `paintRun` (one toast with Undo). The gesture is the page's shared
  * pointer run (`_lib/pointerRun.ts`); pointer → segment uses the box and
  * the runtime weights, so moves do no layout reads. Enter opens "I'm up
- * to…".
+ * to…". A completion by the viewer's mark here sweeps it once (`Sheen`).
  */
 export default function SeasonLine({
+  completed,
   episodes,
   marked,
   seasonNumber,
@@ -124,6 +129,9 @@ export default function SeasonLine({
       tabIndex={0}
       {...gesture.handlers}
     >
+      {completed === null ? null : (
+        <Sheen key={completed} timing={SEASON_SWEEP} />
+      )}
       {plan?.title ? (
         <span className={styles.label} style={labelStyle}>
           <b>{plan.title}</b>

@@ -16,9 +16,9 @@ import { isDayZero } from '../../_lib/dayZero';
 import EmptyState from '../blocks/EmptyState';
 import Lane from '../blocks/Lane';
 import LaneGhost, { LinkGhost } from '../blocks/LaneGhost';
+import { LANE_ROW_BUTTON } from '../blocks/laneRowButton';
 import LedgerLane from './season-ledger/LedgerLane';
 import {
-  LEDGER_BUTTON,
   LEDGER_BUTTONS,
   LEDGER_CHART,
   LEDGER_HOLE,
@@ -71,10 +71,10 @@ function HoleGhost() {
         <TextLine className="text-meta" width="w-24" />
       </MetaRow>
       <span className={LEDGER_BUTTONS}>
-        <ButtonFace className={LEDGER_BUTTON} variant="outline">
+        <ButtonFace className={LANE_ROW_BUTTON} variant="outline">
           Watched
         </ButtonFace>
-        <ButtonFace className={LEDGER_BUTTON} variant="outline">
+        <ButtonFace className={LANE_ROW_BUTTON} variant="outline">
           Skipped
         </ButtonFace>
       </span>

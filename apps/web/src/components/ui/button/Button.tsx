@@ -1,5 +1,7 @@
 import type { ComponentProps, ReactNode } from 'react';
 
+import { pendingGlyph } from '@/components/ui/icon/glyphs';
+import IconSwap from '@/components/ui/icon/IconSwap';
 import type { Glyph, IconSize, ToggleGlyph } from '@/components/ui/icon/types';
 
 import ButtonContent from './ButtonContent';
@@ -52,6 +54,13 @@ export default function Button({
   const handleClick = pendingClick(pending, onClick);
   const busy = pending || undefined;
   const blocked = pending || ariaDisabled;
+  // A pill that can change (`pressed` or `pending` given) swaps its icon; a
+  // static one keeps ButtonContent's plain server-drawn `Icon`
+  const swaps = pressed !== undefined || pending !== undefined;
+  const swapGlyph = pending ? pendingGlyph : (icon ?? null);
+  const leading = swaps ? (
+    <IconSwap active={pressed} glyph={swapGlyph} size={resolvedIconSize} />
+  ) : undefined;
 
   return (
     <button
@@ -64,10 +73,9 @@ export default function Button({
       {...rest}
     >
       <ButtonContent
-        active={pressed}
         icon={icon}
         iconSize={resolvedIconSize}
-        pending={pending}
+        leading={leading}
         trailingIcon={trailingIcon}
       >
         {children}

@@ -31,7 +31,12 @@ function pill(
     </MarkingProvider>,
   );
   const button = screen.getByRole('button');
-  const visible = button.querySelector('span')?.textContent ?? '';
+  // the word at rest: the first span holding text only (the hover word
+  // shares its grid cell, invisible)
+  const visible =
+    [...button.querySelectorAll('span')].find(
+      (span) => span.childElementCount === 0,
+    )?.textContent ?? '';
   return { button, name: button.getAttribute('aria-label') ?? '', visible };
 }
 

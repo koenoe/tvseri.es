@@ -1,6 +1,7 @@
 import { isHexColor } from '@tvseri.es/schemas';
 import Image from 'next/image';
 import type { CSSProperties } from 'react';
+import { TEXT_ARRIVAL } from '@/components/motion/textArrival';
 import { LazyShowRemote } from '@/components/remote/LazyRemote';
 import { calendarGlyph, seasonGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
@@ -30,7 +31,8 @@ const tint = (ink: string, percent: number) =>
 export const PICK_CONTENT =
   'absolute inset-y-0 left-0 z-3 flex w-full flex-col items-start justify-end px-5 pt-7 pb-[84px] xl:w-[540px] xl:pr-0 xl:pb-[30px] xl:pl-9';
 
-const CONTENT = `pointer-events-none ${PICK_CONTENT}`;
+/** The words arrive behind the picture when the pick changes (`PickStage`) */
+const CONTENT = `pointer-events-none ${PICK_CONTENT} ${TEXT_ARRIVAL}`;
 
 /**
  * One pick of From your circle: the backdrop fading in from the right, the
@@ -108,7 +110,7 @@ export default function PickCard({
       </div>
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-6 rounded-14 shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08),inset_0_0_90px_rgb(0_0_0/0.3)]"
+        className="pointer-events-none absolute inset-0 z-6 rounded-14 shadow-[var(--shadow-image-rim),inset_0_0_90px_rgb(0_0_0/0.3)]"
         data-hairline
       />
     </article>

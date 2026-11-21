@@ -17,6 +17,7 @@ import {
   atPointVars,
 } from '@/components/ui/dialog/atPoint';
 import { Dialog } from '@/components/ui/dialog/Dialog';
+import { DAY_MONTH_YEAR_PATTERN } from '@/lib/format/date';
 
 import { type SinceChoice, sinceChoices } from '../_lib/syncScope';
 import { useConnectedService } from './ServiceContext';
@@ -40,7 +41,9 @@ function Choice({
       type="button"
     >
       <span className="whitespace-nowrap">{choice.label}</span>
-      <span className={PICKER_HINT}>{format(choice.day, 'd MMM yyyy')}</span>
+      <span className={PICKER_HINT}>
+        {format(choice.day, DAY_MONTH_YEAR_PATTERN)}
+      </span>
     </button>
   );
 }

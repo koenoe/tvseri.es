@@ -45,7 +45,7 @@ test('the nav line follows Undo import without a reload', async ({ page }) => {
   await page.getByRole('button', { name: 'Undo import' }).click();
   const dialog = page.getByRole('dialog', { name: 'Undo this import?' });
   await dialog.getByRole('button', { name: 'Undo import' }).click();
-  await expect(page.getByText('Import undone')).toBeVisible({
+  await expect(page.getByText('Import undone', { exact: true })).toBeVisible({
     timeout: 15_000,
   });
   await expect(nav.getByText('Upload your CSV file')).toBeVisible();

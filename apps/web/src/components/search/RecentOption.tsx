@@ -21,8 +21,8 @@ export default function RecentOption({ cell, marked, onChoose }: OptionProps) {
     marked && MARKED_RING,
   );
   const imageClasses = isShow
-    ? 'h-9 w-6 rounded-4 object-cover'
-    : 'size-8 rounded-full object-cover object-[center_20%]';
+    ? 'image-outline h-9 w-6 rounded-4 object-cover'
+    : 'image-outline size-8 rounded-full object-cover object-[center_20%]';
 
   return (
     <OptionLink

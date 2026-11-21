@@ -1,6 +1,7 @@
 import 'server-only';
 
 import type { User } from '@tvseri.es/schemas';
+import { unstable_rethrow } from 'next/navigation';
 import type { NextRequest } from 'next/server';
 import { cache } from 'react';
 
@@ -36,8 +37,11 @@ async function fetchUser(
 ): Promise<User | null> {
   try {
     return await fetchMe(accessToken);
-  } catch {
-    console.log(`[auth] [${context}] fetchUser failed`);
+  } catch (error) {
+    // A prerender (a prefetch) that completes abandons its fetches: Next's
+    // to handle, not a failed read
+    unstable_rethrow(error);
+    console.log(`[auth] [${context}] fetchUser failed:`, error);
     return null;
   }
 }

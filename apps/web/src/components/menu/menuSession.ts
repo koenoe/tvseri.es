@@ -7,13 +7,11 @@ import {
   leavePanelEntry,
 } from '@/components/ui/dialog/panelHistory';
 import { lockScroll, unlockScroll } from '@/components/ui/dialog/scrollLock';
+import { FOCUSABLE } from '@/lib/a11y/focusable';
 import { isPlainClick } from '@/lib/navigation/isPlainClick';
 
 type CloseWatcherLike = { destroy: () => void; onclose: (() => void) | null };
 type CloseWatcherConstructor = new () => CloseWatcherLike;
-
-const FOCUSABLE =
-  'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 const focusables = (root: Element | null): HTMLElement[] =>
   root

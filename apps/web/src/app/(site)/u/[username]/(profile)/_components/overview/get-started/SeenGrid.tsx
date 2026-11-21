@@ -5,6 +5,7 @@ import { useCallback, useState } from 'react';
 
 import { checkGlyph, eyeGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import MarkSwap from '@/components/ui/icon/MarkSwap';
 import cn from '@/lib/cn';
 import { useSeriesProgress } from '@/lib/marking/hooks';
 import { useMarkingStoreApi } from '@/lib/marking/MarkingProvider';
@@ -12,6 +13,14 @@ import useIntentSeed from '@/lib/marking/useIntentSeed';
 import useMarking from '@/lib/marking/useMarking';
 import { SEEN_GRID } from './layout';
 import type { SeenShow } from './loadGetStarted';
+
+const SEEN_MARK =
+  'absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-caption font-medium';
+const EYE_MARK =
+  'absolute right-1.5 bottom-1.5 flex size-7 items-center justify-center rounded-full border-2 border-white/20 bg-[rgb(15_20_20/0.5)] backdrop-blur-[6px]';
+
+const SEEN_DISC =
+  'flex size-7 items-center justify-center rounded-full bg-white text-[#171717]';
 
 /**
  * Already seen: popular posters to mark as seen. One way only: a tap marks
@@ -92,7 +101,7 @@ export function SeenTile({
       title={show.title}
       type="button"
     >
-      <span className="relative block aspect-2/3 bg-white/8">
+      <span className="image-rim relative block aspect-2/3 rounded-[inherit] bg-white/8">
         {show.posterImage ? (
           <Image
             alt=""
@@ -103,18 +112,22 @@ export function SeenTile({
           />
         ) : null}
       </span>
-      {isSeen ? (
-        <span className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-caption font-medium">
-          <span className="flex size-7 items-center justify-center rounded-full bg-white text-[#171717]">
-            <Icon glyph={checkGlyph} size={13} />
-          </span>
-          Seen
-        </span>
-      ) : (
-        <span className="absolute right-1.5 bottom-1.5 flex size-7 items-center justify-center rounded-full border-2 border-white/20 bg-[rgb(15_20_20/0.5)] backdrop-blur-[6px]">
+      {/* the corner's eye goes, the check arrives in the middle */}
+      <MarkSwap
+        className={isSeen ? SEEN_MARK : EYE_MARK}
+        swapKey={isSeen ? 'seen' : 'eye'}
+      >
+        {isSeen ? (
+          <>
+            <span className={SEEN_DISC}>
+              <Icon glyph={checkGlyph} size={13} />
+            </span>
+            Seen
+          </>
+        ) : (
           <Icon glyph={eyeGlyph} size={13} />
-        </span>
-      )}
+        )}
+      </MarkSwap>
     </button>
   );
 }

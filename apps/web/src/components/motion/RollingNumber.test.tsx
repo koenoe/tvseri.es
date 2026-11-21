@@ -50,6 +50,15 @@ describe('RollingNumber', () => {
     expect(container.textContent).toBe('100');
   });
 
+  it('mounted on a change (`from`), it rolls from the number before', () => {
+    const { container } = render(<RollingNumber from={98} value={100} />);
+    expect(Number(container.textContent)).toBeLessThan(100);
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    expect(container.textContent).toBe('100');
+  });
+
   it('jumps with reduced motion', () => {
     reducedMotion(true);
     const { container, rerender } = render(<RollingNumber value={0} />);

@@ -33,6 +33,7 @@ function render(locked: boolean) {
         <ClockProvider>
           <ViewerLocked value={locked}>
             <SeasonLine
+              completed={null}
               episodes={episodes}
               marked={marked}
               seasonNumber={1}

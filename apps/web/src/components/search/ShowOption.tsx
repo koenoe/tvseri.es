@@ -33,7 +33,7 @@ export default function ShowOption({ cell, marked, onChoose }: OptionProps) {
       <span className={posterClasses}>
         <Image
           alt=""
-          className="rounded-8 object-cover"
+          className="image-outline rounded-8 object-cover"
           fill
           loading="eager"
           sizes={POSTER_SIZES}
@@ -43,8 +43,9 @@ export default function ShowOption({ cell, marked, onChoose }: OptionProps) {
         <span className="absolute top-1.5 left-1.5 z-2">
           {cell.kind === 'show' ? <WatchedOverlay id={cell.id} /> : null}
         </span>
+        {/* 4px in from the poster's 8px corner: the chip's 4 is concentric */}
         {marked ? (
-          <EnterChip className="absolute top-1.5 right-1.5" overImage />
+          <EnterChip className="absolute top-1 right-1" overImage />
         ) : null}
       </span>
       <span className={titleClasses} title={cell.name}>

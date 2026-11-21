@@ -102,3 +102,27 @@ export function labelSides(
     return best;
   });
 }
+
+/** A touch target's diameter (WCAG 2.5.5's 44px) */
+const TOUCH_TARGET = 44;
+
+/**
+ * Which pins have room for a 44px round touch target on a map drawn `px`
+ * wide: no other pin's centre within 44px, so two grown targets (or a grown
+ * one and a 28px one) never overlap. A pin that is roomy on the narrowest
+ * map of a range is roomy on every wider one.
+ */
+export function roomyPins(
+  points: ReadonlyArray<Point>,
+  mapWidth: number,
+  px: number,
+): boolean[] {
+  const scale = px / mapWidth;
+  return points.map((pin, index) =>
+    points.every(
+      (other, at) =>
+        at === index ||
+        Math.hypot(other.x - pin.x, other.y - pin.y) * scale >= TOUCH_TARGET,
+    ),
+  );
+}

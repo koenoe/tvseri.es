@@ -1,4 +1,7 @@
-import { type ChangeEvent, type FormEvent, useId } from 'react';
+import { AnimatePresence, useIsPresent } from 'motion/react';
+import * as m from 'motion/react-m';
+import { type ChangeEvent, type FormEvent, useId, useRef } from 'react';
+import { appearFrom } from '@/components/motion/appear';
 import Button from '@/components/ui/button/Button';
 import { lockGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
@@ -7,6 +10,12 @@ import InputShell, { INPUT_CLASS } from '../../_components/InputShell';
 import type { UsernameHint } from '../_lib/usernameHint';
 import Field from './Field';
 import { FORM_CARD } from './profileLayout';
+
+/**
+ * Cancel slides in from the Save button's side as the first edit lands, and
+ * fades out once the form is back as saved
+ */
+const CANCEL = appearFrom({ x: 8 });
 
 type Props = Readonly<{
   canSave: boolean;
@@ -43,6 +52,13 @@ export default function ProfileForm({
   const usernameHintId = `${ids}-username-hint`;
   const usernameInvalid = hint.tone === 'bad';
   const saveBlocked = !canSave;
+  const saveRef = useRef<HTMLButtonElement>(null);
+  // Cancel leaves with the edit it undid: Save, which stays (as "Saved"),
+  // holds the focus; a held Enter on it submits nothing, there's no change
+  const cancel = () => {
+    saveRef.current?.focus();
+    onCancel();
+  };
   return (
     <form className={FORM_CARD} noValidate onSubmit={onSubmit}>
       <div className="flex flex-col gap-6">
@@ -103,15 +119,14 @@ export default function ProfileForm({
         </div>
       </div>
       <div className="flex justify-end gap-3 border-t border-white/6 pt-6">
-        {changed ? (
-          <Button onClick={onCancel} variant="quiet">
-            Cancel
-          </Button>
-        ) : null}
+        <AnimatePresence initial={false}>
+          {changed ? <LeavingCancel key="cancel" onCancel={cancel} /> : null}
+        </AnimatePresence>
         <Button
           aria-disabled={saveBlocked}
           className="border-0 px-6 aria-disabled:bg-white/18"
           pending={saving}
+          ref={saveRef}
           type="submit"
           variant="primary"
         >
@@ -119,5 +134,17 @@ export default function ProfileForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+/** Cancel fades out once the form is back to saved; leaving, it can't be pressed */
+function LeavingCancel({ onCancel }: Readonly<{ onCancel: () => void }>) {
+  const leaving = !useIsPresent();
+  return (
+    <m.span className="flex" inert={leaving} {...CANCEL}>
+      <Button onClick={onCancel} variant="quiet">
+        Cancel
+      </Button>
+    </m.span>
   );
 }

@@ -13,6 +13,8 @@ import type {
 import type { ReactElement } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { spokenLine } from '@/test/spoken';
+
 import { appToggleId } from './AppsAccordion';
 import { ServiceProvider } from './ServiceContext';
 import ServiceReview from './ServiceReview';
@@ -99,6 +101,10 @@ beforeEach(() => {
   }
 });
 
+/** The count line as read out (its drawn digits roll beside it, hidden) */
+const countLine = (count: number, noun: string) =>
+  `${count} ${noun} the sync couldn’t match · fix them here, or skip`;
+
 describe('ServiceReview', () => {
   it('draws nothing when nothing needs checking', () => {
     const { container } = render(
@@ -112,7 +118,7 @@ describe('ServiceReview', () => {
       <ServiceReview count={2} overflow={0} page={page([TOP_BOY, LOST])} />,
     );
     expect(screen.getByText('To review')).toBeTruthy();
-    expect(screen.getByText(/^2 entries/)).toBeTruthy();
+    expect(screen.getByText(spokenLine(countLine(2, 'entries')))).toBeTruthy();
     expect(screen.getByText('Which series?')).toBeTruthy();
     expect(
       screen.getByRole('button', { name: '2011 · Channel 4' }),
@@ -136,7 +142,7 @@ describe('ServiceReview', () => {
     });
     // Optimistic: gone, and counted out, before the action answers
     expect(screen.queryByText('Which series?')).toBeNull();
-    expect(screen.getByText(/^1 entry the sync/)).toBeTruthy();
+    expect(screen.getByText(spokenLine(countLine(1, 'entry')))).toBeTruthy();
 
     await act(async () => {
       answer.release({
@@ -269,6 +275,42 @@ describe('ServiceReview', () => {
     expect(screen.queryByRole('button', { name: 'Show more' })).toBeNull();
   });
 
+  /** The list item an entry's line sits in, as drawn now */
+  const itemOf = (text: string) =>
+    screen.getByText(text).closest<HTMLElement>('[data-leaving-item]');
+
+  it('opens the entries Show more brings into the list', async () => {
+    more.mockResolvedValue({ data: page([NEW_ENTRY]), ok: true });
+    render(
+      <ServiceReview
+        count={3}
+        overflow={0}
+        page={page([TOP_BOY, LOST], 'c1')}
+      />,
+    );
+    expect(itemOf('Lost Signals: Pilot')?.style.opacity).not.toBe('0');
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Show more' }));
+    });
+    // it starts shut and opens into its place
+    expect(itemOf('Fresh Show: One')?.style.opacity).toBe('0');
+  });
+
+  it('draws the entries a sync adds at once', () => {
+    const { rerender } = render(
+      <ServiceReview count={2} overflow={0} page={page([TOP_BOY, LOST])} />,
+    );
+    rerender(
+      <ServiceReview
+        count={3}
+        overflow={0}
+        page={page([TOP_BOY, LOST, NEW_ENTRY])}
+      />,
+    );
+    expect(itemOf('Fresh Show: One')?.style.opacity).not.toBe('0');
+  });
+
   it('keeps what it loaded when the card refreshes', async () => {
     more.mockResolvedValue({ data: page([LOST]), ok: true });
     const { rerender } = render(
@@ -377,7 +419,7 @@ describe('ServiceReview', () => {
     // The entry is back, now asking for its episode
     expect(screen.queryByText('Which series?')).toBeNull();
     expect(screen.getByText('Not found')).toBeTruthy();
-    expect(screen.getByText(/^1 entry the sync/)).toBeTruthy();
+    expect(screen.getByText(spokenLine(countLine(1, 'entry')))).toBeTruthy();
   });
 });
 

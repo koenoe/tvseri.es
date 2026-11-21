@@ -2,7 +2,9 @@
 
 import { lazy, type MouseEvent, Suspense, useCallback, useState } from 'react';
 
+import { CROSSFADE } from '@/components/motion/lateFade';
 import Button from '@/components/ui/button/Button';
+import { HIT_Y } from '@/components/ui/button/hitArea';
 import { Segmented, SegmentedItem } from '@/components/ui/button/Segmented';
 import { clampToViewport, type Point } from '@/components/ui/dialog/atPoint';
 import { calendarGlyph } from '@/components/ui/icon/glyphs';
@@ -13,7 +15,6 @@ import { MD_BUTTON } from '../../_lib/appButtons';
 import {
   defaultSince,
   formatSinceButton,
-  formatSinceDay,
   type SyncScopeChoice,
   sinceLine,
 } from '../_lib/syncScope';
@@ -31,8 +32,15 @@ const SinceDialog = lazy(loadSinceDialog);
  */
 const CONTROLS =
   'flex flex-wrap items-center gap-2 md:gap-3 max-md:w-full max-md:justify-between';
-/** Sync now's pill, with the day, at the switch's height */
-const DAY_BUTTON = cn(MD_BUTTON, 'h-9 tabular-nums');
+/** Sync now's pill, with the day, at the switch's height (40px to the pointer) */
+const DAY_BUTTON = cn(MD_BUTTON, 'relative h-9 tabular-nums', HIT_Y[2]);
+/**
+ * Everything hides the day where it stands, so Since and Everything stay
+ * under the pointer on desktop; on a phone the button sits at the row's
+ * right edge, and its empty place would hold a line of its own
+ */
+const DAY_SLOT = cn('flex', CROSSFADE);
+const DAY_SLOT_HIDDEN = cn(DAY_SLOT, 'invisible opacity-0 max-md:hidden');
 
 /** "Sync since"'s box (the marking picker's width), to place it by its button */
 const PICKER_BOX = { height: 446, width: 560 } as const;
@@ -139,7 +147,7 @@ export default function ServiceScopeRow({
   const buttonLabel =
     since === null
       ? undefined
-      : `Sync since ${formatSinceDay(since)}, change day`;
+      : `Sync since ${formatSinceButton(since, now ?? since)}, change day`;
   return (
     <OptionRow description={line} title="How far back">
       <div className={CONTROLS}>
@@ -159,7 +167,10 @@ export default function ServiceScopeRow({
             Everything
           </SegmentedItem>
         </Segmented>
-        {everything ? null : (
+        <span
+          className={everything ? DAY_SLOT_HIDDEN : DAY_SLOT}
+          inert={everything}
+        >
           <Button
             aria-haspopup="dialog"
             aria-label={buttonLabel}
@@ -173,7 +184,7 @@ export default function ServiceScopeRow({
           >
             {dayLabel}
           </Button>
-        )}
+        </span>
       </div>
       {placement && now !== null && since !== null ? (
         <Suspense fallback={null}>

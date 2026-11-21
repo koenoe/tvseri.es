@@ -6,7 +6,7 @@ import PosterCircle, {
   watchlistGlyph,
 } from '@/components/ui/button/PosterCircle';
 import { STATS_POSTER_CIRCLE } from '@/components/ui/button/posterCircleLooks';
-import Icon from '@/components/ui/icon/Icon';
+import IconSwap from '@/components/ui/icon/IconSwap';
 import { useListToggle } from '@/lib/marking/toggles';
 
 /**
@@ -31,7 +31,7 @@ function AddToWatchlist({
       look={STATS_POSTER_CIRCLE}
       onClick={toggle}
     >
-      <Icon glyph={glyph} size={16} />
+      <IconSwap glyph={glyph} size={16} />
     </PosterCircle>
   );
 }

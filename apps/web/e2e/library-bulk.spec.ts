@@ -65,7 +65,12 @@ test.describe('Select on your own Library', () => {
       .nth(2)
       .getByRole('button')
       .click({ modifiers: ['Shift'] });
-    await expect(page.getByText('3 series selected')).toBeVisible();
+    // the bar's count (a screen reader hears it from the status beside it)
+    await expect(
+      page
+        .getByRole('toolbar', { name: 'Selected series' })
+        .getByText('3 series selected'),
+    ).toBeVisible();
     await expect(
       tiles(page).nth(1).getByRole('button', { pressed: true }),
     ).toBeVisible();

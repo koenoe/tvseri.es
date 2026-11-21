@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MotionGlobalConfig } from 'motion/react';
 import type { ReactNode } from 'react';
@@ -87,7 +87,10 @@ describe('JumpList (Jump to)', () => {
     );
     const nov = screen.getByRole('link', { name: /^November 2025/ });
     expect(nov.getAttribute('aria-current')).toBe('true');
-    expect(screen.queryByRole('link', { name: /^March 2024/ })).toBeNull();
+    // the year it leaves folds shut
+    await waitFor(() =>
+      expect(screen.queryByRole('link', { name: /^March 2024/ })).toBeNull(),
+    );
   });
 
   it('This week leads back to now, for the owner only', () => {
@@ -175,9 +178,9 @@ describe('JumpList (Jump to)', () => {
       expect(shownYears()).toHaveLength(10);
       rerender(list('2025-01'));
       expect(shownYears()).toHaveLength(10);
-      // only the button folds it again
+      // only the button folds it again (the revealed years fold shut)
       await user.click(screen.getByRole('button', { name: /Show fewer/ }));
-      expect(shownYears()).toHaveLength(5);
+      await waitFor(() => expect(shownYears()).toHaveLength(5));
     });
 
     it('the phone sheet lists every year', () => {

@@ -15,6 +15,8 @@ import SeasonLine from './SeasonLine';
 import SeasonSelect from './SeasonSelect';
 
 type Props = Readonly<{
+  /** The season just completed by the viewer's mark here (`EpisodesView`) */
+  completed: number | null;
   seriesId: number;
   seasonNumber: number;
   /** The season's episodes; null while it loads. */
@@ -32,6 +34,7 @@ type Props = Readonly<{
  * first line, the season line under them at full width.
  */
 export default function SeasonHeader({
+  completed,
   episodes,
   marked,
   nextUp,
@@ -72,11 +75,12 @@ export default function SeasonHeader({
         seriesId={seriesId}
         view={view}
       />
-      {facts ? <SeasonFactsLine facts={facts} /> : null}
+      {facts ? <SeasonFactsLine completed={completed} facts={facts} /> : null}
       {estimate ? <SeasonFactsGhost facts={estimate} /> : null}
       {episodes && marked ? (
         <div className="flex min-w-0 basis-full">
           <SeasonLine
+            completed={completed}
             episodes={episodes}
             marked={marked}
             seasonNumber={seasonNumber}

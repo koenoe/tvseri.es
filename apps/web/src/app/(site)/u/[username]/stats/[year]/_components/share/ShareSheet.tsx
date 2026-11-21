@@ -4,7 +4,7 @@ import { useId } from 'react';
 
 import Button from '@/components/ui/button/Button';
 import { DialogCloseCircle } from '@/components/ui/dialog/DialogClose';
-import type { PanelMotion } from '@/components/ui/dialog/dialogMotion';
+import { PHONE_MOTION } from '@/components/ui/dialog/dialogMotion';
 import ModalShell from '@/components/ui/dialog/ModalShell';
 import SheetHandle from '@/components/ui/dialog/SheetHandle';
 import { downloadGlyph, shareGlyph } from '@/components/ui/icon/glyphs';
@@ -17,17 +17,6 @@ import {
 } from './ShareControls';
 import type { ShareCard } from './shareCard';
 import useShareCard, { prefetchShareCard } from './useShareCard';
-
-/** Up 24px and in (.26s ease-out) */
-const MOTION: PanelMotion = {
-  animate: {
-    opacity: 1,
-    transition: { duration: 0.26, ease: 'easeOut' },
-    y: 0,
-  },
-  exit: { opacity: 0, transition: { duration: 0.16, ease: 'easeIn' }, y: 24 },
-  initial: { opacity: 0, y: 24 },
-};
 
 const PANEL =
   'flex max-h-[calc(100dvh-24px)] w-full flex-col gap-4 self-end overflow-y-auto overscroll-contain rounded-t-[24px] bg-ground px-gutter pt-2.5 pb-[max(24px,env(safe-area-inset-bottom))] shadow-[0_-20px_50px_-10px_rgb(0_0_0/0.7),inset_0_1px_0_rgb(255_255_255/0.08)]';
@@ -61,11 +50,12 @@ export default function ShareSheet({
   const titleId = useId();
   const share = useShareCard(card, 'story', true);
   const preview = PREVIEW[share.format];
+  const ground = share.theme === 'colour' ? card.swatch : null;
   return (
     <ModalShell
       backdropClassName="bg-[rgb(6_9_10/0.74)]"
       labelledBy={titleId}
-      motion={MOTION}
+      motion={PHONE_MOTION}
       onOpenChange={onOpenChange}
       open={open}
       panelClassName={PANEL}
@@ -78,7 +68,12 @@ export default function ShareSheet({
         <DialogCloseCircle iconSize={14} />
       </div>
       <div className="flex h-[420px] shrink-0 items-center justify-center rounded-16 bg-[#121718]">
-        <CardPreview alt={card.description} path={share.path} size={preview} />
+        <CardPreview
+          alt={card.description}
+          ground={ground}
+          path={share.path}
+          size={preview}
+        />
       </div>
       <div className="flex justify-between gap-2">
         <FormatSwitch order={FORMATS} share={share} size="sheet" />

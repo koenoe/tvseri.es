@@ -1,6 +1,7 @@
 import type { WatchProvider } from '@tvseri.es/schemas';
 import type { ChangeEvent } from 'react';
 
+import ExitGrid from '@/components/motion/ExitGrid';
 import ExpandButton, {
   type ExpandLayout,
 } from '@/components/ui/fold/ExpandButton';
@@ -26,6 +27,12 @@ export const POPULAR_GRID_CLASS =
   'grid grid-cols-3 gap-2.5 md:grid-cols-[repeat(7,minmax(0,1fr))] md:gap-3';
 /** Folded on phones only: the tiles past the first 7 (`VISIBLE_RESTING`) hide there */
 const PHONE_FOLDED = 'max-md:[&>:nth-child(n+8)]:hidden';
+/**
+ * Folded everywhere (capped at 7): while an added tile leaves, the next one
+ * waits behind it, so the row never grows an eighth cell for the exit, then
+ * rises into the place it leaves (`ExitGrid`)
+ */
+const FOLDED = '[&>:nth-child(n+8)]:hidden';
 /** "Show all 16" / "Show fewer": the fold control every Show all uses (`FoldLabel`, the chevron turns) */
 export const POPULAR_MORE_CLASS =
   '-mt-2 flex cursor-pointer items-center gap-1 self-start text-body-sm font-medium whitespace-nowrap text-white/80 transition-colors hover:text-white';
@@ -34,9 +41,22 @@ const POPULAR_MORE: ExpandLayout = {
   chevron: 13,
 };
 
+const NO_MATCH = (
+  <p className="rounded-14 bg-white/3 p-[18px] text-meta text-white/60">
+    No service matches. Try fewer letters.
+  </p>
+);
+
+const providerKey = (provider: WatchProvider) => provider.id;
+const renderTile = (
+  provider: WatchProvider,
+  add: (provider: WatchProvider) => void,
+) => <ServiceTile onToggle={add} provider={provider} />;
+
 /**
  * "Popular in the United Kingdom": the region's services that aren't selected
- * yet, a filter, and Show all / Show fewer.
+ * yet, a filter, and Show all / Show fewer. An added service leaves the grid
+ * as a Library tile leaves its shelf (`ExitGrid`).
  */
 export default function PopularCard({
   label,
@@ -55,7 +75,12 @@ export default function PopularCard({
   rest: Rest;
   showAll: boolean;
 }>) {
-  const grid = cn(POPULAR_GRID_CLASS, rest.phoneFolded && PHONE_FOLDED);
+  const capped = rest.fold === 'all' && !showAll;
+  const grid = cn(
+    POPULAR_GRID_CLASS,
+    rest.phoneFolded && PHONE_FOLDED,
+    capped && FOLDED,
+  );
   const phoneOnly = rest.fold === 'phone' ? 'md:hidden' : undefined;
   const moreLabel = `Show all ${rest.total}`;
   return (
@@ -80,21 +105,14 @@ export default function PopularCard({
           />
         </InputShell>
       </div>
-      {rest.tiles.length === 0 ? (
-        <p className="rounded-14 bg-white/3 p-[18px] text-meta text-white/60">
-          No service matches. Try fewer letters.
-        </p>
-      ) : (
-        <div className={grid}>
-          {rest.tiles.map((provider) => (
-            <ServiceTile
-              key={provider.id}
-              onToggle={onToggle}
-              provider={provider}
-            />
-          ))}
-        </div>
-      )}
+      <ExitGrid
+        className={grid}
+        empty={NO_MATCH}
+        items={rest.tiles}
+        keyOf={providerKey}
+        onLeave={onToggle}
+        renderItem={renderTile}
+      />
       {rest.fold === 'none' ? null : (
         <ExpandButton
           className={phoneOnly}

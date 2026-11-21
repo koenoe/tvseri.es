@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 
+import { HIT_ALL } from '@/components/ui/button/hitArea';
 import { seasonGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
@@ -83,8 +84,9 @@ export default function Pile({
   const columnVar = {
     '--cols': Math.min(count, columns),
   } as React.CSSProperties;
-  // open, the fold chip shows only on hover and focus (no badge on a spread)
-  const foldClass = `${CHIP} opacity-0 transition-opacity duration-200 group-hover/pile:opacity-100 focus-visible:opacity-100`;
+  // open, the fold chip waits for hover or focus (no badge on a spread);
+  // touch can't hover, so there it stays to fold the pile again
+  const foldClass = `${CHIP} ${HIT_ALL[10]} opacity-0 transition-opacity duration-200 group-hover/pile:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100`;
   const toggleClass = open ? foldClass : 'absolute inset-0 z-20 cursor-pointer';
   const fold = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {

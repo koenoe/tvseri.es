@@ -6,23 +6,34 @@ import PrimeVideoLogo from '@/components/brand/logos/PrimeVideoLogo';
 import cn from '@/lib/cn';
 
 import styles from './drawing.module.css';
+import { ACROSS, DOWN } from './drawingLayout';
 
 /** The drawing's name for assistive tech */
 const LABEL =
   'How a sign-in moves: your browser and the tvseri.es extension send it once over HTTPS with a one-time code to the tvseri.es API, which checks it works and encrypts it with a key held in AWS KMS (envelope encryption, AES-256-GCM, tied to your account and the service), storing it in a database in London. Only the sync job can decrypt it; right after you connect, then every night, it reads your watch history on the service and marks episodes watched in your tvseri.es history.';
 
+/** Each layout's svg: its width rule, its height from the viewBox */
+const ACROSS_DRAWING = cn(ACROSS, 'h-auto', styles.build);
+const DOWN_DRAWING = cn(DOWN, 'h-auto', styles.build, styles.phone);
+
 /**
- * Drawn twice, not scaled: across on a computer, top to bottom in a phone's
- * sheet. Marker ids come from useId, so it may render more than once a page.
+ * Drawn twice, not scaled: across on a computer, top to bottom on a tablet
+ * or a phone. Marker ids come from useId, so it may render more than once a
+ * page. `late`: mounted after the dialog settled (its chunk came in after
+ * the open), so the build starts at once.
  */
-export default function HowItWorksDrawing() {
+export default function HowItWorksDrawing({
+  late = false,
+}: Readonly<{ late?: boolean }>) {
+  const lateMark = late ? '' : undefined;
   // A prefix safe in `url(#…)`: React's ids may carry characters it isn't
   const ids = useId().replace(/[^\w-]/g, '');
   return (
     <>
       <svg
         aria-label={LABEL}
-        className={cn('block h-auto w-full max-sm:hidden', styles.build)}
+        className={ACROSS_DRAWING}
+        data-late={lateMark}
         role="img"
         viewBox="0 0 1020 420"
       >
@@ -188,7 +199,7 @@ export default function HowItWorksDrawing() {
         >
           TVSERI.ES · AWS
         </text>
-        <text fill="rgba(255,255,255,.4)" fontSize="10.5" x="194" y="45">
+        <text fill="rgba(255,255,255,.62)" fontSize="10.5" x="194" y="45">
           eu-west-2 (London)
         </text>
         <rect
@@ -698,11 +709,8 @@ export default function HowItWorksDrawing() {
       </svg>
       <svg
         aria-label={LABEL}
-        className={cn(
-          'block h-auto w-full sm:hidden',
-          styles.build,
-          styles.phone,
-        )}
+        className={DOWN_DRAWING}
+        data-late={lateMark}
         role="img"
         viewBox="0 0 358 900"
       >
@@ -853,7 +861,7 @@ export default function HowItWorksDrawing() {
         >
           TVSERI.ES · AWS
         </text>
-        <text fill="rgba(255,255,255,.4)" fontSize="10.5" x="18" y="187">
+        <text fill="rgba(255,255,255,.62)" fontSize="10.5" x="18" y="187">
           eu-west-2 (London)
         </text>
         <rect

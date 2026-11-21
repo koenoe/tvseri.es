@@ -1,10 +1,19 @@
-import type { SortOrder } from './model';
-import Segmented, { type SegmentedOption } from './Segmented';
+import { HIT_Y } from '@/components/ui/button/hitArea';
+import { Segmented, SegmentedItem } from '@/components/ui/button/Segmented';
+import cn from '@/lib/cn';
 
-const OPTIONS: ReadonlyArray<SegmentedOption<SortOrder>> = [
+import type { SortOrder } from './model';
+import { SWITCH_ITEM, SWITCH_TRACK } from './switchLook';
+
+const OPTIONS: ReadonlyArray<Readonly<{ label: string; value: SortOrder }>> = [
   { label: 'In order watched', value: 'watched' },
   { label: 'Most hours', value: 'hours' },
 ];
+
+const TRACK = cn('flex', SWITCH_TRACK);
+
+/** 32px pills, 44px to the thumb */
+const ITEM = cn(SWITCH_ITEM, `px-3 py-1 text-body-sm ${HIT_Y[6]}`);
 
 /** "In order watched / Most hours" */
 export default function SortSwitch({
@@ -18,13 +27,25 @@ export default function SortSwitch({
 }>) {
   return (
     <Segmented
-      className="flex"
-      itemClassName="px-3 py-1 text-body-sm"
+      className={TRACK}
       label="Order"
-      onChange={onChange}
-      onIntent={onIntent}
-      options={OPTIONS}
-      value={value}
-    />
+      onFocus={onIntent}
+      onPointerDown={onIntent}
+    >
+      {OPTIONS.map((option) => {
+        const choose = () => onChange(option.value);
+        const pressed = option.value === value;
+        return (
+          <SegmentedItem
+            className={ITEM}
+            key={option.value}
+            onClick={choose}
+            pressed={pressed}
+          >
+            {option.label}
+          </SegmentedItem>
+        );
+      })}
+    </Segmented>
   );
 }

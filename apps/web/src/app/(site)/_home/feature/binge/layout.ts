@@ -20,7 +20,7 @@ export const BINGE_CARD = cn(MOMENT_CARD, 'flex flex-col gap-6 md:gap-8');
 export const BINGE_HEAD = 'flex flex-col gap-2 md:gap-4';
 
 /** "Severance in 10 nights · 19 episodes, 15h 12m" (also One season in stills') */
-export const BINGE_HEADLINE = 'text-title-1 text-white';
+export const BINGE_HEADLINE = 'text-title-1 text-white tabular-nums';
 
 /** The series' title in the headline: a link, underlined on hover */
 export const BINGE_HEADLINE_LINK =
@@ -36,7 +36,8 @@ export const BINGE_PICKERS =
 /** The posters to compare: four across on a phone, 96 × 144 from md */
 export const BINGE_CHOICES = 'grid shrink-0 grid-cols-4 gap-3 md:flex md:gap-4';
 
-export const BINGE_CHOICE = 'relative aspect-2/3 rounded-10 md:h-36 md:w-24';
+export const BINGE_CHOICE =
+  'image-rim relative aspect-2/3 rounded-10 md:h-36 md:w-24';
 
 /** The shows the API sends to compare */
 export const BINGE_CHOICE_COUNT = 4;
@@ -58,7 +59,7 @@ export const BINGE_STRIP_CELL =
 export const BINGE_FOOTER =
   'flex flex-col items-start gap-4 border-t border-white/8 pt-6 md:flex-row md:items-center md:justify-between md:gap-6';
 
-export const BINGE_FOOTER_TEXT = 'text-body text-white/80';
+export const BINGE_FOOTER_TEXT = 'text-body text-white/80 tabular-nums';
 
 /**
  * The summary after the finish date: its own line on a phone (sharing the

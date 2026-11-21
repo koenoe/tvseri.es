@@ -4,10 +4,9 @@ import * as m from 'motion/react-m';
 import type { CSSProperties } from 'react';
 
 import { SWAP_FROM, SWAP_IN } from '@/components/motion/swap';
-import Button from '@/components/ui/button/Button';
-import { clockGlyph, copyGlyph } from '@/components/ui/icon/glyphs';
+import CopyButton from '@/components/ui/button/CopyButton';
+import { clockGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
-import { showToast } from '@/components/ui/toast/showToast';
 import cn from '@/lib/cn';
 
 import { SM_BUTTON } from '../../_lib/appButtons';
@@ -64,28 +63,14 @@ function Digit({
 /**
  * The link code as four large slots, the shape the extension asks for, its
  * life as a bar under them, with the time left and Copy beside it. Copy
- * confirms with a toast, as Plex's URL does (the toaster is a live region,
- * so a screen reader hears it too).
+ * confirms as Plex's URL does: it says Copied, its icon a check, and a
+ * toast (a live region) says it for a screen reader too.
  */
 export default function LinkCodeField({
   code,
   countdown,
   expired,
 }: Readonly<{ code: string; countdown: Countdown; expired: boolean }>) {
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(code);
-      showToast({ title: 'Copied your code' });
-    } catch {
-      // No clipboard (an insecure context, a refused permission): the code
-      // is on screen to type
-      showToast({
-        title: 'Couldn’t copy the code. Type it in.',
-        tone: 'error',
-      });
-    }
-  };
-
   const slotsClass = cn('flex gap-2', expired ? 'text-white/60' : 'text-white');
   const digits = [...code];
   const label = `Your code: ${digits.join(' ')}`;
@@ -94,7 +79,10 @@ export default function LinkCodeField({
   return (
     <div className="flex flex-wrap items-start gap-x-6 gap-y-3">
       <div className="flex flex-col gap-2">
-        <p aria-label={label} className={slotsClass}>
+        {/* The digits are drawn (each hidden from a screen reader); the
+            code is read from these words */}
+        <p className={slotsClass}>
+          <span className="sr-only">{label}</span>
           {digits.map((digit, index) => (
             // The code's digits repeat, so their place is the key; a new
             // code is new digits, which rise in again
@@ -114,15 +102,17 @@ export default function LinkCodeField({
           <Icon glyph={clockGlyph} size={13} />
           {left}
         </span>
-        <Button
+        {/* No clipboard (an insecure context, a refused permission): the
+            code is on screen to type */}
+        <CopyButton
           className={SM_BUTTON}
+          copied="Copied your code"
           disabled={expired}
-          icon={copyGlyph}
-          onClick={copy}
-          variant="tonal"
+          failed="Couldn’t copy the code. Type it in."
+          text={code}
         >
           Copy
-        </Button>
+        </CopyButton>
       </div>
     </div>
   );

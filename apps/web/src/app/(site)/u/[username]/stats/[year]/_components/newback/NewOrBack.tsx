@@ -114,7 +114,7 @@ function Stack({ side }: Readonly<{ side: Side }>) {
 }
 
 const POSTER =
-  '-ml-3.5 aspect-2/3 w-11 rounded-6 object-cover shadow-[-6px_0_14px_rgb(0_0_0/0.55)]';
+  'image-outline -ml-3.5 aspect-2/3 w-11 rounded-6 object-cover shadow-[-6px_0_14px_rgb(0_0_0/0.55)]';
 const POSTER_BLANK = cn(POSTER, 'block bg-white/5');
 
 function Poster({ show }: Readonly<{ show: StatsSeriesRef }>) {

@@ -38,11 +38,11 @@ export default function ContinueRow({
   return (
     <button
       aria-label={label}
-      className="flex h-15 flex-none items-center gap-3.5 rounded-12 bg-cyan/5 pr-4 pl-3 text-left shadow-[inset_0_0_0_1px_rgb(0_255_255/0.2)] hover:bg-cyan/9"
+      className="flex h-15 flex-none items-center gap-3.5 rounded-12 bg-cyan/5 pr-4 pl-3 text-left shadow-[inset_0_0_0_1px_rgb(0_255_255/0.2)] transition-[background-color,scale] duration-150 ease-out hover:bg-cyan/9 active:scale-96"
       onClick={pick}
       type="button"
     >
-      <span className="relative block h-9 w-16 flex-none overflow-hidden rounded-6 bg-black">
+      <span className="image-rim relative block h-9 w-16 flex-none overflow-hidden rounded-6 bg-black">
         {episode ? <Still sizes="64px" src={episode.stillImage} /> : null}
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-0.75">

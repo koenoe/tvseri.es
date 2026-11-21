@@ -9,9 +9,13 @@ import { type WallCell, wallLayout } from './wall';
  * styles only). `posters` are data URLs by rank; null draws the title tile.
  */
 
-/** The poster's shadow and hairline */
+/**
+ * The poster's shadow and the app's picture rim colour (`--color-rim`, pure
+ * white at 10%), written out, as satori takes inline styles only. 2px: the
+ * card is drawn at 1080 wide and seen far smaller.
+ */
 const SHADOW =
-  '0 20px 40px -16px rgba(0,0,0,0.75), 0 0 0 2px rgba(221,238,255,0.06)';
+  '0 20px 40px -16px rgba(0,0,0,0.75), 0 0 0 2px rgba(255,255,255,0.1)';
 
 export default function CardWall({
   hours,

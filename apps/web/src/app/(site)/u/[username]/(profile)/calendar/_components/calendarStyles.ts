@@ -3,6 +3,8 @@
  * measure the same. Layout only.
  */
 
+import { FLASH_RING } from '@/components/motion/flash';
+
 /** The page: its header, the month panel and No date yet, 24px apart */
 export const CALENDAR_PAGE = 'flex flex-col gap-6';
 
@@ -77,8 +79,7 @@ export const COUNT_BADGE =
   'h-5 min-w-5 rounded-full bg-[#121616] px-1.5 text-center text-overline font-semibold tracking-normal text-white shadow-[0_0_0_1px_rgb(255_255_255/0.18)]';
 
 /** Today's white ring round its cell: the first paint's pulse and Today's flash */
-export const TODAY_RING =
-  'pointer-events-none absolute inset-0 rounded-[inherit] ring-2 ring-white';
+export const TODAY_RING = FLASH_RING;
 
 /** No date yet's panel, as the month's */
 export const NO_DATE_PANEL =
@@ -87,13 +88,13 @@ export const NO_DATE_PANEL =
 /** Its tiles: three columns, one on a phone */
 export const NO_DATE_TILES = 'grid grid-cols-3 gap-2.5 max-md:grid-cols-1';
 
-/** A tile: the 40 × 60 poster beside three lines */
+/** A tile: the 40 × 60 poster beside three lines; its corners the poster's 6 plus the 10 around it */
 export const NO_DATE_TILE =
-  'flex min-w-0 items-center gap-3 rounded-12 bg-white/4 p-2.5';
+  'flex min-w-0 items-center gap-3 rounded-16 bg-white/4 p-2.5';
 
-/** The sidebar's month rows: 36px, 2px apart */
+/** The sidebar's month rows: 36px, 2px apart; each reaches 1px into the gap, so no press falls between them */
 export const MONTH_ROW =
-  'relative flex h-9 items-center justify-between gap-2.5 rounded-10 px-2.5 text-body-sm font-medium';
+  'relative flex h-9 after:absolute after:inset-x-0 after:-inset-y-px items-center justify-between gap-2.5 rounded-10 px-2.5 text-body-sm font-medium';
 
 /** What the month holds; on a phone only for screen readers (the grid's description) */
 export const MONTH_SUMMARY = 'text-meta leading-5 max-md:sr-only';

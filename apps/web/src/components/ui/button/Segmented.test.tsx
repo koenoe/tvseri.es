@@ -94,6 +94,24 @@ describe('Segmented', () => {
     expect((frames as Keyframe[])[0]?.borderRadius).toBe('30px / 15px');
   });
 
+  it('pressed again mid-glide, glides on from where the fill is drawn', () => {
+    const first = {
+      cancel: vi.fn(),
+      effect: { getComputedTiming: () => ({ progress: 0.5 }) },
+      playState: 'running',
+    };
+    animate.mockReturnValueOnce(first);
+    const { rerender } = render(<Switch on="a" />);
+    rerender(<Switch on="b" />);
+    // halfway from a (4, 60) to b (66, 120): the fill is drawn at 35, 90 wide
+    rerender(<Switch on="a" />);
+    expect(first.cancel).toHaveBeenCalled();
+    const [frames] = animate.mock.calls[1] ?? [];
+    expect((frames as Keyframe[])[0]?.transform).toBe(
+      'translateX(31px) scaleX(1.5)',
+    );
+  });
+
   it('jumps with reduced motion', () => {
     reducedMotion(true);
     const { rerender } = render(<Switch on="a" />);

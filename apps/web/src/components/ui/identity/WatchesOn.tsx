@@ -1,6 +1,7 @@
 import type { WatchProvider } from '@tvseri.es/schemas';
 import Link from 'next/link';
 import Badge from '@/components/ui/button/Badge';
+import { HIT_ALL } from '@/components/ui/button/hitArea';
 import { plusGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import ServiceIcon, {
@@ -12,6 +13,9 @@ import ServiceIcon, {
  * past this, the row shows one fewer and "+N" with the rest's names on hover
  */
 const MAX_LOGOS = 8;
+
+/** 22px, 40 to the pointer */
+const ADD_SERVICES = `${HIT_ALL[9]} relative flex size-[22px] items-center justify-center rounded-[5px] border-[1.5px] border-dashed border-white/30 bg-ground text-white/60 transition-colors hover:border-white/60 hover:text-white`;
 
 /** Each place keeps its own look on purpose; don't unify them. */
 const LOGO: ServiceIconLayout = {
@@ -43,7 +47,7 @@ export default function WatchesOn({
           Not set
           <Link
             aria-label="Add services"
-            className="flex size-[22px] items-center justify-center rounded-[5px] border-[1.5px] border-dashed border-white/30 bg-ground text-white/60 transition-colors hover:border-white/60 hover:text-white"
+            className={ADD_SERVICES}
             href="/settings/streaming-services"
           >
             <Icon className="size-3" glyph={plusGlyph} size={13} />

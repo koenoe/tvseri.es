@@ -11,11 +11,23 @@ import { EAGER, LIBRARY_GRID } from './gridStyles';
 import LibraryCell from './LibraryCell';
 import TileGhosts from './TileGhosts';
 
+export type ShelfGridProps = Readonly<{
+  hasMore: boolean;
+  list: number;
+  listRef: RefObject<HTMLUListElement | null>;
+  loadMore: () => Promise<unknown>;
+  moving: boolean;
+  settled: () => void;
+  shelf: LibraryShelf;
+  status: PaginationStatus;
+  tiles: ReadonlyArray<TileView>;
+}>;
+
 /**
  * The shelf's tiles: next pages load two rows before the end. Each new
- * first page is a new list (`list`): the old tiles go at once (no exits)
- * and the new ones fade in. `moving` turns on `layout` only while something
- * leaves: never 300 tiles measuring at rest.
+ * first page is a new list (`list`, which keys `ShelfBody`): the old tiles
+ * go at once (no exits) and the new ones fade in. `moving` turns on
+ * `layout` only while something leaves: never 300 tiles measuring at rest.
  */
 export default function ShelfGrid({
   hasMore,
@@ -27,17 +39,7 @@ export default function ShelfGrid({
   shelf,
   status,
   tiles,
-}: Readonly<{
-  hasMore: boolean;
-  list: number;
-  listRef: RefObject<HTMLUListElement | null>;
-  loadMore: () => Promise<unknown>;
-  moving: boolean;
-  settled: () => void;
-  shelf: LibraryShelf;
-  status: PaginationStatus;
-  tiles: ReadonlyArray<TileView>;
-}>) {
+}: ShelfGridProps) {
   const animateEntries = list > 0;
   return (
     <InfiniteScroll
@@ -46,7 +48,7 @@ export default function ShelfGrid({
       margin="0px 0px 600px 0px"
     >
       <MaxMotion>
-        <ul className={LIBRARY_GRID} key={list} ref={listRef}>
+        <ul className={LIBRARY_GRID} ref={listRef}>
           <AnimatePresence initial={animateEntries} onExitComplete={settled}>
             {tiles.map((tile, index) => {
               const eager = index < EAGER;

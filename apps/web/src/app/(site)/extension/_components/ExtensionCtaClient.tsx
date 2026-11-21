@@ -3,6 +3,7 @@
 import { CONNECTION_SERVICES } from '@tvseri.es/schemas';
 import { HowItWorksButton } from '@/components/extension/HowItWorks';
 import ButtonLink from '@/components/ui/button/ButtonLink';
+import CopyButton from '@/components/ui/button/CopyButton';
 import {
   extensionGlyph,
   laptopGlyph,
@@ -14,7 +15,6 @@ import type { BrowserSupport } from '@/lib/extension/browserSupport';
 import { extensionInstall } from '@/lib/extension/extension';
 import { useExtensionPing } from '@/lib/extension/useExtension';
 import { type ExtensionCta, extensionCta } from '../_lib/extensionCta';
-import CopyButton from './CopyButton';
 import {
   CTA_ROW,
   CTA_STACK,

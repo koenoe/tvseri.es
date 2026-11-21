@@ -288,6 +288,12 @@
       "source": "vercel-labs/agent-skills",
       "sourceType": "github"
     },
+    "vercel-react-view-transitions": {
+      "computedHash": "d5bdffc1f132ae0d6d9260c260ae206d48cd83cb148e3e3b75fc1a3b94b249fa",
+      "skillPath": "skills/react-view-transitions/SKILL.md",
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github"
+    },
     "vitest": {
       "computedHash": "71d82cd9c97042d9ac254997c6d6aae455e911144c04bedaea193e5a41a4cac8",
       "skillPath": "skills/vitest/SKILL.md",

@@ -13,10 +13,10 @@ export const SLIDE_ACTIONS = 'flex items-center gap-2.5 max-md:mt-3 md:gap-3';
 /**
  * The stage: 788 on desktop (the text ends 24px above its foot, so with the
  * rows' 40px the first row sits one row gap, 64px, under the buttons), the
- * 513px phone stage + 23px pager
+ * 553px phone stage + 23px pager
  */
-export const SPOTLIGHT_STAGE = 'relative h-[536px] md:h-[788px]';
+export const SPOTLIGHT_STAGE = 'relative h-[576px] md:h-[788px]';
 
 /** The text's frame inside the stage (the 47px under the header is not in the phone page) */
 export const SPOTLIGHT_TEXT_FRAME =
-  'pointer-events-none absolute inset-x-0 top-0 h-[513px] md:h-full';
+  'pointer-events-none absolute inset-x-0 top-0 h-[553px] md:h-full';

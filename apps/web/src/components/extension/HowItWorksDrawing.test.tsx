@@ -32,4 +32,17 @@ describe('HowItWorksDrawing', () => {
       }
     }
   });
+
+  it('skips the panel’s delay in both layouts only when it mounts late', () => {
+    const { container, rerender } = render(<HowItWorksDrawing />);
+    const svgs = () => [...container.querySelectorAll('svg[role="img"]')];
+    expect(svgs()).toHaveLength(2);
+    for (const svg of svgs()) {
+      expect(svg.hasAttribute('data-late')).toBe(false);
+    }
+    rerender(<HowItWorksDrawing late />);
+    for (const svg of svgs()) {
+      expect(svg.hasAttribute('data-late')).toBe(true);
+    }
+  });
 });

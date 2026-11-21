@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon/Icon';
 import { getSettingsSession } from '../_data/session';
 import { SETTINGS_SECTIONS } from '../_lib/sections';
 import LineSkeleton from './LineSkeleton';
+import NavList from './NavList';
 import NavRow from './NavRow';
 import NavStateLine from './NavStateLines';
 
@@ -24,7 +25,7 @@ const NAV_CLASSES = `flex flex-col gap-2 lg:sticky lg:top-8 lg:rounded-[20px] lg
 export default function SettingsNav() {
   return (
     <nav aria-label="Settings" className={NAV_CLASSES}>
-      <ul className="flex flex-col gap-2 lg:gap-0.5">
+      <NavList>
         {SETTINGS_SECTIONS.map(({ glyph, href, id, label }) => (
           <NavRow glyph={glyph} href={href} key={id} label={label}>
             <Suspense fallback={<LineSkeleton />}>
@@ -32,11 +33,11 @@ export default function SettingsNav() {
             </Suspense>
           </NavRow>
         ))}
-      </ul>
+      </NavList>
       <hr className="my-1 h-px border-0 bg-white/7 max-lg:my-4 lg:mx-4" />
       <SignOutForm>
         <button
-          className="grid w-full cursor-pointer grid-cols-[20px_minmax(0,1fr)] items-center gap-x-3 rounded-12 px-4 py-3 text-left text-white/60 transition-[background-color] hover:bg-white/5 hover:text-white"
+          className="grid w-full cursor-pointer grid-cols-[20px_minmax(0,1fr)] items-center gap-x-3 rounded-12 px-4 py-3 text-left text-white/60 transition-[background-color,color] hover:bg-white/5 hover:text-white"
           type="submit"
         >
           <Icon className="row-span-2" glyph={logOutGlyph} size={16} />

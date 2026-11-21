@@ -12,6 +12,7 @@ import {
   WEEK_BAR_MAX,
   WEEK_CLASS,
   WEEK_DAY_CLASS,
+  WEEK_DAY_REACH_CLASS,
   WEEK_LETTER_CLASS,
 } from './layout';
 import { useScrobbleWeek } from './ScrobbleWeek';
@@ -58,9 +59,11 @@ function WeekBar({
     '--bar': `${barHeight(day.count, busiest, WEEK_BAR_MAX.desktop)}px`,
     '--bar-sm': `${barHeight(day.count, busiest, WEEK_BAR_MAX.phone)}px`,
   } as CSSProperties;
+  // A tap between two bars lands on the nearer day
   const classes = cn(
     WEEK_DAY_CLASS,
-    'group/day rounded-6 transition-opacity duration-150 enabled:cursor-pointer',
+    WEEK_DAY_REACH_CLASS,
+    'group/day relative rounded-6 transition-opacity duration-150 enabled:cursor-pointer',
     dimmed && 'opacity-40 enabled:hover:opacity-70',
   );
   const bar = cn(

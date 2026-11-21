@@ -4,7 +4,7 @@ import { type ReactNode, useId } from 'react';
 
 import Button from '@/components/ui/button/Button';
 import { DialogCloseCircle } from '@/components/ui/dialog/DialogClose';
-import type { PanelMotion } from '@/components/ui/dialog/dialogMotion';
+import { CENTER_MOTION } from '@/components/ui/dialog/dialogMotion';
 import ModalShell from '@/components/ui/dialog/ModalShell';
 import {
   downloadGlyph,
@@ -23,17 +23,6 @@ import {
 } from './ShareControls';
 import { displayLink, type ShareCard, sizeLabel } from './shareCard';
 import useShareCard, { type ShareState } from './useShareCard';
-
-/** A 12px rise and fade (.22s ease-out) */
-const MOTION: PanelMotion = {
-  animate: {
-    opacity: 1,
-    transition: { duration: 0.22, ease: 'easeOut' },
-    y: 0,
-  },
-  exit: { opacity: 0, transition: { duration: 0.12, ease: 'easeIn' }, y: 12 },
-  initial: { opacity: 0, y: 12 },
-};
 
 /**
  * Pinned 132px from the top wherever
@@ -67,17 +56,23 @@ export default function ShareDialog({
   const titleId = useId();
   const share = useShareCard(card, 'square', false);
   const preview = PREVIEW[share.format];
+  const ground = share.theme === 'colour' ? card.swatch : null;
   return (
     <ModalShell
       backdropClassName="bg-[rgb(6_9_10/0.74)]"
       labelledBy={titleId}
-      motion={MOTION}
+      motion={CENTER_MOTION}
       onOpenChange={onOpenChange}
       open={open}
       panelClassName={PANEL}
     >
       <div className="flex h-[640px] items-center justify-center bg-[#121718]">
-        <CardPreview alt={card.description} path={share.path} size={preview} />
+        <CardPreview
+          alt={card.description}
+          ground={ground}
+          path={share.path}
+          size={preview}
+        />
       </div>
       <div className="relative flex flex-col gap-6 px-8 pt-9 pb-8">
         <div className="flex flex-col gap-2 pr-12">

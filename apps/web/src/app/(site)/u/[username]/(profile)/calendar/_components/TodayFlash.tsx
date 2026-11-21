@@ -1,27 +1,16 @@
 'use client';
 
-import * as m from 'motion/react-m';
-
-import { FLASH_TIMING } from '@/components/motion/flash';
-
-import cn from '@/lib/cn';
-
-import { TODAY_RING } from './calendarStyles';
-
-const FROM = {
-  cell: { opacity: 0.9, scale: 1 },
-  date: { opacity: 0.85, scale: 1 },
-} as const;
+import FlashRing from '@/components/motion/FlashRing';
 
 /** Round the desktop cell it grows to 1.08; round the phone's date to 1.6 */
-const TO = {
-  cell: { opacity: 0, scale: 1.08 },
-  date: { opacity: 0, scale: 1.6 },
+const RING = {
+  cell: { from: 0.9, grow: 1.08 },
+  date: { from: 0.85, grow: 1.6 },
 } as const;
 
 /**
  * Today pressed on this month: one brief white ring where focus went
- * (`FLASH_TIMING`); reduced motion keeps the fade (MotionProvider drops the
+ * (`FlashRing`); reduced motion keeps the fade (MotionProvider drops the
  * scale)
  */
 export default function TodayFlash({
@@ -37,15 +26,8 @@ export default function TodayFlash({
   if (flash === 0) {
     return null;
   }
-  const ring = cn(TODAY_RING, className);
+  const { from, grow } = RING[on];
   return (
-    <m.span
-      animate={TO[on]}
-      aria-hidden="true"
-      className={ring}
-      initial={FROM[on]}
-      key={flash}
-      transition={FLASH_TIMING}
-    />
+    <FlashRing className={className} from={from} grow={grow} key={flash} />
   );
 }

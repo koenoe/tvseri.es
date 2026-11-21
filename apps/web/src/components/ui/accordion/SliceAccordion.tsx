@@ -13,6 +13,7 @@ import {
 
 import MaxMotion from '@/components/motion/MaxMotion';
 import PositionLayout from '@/components/motion/PositionLayout';
+import { TEXT_ARRIVAL_GROUP } from '@/components/motion/textArrival';
 import { PICTURE_LAYER } from '@/components/ui/picture/pictureSurface';
 
 import { ACCORDION, SLICE, SLICE_PICTURE } from './sliceLayout';
@@ -27,9 +28,14 @@ export type AccordionSlice = Readonly<{
 
 const RADIUS = { borderRadius: 12 } as const;
 
-const SLICE_CLASS = `${SLICE} bg-ground-deep`;
+/** The open slice's text arrives behind its reveal (`TEXT_ARRIVAL`) */
+const SLICE_CLASS = `${SLICE} ${TEXT_ARRIVAL_GROUP} bg-ground-deep`;
 
-/** A fast start, a long settle */
+/**
+ * A fast start, a long settle. Not cut like the tile grow (`tileHover`): the
+ * opening is the reveal itself, and the veil and the content's fade are
+ * timed to it.
+ */
 const OPEN = { duration: 0.5, ease: [0.2, 0.8, 0.2, 1] } as const;
 
 /**
@@ -142,6 +148,7 @@ function Slice({
     <m.div
       className={SLICE_CLASS}
       data-open={isOpen}
+      data-shown={isOpen}
       layout
       onClickCapture={tapOpens}
       onFocus={focus}

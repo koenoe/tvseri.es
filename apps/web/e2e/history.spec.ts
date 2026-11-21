@@ -304,12 +304,16 @@ test('the whole series’ calendar dates every aired episode with the picked day
   await expect(
     picker.getByText(/^One date for all \d+ episodes$/),
   ).toBeVisible();
-  // The 15th of last month: always in the past, never today
+  // The 15th of last month: always in the past, never today (this month's
+  // weeks slide out `aria-hidden` as last month's arrive)
   await picker.getByRole('button', { name: /previous month/i }).click();
   await picker
-    .locator('[role="gridcell"]:not([data-outside]) button', {
-      hasText: /^15$/,
-    })
+    .locator(
+      'tbody:not([aria-hidden="true"]) [role="gridcell"]:not([data-outside]) button',
+      {
+        hasText: /^15$/,
+      },
+    )
     .click();
   await expect(picker).toBeHidden();
   await expect(page.getByText(/^Marked the whole series/)).toBeVisible();

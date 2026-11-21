@@ -14,7 +14,7 @@ export default function LanePoster({
 }>) {
   const height = Math.round((width * 3) / 2);
   const classes = cn(
-    'shrink-0 rounded-[5px] bg-white/6 object-cover',
+    'image-outline shrink-0 rounded-[5px] bg-white/6 object-cover',
     className,
   );
   const style = { height, width };

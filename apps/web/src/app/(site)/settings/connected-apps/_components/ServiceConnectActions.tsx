@@ -9,10 +9,10 @@ import { ButtonFace } from '@/components/ui/ghost/ghosts';
 import { plugGlyph, updateGlyph } from '@/components/ui/icon/glyphs';
 import type { ExtensionCheck } from '@/lib/extension/extension';
 
+import { PRIMARY_BUTTON } from '../../_lib/appButtons';
 import FlashTarget from './motion/NeedsYouFlash';
 import { useConnectedService } from './ServiceContext';
 
-const PRIMARY = 'px-6 font-semibold';
 const ROW = 'flex flex-wrap items-center gap-2';
 
 /**
@@ -46,7 +46,7 @@ export default function ServiceConnectActions({
       <div className={ROW}>
         <span aria-hidden="true" className="contents">
           <ButtonFace
-            className={PRIMARY}
+            className={PRIMARY_BUTTON}
             icon={plugGlyph}
             size="md"
             variant="primary"
@@ -63,7 +63,7 @@ export default function ServiceConnectActions({
       <div className={ROW}>
         <FlashTarget>
           <Button
-            className={PRIMARY}
+            className={PRIMARY_BUTTON}
             icon={plugGlyph}
             onClick={onConnect}
             pending={pending}
@@ -86,7 +86,7 @@ export default function ServiceConnectActions({
         <FlashTarget>
           {extension === 'outdated' ? (
             <ButtonLink
-              className={PRIMARY}
+              className={PRIMARY_BUTTON}
               href="/extension"
               icon={updateGlyph}
               variant="primary"
@@ -94,7 +94,7 @@ export default function ServiceConnectActions({
               Update the extension
             </ButtonLink>
           ) : (
-            <AddToChrome className={PRIMARY} />
+            <AddToChrome className={PRIMARY_BUTTON} />
           )}
         </FlashTarget>
         <Button

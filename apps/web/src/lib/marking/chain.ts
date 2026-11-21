@@ -4,6 +4,7 @@ import {
   type RestoreWhen,
 } from '@tvseri.es/schemas';
 import { chunk } from '@tvseri.es/utils';
+import { unstable_isUnrecognizedActionError } from 'next/navigation';
 
 import type { ActionResult } from '@/lib/actions/result';
 
@@ -218,15 +219,20 @@ export function callsFor(
 }
 
 const THREW = { error: 'failed', ok: false } as const;
+const OUTDATED = { error: 'outdated', ok: false } as const;
 
 /**
- * A server action's result, with a throw (the network, a new deployment's
- * actions) as a failed result: every caller rolls back and says so instead
- * of leaving its optimistic change in place.
+ * A server action's result, with a throw as a failed result: every caller
+ * rolls back and says so instead of leaving its optimistic change in place.
+ * A tab older than the site (a deployment since it loaded, past Skew
+ * Protection's window) is `outdated`: trying again can't help, a reload can.
  */
 export const settled = <R extends Result>(
   send: () => Promise<R>,
-): Promise<R | typeof THREW> => send().catch(() => THREW);
+): Promise<R | typeof THREW | typeof OUTDATED> =>
+  send().catch((error: unknown) =>
+    unstable_isUnrecognizedActionError(error) ? OUTDATED : THREW,
+  );
 
 /**
  * One chain per show: a run's requests never interleave with another run's

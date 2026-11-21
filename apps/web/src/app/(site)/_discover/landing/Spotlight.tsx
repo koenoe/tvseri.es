@@ -66,7 +66,7 @@ export default function Spotlight({
   return (
     <article
       aria-label={show.title}
-      className="relative flex h-75 flex-col justify-end overflow-hidden rounded-16 bg-[#1b2122] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08)] md:h-110"
+      className="relative flex h-75 flex-col justify-end overflow-hidden rounded-16 bg-[#1b2122] image-rim md:h-110"
       data-hairline
     >
       {/* the backdrop and its shade: one layer, clipped once by the corners */}

@@ -20,5 +20,5 @@ export const DECK_FACE =
   'relative flex flex-col items-center gap-3 text-center';
 /** The buttons: Not now, Pick again, the arrow */
 export const DECK_BUTTONS = 'relative flex items-center gap-3';
-/** Pick again's padding (an icon-led large button) */
-export const DECK_PICK = 'px-4 has-[>svg:first-child]:pl-4';
+/** Pick again's padding (an icon-led large button): the icon's side 2px closer */
+export const DECK_PICK = 'px-4 has-[>svg:first-child]:pl-3.5';

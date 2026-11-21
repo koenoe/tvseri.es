@@ -18,7 +18,7 @@ const DOT: Readonly<Record<Exclude<StatusDot, 'receiving'>, string>> = {
 
 /**
  * The status line under a card's name: a small mark and one line of text.
- * The mark is decoration; the text carries the meaning. Inside a `Swap`
+ * The mark is decoration; the text carries the meaning. Inside a `CrossFade`
  * the mark pops in with a new state.
  */
 export default function AppStatus({

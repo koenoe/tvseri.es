@@ -17,7 +17,6 @@ import { nextFrames } from './viewport';
 const KEYBOARD_ORDER = [
   'Discover',
   'Overview',
-  'Calendar',
   'Library',
   'History',
   'Stats',
@@ -278,7 +277,6 @@ export function menuSuite(
           'Home',
           'Discover',
           'Overview',
-          'Calendar',
           'Library',
           'History',
           'Stats',

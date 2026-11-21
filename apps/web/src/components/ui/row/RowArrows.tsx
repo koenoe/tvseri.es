@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useSyncExternalStore } from 'react';
-
+import { LATE_FADE } from '@/components/motion/lateFade';
 import {
   chevronLeftGlyph,
   chevronRightGlyph,
@@ -26,6 +26,8 @@ type Props = Readonly<{
 type Measured = RowPosition | 'unmeasured';
 
 const unmeasured = (): Measured => 'unmeasured';
+
+const ARROWS = `-my-1.5 ml-auto hidden shrink-0 items-center gap-2 md:[@media(hover:hover)_and_(pointer:fine)]:flex ${LATE_FADE}`;
 
 function pageRail(rail: HTMLElement, direction: PageDirection) {
   const items = Array.from(rail.children as HTMLCollectionOf<HTMLElement>);
@@ -101,7 +103,8 @@ export default function RowArrows({ railId, title }: Props) {
   const previousLabel = `Previous: ${title}`;
   const nextLabel = `Next: ${title}`;
   return (
-    <span className="-my-1.5 ml-auto hidden shrink-0 items-center gap-2 md:[@media(hover:hover)_and_(pointer:fine)]:flex">
+    // Drawn once the rail is measured, after the first paint: fades in
+    <span className={ARROWS}>
       <ArrowButton
         controls={railId}
         disabled={atStart}

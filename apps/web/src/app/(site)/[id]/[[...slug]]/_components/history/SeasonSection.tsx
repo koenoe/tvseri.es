@@ -3,6 +3,7 @@
 import { firstEpisodeOf } from '@tvseri.es/utils';
 import { memo } from 'react';
 
+import SwapIn from '@/components/motion/SwapIn';
 import { PULSE, TextLine } from '@/components/ui/ghost/ghosts';
 import type { ShowSeason } from '../../_lib/show';
 import BeforeAsk from './BeforeAsk';
@@ -15,6 +16,9 @@ import SeasonToggles from './SeasonToggles';
 import useSeasonSection from './useSeasonSection';
 
 const COUNT_GHOST = `mr-auto ${PULSE}`;
+
+/** Nothing to say (or an ask that hides itself) leaves no gap */
+const FOOT = 'empty:hidden';
 
 /**
  * `&season=N`: scrolls the sheet's body (only it, only vertically) to this
@@ -65,6 +69,10 @@ function SeasonSection({
   const lastEpisode = last ? episodes.get(last.episodeNumber) : undefined;
   const calendarLabel = `When did you watch ${label}?`;
   const nothingAired = count.aired === 0;
+  const detail = last && lastChip && !ask;
+  const askChip = ask
+    ? chips.findIndex((chip) => chip.ref.episodeNumber === ask.episodeNumber)
+    : -1;
 
   return (
     <section
@@ -115,15 +123,20 @@ function SeasonSection({
         minutesOf={minutesOf}
         seasonNumber={seasonNumber}
       />
-      {ask ? <BeforeAsk target={ask} /> : null}
-      {last && lastChip && !ask ? (
-        <DetailLine
-          airDate={lastEpisode?.airDate}
-          episode={last}
-          state={lastChip.state}
-          title={lastEpisode?.title}
-        />
-      ) : null}
+      {/* the ask swaps in for the detail line (or for nothing) and back;
+          a tap that only changes the detail plays nothing */}
+      <SwapIn className={FOOT} swapKey={ask ? 'ask' : 'detail'}>
+        {ask ? (
+          <BeforeAsk chipIndex={askChip} target={ask} />
+        ) : detail ? (
+          <DetailLine
+            airDate={lastEpisode?.airDate}
+            episode={last}
+            state={lastChip.state}
+            title={lastEpisode?.title}
+          />
+        ) : null}
+      </SwapIn>
     </section>
   );
 }

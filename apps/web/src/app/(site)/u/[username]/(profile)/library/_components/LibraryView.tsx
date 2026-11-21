@@ -1,5 +1,6 @@
 'use client';
 
+import { AnimatePresence } from 'motion/react';
 import { useCallback, useRef } from 'react';
 
 import { useHiddenShows, useLoadLibraryIds } from '@/lib/marking/hooks';
@@ -15,9 +16,9 @@ import { SHELVES } from '../_lib/shelves';
 import useShelfNavigation from '../_lib/useShelfNavigation';
 import useShelfSelect from '../_lib/useShelfSelect';
 import useShelfTiles from '../_lib/useShelfTiles';
-import ActionBar from './ActionBar';
+import ActionBar, { SelectionStatus } from './ActionBar';
 import AzRail from './AzRail';
-import ShelfGrid from './ShelfGrid';
+import ShelfBody from './ShelfBody';
 import ShelfGridEmpty from './ShelfGridEmpty';
 import ShelfToolbar from './ShelfToolbar';
 import { TileContext } from './tileContext';
@@ -89,6 +90,8 @@ export default function LibraryView({
 
   // A–Z: the rail, and the row that loads the shows above a jump
   const listRef = useRef<HTMLUListElement>(null);
+  // Select's toolbar: focus goes back there as the select bar leaves
+  const toolbarRef = useRef<HTMLDivElement>(null);
   const capture = useScrollAnchor(listRef, tiles);
   const firstIndex = paged.items.findIndex(
     (tile) => tile.id === first.items[0]?.id,
@@ -102,13 +105,21 @@ export default function LibraryView({
   const empty = tiles.length === 0;
   const canSelect = owner && meta.action !== null && !empty;
   const busy = pending || undefined;
+  const emptyState = (
+    <ShelfGridEmpty
+      owner={owner}
+      query={query}
+      shelf={shelf}
+      username={username}
+    />
+  );
 
   return (
     <TileContext value={context}>
       <div className="flex flex-col gap-5 md:gap-7">
         {/* scrolls away with the page (a sticky row under the
             sticky glass header looked wrong); Select's action bar sticks */}
-        <div data-slot="library-toolbar">
+        <div data-slot="library-toolbar" ref={toolbarRef}>
           <ShelfToolbar
             canSelect={canSelect}
             filter={query.with}
@@ -142,35 +153,35 @@ export default function LibraryView({
                 : earlierLabel(first.letters, tiles[0]?.initial, above)}
             </LoadAbove>
           ) : null}
-          {empty ? (
-            <ShelfGridEmpty
-              owner={owner}
-              query={query}
-              shelf={shelf}
-              username={username}
-            />
-          ) : (
-            <ShelfGrid
-              hasMore={paged.canLoadMore}
-              list={list}
-              listRef={listRef}
-              loadMore={paged.loadMore}
-              moving={moving}
-              settled={settled}
-              shelf={shelf}
-              status={paged.status}
-              tiles={tiles}
-            />
-          )}
+          <ShelfBody
+            empty={emptyState}
+            hasMore={paged.canLoadMore}
+            key={list}
+            list={list}
+            listRef={listRef}
+            loadMore={paged.loadMore}
+            moving={moving}
+            settled={settled}
+            shelf={shelf}
+            status={paged.status}
+            tiles={tiles}
+          />
           <PaginationNotice onRetry={paged.loadMore} status={paged.status} />
         </div>
-        {selecting && meta.action ? (
-          <ActionBar
-            action={meta.action}
-            onAct={onAct}
-            onCancel={stopSelecting}
-          />
+        {owner && meta.action ? (
+          <SelectionStatus selection={selection} />
         ) : null}
+        <AnimatePresence>
+          {selecting && meta.action ? (
+            <ActionBar
+              action={meta.action}
+              key="action-bar"
+              onAct={onAct}
+              onCancel={stopSelecting}
+              returnFocusTo={toolbarRef}
+            />
+          ) : null}
+        </AnimatePresence>
       </div>
     </TileContext>
   );

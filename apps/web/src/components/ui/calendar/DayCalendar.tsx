@@ -1,7 +1,7 @@
 'use client';
 
 import { endOfMonth, format } from 'date-fns';
-import { useState } from 'react';
+import { createContext, use, useState } from 'react';
 import {
   type ChevronProps,
   DayFlag,
@@ -9,18 +9,26 @@ import {
   type Modifiers,
   SelectionState,
   UI,
+  type WeeksProps,
 } from 'react-day-picker';
 
+import PageSlide from '@/components/motion/PageSlide';
+
+import { HIT_ALL } from '@/components/ui/button/hitArea';
 import {
   chevronLeftGlyph,
   chevronRightGlyph,
 } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import cn from '@/lib/cn';
 
 import { DIALOG_LABEL } from './pickerStyles';
 
-const NAV =
-  'flex size-8 cursor-pointer items-center justify-center rounded-8 text-white/60 transition-colors hover:bg-white/8 hover:text-white aria-disabled:pointer-events-none aria-disabled:opacity-30';
+/** The month arrows: 32px, 44 to the pointer (only the caption beside them) */
+const NAV = cn(
+  'relative flex size-8 cursor-pointer items-center justify-center rounded-8 text-white/60 transition-colors hover:bg-white/8 hover:text-white aria-disabled:pointer-events-none aria-disabled:opacity-30',
+  HIT_ALL[6],
+);
 
 /** The month grid on react-day-picker's markup (36px cells, 38 on phones). */
 const CLASS_NAMES = {
@@ -32,8 +40,9 @@ const CLASS_NAMES = {
   [UI.PreviousMonthButton]: NAV,
   [UI.NextMonthButton]: NAV,
   [UI.Chevron]: '',
-  // The header row on the days' pitch: thead must span the width too.
-  [UI.MonthGrid]: 'col-span-3 block w-full [&>thead]:block',
+  // The header row on the days' pitch: thead must span the width too. The
+  // weeks leaving on a month change slide out over it (`Weeks`).
+  [UI.MonthGrid]: 'relative col-span-3 block w-full [&>thead]:block',
   [UI.Weekdays]: 'flex justify-between',
   [UI.Weekday]:
     'w-9 pb-1 text-center text-caption font-normal text-white/60 max-sm:w-[38px]',
@@ -59,7 +68,41 @@ function Chevron({ orientation }: ChevronProps) {
   return <Icon glyph={glyph} size={16} />;
 }
 
-const COMPONENTS = { Chevron };
+/**
+ * The picker's column. The weeks sliding 40px sideways are clipped 4px out
+ * (a day's focus ring reaches that far), so a dialog never scrolls sideways
+ * while they move; up and down nothing is clipped.
+ */
+const FRAME = '-mx-1 flex min-w-0 flex-col gap-2.5 overflow-x-clip px-1';
+
+/** The month on show and the way the last arrow travelled (1 next, -1 back) */
+type Shown = Readonly<{ direction: number; month: Date }>;
+
+const ShownContext = createContext<Shown>({
+  direction: 0,
+  month: new Date(0),
+});
+
+/**
+ * The month's weeks: a month change slides them the way you travel, as the
+ * profile calendar's months do (`PageSlide`); the weekdays stay
+ */
+function Weeks({ children, className }: WeeksProps) {
+  const { direction, month } = use(ShownContext);
+  const key = format(month, 'yyyy-MM');
+  return (
+    <PageSlide
+      as="tbody"
+      className={className}
+      direction={direction}
+      pageKey={key}
+    >
+      {children}
+    </PageSlide>
+  );
+}
+
+const COMPONENTS = { Chevron, Weeks };
 const FORMATTERS = {
   formatWeekdayName: (date: Date) => format(date, 'EEEEEE'),
 };
@@ -68,6 +111,7 @@ const FORMATTERS = {
  * "Or pick a day": the month grid from react-day-picker, weeks
  * from Monday, other months' days faded (no next month's on phones),
  * future days disabled, today ringed, the current day white. A tap applies.
+ * The arrows slide the weeks the way you travel (`Weeks`).
  * The date pickers' shared grid: marking an episode, a sync's first day.
  */
 export default function DayCalendar({
@@ -81,7 +125,13 @@ export default function DayCalendar({
   selected: Date | null;
   onPick: (day: Date) => void;
 }>) {
-  const [month, setMonth] = useState(() => selected ?? new Date(now));
+  const [shown, setShown] = useState<Shown>(() => ({
+    direction: 0,
+    month: selected ?? new Date(now),
+  }));
+  const { month } = shown;
+  const changeMonth = (next: Date) =>
+    setShown({ direction: next > month ? 1 : -1, month: next });
   const today = new Date(now);
   const disabled = { after: today };
   // Phones end the last row with the month; desktop keeps
@@ -94,25 +144,27 @@ export default function DayCalendar({
   };
   const selectedDay = selected ?? undefined;
   return (
-    <div className="flex min-w-0 flex-col gap-2.5">
+    <div className={FRAME}>
       <span className={DIALOG_LABEL}>{label}</span>
-      <DayPicker
-        classNames={CLASS_NAMES}
-        components={COMPONENTS}
-        disabled={disabled}
-        formatters={FORMATTERS}
-        mode="single"
-        modifiers={modifiers}
-        modifiersClassNames={MODIFIER_CLASSES}
-        month={month}
-        navLayout="around"
-        onDayClick={handleDayClick}
-        onMonthChange={setMonth}
-        selected={selectedDay}
-        showOutsideDays
-        today={today}
-        weekStartsOn={1}
-      />
+      <ShownContext value={shown}>
+        <DayPicker
+          classNames={CLASS_NAMES}
+          components={COMPONENTS}
+          disabled={disabled}
+          formatters={FORMATTERS}
+          mode="single"
+          modifiers={modifiers}
+          modifiersClassNames={MODIFIER_CLASSES}
+          month={month}
+          navLayout="around"
+          onDayClick={handleDayClick}
+          onMonthChange={changeMonth}
+          selected={selectedDay}
+          showOutsideDays
+          today={today}
+          weekStartsOn={1}
+        />
+      </ShownContext>
     </div>
   );
 }

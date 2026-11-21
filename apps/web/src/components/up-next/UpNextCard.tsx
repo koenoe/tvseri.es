@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { MouseEventHandler, ReactNode } from 'react';
 
 import GlassPill from '@/components/ui/glass/GlassPill';
 import type { Glyph } from '@/components/ui/icon/types';
@@ -29,7 +29,7 @@ const UP_NEXT_TITLE: TitleTreatmentLook = {
   lines: 'line-clamp-2 min-w-0 [overflow-wrap:anywhere] md:line-clamp-3',
   logo: 'object-contain object-bottom md:object-left-bottom',
   sizes: '(min-width: 768px) 425px, 220px',
-  text: 'flex items-end justify-center text-center font-display text-title-1 text-white md:h-36 md:justify-start md:text-left',
+  text: 'flex items-end justify-center text-center font-display text-title-1 text-balance text-white md:h-36 md:justify-start md:text-left',
 };
 
 const CARD = cn(
@@ -52,6 +52,10 @@ type Props = Readonly<{
   /** `eager` above the fold */
   loading?: 'eager' | 'lazy';
   logo?: string;
+  /** The link's click, before it navigates */
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+  /** The place's warm-up when the card is pointed at (`TileLink`) */
+  onIntent?: () => void;
   /** The glass pill at the top left */
   pill: Readonly<{ glyph: Glyph; text: string }> | null;
   /** The place's tag, above the pill (a visitor's "New to you") */
@@ -76,6 +80,8 @@ export default function UpNextCard({
   label,
   loading,
   logo,
+  onClick,
+  onIntent,
   pill,
   tag,
   title,
@@ -88,6 +94,8 @@ export default function UpNextCard({
         href={href}
         label={label}
         loading={loading}
+        onClick={onClick}
+        onIntent={onIntent}
       />
       <div className={UP_NEXT_BODY}>
         <TitleTreatment

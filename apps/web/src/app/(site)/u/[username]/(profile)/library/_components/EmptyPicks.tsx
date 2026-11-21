@@ -6,7 +6,7 @@ import { useCallback, useState } from 'react';
 import { LIBRARY_POSTER_CIRCLE } from '@/components/ui/button/posterCircleLooks';
 
 import { checkGlyph, heartGlyph } from '@/components/ui/icon/glyphs';
-import Icon from '@/components/ui/icon/Icon';
+import IconSwap from '@/components/ui/icon/IconSwap';
 import PosterArt from '@/components/ui/tile/PosterArt';
 import TileLink from '@/components/ui/tile/TileLink';
 import { useListToggle } from '@/lib/marking/toggles';
@@ -118,6 +118,7 @@ function AddFavourite({ id, title }: Readonly<{ id: number; title: string }>) {
   const label = isOn
     ? `${title} is in my favourites`
     : `Add ${title} to my favourites`;
+  const glyph = isOn ? checkGlyph : heartGlyph;
   return (
     <button
       aria-label={label}
@@ -127,7 +128,7 @@ function AddFavourite({ id, title }: Readonly<{ id: number; title: string }>) {
       title={label}
       type="button"
     >
-      <Icon glyph={isOn ? checkGlyph : heartGlyph} size={16} />
+      <IconSwap glyph={glyph} size={16} />
     </button>
   );
 }

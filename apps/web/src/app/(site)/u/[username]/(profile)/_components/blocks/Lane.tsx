@@ -1,5 +1,5 @@
-import { formatGrouped } from '@tvseri.es/utils';
 import type { ReactNode } from 'react';
+import RollingCount from '@/components/motion/RollingCount';
 import Dot, { type DotTone } from '@/components/ui/lane/Dot';
 import BaseLane from '@/components/ui/lane/Lane';
 import { PROFILE_LANE } from '@/components/ui/lane/laneLooks';
@@ -29,12 +29,19 @@ type Props = Readonly<{
  */
 export const LANE_LINK_CLASS = 'ml-auto flex min-w-0';
 
+/**
+ * A lane's body as one block (its rows, or its empty state, swapping in as
+ * one: `SwapIn`): the panel's own column and gap, so nothing moves
+ */
+export const LANE_BODY = 'flex flex-col gap-2.5';
+
 /** A lane's row panel: poster, lines, a control */
 export const LANE_ROW = 'flex items-center gap-4 rounded-12 bg-white/4 p-3.5';
 
 /**
  * One block of the two lanes under Up next: the shared lane panel
- * (`PROFILE_LANE`) with the profile's dot, its count grouped ("1,234") and
+ * (`PROFILE_LANE`) with the profile's dot, its count grouped ("1,234",
+ * rolling as marks move it: `RollingCount`) and
  * the header link or action at the row's end.
  */
 export default function Lane({
@@ -49,7 +56,8 @@ export default function Lane({
   link,
   title,
 }: Props) {
-  const pill = count ? formatGrouped(count) : undefined;
+  // it rolls when this tab's marks move it, as the shell's counts do
+  const pill = count ? <RollingCount value={count} /> : undefined;
   const marker = (
     <Dot colour={dotColour} glow={glow} hollow={hollow} tone={dot} />
   );

@@ -15,7 +15,7 @@ import { TILE_HOVER_WIDE } from './tileHover';
  * `BackdropImage`. The 16:9 tile adds `aspect-video`; Home's New this week
  * lead is as tall as the posters beside it.
  */
-export const BACKDROP_FRAME = `relative block w-full overflow-hidden rounded-12 bg-white/5 shadow-[0_10px_15px_-3px_rgb(0_0_0/0.1)] ${TILE_HOVER_WIDE} after:pointer-events-none after:absolute after:inset-0 after:z-3 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08)] focus-visible:outline-offset-4`;
+export const BACKDROP_FRAME = `relative block w-full overflow-hidden rounded-12 bg-white/5 shadow-[0_10px_15px_-3px_rgb(0_0_0/0.1)] ${TILE_HOVER_WIDE} image-rim after:z-3 focus-visible:outline-offset-4`;
 
 const LINK = `${BACKDROP_FRAME} aspect-video`;
 

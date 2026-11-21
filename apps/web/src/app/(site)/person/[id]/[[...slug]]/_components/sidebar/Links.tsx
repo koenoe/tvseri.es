@@ -1,15 +1,24 @@
 import type { PersonLink } from '@tvseri.es/schemas';
 
+import { HIT_Y } from '@/components/ui/button/hitArea';
 import { externalGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import { isUnavailable } from '@/lib/cache/unavailable';
+import cn from '@/lib/cn';
 import { loadLinks } from '@/lib/person/loaders';
 import externalHref from '@/lib/routing/externalHref';
 import SocialIcon, { hasSocialIcon, SOCIAL_LABELS } from './SocialIcon';
 
 const ROW = 'flex items-center gap-2';
-const RING =
-  'box-border border-2 border-white/20 transition-colors hover:border-white/50';
+/**
+ * 44px tall to the thumb and 4px into each side of the 8px gap (the
+ * `::after` starts inside the 2px ring, so each reach counts 2 more)
+ */
+const RING = cn(
+  'relative box-border border-2 border-white/20 transition-colors hover:border-white/50',
+  HIT_Y[8],
+  'after:-inset-x-1.5',
+);
 const IMDB = `${RING} inline-flex h-8 items-center gap-1.5 rounded-full pr-2.5 pl-3 text-caption font-medium`;
 const CIRCLE = `${RING} inline-flex size-8 shrink-0 items-center justify-center rounded-full`;
 

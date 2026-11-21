@@ -4,13 +4,14 @@ import type { Variants } from 'motion/react';
 import * as m from 'motion/react-m';
 import { type MouseEvent, memo, type Ref } from 'react';
 
-import { HEADER_ICON_BUTTON } from '@/components/header/headerIconButton';
+import { HEADER_MENU_BUTTON } from '@/components/header/headerIconButton';
 
 /*
  * The menu's two lines (M4 8h16 M8 16h12) and the cross of
  * `closeGlyph` (M6 6l12 12 M18 6 6 18), as separate paths so they can morph.
  * Opening: the short line extends, then both turn into the cross. Closing
- * plays it backwards.
+ * plays it backwards. Each morph starts from where the path is (`null`), so a
+ * toggle mid-morph turns back without a jump.
  */
 const TOP = { closed: 'M 4 8 L 20 8', open: 'M 6 6 L 18 18' } as const;
 const BOTTOM = {
@@ -23,24 +24,24 @@ const BOTTOM = {
 const TRANSITION = { duration: 0.24, times: [0, 0.5, 1] };
 
 const topVariants: Variants = {
-  closed: { d: [TOP.open, TOP.closed, TOP.closed], transition: TRANSITION },
-  open: { d: [TOP.closed, TOP.closed, TOP.open], transition: TRANSITION },
+  closed: { d: [null, TOP.closed, TOP.closed], transition: TRANSITION },
+  open: { d: [null, TOP.closed, TOP.open], transition: TRANSITION },
 };
 
 const bottomVariants: Variants = {
   closed: {
-    d: [BOTTOM.open, BOTTOM.extended, BOTTOM.closed],
+    d: [null, BOTTOM.extended, BOTTOM.closed],
     transition: TRANSITION,
   },
   open: {
-    d: [BOTTOM.closed, BOTTOM.extended, BOTTOM.open],
+    d: [null, BOTTOM.extended, BOTTOM.open],
     transition: TRANSITION,
   },
 };
 
 /**
  * The header's menu button: the two lines turn into the cross (and back) in
- * 240ms. A 44px target around the 18px (phone) or 20px icon.
+ * 240ms. A 44px-tall target around the 18px (phone) or 20px icon.
  */
 function MenuToggle({
   controls,
@@ -61,7 +62,7 @@ function MenuToggle({
       aria-controls={controls}
       aria-expanded={isOpen}
       aria-label={isOpen ? 'Close menu' : 'Menu'}
-      className={HEADER_ICON_BUTTON}
+      className={HEADER_MENU_BUTTON}
       onClick={onClick}
       ref={ref}
       type="button"

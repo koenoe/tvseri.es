@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type { MouseEvent, ReactNode } from 'react';
 
 import Icon from '@/components/ui/icon/Icon';
+import MarkSwap from '@/components/ui/icon/MarkSwap';
 import type { Glyph, ToggleGlyph } from '@/components/ui/icon/types';
 import cn from '@/lib/cn';
 
@@ -22,14 +23,28 @@ type Props = RemoteKey &
     pending?: boolean;
   }>;
 
+/** The key's icon: the pending ring while it waits, else its glyph, filled while latched */
 function KeyIcon({
   checked,
   icon,
-}: Readonly<{ checked?: boolean; icon: Glyph | ToggleGlyph }>) {
-  return icon.filled ? (
-    <Icon active={checked} glyph={icon} size={20} />
-  ) : (
-    <Icon glyph={icon} size={20} />
+  pending,
+}: Readonly<{
+  checked?: boolean;
+  icon: Glyph | ToggleGlyph;
+  pending: boolean;
+}>) {
+  const latched = icon.filled !== undefined && checked === true;
+  const key = pending ? 'pending' : latched ? 'on' : 'off';
+  return (
+    <MarkSwap swapKey={key}>
+      {pending ? (
+        <PendingRing />
+      ) : icon.filled ? (
+        <Icon active={checked} glyph={icon} size={20} />
+      ) : (
+        <Icon glyph={icon} size={20} />
+      )}
+    </MarkSwap>
   );
 }
 
@@ -51,7 +66,7 @@ function KeyBody({
   return (
     <>
       <span className="text-rk-w80 in-aria-checked:text-white in-aria-disabled:text-rk-w40">
-        {pending ? <PendingRing /> : <KeyIcon checked={checked} icon={icon} />}
+        <KeyIcon checked={checked} icon={icon} pending={pending} />
       </span>
       <span className="text-balance text-caption font-medium">{label}</span>
       {meta ? (

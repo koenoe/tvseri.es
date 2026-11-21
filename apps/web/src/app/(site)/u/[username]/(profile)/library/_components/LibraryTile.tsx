@@ -31,7 +31,7 @@ type Props = Readonly<{
 function LibraryTile({ eager, sizes, tile: served }: Props) {
   const { leave, longPress, owner, pick, selection, shelf } = useTileContext();
   const finished = useCallback(
-    () => leave(served.id, 'finished'),
+    (marked: boolean) => leave(served.id, 'finished', { marked }),
     [leave, served.id],
   );
   // Watching follows the store once the Remote seeded the show (N moves it on)

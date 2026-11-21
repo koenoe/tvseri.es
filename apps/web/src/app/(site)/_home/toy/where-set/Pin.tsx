@@ -44,6 +44,16 @@ function PinLabel({ on, place }: Readonly<{ on: boolean; place: MapPlace }>) {
 }
 
 /**
+ * A finger's 44px round target, reaching 8px past the 28px pin, only where
+ * no other pin is within 44px (`roomyPins`): a crowded pin keeps 28px rather
+ * than steal its neighbour's taps.
+ */
+const ROOMY_PHONE =
+  "pointer-coarse:after:absolute pointer-coarse:after:-inset-2 pointer-coarse:after:rounded-full pointer-coarse:after:content-['']";
+const ROOMY_WIDE =
+  "md:pointer-coarse:after:absolute md:pointer-coarse:after:-inset-2 md:pointer-coarse:after:rounded-full md:pointer-coarse:after:content-['']";
+
+/**
  * One place on the map: a 28px target with a 10px white
  * dot; a 2px ring on hover (white/35) and when picked (white, the dot 1.3×).
  * Its label is `PinLabel`, in the map's label layer. Pins and labels are
@@ -71,11 +81,16 @@ function Pin({
   }, [image, onWarm]);
   const position: CSSProperties = { left: place.left, top: place.top };
   const label = `${place.name}: ${place.shows[0]?.title ?? ''}`;
+  const classes = cn(
+    'group absolute z-2 -mt-3.5 -ml-3.5 size-7 cursor-pointer rounded-full',
+    // roomy on the phone's narrowest map is roomy on every wider one
+    place.roomy.phone ? ROOMY_PHONE : place.roomy.wide && ROOMY_WIDE,
+  );
   return (
     <button
       aria-label={label}
       aria-pressed={on}
-      className="group absolute z-2 -mt-3.5 -ml-3.5 size-7 cursor-pointer rounded-full"
+      className={classes}
       onClick={pick}
       onFocus={warm}
       onPointerEnter={warm}

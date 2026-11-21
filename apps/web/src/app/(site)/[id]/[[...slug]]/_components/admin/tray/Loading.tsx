@@ -1,11 +1,16 @@
 import { memo } from 'react';
 
+import FillRing from '@/components/motion/FillRing';
 import { PULSE } from '@/components/ui/ghost/ghosts';
 import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
 import cn from '@/lib/cn';
 
-import Ring from './Ring';
-import { quietButton } from './styles';
+import {
+  quietButton,
+  RING_INK_LIGHT,
+  RING_STROKE,
+  RING_TRACK_LIGHT,
+} from './styles';
 
 const SKELETON: Readonly<Record<'backdrop' | 'title', string>> = {
   backdrop: 'w-[120px]',
@@ -55,7 +60,12 @@ export const LoadingLine = memo(function LoadingLine({
       className="flex items-center gap-2 text-[13px] leading-5 whitespace-nowrap text-white/60"
       role="status"
     >
-      <Ring tone="light" />
+      <FillRing
+        className={RING_STROKE}
+        ink={RING_INK_LIGHT}
+        size={18}
+        track={RING_TRACK_LIGHT}
+      />
       {label}
     </span>
   );

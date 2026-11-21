@@ -12,10 +12,13 @@ import { PICTURE_SURFACE } from '@/components/ui/picture/pictureSurface';
  * in the corners' part pixels. So the picture's layers reach a pixel past
  * the card and are drawn as one layer, clipped once (`PICTURE_BLEED`), and a
  * one-pixel ring in the card's own colour closes the edge above everything.
- * The card sets that colour as `--picture-edge`.
+ * The card sets that colour as `--picture-edge` (on `::before`). Over that
+ * opaque ring lies the site's picture rim (`image-rim`, on `::after`), so a
+ * bright picture ends on the same neutral edge as every other picture
+ * rather than on a dark line.
  */
 export const PICTURE_CARD =
-  'relative isolate overflow-hidden after:pointer-events-none after:absolute after:inset-0 after:z-3 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_var(--picture-edge)]';
+  'image-rim relative isolate overflow-hidden before:pointer-events-none before:absolute before:inset-0 before:z-3 before:rounded-[inherit] before:shadow-[inset_0_0_0_1px_var(--picture-edge)] after:z-3';
 
 /**
  * The picture and its shade: a pixel past the card on every side, one

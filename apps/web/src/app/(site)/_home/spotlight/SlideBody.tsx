@@ -150,7 +150,12 @@ function SlideBody({
         <span className="text-white/80">{slide.rank}</span>
       </span>
       <h2 className={titleClasses}>
-        <TileLink className={TITLE_LINK} draggable={false} href={slide.href}>
+        <TileLink
+          backdrop={slide.backdrop}
+          className={TITLE_LINK}
+          draggable={false}
+          href={slide.href}
+        >
           {slide.logo && failed === slide.logo ? (
             <span className={LOGO_FALLBACK} style={logoStyle}>
               <span className="line-clamp-1 font-display text-display text-white md:line-clamp-2">

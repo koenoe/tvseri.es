@@ -16,6 +16,7 @@ import { type HeroPick, loadPicks } from './up-next/loadUpNext';
 import PickHero from './up-next/PickHero';
 import PickSwitcher from './up-next/PickSwitcher';
 import PickUnavailable from './up-next/PickUnavailable';
+import { UP_NEXT_HEADING } from './up-next/upNextHeading';
 import VisitorHero from './up-next/VisitorHero';
 
 /** The owner's hero and the show that takes its place when it is caught up */
@@ -86,9 +87,9 @@ function Frame({
   title: string;
 }>) {
   return (
-    <section aria-labelledby="up-next" className="flex flex-col gap-6">
+    <section aria-labelledby={UP_NEXT_HEADING} className="flex flex-col gap-6">
       <SectionHead
-        id="up-next"
+        id={UP_NEXT_HEADING}
         leading={<Dot hollow={hollow} tone="cyan" />}
         title={title}
       />

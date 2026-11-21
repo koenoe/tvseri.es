@@ -18,6 +18,4 @@ export const LEDGER_HOLE =
 /** An answered row: the fill gives way to a hairline; the text keeps its steps */
 export const LEDGER_SETTLED =
   'bg-transparent shadow-[inset_0_0_0_1px_rgb(255_255_255/0.06)]';
-/** Watched and Skipped */
-export const LEDGER_BUTTON = 'h-7 px-2';
 export const LEDGER_BUTTONS = 'flex shrink-0 gap-1.5';

@@ -51,12 +51,14 @@ export function liveWatchingTile(tile: TileView, view: SeriesBase): TileView {
 /**
  * A Watching tile that follows the store: N on its Remote moves its code
  * and line at once, and a show with nothing aired left leaves the shelf
- * once the mark's toast has closed (`onFinished`).
+ * once the mark's toast has closed (`onFinished`). `marked` says a mark
+ * made here finished it: the store had the show unfinished first (a
+ * show it first has finished, from another page or tab, just leaves).
  */
 export function useLiveWatchingTile(
   tile: TileView,
   enabled: boolean,
-  onFinished: () => void,
+  onFinished: (marked: boolean) => void,
 ): TileView {
   const view = useSeriesView(tile.id);
   const live = useMemo(
@@ -65,13 +67,17 @@ export function useLiveWatchingTile(
   );
   // Finished as the lists have it (skipped counts as done): it leaves Watching
   const complete = Boolean(enabled && view && seriesProgress(view).isFinished);
+  const [sawUnfinished, setSawUnfinished] = useState(false);
+  if (enabled && view && !complete && !sawUnfinished) {
+    setSawUnfinished(true);
+  }
   // Waits for the toast, so its Undo never brings back a tile already gone
   const toastShowing = useToastShowing();
   useEffect(() => {
     if (complete && !toastShowing) {
-      onFinished();
+      onFinished(sawUnfinished);
     }
-  }, [complete, toastShowing, onFinished]);
+  }, [complete, toastShowing, onFinished, sawUnfinished]);
   return live;
 }
 

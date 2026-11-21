@@ -95,7 +95,7 @@ export {
 export { formatSeriesYears } from './series/seriesYears';
 export { hasEndedStatus, isOver, isRunning } from './series/status';
 export { sleep } from './sleep';
-export { formatGrouped, plural } from './text/count';
+export { formatGrouped, plural, pluralNoun } from './text/count';
 export { upperFirst } from './text/upperFirst';
 export {
   addDaysUtc,

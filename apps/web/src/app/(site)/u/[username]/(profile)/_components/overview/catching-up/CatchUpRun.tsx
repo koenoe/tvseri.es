@@ -235,7 +235,7 @@ function Chip({
   );
   const className = cn(
     CHIP,
-    'cursor-pointer transition-colors duration-150',
+    'cursor-pointer transition-[background-color,color,scale] duration-150 active:scale-96',
     // the run up to the hovered chip lights up; chips after it stay dim
     'group-hover/eq:bg-white group-hover/eq:text-[#171717] [&:hover~button]:bg-white/6 [&:hover~button]:text-white/80',
     first ? 'bg-white text-[#171717]' : 'bg-white/6 text-white/80',

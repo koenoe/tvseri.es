@@ -2,6 +2,7 @@ import {
   type CircleButtonSize,
   circleButtonStyles,
 } from '@/components/ui/button/buttonStyles';
+import { HIT_ALL } from '@/components/ui/button/hitArea';
 import cn from '@/lib/cn';
 
 /**
@@ -30,19 +31,24 @@ export const SMALL_KEY = cn(
   DISABLED_FOCUS,
 );
 
-/** The letter chip on a key (white; light on a latched key; outlined when disabled). */
+/**
+ * The letter chip on a key (white; light on a latched key; outlined when
+ * disabled). Its 4px corner sits 4px in from the key's 8 (8px in from the
+ * sheet's 12), so the corners stay concentric.
+ */
 export const KEY_CHIP = cn(
-  'remote-chip absolute top-1.5 right-1.5',
+  'remote-chip absolute top-1 right-1 group-data-[layout=sheet]/remote:top-2 group-data-[layout=sheet]/remote:right-2',
   'in-aria-disabled:bg-transparent in-aria-disabled:text-rk-w40 in-aria-disabled:shadow-[inset_0_0_0_1px_var(--rk-line)]',
 );
 
 /**
  * A 44px target around a smaller ⋯ (the tile's 32px, the 40px), so the
- * circle can stay small on artwork. The 44 and 48px circles are their own.
+ * circle can stay small on artwork. The `::after` starts inside the 2px
+ * ring, so each reach counts 2 more. The 44 and 48px circles are their own.
  */
 const HIT_AREA: Readonly<Record<CircleButtonSize, string>> = {
-  32: "after:absolute after:-inset-1.75 after:rounded-full after:content-['']",
-  40: "after:absolute after:-inset-0.75 after:rounded-full after:content-['']",
+  32: HIT_ALL[8],
+  40: HIT_ALL[4],
   44: '',
   48: '',
 };

@@ -113,12 +113,15 @@ export function TrackTick({ at }: Readonly<{ at: number }>) {
  * A line beside its caption (Up next, Full season) or on a Library
  * poster: the watched width, aired dimmed and the tick while a season still
  * airs (`aired` under 100); leave `aired` out when everything aired.
+ * `slide`: the fill slides to a new value (`TrackSlide`), as a hero's line
+ * does when the viewer's own mark moves it.
  */
 export default function ProgressTrack({
   aired,
   className,
   label,
   look = TRACK_LOOK.line,
+  slide = false,
   watched,
 }: Readonly<{
   aired?: number;
@@ -127,12 +130,13 @@ export default function ProgressTrack({
   label?: string;
   /** A `TRACK_LOOK` */
   look?: string;
+  slide?: boolean;
   watched: number;
 }>) {
   return (
     <Track className={className} label={label} look={look}>
       {aired === undefined ? null : <TrackAired at={aired} />}
-      <TrackFill at={watched} />
+      {slide ? <TrackSlide at={watched} /> : <TrackFill at={watched} />}
       {aired === undefined || aired >= 100 ? null : <TrackTick at={aired} />}
     </Track>
   );

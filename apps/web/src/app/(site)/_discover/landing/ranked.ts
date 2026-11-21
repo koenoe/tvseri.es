@@ -60,6 +60,16 @@ export const RANKED_PHONE = '-mx-2 flex flex-col items-start gap-4 md:hidden';
 
 export const RANKED_PHONE_LIST = 'flex w-full flex-col gap-0.5';
 
+/**
+ * The phone's rows as the list draws them: the 2px between rows
+ * (`RANKED_PHONE_LIST`'s gap) sits inside each row (`RANKED_PHONE_SPACE`),
+ * so five rows folding in on Show more carry it instead of popping it open
+ */
+export const RANKED_PHONE_ROWS = 'flex w-full flex-col';
+
+/** The space above every row after the first */
+export const RANKED_PHONE_SPACE = 'pt-0.5';
+
 /** One row's grid: the rank, the title and facts, the end */
 export const RANKED_ROW = {
   compact:

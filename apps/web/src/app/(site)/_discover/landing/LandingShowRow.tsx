@@ -2,6 +2,7 @@
 
 import { hasEnoughPosters } from '@tvseri.es/constants';
 import { useMemo } from 'react';
+import useTabArrival from '@/components/motion/useTabArrival';
 import type { Glyph } from '@/components/ui/icon/types';
 import Row from '@/components/ui/row/Row';
 import PosterTile from '@/components/ui/tile/PosterTile';
@@ -45,7 +46,8 @@ type Props = Readonly<{
  * `Row` and `PosterTile`, the Watched label (`WatchedOverlay`) and the
  * "You’ve seen" line from the viewer's marks, and, for a tabs row, the
  * switch beside the title. Every tab's shows come from the server, so
- * switching swaps the posters in the same frame; a row below a switch drops
+ * switching swaps the posters in the same frame, and they rise in
+ * (`useTabArrival`) as Discover's lens tiles do; a row below a switch drops
  * the pressed tab's shows. It re-renders only for the switches it reads:
  * a mark re-renders only the labels and line it changes.
  */
@@ -71,10 +73,13 @@ export default function LandingShowRow({
   );
   const pressed = usePressedTabs(switchIds);
 
-  const list =
-    plan.kind === 'shows'
-      ? plan.shows
-      : (plan.tabs[pressed[plan.switchId] ?? tabs?.[0]?.key ?? ''] ?? []);
+  const tab =
+    plan.kind === 'tabs'
+      ? (pressed[plan.switchId] ?? tabs?.[0]?.key ?? '')
+      : '';
+  const arrival = useTabArrival(tab);
+  const swap = plan.kind === 'tabs' ? arrival : undefined;
+  const list = plan.kind === 'shows' ? plan.shows : (plan.tabs[tab] ?? []);
   const shows = visibleShows(list, plan.drops, pressed, plan.limit);
   const ids = shows.map((show) => show.id);
   const railId = `${id}-rail`;
@@ -106,6 +111,7 @@ export default function LandingShowRow({
       note={note}
       subtitle={subtitle}
       subtitleGlyph={subtitleGlyph}
+      swap={swap}
       switcher={switcher}
       title={title}
       titleContent={titleContent}

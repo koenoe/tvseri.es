@@ -4,12 +4,20 @@ import { formatGrouped } from '@tvseri.es/utils';
 import type { Fix } from '../../_components/problems/fix';
 import { NotFoundProblems } from '../../_components/problems/KindGroups';
 import type { NotFoundHandlers } from '../../_components/problems/NotFoundItem';
-import { rowsIn, splitItems } from '../../_components/problems/problemRows';
+import {
+  openItems,
+  rowsIn,
+  splitItems,
+} from '../../_components/problems/problemRows';
 import type { ProblemItem } from '../../_components/problems/problems';
 import type { Importer } from '../_lib/useImporter';
+import GroupSkipAll from './GroupSkipAll';
 import ProblemRest from './ProblemRest';
 
-/** The import's "Not found": two items, then recaps and extras summed up. */
+/**
+ * The import's "Not found": two items, then recaps and extras summed up;
+ * shown in full, Skip all beside the header.
+ */
 export default function NotFoundGroup({
   count,
   expanded,
@@ -42,8 +50,15 @@ export default function NotFoundGroup({
   const restTitle = `${restRows} more like these`;
   const restToast = `Skipped ${restRows} recaps and extras`;
   const restWhy = `Recaps, extras and titles TMDB doesn’t know, like ${like}`;
+  const unfixed = openItems(items, fixes);
+  // Only once shown in full: the summed-up rest has its own Skip all
+  const skipAll =
+    expanded && unfixed.length > 1 ? (
+      <GroupSkipAll groupName="Not found" importer={importer} items={unfixed} />
+    ) : null;
   return (
     <NotFoundProblems
+      action={skipAll}
       bodyId="import-group-not-found"
       count={count}
       fixes={fixes}

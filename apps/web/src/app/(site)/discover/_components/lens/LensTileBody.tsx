@@ -149,7 +149,7 @@ export default function LensTileBody({
       </span>
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08)] group-hover/tile:shadow-[inset_0_0_0_2px_rgb(255_255_255/0.5)] group-aria-expanded/tile:shadow-[inset_0_0_0_2px_#fff]"
+        className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-image-rim group-hover/tile:shadow-[inset_0_0_0_2px_rgb(255_255_255/0.5)] group-aria-expanded/tile:shadow-[inset_0_0_0_2px_#fff]"
         data-hairline
       />
     </>

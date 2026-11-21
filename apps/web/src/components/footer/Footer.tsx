@@ -1,5 +1,5 @@
 import Link from 'next/link';
-
+import { HIT_Y } from '@/components/ui/button/hitArea';
 import {
   arrowUpGlyph,
   codeGlyph,
@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import Logo from '@/components/ui/Logo';
+import cn from '@/lib/cn';
 
 import { JustWatchLogo, TmdbLogo } from './CreditLogos';
 import FooterToastClearance from './FooterToastClearance';
@@ -20,13 +21,18 @@ const CREDIT =
 /** OMDb has no logo to set: its name, underlined as the footer's links are */
 const TEXT_CREDIT =
   'rounded-2 underline decoration-white/17 underline-offset-4 transition-colors duration-150 hover:text-white hover:decoration-white/60';
-const LINK =
-  'group inline-flex h-11 items-center gap-1.5 rounded-4 text-meta text-white/80 transition-colors duration-150 hover:text-white md:h-8';
+/** From md the links and Top are 32px pills: 40px to the pointer */
+const LINK = cn(
+  'group relative inline-flex h-11 items-center gap-1.5 rounded-4 text-meta text-white/80 transition-colors duration-150 hover:text-white md:h-8',
+  HIT_Y[4],
+);
 const LINK_LABEL =
   'underline decoration-white/28 underline-offset-4 transition-[text-decoration-color] duration-150 group-hover:decoration-white';
 const LINK_ICON = 'text-white/60 transition-colors group-hover:text-white';
-const TOP =
-  'ml-auto inline-flex h-11 items-center gap-1.5 rounded-full bg-white/8 pr-4 pl-3.5 text-meta font-medium text-white/80 ring-1 ring-white/10 ring-inset transition-colors duration-150 hover:bg-white/14 hover:text-white md:ml-0 md:h-8 md:pr-3 md:pl-2.5';
+const TOP = cn(
+  'relative ml-auto inline-flex h-11 items-center gap-1.5 rounded-full bg-white/8 pr-4 pl-3.5 text-meta font-medium text-white/80 ring-1 ring-white/10 ring-inset transition-[background-color,color,scale] duration-150 hover:bg-white/14 hover:text-white active:scale-96 md:ml-0 md:h-8 md:pr-3 md:pl-2.5',
+  HIT_Y[4],
+);
 
 /**
  * The site footer. OMDb is credited by name: its CC BY-NC 4.0 licence asks

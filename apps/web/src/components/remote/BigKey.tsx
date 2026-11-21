@@ -1,8 +1,10 @@
 'use client';
 
 import Image from 'next/image';
+import { CROSSFADE } from '@/components/motion/lateFade';
 import { eyeGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import MarkSwap from '@/components/ui/icon/MarkSwap';
 import cn from '@/lib/cn';
 
 import { useIsSignedIn } from '@/lib/marking/hooks';
@@ -18,6 +20,13 @@ import { BIG_KEY, KEY_CHIP } from './styles';
 const STILL =
   'relative flex h-15.75 w-28 shrink-0 items-center justify-center overflow-hidden rounded-6 group-data-[layout=sheet]/remote:h-20 group-data-[layout=sheet]/remote:w-36';
 
+/** The veil over the still while it marks: it fades in and out */
+const VEIL = cn(
+  'absolute inset-0 z-1 flex items-center justify-center bg-white/55',
+  CROSSFADE,
+);
+const VEIL_OFF = cn(VEIL, 'invisible opacity-0');
+
 function Still({
   pending,
   src,
@@ -31,14 +40,14 @@ function Still({
     );
     return (
       <span className={empty}>
-        {pending ? <PendingRing /> : <Icon glyph={eyeGlyph} size={20} />}
+        {/* the ring swaps in for the eye as the small keys' icons do */}
+        <MarkSwap swapKey={pending ? 'pending' : 'eye'}>
+          {pending ? <PendingRing /> : <Icon glyph={eyeGlyph} size={20} />}
+        </MarkSwap>
       </span>
     );
   }
-  const filled = cn(
-    STILL,
-    'bg-rk-key after:absolute after:inset-0 after:rounded-6 after:shadow-[inset_0_0_0_1px_rgb(0_0_0/0.06)]',
-  );
+  const filled = cn(STILL, 'image-rim bg-rk-key');
   const unoptimized = !isTmdbImage(src);
   return (
     <span className={filled}>
@@ -50,11 +59,12 @@ function Still({
         src={src}
         unoptimized={unoptimized}
       />
-      {pending ? (
-        <span className="absolute inset-0 z-1 flex items-center justify-center bg-white/55">
-          <PendingRing />
-        </span>
-      ) : null}
+      <span className={pending ? VEIL : VEIL_OFF}>
+        {/* mounted with the mark: the ring fills once, from empty */}
+        <MarkSwap swapKey="pending">
+          {pending ? <PendingRing /> : null}
+        </MarkSwap>
+      </span>
     </span>
   );
 }

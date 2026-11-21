@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { returnFocusToCopy } from '@/components/motion/crossFadeFocus';
 import { returnFocus } from '@/components/ui/dialog/focusReturn';
 
 import type { OpenedBy } from './RemotePanel';
@@ -67,7 +68,10 @@ export default function useRemoteOpen({
         active === document.body ||
         Boolean(document.getElementById(menuId)?.contains(active));
       if (restoreFocus && inside) {
-        returnFocus(triggerRef.current, ring.current);
+        // A card that swapped to the next show meanwhile: its new ⋯
+        if (!returnFocusToCopy(triggerRef.current, ring.current)) {
+          returnFocus(triggerRef.current, ring.current);
+        }
       }
     },
     [menuId],

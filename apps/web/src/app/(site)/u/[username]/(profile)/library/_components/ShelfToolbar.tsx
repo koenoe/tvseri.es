@@ -6,6 +6,7 @@ import type {
   LibrarySort,
 } from '@tvseri.es/schemas';
 import { formatGrouped } from '@tvseri.es/utils';
+import { AnimatePresence } from 'motion/react';
 import {
   type ChangeEvent,
   type KeyboardEvent,
@@ -13,6 +14,7 @@ import {
   useState,
 } from 'react';
 
+import FoldPresence from '@/components/motion/FoldPresence';
 import {
   checkGlyph,
   closeGlyph,
@@ -21,12 +23,22 @@ import {
   sparkleGlyph,
 } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import IconSwap from '@/components/ui/icon/IconSwap';
 import cn from '@/lib/cn';
 
 import { SHELVES } from '../_lib/shelves';
 import type { FindText } from '../_lib/useFindText';
 import SortMenu from './SortMenu';
-import { CHIP, FIELD, PILL, PILL_ON } from './toolbarStyles';
+import { CHIP, FIELD, PILL, PILL_ON, SELECT_PILL } from './toolbarStyles';
+
+/**
+ * The phone's Find field folds in under the row: it takes the column's 12px
+ * gap back and draws its own, so the fold's clip never cuts a negative margin
+ */
+const FIND_FOLD = '-mt-3 md:hidden';
+
+/** Select's marker (`SELECT_PILL`) */
+const SELECT_MARK = { [SELECT_PILL]: '' };
 
 export type ToolbarProps = Readonly<{
   shelf: LibraryShelf;
@@ -143,7 +155,8 @@ function FilterChip({
 /**
  * The shelf's toolbar: the sort pill, Find, and the
  * owner's Select ↔ Done or a visitor's New to you and You both. On a phone:
- * the pill, a Find button that opens the field under the row, and Select.
+ * the pill, a Find button that folds the field open under the row, and
+ * Select.
  */
 export default function ShelfToolbar({
   canSelect,
@@ -161,6 +174,7 @@ export default function ShelfToolbar({
   const findLabel = `Find in ${SHELVES[shelf].label}`;
   const toggleFinding = useCallback(() => setFinding((was) => !was), []);
   const findPillClass = cn(PILL, 'px-2.5 md:hidden', finding && PILL_ON);
+  const findGlyph = finding ? closeGlyph : searchGlyph;
   const selectPillClass = cn(PILL, selecting && PILL_ON);
   const newOn = filter === 'new';
   const sharedOn = filter === 'shared';
@@ -199,10 +213,11 @@ export default function ShelfToolbar({
           onClick={toggleFinding}
           type="button"
         >
-          <Icon glyph={finding ? closeGlyph : searchGlyph} size={16} />
+          <IconSwap glyph={findGlyph} size={16} />
         </button>
         {canSelect ? (
           <button
+            {...SELECT_MARK}
             aria-pressed={selecting}
             className={selectPillClass}
             onClick={onSelect}
@@ -217,15 +232,21 @@ export default function ShelfToolbar({
           </button>
         ) : null}
       </div>
-      {finding ? (
-        <FindField
-          className="w-full md:hidden"
-          label={findLabel}
-          onChange={find.change}
-          onClear={find.clear}
-          text={find.text}
-        />
-      ) : null}
+      <AnimatePresence initial={false}>
+        {finding ? (
+          <FoldPresence className={FIND_FOLD} key="find">
+            <div className="pt-3">
+              <FindField
+                className="w-full"
+                label={findLabel}
+                onChange={find.change}
+                onClear={find.clear}
+                text={find.text}
+              />
+            </div>
+          </FoldPresence>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

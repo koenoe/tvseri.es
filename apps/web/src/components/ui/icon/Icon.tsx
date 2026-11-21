@@ -35,32 +35,41 @@ type Props =
   | (Common & Readonly<{ active?: boolean; glyph: ToggleGlyph }>)
   | (Common & Readonly<{ active?: undefined; glyph: Glyph | ToggleGlyph }>);
 
+/** The svg attributes every icon shares: size, stroke, and its a11y name */
+export function iconAttributes(size: IconSize, label?: string) {
+  const a11y = label
+    ? ({ 'aria-label': label, role: 'img' } as const)
+    : ({ 'aria-hidden': true } as const);
+  return {
+    fill: 'none',
+    height: size,
+    stroke: 'currentColor',
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    strokeWidth: STROKE[size],
+    viewBox: '0 0 24 24',
+    width: size,
+    ...a11y,
+  } as const;
+}
+
+/** The drawing: a toggle glyph's filled one while `active` */
+export const drawingOf = (glyph: Glyph | ToggleGlyph, active?: boolean) =>
+  active && glyph.filled ? glyph.filled : glyph.outline;
+
 /**
  * One line icon from the set in `glyphs.tsx`. `currentColor` throughout, so the text
  * colour (cyan, pink, white/60…) colours it. A server component: no client JS
- * of its own, and only the glyphs a page imports end up in a bundle.
+ * of its own, and only the glyphs a page imports end up in a bundle. An icon
+ * that changes with state (on/off, pending, copied) is an `IconSwap`.
  *
  * @example
  * <Icon glyph={eyeGlyph} size={16} active={isWatched} />
  */
 export default function Icon({ active, glyph, label, size, ...rest }: Props) {
-  const a11y = label
-    ? ({ 'aria-label': label, role: 'img' } as const)
-    : ({ 'aria-hidden': true } as const);
   return (
-    <svg
-      fill="none"
-      height={size}
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={STROKE[size]}
-      viewBox="0 0 24 24"
-      width={size}
-      {...a11y}
-      {...rest}
-    >
-      {active && glyph.filled ? glyph.filled : glyph.outline}
+    <svg {...iconAttributes(size, label)} {...rest}>
+      {drawingOf(glyph, active)}
     </svg>
   );
 }

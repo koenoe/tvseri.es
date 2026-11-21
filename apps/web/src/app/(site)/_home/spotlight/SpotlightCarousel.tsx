@@ -1,9 +1,9 @@
 'use client';
 
 import * as m from 'motion/react-m';
-import Link from 'next/link';
-import type { ComponentProps } from 'react';
+import { type ComponentProps, useRef } from 'react';
 import MaxMotion from '@/components/motion/MaxMotion';
+import TileLink from '@/components/ui/tile/TileLink';
 import type { ControlStatesRead } from '@/lib/marking/controlState';
 
 import {
@@ -11,7 +11,7 @@ import {
   useSpotlightLines,
 } from '../marking/spotlightLines';
 import Artwork from './Artwork';
-import Pager from './Pager';
+import Pager, { type PagerHandle } from './Pager';
 import SlideBody from './SlideBody';
 import {
   type SpotlightPreview,
@@ -114,7 +114,7 @@ function TextLayers({
  * artwork, the text and the page colour (the ground's 600ms) start in the
  * same frame and end together, once the next backdrop is decoded (it is
  * preloaded during the countdown and on a pager line's hover or focus).
- * The artwork and the title link to the show.
+ * The artwork and the title link to the show, and open it whole.
  */
 export default function SpotlightCarousel({
   slides,
@@ -132,8 +132,11 @@ export default function SpotlightCarousel({
   // replaces the hook once it arrives
   const lines = useSpotlightLines();
 
+  const pager = useRef<PagerHandle>(null);
+  const sweepTo = (index: number) => pager.current?.sweepTo(index);
   const slideshow = useSlideshow({
     count: slides.length,
+    onSwipe: sweepTo,
     prepare,
     ready,
     startAt: preview?.startAt,
@@ -163,14 +166,14 @@ export default function SpotlightCarousel({
       <m.section
         aria-label="Trending spotlight"
         aria-roledescription="carousel"
-        // phone: the stage (513px of page) and the 23px pager under it
+        // phone: the stage (553px of page) and the 23px pager under it
         className={SPOTLIGHT_STAGE}
         data-slot="spotlight"
         ref={attach}
         style={PAN_STYLE}
         {...slideshow.handlers}
       >
-        <div className="absolute inset-x-0 -top-[47px] h-[560px] overflow-hidden md:top-0 md:h-full">
+        <div className="absolute inset-x-0 -top-[47px] h-[600px] overflow-hidden md:top-0 md:h-full">
           <ArtworkLayers
             firstIndex={firstIndex}
             layers={stage.layers}
@@ -179,13 +182,15 @@ export default function SpotlightCarousel({
             slides={slides}
           />
           {/* The artwork opens the show too (one link per slide for keyboards
-              and screen readers: the title's) */}
-          <Link
+              and screen readers: the title's); only on intent, the title's
+              link prefetches in view */}
+          <TileLink
             aria-hidden="true"
+            backdrop={slide.backdrop}
             className="absolute inset-0"
             draggable={false}
             href={slide.href}
-            prefetch={false}
+            prefetchOn="intent"
             tabIndex={-1}
           />
         </div>
@@ -208,6 +213,8 @@ export default function SpotlightCarousel({
               onIntent={prepare}
               onSelect={slideshow.goTo}
               onTogglePlay={slideshow.togglePlay}
+              pending={slideshow.pending}
+              ref={pager}
               running={slideshow.running}
               titles={titles}
               userChose={slideshow.userChose}

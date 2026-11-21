@@ -21,13 +21,56 @@ const CAPTIONS = ROWS.map((row) => <b key={row.number}>{row.show}</b>);
 
 const animate = vi.fn();
 
+/** Each channel's top in the list: 54px apart (jsdom lays nothing out) */
+const topOf = (element: HTMLElement) => {
+  const label = element.getAttribute('aria-label') ?? '';
+  const index = ROWS.findIndex((row) => row.label === label);
+  return index < 0 ? 0 : index * 54;
+};
+
+function reducedMotion(matches: boolean) {
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn(() => ({
+      addEventListener: () => undefined,
+      matches,
+      removeEventListener: () => undefined,
+    })),
+  );
+}
+
 beforeEach(() => {
+  reducedMotion(false);
+  animate.mockImplementation(() => ({
+    cancel: () => undefined,
+    effect: null,
+    playState: 'finished',
+  }));
+  Object.defineProperty(HTMLElement.prototype, 'offsetTop', {
+    configurable: true,
+    get(this: HTMLElement) {
+      return topOf(this);
+    },
+  });
   HTMLElement.prototype.animate = animate as unknown as HTMLElement['animate'];
 });
+
+/** The animations on the on-channel's highlight, by their start */
+const glides = () =>
+  animate.mock.calls
+    .filter((_, call) => {
+      const element = animate.mock.contexts[call] as HTMLElement;
+      return element.hasAttribute('data-pill');
+    })
+    .map(([frames]) => (frames as Keyframe[])[0]?.transform);
+
+/** The screen's zaps */
+const zaps = () => animate.mock.calls.length - glides().length;
 
 afterEach(() => {
   cleanup();
   animate.mockReset();
+  vi.unstubAllGlobals();
 });
 
 const renderRemote = () =>
@@ -58,10 +101,10 @@ describe('WhatsOnRemote', () => {
     );
     // the screen shows channel 3's caption
     expect(screen.getByText('Show 3', { selector: 'b' })).toBeTruthy();
-    expect(animate).toHaveBeenCalledTimes(1);
+    expect(zaps()).toBe(1);
 
     fireEvent.click(channel('Channel 03, Apple TV+'));
-    expect(animate).toHaveBeenCalledTimes(1);
+    expect(zaps()).toBe(1);
   });
 
   it('wraps around with up and down', () => {
@@ -74,7 +117,36 @@ describe('WhatsOnRemote', () => {
     expect(channel('Channel 01, Netflix').getAttribute('aria-checked')).toBe(
       'true',
     );
-    expect(animate).toHaveBeenCalledTimes(2);
+    expect(zaps()).toBe(2);
+  });
+
+  it('draws the highlight on the channel on, in place', () => {
+    renderRemote();
+    const on = channel('Channel 01, Netflix');
+    expect(on.querySelector('[data-pill]')).not.toBeNull();
+    expect(glides()).toEqual([]);
+  });
+
+  it('glides the highlight from the old channel to the new one', () => {
+    renderRemote();
+    fireEvent.click(channel('Channel 03, Apple TV+'));
+    // from 01 (0) to 03 (108)
+    expect(glides()).toEqual(['translateY(-108px)']);
+    fireEvent.click(screen.getByRole('button', { name: 'Channel up' }));
+    expect(glides()).toEqual(['translateY(-108px)', 'translateY(54px)']);
+  });
+
+  it('glides with the list’s arrow keys', () => {
+    renderRemote();
+    fireEvent.keyDown(channel('Channel 01, Netflix'), { key: 'ArrowDown' });
+    expect(glides()).toEqual(['translateY(-54px)']);
+  });
+
+  it('jumps with reduced motion', () => {
+    reducedMotion(true);
+    renderRemote();
+    fireEvent.click(channel('Channel 03, Apple TV+'));
+    expect(glides()).toEqual([]);
   });
 
   it('keeps the channels next to the one on warm', () => {

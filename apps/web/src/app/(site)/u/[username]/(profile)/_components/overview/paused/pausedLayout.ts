@@ -24,5 +24,3 @@ export const PAUSED_META =
   'col-span-2 col-start-2 row-start-2 flex min-h-[35px] min-w-0 items-start max-md:min-h-0';
 export const PAUSED_ACTIONS =
   'col-start-3 row-start-1 flex h-6 shrink-0 items-center gap-1.5 max-md:col-span-2 max-md:col-start-2 max-md:row-start-3 max-md:h-7';
-/** Keep and Hide */
-export const PAUSED_BUTTON = 'h-7 px-2';

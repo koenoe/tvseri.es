@@ -1,10 +1,27 @@
-import { Children, isValidElement, type ReactNode } from 'react';
+import {
+  Children,
+  isValidElement,
+  type ReactNode,
+  type TransitionEvent,
+} from 'react';
+
+import { TAB_ARRIVE } from '@/components/motion/tabArrive';
+import cn from '@/lib/cn';
 
 import RowArrows from './RowArrows';
 import RowFrame from './RowFrame';
 import RowHeader, { type RowHeading } from './RowHeader';
 import RowScrollRestore from './RowScrollRestore';
 import type { RowInset, RowLook, RowTiles } from './rowLayout';
+
+/** A row whose tiles swap in place: a row switch's tabs (`useTabArrival`) */
+export type RowSwap = Readonly<{
+  /** the tiles rise in (the rail's `data-fade`) */
+  arriving: boolean;
+  /** the shown tab: it keys the tiles, so a new tab's are new */
+  key: string;
+  onTransitionEnd: (event: TransitionEvent<HTMLElement>) => void;
+}>;
 
 type Props = RowHeading &
   Readonly<{
@@ -26,6 +43,8 @@ type Props = RowHeading &
      * itself (a context or the URL).
      */
     switcher?: ReactNode;
+    /** with a switch: the shown tab's tiles, which rise in when it changes */
+    swap?: RowSwap;
     tiles?: RowTiles;
   }>;
 
@@ -45,6 +64,7 @@ export const ROW_RAIL =
  */
 const ITEM =
   'w-(--row-tile) shrink-0 snap-start has-[>[data-own-width]]:w-auto';
+const SWAP_ITEM = cn(ITEM, TAB_ARRIVE);
 
 /**
  * The one horizontal row: a title-2 header with two round arrows at its end,
@@ -64,6 +84,7 @@ export default function Row({
   look,
   name,
   note,
+  swap,
   switcher,
   tiles = 'poster',
   ...heading
@@ -73,6 +94,10 @@ export default function Row({
   const items = Children.toArray(children).filter(isValidElement);
   // a numbered row is an ordered list: its rank is in each tile's name too
   const List = tiles === 'ranked' ? 'ol' : 'ul';
+  // one rail for every tab: the arrows and the Back restore keep it
+  const itemClass = swap ? SWAP_ITEM : ITEM;
+  const tab = swap ? `${swap.key}:` : '';
+  const fading = swap?.arriving || undefined;
   return (
     <RowFrame
       inset={inset}
@@ -90,9 +115,15 @@ export default function Row({
           {switcher}
         </div>
       ) : null}
-      <List className={ROW_RAIL} id={railId} role="list">
+      <List
+        className={ROW_RAIL}
+        data-fade={fading}
+        id={railId}
+        onTransitionEnd={swap?.onTransitionEnd}
+        role="list"
+      >
         {items.map((item) => (
-          <li className={ITEM} key={item.key}>
+          <li className={itemClass} key={`${tab}${item.key}`}>
             {item}
           </li>
         ))}

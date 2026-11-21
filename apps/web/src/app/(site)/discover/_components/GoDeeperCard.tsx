@@ -29,6 +29,13 @@ import { formatCappedCount } from '@/lib/formatCount';
 import landingPath from '@/lib/routing/landingPath';
 import personPath from '@/lib/routing/personPath';
 
+/**
+ * The card's frame (the ghost's too): on xl its corner is the 12px hover
+ * fill's plus the 12px it sits in from the edge.
+ */
+export const GO_DEEPER_CARD =
+  'flex flex-col gap-3.5 rounded-16 bg-black/22 p-4 xl:grid xl:grid-cols-[290px_minmax(0,1fr)] xl:gap-8 xl:rounded-24 xl:p-6';
+
 const KIND = {
   creator: { glyph: userGlyph, label: 'Creator' },
   network: { glyph: variantBuildingGlyph, label: 'Network' },
@@ -98,10 +105,7 @@ export default function GoDeeperCard({
     </PosterTile>
   ));
   return (
-    <article
-      aria-label={label}
-      className="flex flex-col gap-3.5 rounded-16 bg-black/22 p-4 xl:grid xl:grid-cols-[290px_minmax(0,1fr)] xl:gap-8 xl:p-6"
-    >
+    <article aria-label={label} className={GO_DEEPER_CARD}>
       {/* phones and tablets: from → to, side by side */}
       <div className="flex items-end justify-between gap-3 xl:hidden">
         <div className="flex min-w-0 flex-col gap-1.5">

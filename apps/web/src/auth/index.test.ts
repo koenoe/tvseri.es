@@ -112,6 +112,30 @@ describe('auth', () => {
       expect(cookieStore.delete).not.toHaveBeenCalled();
     });
 
+    it("hands a prerender's end back to Next instead of logging it as a failure", async () => {
+      withSessionCookie(await sessionCookie(3600));
+      // what fetch() rejects with once a prerender (a prefetch) completes
+      const ended = Object.assign(new Error('prerender is complete'), {
+        digest: 'HANGING_PROMISE_REJECTION',
+      });
+      vi.stubGlobal('fetch', vi.fn().mockRejectedValue(ended));
+      authClient.verify.mockRejectedValue(ended);
+
+      await expect(auth()).rejects.toBe(ended);
+      expect(console.log).not.toHaveBeenCalled();
+    });
+
+    it('logs why the user could not be read', async () => {
+      withSessionCookie(await sessionCookie(3600));
+      meResponds(503, { message: 'down' });
+
+      expect((await auth()).user).toBeNull();
+      expect(console.log).toHaveBeenCalledWith(
+        '[auth] [RSC] fetchUser failed:',
+        expect.objectContaining({ status: 503 }),
+      );
+    });
+
     it('is empty when the access token does not verify', async () => {
       withSessionCookie(await sessionCookie(3600));
       authClient.verify.mockResolvedValue({ err: new Error('bad token') });

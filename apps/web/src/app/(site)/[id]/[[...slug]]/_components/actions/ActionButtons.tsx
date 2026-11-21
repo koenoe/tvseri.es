@@ -16,7 +16,6 @@ import {
   heartGlyph,
   pencilGlyph,
 } from '@/components/ui/icon/glyphs';
-import type { Glyph } from '@/components/ui/icon/types';
 import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
 import { useSeriesAnswer } from '@/lib/marking/hooks';
 import { pressMark, scopeKey } from '@/lib/marking/pressGate';
@@ -49,11 +48,12 @@ type Props = Readonly<{
 
 /**
  * The hero circles: 22px icons in white/75 on desktop, 40px circles with
- * 20px icons on phones.
+ * 20px icons on phones, 44px to the thumb (the `::after` starts inside the
+ * 2px border, so 4px reach is 2px past the ring; 4px of the 8px gap).
  * `[&_svg]`, not `[&>svg]`: a toggle wraps its icon in a span.
  */
 const PHONE_CIRCLE =
-  'text-white/75 md:[&>svg]:size-[22px] max-md:size-10 max-md:[&_svg]:size-5 disabled:cursor-default disabled:hover:border-white/20';
+  'text-white/75 md:[&>svg]:size-[22px] max-md:size-10 max-md:[&_svg]:size-5 max-md:after:absolute max-md:after:-inset-1 max-md:after:rounded-full disabled:cursor-default disabled:hover:border-white/20';
 
 /**
  * Finished (every aired episode watched or skipped, something watched): the
@@ -61,9 +61,6 @@ const PHONE_CIRCLE =
  */
 const isFinishedView = (view: SeriesBase | undefined) =>
   view ? seriesProgress(view).isFinished : false;
-
-/** The eye keeps its filled drawing at rest too. */
-const watchEyeGlyph: Glyph = { outline: eyeGlyph.filled };
 
 /** The Remote's Admin row: Hero images (I), Images on TMDB (T). */
 function useAdminSection(
@@ -153,7 +150,7 @@ function ActionButtons({
       <CircleButton
         className={PHONE_CIRCLE}
         disabled={eyeDisabled}
-        icon={watchEyeGlyph}
+        icon={eyeGlyph}
         label={eyeLabel}
         onClick={toggleShow}
         pressed={isFinished}

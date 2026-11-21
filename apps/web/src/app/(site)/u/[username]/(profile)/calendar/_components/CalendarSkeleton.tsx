@@ -102,23 +102,30 @@ function RuleGhost() {
   );
 }
 
+/** A phone opens each group on two tiles */
+const GHOST_TILES = cn(NO_DATE_TILES, 'max-md:[&>*:nth-child(n+3)]:hidden');
+
 const tiles = (count: number) =>
   Array.from({ length: count }, (_, index) => <TileGhost key={index} />);
 
-/** No date yet: a group of three, then the first five and the foot */
+/** No date yet: a group of three, then the first five and the foot (two and two on a phone) */
 function NoDateGhost() {
   return (
     <div className={NO_DATE_PANEL}>
       <div className="flex flex-wrap items-center gap-2.5">
         <TextLine className="text-title-3" width="w-28" />
         <Ghost className="h-5.5 w-7 rounded-full" />
+        <TextLine
+          className="ml-auto text-caption max-md:ml-0 max-md:w-full"
+          width="w-72"
+        />
       </div>
       <div className="flex flex-col gap-3">
         <RuleGhost />
-        <div className={NO_DATE_TILES}>{tiles(3)}</div>
+        <div className={GHOST_TILES}>{tiles(3)}</div>
         <RuleGhost />
         <div className="flex flex-col gap-2.5">
-          <div className={NO_DATE_TILES}>{tiles(5)}</div>
+          <div className={GHOST_TILES}>{tiles(5)}</div>
           <ShowAllGhost />
         </div>
       </div>

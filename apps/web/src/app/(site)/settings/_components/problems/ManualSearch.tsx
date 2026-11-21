@@ -1,6 +1,13 @@
 'use client';
 
-import { type ChangeEvent, useDeferredValue, useEffect, useState } from 'react';
+import { plural } from '@tvseri.es/utils';
+import {
+  type ChangeEvent,
+  type Ref,
+  useDeferredValue,
+  useEffect,
+  useState,
+} from 'react';
 
 import Button from '@/components/ui/button/Button';
 import { searchGlyph } from '@/components/ui/icon/glyphs';
@@ -20,27 +27,55 @@ type Answer = Readonly<
   | { key: string; failed: true }
 >;
 
+const FAILED_LINE = 'Search isn’t answering. Try again in a moment.';
+
+const noSeriesLine = (query: string) =>
+  `“${query.trim()}” · no series. tvseri.es tracks series, so films can’t come in.`;
+
+/** What a search came to, for screen readers; nothing while it searches */
+const spokenOf = (
+  failed: boolean,
+  series: ReadonlyArray<SearchShow> | null,
+  query: string,
+) => {
+  if (failed) {
+    return FAILED_LINE;
+  }
+  if (series === null) {
+    return '';
+  }
+  return series.length === 0
+    ? noSeriesLine(query)
+    : `${plural(series.length, 'series', 'series')} found`;
+};
+
 /**
  * "Search manually" for a show TMDB didn't find by its name: the global search's `/api/search` results as chips, the
  * query editable. Picking one sends the rows again with that show.
+ * Screen readers hear how each search went from a region mounted, empty,
+ * with the box: one that mounts with its text often goes unannounced.
  */
 export default function ManualSearch({
+  inputRef,
   onPick,
   onSkip,
   query: initialQuery,
 }: Readonly<{
+  /** The box, for the press that opens it to focus */
+  inputRef?: Ref<HTMLInputElement>;
   onPick: (show: SearchShow) => void;
   onSkip: () => void;
   query: string;
 }>) {
   const [query, setQuery] = useState(initialQuery);
   const key = searchKey(useDeferredValue(query));
-  const [answer, setAnswer] = useState<Answer | null>(() => {
+  const [opened] = useState<Answer | null>(() => {
     const cached = client.cached(searchKey(initialQuery));
     return cached
       ? { key: searchKey(initialQuery), series: cached.series }
       : null;
   });
+  const [answer, setAnswer] = useState(opened);
 
   // Fetching follows the typed query (a subscription to the network, not derived state)
   useEffect(() => {
@@ -74,6 +109,9 @@ export default function ManualSearch({
   const current = answer && answer.key === key ? answer : null;
   const series = current && 'series' in current ? current.series : null;
   const failed = current !== null && 'failed' in current;
+  // An answer known as the box opens is drawn at once but said only when
+  // the effect hands it over again: the region must be there, empty, first
+  const spoken = current === opened ? '' : spokenOf(failed, series, query);
 
   return (
     <div className="flex flex-col gap-3 rounded-12 bg-black/22 px-4 py-3 text-meta leading-5 text-white/80 focus-within:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.45)]">
@@ -85,6 +123,7 @@ export default function ManualSearch({
             className="h-8 min-w-0 flex-1 bg-transparent text-meta text-white outline-hidden placeholder:text-white/60 max-md:text-body"
             onChange={onChange}
             placeholder="Search for the series"
+            ref={inputRef}
             type="search"
             value={query}
           />
@@ -98,6 +137,10 @@ export default function ManualSearch({
           <span className="text-body-sm">Skip it</span>
         </Button>
       </div>
+      {/* Out of the flow, so it takes no gap */}
+      <span className="sr-only" role="status">
+        {spoken}
+      </span>
       <SearchResults
         failed={failed}
         onPick={onPick}
@@ -120,22 +163,14 @@ function SearchResults({
   series: ReadonlyArray<SearchShow> | null;
 }>) {
   if (failed) {
-    return (
-      <span aria-live="polite">
-        Search isn’t answering. Try again in a moment.
-      </span>
-    );
+    return <span>{FAILED_LINE}</span>;
   }
   if (series === null) {
-    return <span aria-live="polite">Searching…</span>;
+    return <span>Searching…</span>;
   }
   if (series.length === 0) {
-    return (
-      <span aria-live="polite">
-        “{query.trim()}” · no series. tvseri.es tracks series, so films can’t
-        come in.
-      </span>
-    );
+    const line = noSeriesLine(query);
+    return <span>{line}</span>;
   }
   return (
     <div className="flex flex-wrap gap-2">

@@ -4,6 +4,7 @@ import { optionId } from './optionStyles';
 import SearchBody from './SearchBody';
 import SearchField from './SearchField';
 import type { OverlaySearch } from './useOverlaySearch';
+import { WholeResult } from './wholeResult';
 
 type Props = Readonly<{
   inputRef: Ref<HTMLInputElement>;
@@ -38,12 +39,14 @@ export default function SearchPanel({ inputRef, onClose, search }: Props) {
         ruled={hasBody}
       />
       {hasBody ? (
-        <SearchBody
-          layout={layout}
-          onChoose={search.choose}
-          onRetry={search.retry}
-          view={view}
-        />
+        <WholeResult value={search.wholeKey}>
+          <SearchBody
+            layout={layout}
+            onChoose={search.choose}
+            onRetry={search.retry}
+            view={view}
+          />
+        </WholeResult>
       ) : null}
     </>
   );

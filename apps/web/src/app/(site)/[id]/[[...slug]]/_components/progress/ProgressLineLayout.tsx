@@ -21,8 +21,11 @@ import cn from '@/lib/cn';
  */
 const ROOT = '@container block min-w-0 flex-1';
 const ROW = 'flex min-w-0 items-center @max-md:flex-wrap @max-md:gap-y-1.5';
-/** At least 80px: a phone's facts row (`basis-full`) never joins the bar's */
-const TRACK = 'flex h-5 min-w-20 flex-1 items-center';
+/**
+ * At least 80px: a phone's facts row (`basis-full`) never joins the bar's.
+ * Relative: a finish's sheen lies over the bar (`ProgressBar`)
+ */
+const TRACK = 'relative flex h-5 min-w-20 flex-1 items-center';
 /** A flex box, so the row is the %'s 20px line, not the page's taller strut */
 const PERCENT = 'ml-4 flex @max-md:ml-3';
 const LINE = 'flex min-w-0 items-center @max-md:basis-full';

@@ -2,17 +2,21 @@
 
 import type { VersusSide } from '@tvseri.es/schemas';
 import WatchlistToggle from '@/components/marking/WatchlistToggle';
+import CrossFade from '@/components/motion/CrossFade';
 import ButtonLink from '@/components/ui/button/ButtonLink';
 import { arrowRightGlyph } from '@/components/ui/icon/glyphs';
 import showPath from '@/lib/routing/showPath';
-
 import {
   ACTION_PAIR,
   ACTION_PAIR_BUTTON,
   ACTION_PAIR_SOLID,
 } from '../../actionPair';
 import { VERSUS_HINT } from './copy';
-import { VERSUS_RESULT } from './layout';
+import {
+  VERSUS_RESULT,
+  VERSUS_RESULT_SLOT,
+  VERSUS_RESULT_SWAP,
+} from './layout';
 
 /**
  * "Open {series}" and the watchlist toggle for the chosen series, side by
@@ -46,18 +50,21 @@ function Actions({ series }: Readonly<{ series: VersusSide }>) {
 /**
  * Under the comparison: "Tap the one you would start",
  * then the chosen series' actions in the same 48px row, so the swap moves
- * nothing.
+ * nothing; one fades into the other (`CrossFade`).
  */
 export default function VersusResult({
   chosen,
 }: Readonly<{ chosen: VersusSide | null }>) {
+  const swapKey = chosen ? chosen.id : 'hint';
   return (
     <div className={VERSUS_RESULT}>
-      {chosen ? (
-        <Actions key={chosen.id} series={chosen} />
-      ) : (
-        <span>{VERSUS_HINT}</span>
-      )}
+      <CrossFade
+        className={VERSUS_RESULT_SWAP}
+        frame={VERSUS_RESULT_SLOT}
+        swapKey={swapKey}
+      >
+        {chosen ? <Actions series={chosen} /> : <span>{VERSUS_HINT}</span>}
+      </CrossFade>
     </div>
   );
 }

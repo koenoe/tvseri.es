@@ -3,6 +3,8 @@
 import type { ConnectionService } from '@tvseri.es/schemas';
 import type { ReactNode } from 'react';
 import AppTile from '@/components/brand/AppTile';
+import FlashRing from '@/components/motion/FlashRing';
+import SwapIn from '@/components/motion/SwapIn';
 import type { BrowserSupport } from '@/lib/extension/browserSupport';
 import useExtension from '@/lib/extension/useExtension';
 import { connectedService } from '../../_lib/services';
@@ -14,15 +16,20 @@ import AppHeader from './AppHeader';
 import { PILL_GHOST } from './AppHeaderGhost';
 import AppPill from './AppPill';
 import { AppBody, AppToggle } from './AppsAccordion';
-import Swap from './motion/Swap';
+import { BODY_STACK_CLASS } from './layout';
 import ServiceBody from './ServiceBody';
 import { ServiceProvider } from './ServiceContext';
 import ServicePairingBody from './ServicePairingBody';
 import ServiceStatusLine from './ServiceStatusLine';
+import useFirstSyncLanded from './useFirstSyncLanded';
 import usePairing from './usePairing';
 
-/** A stage's parts, spaced as the body spaces them */
-const BODY_STAGE = 'flex flex-col gap-4';
+/**
+ * The first sync's ring round the card: outside its clipped box, in its
+ * corners, grown 2% (8% of a card this wide would reach the next one).
+ * None with reduced motion, as `FlashTarget`'s
+ */
+const FIRST_SYNC_RING = 'rounded-[20px] motion-reduce:hidden';
 
 /**
  * A streaming service card's client half. Colour means data is flowing, so
@@ -62,6 +69,12 @@ export default function ServicePanel({
     extension.check,
   );
   const look = serviceLook(state);
+  // The whole history just landed: the card rings once as the live
+  // activity rises in (the status dot pops with its new line)
+  const firstSync = useFirstSyncLanded(
+    status?.lastSyncedAt ?? null,
+    status?.connected === true,
+  );
   const surface = appSurface(look);
   const unavailable = surface === 'unavailable';
 
@@ -129,21 +142,27 @@ export default function ServicePanel({
 
   return (
     <ServiceProvider service={id}>
-      <AppCard brand={id} surface={surface}>
-        <AppHeader
-          name={service.name}
-          pills={pills}
-          status={statusLine}
-          tile={tile}
-        >
-          <AppToggle app={id} name={service.name} />
-        </AppHeader>
-        <AppBody app={id}>
-          <Swap className={BODY_STAGE} swapKey={stage}>
-            {body}
-          </Swap>
-        </AppBody>
-      </AppCard>
+      {/* The ring sits beside the card: the card clips what passes its edge */}
+      <div className="relative">
+        <AppCard brand={id} surface={surface}>
+          <AppHeader
+            name={service.name}
+            pills={pills}
+            status={statusLine}
+            tile={tile}
+          >
+            <AppToggle app={id} name={service.name} />
+          </AppHeader>
+          <AppBody app={id}>
+            <SwapIn className={BODY_STACK_CLASS} swapKey={stage}>
+              {body}
+            </SwapIn>
+          </AppBody>
+        </AppCard>
+        {firstSync === 0 ? null : (
+          <FlashRing className={FIRST_SYNC_RING} grow={1.02} key={firstSync} />
+        )}
+      </div>
     </ServiceProvider>
   );
 }

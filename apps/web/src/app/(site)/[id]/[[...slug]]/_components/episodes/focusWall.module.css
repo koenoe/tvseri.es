@@ -1,36 +1,26 @@
 /*
- * When Focus moves to the next episode the
- * tile settles in (opacity + scale, transform only). Two identical keyframes
- * whose names alternate with the episode number, so each move replays it.
+ * When Focus moves to the next episode the tile settles in. Marking is the
+ * page's most frequent action, so it's a short opacity-only lift from 0.8:
+ * a quick run of marks restarts it close to full, never a flicker. Two
+ * identical keyframes whose names alternate with the episode number, so a
+ * tile React keeps still replays it.
  */
 .a0 {
-  animation: focus-in-a 0.36s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: focus-in-a 0.15s ease-out both;
 }
 
 .a1 {
-  animation: focus-in-b 0.36s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: focus-in-b 0.15s ease-out both;
 }
 
 @keyframes focus-in-a {
   from {
-    opacity: 0.5;
-    transform: scale(0.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: none;
+    opacity: 0.8;
   }
 }
 
 @keyframes focus-in-b {
   from {
-    opacity: 0.5;
-    transform: scale(0.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: none;
+    opacity: 0.8;
   }
 }

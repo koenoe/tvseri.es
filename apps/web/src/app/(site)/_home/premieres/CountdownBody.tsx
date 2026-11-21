@@ -1,10 +1,10 @@
 import type { Premiere } from '@tvseri.es/schemas';
-import Link from 'next/link';
 import type { CSSProperties } from 'react';
 
 import { calendarGlyph, seasonGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
+import TileLink from '@/components/ui/tile/TileLink';
 import TitleTreatment, {
   TITLE_LOGO_FIT,
   type TitleTreatmentLook,
@@ -75,13 +75,18 @@ export default function CountdownBody({
           style={dot}
         />
       </span>
-      <Link aria-label={open} className="block max-w-full" href={href}>
+      <TileLink
+        aria-label={open}
+        backdrop={series.backdropImage}
+        className="block max-w-full"
+        href={href}
+      >
         <TitleTreatment
           look={COUNTDOWN_TITLE_LOOK}
           src={series.titleTreatmentImage}
           title={series.title}
         />
-      </Link>
+      </TileLink>
       <MetaRow className={COUNTDOWN_FACTS} fit="drop">
         <MetaItem icon={calendarGlyph} tone="pink">
           {countdownDate(premiere.date)}

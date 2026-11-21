@@ -1,9 +1,11 @@
 'use client';
 
 import { formatDuration, plural } from '@tvseri.es/utils';
+import { AnimatePresence } from 'motion/react';
 import Link from 'next/link';
 import { useId, useMemo, useState } from 'react';
 
+import FoldPresence from '@/components/motion/FoldPresence';
 import { variantHourglassGlyph } from '@/components/ui/icon/glyphs';
 import showPath from '@/lib/routing/showPath';
 import { useLocalDay } from '@/lib/viewer/useLocalDay';
@@ -47,9 +49,16 @@ const LEGEND_DOT = 'block size-2.5 rounded-full';
 const WATCHING_DOT = `${LEGEND_DOT} bg-white/72`;
 const NIGHT_OFF_DOT = `${LEGEND_DOT} shadow-[inset_0_0_0_1.5px_rgb(255_255_255/0.2)]`;
 
+/**
+ * The legend folds in and out with the nights mode: the card's gap above it
+ * is inside the fold (its padding, taken back by the margin), so a shut
+ * fold leaves no gap behind
+ */
+const LEGEND_FOLD = '-mt-6 md:-mt-8';
+
 function Legend({ perNight }: Readonly<{ perNight: number }>) {
   return (
-    <div className="flex flex-wrap items-center gap-6 text-caption text-white/60">
+    <div className="flex flex-wrap items-center gap-6 pt-6 text-caption text-white/60 md:pt-8">
       <span className="inline-flex items-center gap-2">
         <i className={WATCHING_DOT} />
         {legendLabel(perNight)}
@@ -139,7 +148,13 @@ export default function BingeCalculator({
         />
       </div>
       <NightStrip dated={dated} plan={plan} ref={measure} />
-      {mode === 'every' ? null : <Legend perNight={perNight} />}
+      <AnimatePresence initial={false}>
+        {mode === 'every' ? null : (
+          <FoldPresence className={LEGEND_FOLD} key="legend">
+            <Legend perNight={perNight} />
+          </FoldPresence>
+        )}
+      </AnimatePresence>
       <BingeFooter
         choice={choice}
         dated={dated}

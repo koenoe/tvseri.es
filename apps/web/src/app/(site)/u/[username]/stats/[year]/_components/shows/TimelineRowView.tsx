@@ -43,13 +43,18 @@ const FADE_RIGHT: CSSProperties = {
 
 /**
  * The phone's pointers, shown only when the whole line is out of view
- * (`data-out`, kept by `QuarterScroller` as the weeks scroll)
+ * (`data-out`, kept by `QuarterScroller` as the weeks scroll). They and the
+ * edge fades come and go over 150ms (opacity only), so nothing pops
+ * mid-swipe; the pointer's words stay the cue.
  */
-const POINTER =
-  'absolute -top-0.5 inline-flex items-center gap-1 whitespace-nowrap text-caption text-white/60 opacity-0 data-out:opacity-100';
-const FADE = 'absolute inset-y-0 hidden w-5';
-const FADE_LEFT_CLASS = cn(FADE, 'left-0 group-data-[fl]/qs:block');
-const FADE_RIGHT_CLASS = cn(FADE, 'right-0 group-data-[fr]/qs:block');
+const SHOW = 'transition-opacity duration-150 ease-out';
+const POINTER = cn(
+  'absolute -top-0.5 inline-flex items-center gap-1 whitespace-nowrap text-caption text-white/60 opacity-0 data-out:opacity-100',
+  SHOW,
+);
+const FADE = cn('absolute inset-y-0 w-5 opacity-0', SHOW);
+const FADE_LEFT_CLASS = cn(FADE, 'left-0 group-data-[fl]/qs:opacity-100');
+const FADE_RIGHT_CLASS = cn(FADE, 'right-0 group-data-[fr]/qs:opacity-100');
 const POINTER_BEFORE_CLASS = cn(POINTER, 'left-0');
 const POINTER_AFTER_CLASS = cn(POINTER, 'right-0');
 
@@ -128,7 +133,7 @@ export default function TimelineRowView({
   const className = cn(
     'flex flex-col gap-0.5 py-[7px]',
     'md:grid md:h-[30px] md:grid-cols-[170px_minmax(0,1fr)_56px] md:items-center md:gap-x-4 md:gap-y-[5px] md:rounded-8 md:px-2.5 md:py-0',
-    'transition-[opacity,background-color] duration-200 md:group-hover/tl:opacity-32 md:hover:bg-white/5 md:hover:opacity-100',
+    'transition-[opacity,background-color] duration-150 ease-out md:group-hover/tl:opacity-32 md:hover:bg-white/5 md:hover:opacity-100',
     phoneHidden && 'max-md:hidden',
   );
   return (

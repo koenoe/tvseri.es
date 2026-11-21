@@ -16,6 +16,7 @@ import {
   sparkleGlyph,
 } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import IconSwap from '@/components/ui/icon/IconSwap';
 import type { Glyph, ToggleGlyph } from '@/components/ui/icon/types';
 import ProgressTrack, {
   TRACK_LOOK,
@@ -76,6 +77,8 @@ export function CheckCircle({ picked }: Readonly<{ picked: boolean }>) {
       initial={{ opacity: 0, scale: 0.8 }}
       transition={{ duration: 0.16, ease: 'easeOut' }}
     >
+      {/* drawn always, coloured when picked: picking is select mode's
+          constant action, so the check changes at once */}
       <Icon glyph={checkGlyph} size={16} />
     </m.span>
   );
@@ -120,15 +123,7 @@ export function AddToMine({
       onClick={toggle}
       title={label}
     >
-      <m.span
-        animate={{ opacity: 1 }}
-        className="flex"
-        initial={{ opacity: 0 }}
-        key={isOn ? 'on' : 'off'}
-        transition={{ duration: 0.16, ease: 'easeOut' }}
-      >
-        <Icon glyph={glyph} size={16} />
-      </m.span>
+      <IconSwap glyph={glyph} size={16} />
     </PosterCircle>
   );
 }

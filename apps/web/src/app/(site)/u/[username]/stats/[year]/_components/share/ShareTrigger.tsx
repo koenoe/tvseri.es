@@ -1,12 +1,13 @@
 'use client';
 
-import { type ReactNode, useState } from 'react';
+import { type MouseEvent, type ReactNode, useState } from 'react';
 
 import { createLoader } from '@/lib/lazy/createLoader';
 import { useLoader } from '@/lib/lazy/useLoader';
 import { PHONE } from '@/lib/media/breakpoints';
 import { matchesNow } from '@/lib/media/useMediaQuery';
 
+import { liftIntoCard } from './liftIntoCard';
 import type { ShareCard } from './shareCard';
 
 /**
@@ -32,6 +33,8 @@ type ShareChunk =
  * dialog from it, chosen when it is pressed (one button for every width).
  * The server renders the button's look (`className`, `children`); this owns
  * only the open state. The sheet starts fetching the story card on the tap.
+ * The dialog opens with the year's glance lifting into its card
+ * (`liftIntoCard`) once its code is in (a hover or focus loads it).
  */
 export default function ShareTrigger({
   card,
@@ -54,7 +57,7 @@ export default function ShareTrigger({
   const [sheetChunk, loadSheet] = useLoader<ShareChunk>(sheet);
   const chunk = phone ? sheetChunk : dialogChunk;
   const preload = () => (matchesNow(PHONE) ? sheet : dialog).preload();
-  const openShare = () => {
+  const openShare = (event: MouseEvent<HTMLButtonElement>) => {
     const onPhone = matchesNow(PHONE);
     setPhone(onPhone);
     // a failed chunk is tried again on the next tap
@@ -67,8 +70,16 @@ export default function ShareTrigger({
     } else {
       loadDialog();
     }
-    setSession((value) => value + 1);
-    setOpen(true);
+    const show = () => {
+      setSession((value) => value + 1);
+      setOpen(true);
+    };
+    // The lift needs the dialog drawn inside it: only with its code in
+    if (!onPhone && dialog.get()) {
+      liftIntoCard(event.currentTarget, show);
+    } else {
+      show();
+    }
   };
   const Panel = chunk?.Panel;
   return (

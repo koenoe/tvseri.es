@@ -76,8 +76,8 @@ export default async function AlmostDone({
     >
       <CappedRows
         cap={LANE_CAPS.almostDone}
-        className="flex flex-col gap-2.5"
         equalRows
+        gap="2.5"
         ids={ids}
         rows={rows}
       />

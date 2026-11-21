@@ -1,6 +1,7 @@
 'use client';
 
 import { type ReactNode, useCallback, useId, useRef, useState } from 'react';
+import { usePillGlide } from '@/components/motion/usePillGlide';
 import { onAirGlyph } from '@/components/ui/icon/glyphs';
 
 import { MomentFrame } from '../../feature/Moment';
@@ -16,7 +17,8 @@ import { zap } from './zap';
 /**
  * The interactive half of What's on: which channel is on. Up/down (in the
  * remote's label row) and the list (click, or arrows / Home / End inside
- * it) change channel, wrapping around; each change zaps the screen. The
+ * it) change channel, wrapping around; each change zaps the screen and
+ * glides the list's highlight to the new channel (`usePillGlide`). The
  * channels next to the current one are kept warm so up/down never shows an
  * empty screen. The block has no title row above it: the label row heads
  * the remote and names the section.
@@ -40,6 +42,9 @@ export default function WhatsOnRemote({
   const currentRef = useRef(0);
   const [warm, addWarm] = useWarmSet([0, 1, count - 1]);
   const zapRef = useRef<HTMLSpanElement>(null);
+  // every change of channel is the viewer's: up/down, a click or a key
+  const listRef = useRef<HTMLDivElement>(null);
+  const pick = usePillGlide(listRef, String(current));
 
   const tune = useCallback(
     (index: number) => {
@@ -48,11 +53,12 @@ export default function WhatsOnRemote({
         return;
       }
       currentRef.current = next;
+      pick();
       setCurrent(next);
       addWarm(next, (next + 1) % count, (next - 1 + count) % count);
       zap(zapRef.current);
     },
-    [addWarm, count],
+    [addWarm, count, pick],
   );
 
   return (
@@ -80,6 +86,7 @@ export default function WhatsOnRemote({
               current={current}
               onTune={tune}
               onWarm={addWarm}
+              ref={listRef}
               rows={rows}
             />
           </div>

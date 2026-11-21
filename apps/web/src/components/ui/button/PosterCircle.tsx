@@ -12,8 +12,9 @@ export type PosterCircleLook = Readonly<{ off: string; on: string }>;
 /**
  * A round toggle in a poster's corner (the visitor's + on a Library tile,
  * the + on Stats' Popular unwatched): the place gives its look, its name
- * (`label`; `title` where it also shows as a tooltip), the glyph (`children`,
- * with any motion of its own) and what a press does.
+ * (`label`; `title` where it also shows as a tooltip), the glyph (`children`:
+ * an `IconSwap`, so + turns into a check with the shared swap) and what a
+ * press does.
  */
 export default function PosterCircle({
   children,

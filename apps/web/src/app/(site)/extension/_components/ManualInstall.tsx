@@ -1,4 +1,5 @@
 import { buttonStyles } from '@/components/ui/button/buttonStyles';
+import CopyButton from '@/components/ui/button/CopyButton';
 import {
   chevronDownGlyph,
   downloadGlyph,
@@ -9,7 +10,6 @@ import Icon from '@/components/ui/icon/Icon';
 import { EXTENSION_VERSION, extensionZipName } from '@/lib/extension/release';
 
 import { EXTENSION_ZIP_HREF } from '../_lib/zip';
-import CopyButton from './CopyButton';
 import InstallStep, { STEP_GRID } from './InstallStep';
 import {
   ConnectPicture,
@@ -29,9 +29,28 @@ const DOWNLOAD = buttonStyles({
   variant: 'primary',
 });
 
-const CHIP_COPY = '-mr-1.5 h-6 gap-1.5 px-2 has-[>svg:first-child]:pl-2';
+/** A 24px pill in the chip: its icon side 2px in, its target 40px tall */
+const CHIP_COPY =
+  '-mr-1.5 h-6 gap-1.5 px-2 has-[>svg:first-child]:pl-1.5 after:-inset-y-2';
 
 const EXTENSIONS_URL = 'chrome://extensions';
+
+/** The chip's corners: the pill's 12 plus the 4px round it */
+const CHIP =
+  'inline-flex min-h-8 max-w-full flex-wrap items-center gap-x-2 gap-y-1 self-start break-all rounded-16 py-1 bg-black/28 px-3 font-medium font-mono text-[13px] text-white leading-5 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.08)]';
+
+/**
+ * The steps fade in and out with the toggle, as the chevron turns (Chrome
+ * 131+; elsewhere they snap). Opacity only: on a phone the body is about
+ * 2000px tall. The global reduced-motion rule doesn't reach this
+ * pseudo-element, so it opts out itself.
+ */
+const DISCLOSURE =
+  'group rounded-[20px] shadow-[inset_0_0_0_1px_rgb(255_255_255/0.12)] [&::details-content]:opacity-0 [&::details-content]:transition-[opacity,content-visibility] [&::details-content]:duration-200 [&::details-content]:ease-out [&::details-content]:transition-discrete open:[&::details-content]:opacity-100 motion-reduce:[&::details-content]:transition-none';
+
+/** The whole row toggles, so the whole row answers the pointer */
+const SUMMARY =
+  'flex cursor-pointer list-none items-center justify-between gap-4 rounded-[20px] px-6 py-4 transition-colors duration-150 ease-out hover:bg-white/4 active:bg-white/6 [&::-webkit-details-marker]:hidden';
 
 const downloadAction = (
   <a className={DOWNLOAD} download={ZIP_NAME} href={EXTENSION_ZIP_HREF}>
@@ -42,7 +61,7 @@ const downloadAction = (
 
 // Chrome blocks links to chrome://, so the address is copied instead
 const copyAction = (
-  <span className="inline-flex min-h-8 max-w-full flex-wrap items-center gap-x-2 gap-y-1 self-start break-all rounded-8 py-1 bg-black/28 px-3 font-medium font-mono text-[13px] text-white leading-5 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.08)]">
+  <span className={CHIP}>
     {EXTENSIONS_URL}
     <CopyButton
       className={CHIP_COPY}
@@ -60,11 +79,8 @@ const downloadPicture = <DownloadPicture fileName={ZIP_NAME} />;
 /** A native disclosure, so it works before (and without) any script */
 export default function ManualInstall({ open }: Readonly<{ open: boolean }>) {
   return (
-    <details
-      className="group rounded-[20px] shadow-[inset_0_0_0_1px_rgb(255_255_255/0.12)]"
-      open={open}
-    >
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-[20px] px-6 py-4 [&::-webkit-details-marker]:hidden">
+    <details className={DISCLOSURE} open={open}>
+      <summary className={SUMMARY}>
         <span className="flex items-center gap-3.5">
           <Icon glyph={folderGlyph} size={20} />
           <b className="font-semibold text-body leading-6">

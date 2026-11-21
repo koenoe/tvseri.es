@@ -1,9 +1,15 @@
 import type { VersusSide } from '@tvseri.es/schemas';
 import Image from 'next/image';
 
+import { textArrival } from '@/components/motion/textArrival';
 import cn from '@/lib/cn';
 
-import { VERSUS_NAME, VERSUS_POSTER, VERSUS_POSTER_STACK } from './layout';
+import {
+  VERSUS_NAME,
+  VERSUS_NAMES,
+  VERSUS_POSTER,
+  VERSUS_POSTER_STACK,
+} from './layout';
 
 export type PosterState = 'chosen' | 'idle' | 'out';
 
@@ -22,9 +28,24 @@ function Poster({ shown, src }: Readonly<{ shown: boolean; src: string }>) {
 }
 
 /**
+ * One pair's name on this side: shown, or out of sight and out of the
+ * button's name. It arrives just behind its poster (`textArrival`).
+ */
+function Name({ shown, title }: Readonly<{ shown: boolean; title: string }>) {
+  const classes = cn(VERSUS_NAME, '[grid-area:1/1]', textArrival(shown));
+  return (
+    <span aria-hidden={!shown} className={classes} data-shown={shown}>
+      {title}
+    </span>
+  );
+}
+
+/**
  * One side of the pair: the poster over its name, a real
  * button (`aria-pressed`): pressed, it carries the white ring; while the
- * other side is chosen it dims to 40%. Every pair the viewer has looked at
+ * other side is chosen its picture dims to 40%, the name staying at full
+ * white so the dim never costs contrast (the poster can still be pressed).
+ * Every pair the viewer has looked at
  * (or is about to) keeps its image mounted, cross-faded, so going back and
  * forth shows images already loaded.
  */
@@ -48,13 +69,13 @@ export default function VersusPoster({
     return null;
   }
   const button = cn(
-    'group/vp flex w-full cursor-pointer rounded-12 transition-opacity duration-[250ms] ease-[ease]',
-    state === 'out' && 'opacity-40',
+    'group/vp flex w-full cursor-pointer rounded-12 transition-[scale] duration-150 ease-[ease] active:scale-96',
   );
   const box = cn(
     VERSUS_POSTER,
-    'bg-white/5 transition-shadow duration-200',
+    'bg-white/5 transition-[box-shadow,opacity] duration-[200ms,250ms] ease-[ease]',
     state === 'chosen' ? CHOSEN : cn(SHADOW, HOVER),
+    state === 'out' && 'opacity-40',
   );
   const isChosen = state === 'chosen';
   return (
@@ -73,7 +94,14 @@ export default function VersusPoster({
             ) : null;
           })}
         </span>
-        <span className={VERSUS_NAME}>{side.title}</span>
+        <span className={VERSUS_NAMES}>
+          {sides.map((each, index) => {
+            const shown = index === current;
+            return warm.has(index) ? (
+              <Name key={each.id} shown={shown} title={each.title} />
+            ) : null;
+          })}
+        </span>
       </span>
     </button>
   );

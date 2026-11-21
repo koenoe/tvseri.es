@@ -1,3 +1,4 @@
+import { FILL_BEFORE } from '@/components/motion/fillBefore';
 import {
   calendarDaysGlyph,
   historyGlyph,
@@ -10,13 +11,14 @@ import type { Glyph, ToggleGlyph } from '@/components/ui/icon/types';
 import type { ProfileSegment } from '@/lib/routing/profilePath';
 
 /**
- * Desktop: pills in a row, the 16px icon beside the label. Phone: 50px tall,
+ * Desktop: pills in a row, the 16px icon beside the label (its side 2px
+ * closer). Phone: 50px tall,
  * the icon above a 12/16 label, equal columns that share the bar when they
  * fit; at least 63px each (six fit a 430 screen), so on a 390 screen the
- * row scrolls sideways (`TabsFrame`).
+ * row scrolls sideways (`TabsFrame`). The open tab's fill is its
+ * `::before`, so it can glide to the next tab without moving the words.
  */
-export const TAB =
-  'flex shrink-0 items-center justify-center whitespace-nowrap font-medium transition-colors md:gap-2 md:rounded-8 md:px-4 md:py-1.5 md:text-body-sm max-md:h-[50px] max-md:min-w-[63px] max-md:flex-1 max-md:basis-0 max-md:flex-col max-md:gap-0.5 max-md:rounded-10 max-md:text-[12px] max-md:leading-4';
+export const TAB = `${FILL_BEFORE} flex shrink-0 items-center justify-center whitespace-nowrap font-medium transition-colors md:gap-2 md:rounded-8 md:pr-4 md:pl-3.5 md:py-1.5 md:text-body-sm max-md:h-[50px] max-md:min-w-[63px] max-md:flex-1 max-md:basis-0 max-md:flex-col max-md:gap-0.5 max-md:rounded-10 max-md:text-[12px] max-md:leading-4`;
 
 export type ProfileTab = Readonly<{
   label: string;

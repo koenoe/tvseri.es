@@ -2,6 +2,7 @@ import { episodeCode } from '@tvseri.es/schemas';
 import Image from 'next/image';
 import type { CSSProperties, ReactNode } from 'react';
 
+import CrossFade from '@/components/motion/CrossFade';
 import CodeBadge from '@/components/ui/button/CodeBadge';
 import { clockGlyph, eyeGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
@@ -33,6 +34,19 @@ const TITLE_LOOK: TitleTreatmentLook = {
   width: 220,
 };
 
+/**
+ * A newer play swaps the backdrop and the words in place (`CrossFade`); the
+ * fade over the backdrop, the overline and the week stay put, so the week's
+ * bars don't grow again and a pressed day keeps its focus. The backdrop's
+ * layers fill the picture layer, the image placed in each.
+ */
+const BACKDROP_STACK = 'absolute inset-0';
+const BACKDROP_LAYER = 'relative';
+/** The title and the meta row: the column's flex share, then its layout */
+const WORDS_FRAME = 'min-w-0 max-md:w-full';
+const WORDS_CLASS =
+  'flex min-w-0 flex-col gap-3 max-md:items-center max-md:gap-2.5';
+
 /** A phone's shade: from the foot, as the other spotlight tiles have it */
 const PHONE_FADE =
   'absolute inset-0 bg-[linear-gradient(0deg,rgb(14_18_19)_0%,rgb(14_18_19/0.65)_50%,rgb(14_18_19/0)_100%)] md:hidden';
@@ -62,19 +76,28 @@ export default function LastScrobble({
 }>) {
   const code = episodeCode({ episodeNumber: episode, seasonNumber: season });
   const hover = episodeTitle ? `${code} ${episodeTitle}` : code;
+  // The play, not the render: a refresh with the same play swaps nothing
+  const play = `${show.title}-${code}-${watchedAt}`;
+  const backdrop = show.backdrop ?? '';
   return (
-    <div className="relative flex min-h-55 items-end overflow-hidden rounded-16 p-6 max-md:min-h-80 max-md:p-4">
+    <div className="image-rim relative flex min-h-55 items-end overflow-hidden rounded-16 p-6 max-md:min-h-80 max-md:p-4">
       {/* the backdrop and its fade: one layer, clipped once by the corners */}
       <div aria-hidden="true" className={PICTURE_LAYER}>
-        {show.backdrop ? (
-          <Image
-            alt=""
-            className="object-cover object-[50%_30%]"
-            fill
-            sizes="(min-width: 768px) 720px, 100vw"
-            src={show.backdrop}
-          />
-        ) : null}
+        <CrossFade
+          className={BACKDROP_LAYER}
+          frame={BACKDROP_STACK}
+          swapKey={backdrop}
+        >
+          {show.backdrop ? (
+            <Image
+              alt=""
+              className="object-cover object-[50%_30%]"
+              fill
+              sizes="(min-width: 768px) 720px, 100vw"
+              src={show.backdrop}
+            />
+          ) : null}
+        </CrossFade>
         <div className="absolute inset-0 max-md:hidden" style={FADE} />
         <div className={PHONE_FADE} />
       </div>
@@ -85,25 +108,27 @@ export default function LastScrobble({
             <Icon active glyph={eyeGlyph} size={13} />
             {heading}
           </span>
-          <TitleTreatment
-            look={TITLE_LOOK}
-            src={show.logo}
-            title={show.title}
-          />
-          <MetaRow className="text-white/80 max-md:flex-col max-md:items-center max-md:gap-1">
-            <span
-              className="flex min-w-0 max-w-full items-center gap-2.5"
-              title={hover}
-            >
-              <CodeBadge code={code} size="lane" />
-              {episodeTitle ? (
-                <span className="min-w-0 truncate">{episodeTitle}</span>
-              ) : null}
-            </span>
-            <MetaItem icon={clockGlyph}>
-              <LocalMoment at={watchedAt} style="day-first" />
-            </MetaItem>
-          </MetaRow>
+          <CrossFade className={WORDS_CLASS} frame={WORDS_FRAME} swapKey={play}>
+            <TitleTreatment
+              look={TITLE_LOOK}
+              src={show.logo}
+              title={show.title}
+            />
+            <MetaRow className="text-white/80 max-md:flex-col max-md:items-center max-md:gap-1">
+              <span
+                className="flex min-w-0 max-w-full items-center gap-2.5"
+                title={hover}
+              >
+                <CodeBadge code={code} size="lane" />
+                {episodeTitle ? (
+                  <span className="min-w-0 truncate">{episodeTitle}</span>
+                ) : null}
+              </span>
+              <MetaItem icon={clockGlyph}>
+                <LocalMoment at={watchedAt} style="day-first" />
+              </MetaItem>
+            </MetaRow>
+          </CrossFade>
         </div>
         {week}
       </div>

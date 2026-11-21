@@ -20,6 +20,9 @@ export type LeaveReason =
   | 'unhide'
   | 'watchlist-remove';
 
+/** `marked`: a mark made on this page made the show leave (N finished it) */
+export type LeaveHow = Readonly<{ marked?: boolean }>;
+
 /** How each way of leaving moves the shelf counts */
 const COUNT_CHANGE: Readonly<
   Record<LeaveReason, Partial<Record<LibraryShelf, number>>>
@@ -71,8 +74,8 @@ const reverse = (change: Partial<Record<LibraryShelf, number>>) =>
  * brings the tile and its counts back. A new first page (`first`, another
  * object) is a new list (`list`): nothing has left it.
  *
- * `moving` is true from a leave until the exits are done (`settled`): the
- * grid's layout animation runs only then.
+ * `moving` is true from a leave until the exits are done (`settled`) or a
+ * new list replaces them: the grid's layout animation runs only then.
  */
 export default function useShelfTiles({
   first,
@@ -92,12 +95,14 @@ export default function useShelfTiles({
   const [left, setLeft] = useState<ReadonlyMap<number, LeaveReason>>(
     () => new Map(),
   );
+  const [moving, setMoving] = useState(false);
   const [seed, setSeed] = useState({ first, list: 0 });
   if (seed.first !== first) {
     setSeed({ first, list: seed.list + 1 });
     setLeft(new Map());
+    // the old list's exits are cut with it: their `settled` never comes
+    setMoving(false);
   }
-  const [moving, setMoving] = useState(false);
 
   const tiles = useMemo(
     () =>
@@ -119,13 +124,17 @@ export default function useShelfTiles({
   );
 
   const leave = useCallback(
-    (ids: ReadonlyArray<number>, reason: LeaveReason) => {
+    (ids: ReadonlyArray<number>, reason: LeaveReason, how?: LeaveHow) => {
       setMoving(true);
       setLeft(
         (was) => new Map([...was, ...ids.map((id) => [id, reason] as const)]),
       );
+      // Only N finishing the show here lands it on Finished (the sidebar's
+      // count rings): never a show the store first had finished
+      const landed =
+        reason === 'finished' && how?.marked ? 'finished' : undefined;
       for (const _ of ids) {
-        bumpCounts(username, COUNT_CHANGE[reason]);
+        bumpCounts(username, COUNT_CHANGE[reason], landed);
       }
     },
     [username],

@@ -54,3 +54,24 @@ test('H on the profile’s Up next hides the show at once; Undo restores it', as
   const block = page.locator('section[aria-labelledby="up-next"]');
   await hideAndUndo(page, block, () => block.locator('article').first());
 });
+
+// The Up next tile cross-fades to the next show: focus left on the leaving
+// copy's ⋯ (inert) would fall to the page; it moves to the new tile's ⋯
+test('hidden by keyboard, focus lands on the next show’s ⋯', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const tile = () =>
+    page.locator('[data-slot="continue"] [data-cross-fade]:not([inert])');
+  await expect(tile().getByText('S03E05', { exact: true })).toBeVisible();
+  await tile()
+    .getByRole('button', { name: /^More actions for The Bear/ })
+    .focus();
+  await page.keyboard.press('Enter');
+  await page.getByRole('menuitem', { name: /Hide from in progress/ }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByText('Hidden from in progress')).toBeVisible();
+  await expect(
+    tile().getByRole('button', { name: /^More actions for Dexter/ }),
+  ).toBeFocused();
+});

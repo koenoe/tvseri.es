@@ -15,7 +15,8 @@ const onServer = () => '';
 /**
  * The 404's search field, prefilled from the broken URL.
  * The page is static, so the prefill is read from `location` after
- * hydration (empty on the server).
+ * hydration (empty on the server). The Enter chip sits 12px in, so the
+ * field's corners are the chip's 6 plus 12.
  */
 export default function NotFoundSearch() {
   const prefill = useSyncExternalStore(subscribe, fromLocation, onServer);
@@ -29,7 +30,7 @@ export default function NotFoundSearch() {
 
   return (
     <form
-      className="flex h-12 w-full items-center gap-3 rounded-12 bg-white/10 pr-3 pl-3.5 text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.14)] backdrop-blur-md focus-within:shadow-[inset_0_0_0_1.5px_rgb(255_255_255/0.5)]"
+      className="flex h-12 w-full items-center gap-3 rounded-18 bg-white/10 pr-3 pl-3.5 text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.14)] backdrop-blur-md focus-within:shadow-[inset_0_0_0_1.5px_rgb(255_255_255/0.5)]"
       data-search-trigger=""
       onSubmit={submit}
       role="search"

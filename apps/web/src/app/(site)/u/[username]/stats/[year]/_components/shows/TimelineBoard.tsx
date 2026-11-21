@@ -1,14 +1,19 @@
 'use client';
 
 import { plural } from '@tvseri.es/utils';
+import { AnimatePresence } from 'motion/react';
 import { useState } from 'react';
 import { flushSync } from 'react-dom';
+import { HEAD_LINK } from '@/app/(site)/u/[username]/_lib/headLink';
 import ArmedMaxMotion from '@/components/motion/ArmedMaxMotion';
+import FoldPresence from '@/components/motion/FoldPresence';
 import { isMaxLoaded, loadMax } from '@/components/motion/useMaxFeatures';
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import SectionHead from '@/components/ui/section/SectionHead';
 import cn from '@/lib/cn';
+import { WIDE } from '@/lib/media/breakpoints';
+import { matchesNow } from '@/lib/media/useMediaQuery';
 import Legend from './Legend';
 import { MonthAxis, MonthGrid } from './MonthAxis';
 import {
@@ -28,25 +33,31 @@ function MoreLink({
   expanded,
   iconSize = 13,
   label,
+  onIntent,
   onToggle,
 }: Readonly<{
   className?: string;
   expanded: boolean;
   iconSize?: 12 | 13;
   label: string;
+  /** A pointer down or focus before the press: Motion loads (wide only) */
+  onIntent?: () => void;
   onToggle: () => void;
 }>) {
-  const classes = cn(
-    'flex cursor-pointer items-center gap-1 whitespace-nowrap font-medium text-body-sm text-white/60',
-    className,
+  const classes = cn(HEAD_LINK, 'cursor-pointer', className);
+  // a transition, so a tap mid-turn turns it straight back
+  const iconClass = cn(
+    'transition-transform duration-200 ease-out',
+    expanded && '-rotate-90',
   );
-  const iconClass = expanded ? '-rotate-90' : undefined;
   return (
     <button
       aria-controls="year-in-shows-rows"
       aria-expanded={expanded}
       className={classes}
       onClick={onToggle}
+      onFocus={onIntent}
+      onPointerDown={onIntent}
       type="button"
     >
       {label}
@@ -82,8 +93,10 @@ export default function TimelineBoard({
   const [expanded, setExpanded] = useState(false);
   // The rows are plain until the first re-sort arms Motion (ArmedMaxMotion)
   const [armed, setArmed] = useState(false);
+  // The rows past the top 20 fold in and out on a wide screen with Motion
+  // in; a phone shows them at once, as it does the rows its CSS hid
+  const [folds, setFolds] = useState(false);
   const shown = rowsToShow(rows, order, expanded);
-  const toggle = () => setExpanded((value) => !value);
   const hasMore = total > TOP_ROWS;
   const summary = `${moreShows} more series, ${plural(moreEpisodes, 'episode')}`;
   const desktopLabel = expanded ? `Top ${TOP_ROWS}` : `All ${total} series`;
@@ -102,6 +115,26 @@ export default function TimelineBoard({
     void loadMax().finally(() => {
       flushSync(() => setArmed(true));
       setOrder(next);
+    });
+  };
+  // Opening the rest waits for Motion on a wide screen, as a first re-sort
+  // does, so the fold has its renderer; it never waits on a phone
+  const toggle = () => {
+    const flip = () => setExpanded((value) => !value);
+    if (!matchesNow(WIDE)) {
+      setFolds(false);
+      flip();
+      return;
+    }
+    if (armed) {
+      setFolds(isMaxLoaded());
+      flip();
+      return;
+    }
+    void loadMax().finally(() => {
+      flushSync(() => setArmed(true));
+      setFolds(isMaxLoaded());
+      flip();
     });
   };
   // Armed on the pointer down or focus before the press, so the rows'
@@ -148,16 +181,26 @@ export default function TimelineBoard({
           >
             <MonthGrid year={year} />
             <ArmedMaxMotion armed={armed}>
-              {shown.map((row) => {
-                const phoneHidden = !expanded && row.rank >= PHONE_ROWS;
-                return (
-                  <TimelineRowView
-                    key={row.id}
-                    phoneHidden={phoneHidden}
-                    row={row}
-                  />
-                );
-              })}
+              <AnimatePresence custom={folds} initial={false}>
+                {shown.map((row) => {
+                  const phoneHidden = !expanded && row.rank >= PHONE_ROWS;
+                  const view = (
+                    <TimelineRowView
+                      key={row.id}
+                      phoneHidden={phoneHidden}
+                      row={row}
+                    />
+                  );
+                  // only the rows past the top 20 come and go
+                  return row.rank < TOP_ROWS ? (
+                    view
+                  ) : (
+                    <FoldPresence appear={folds} key={row.id} whenAsked>
+                      {view}
+                    </FoldPresence>
+                  );
+                })}
+              </AnimatePresence>
             </ArmedMaxMotion>
           </div>
         </QuarterScroller>
@@ -179,6 +222,7 @@ export default function TimelineBoard({
               className="max-md:hidden"
               expanded={expanded}
               label={desktopLabel}
+              onIntent={arm}
               onToggle={toggle}
             />
           </div>

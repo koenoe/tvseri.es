@@ -22,7 +22,7 @@ export const DETAIL = 'flex min-w-0 flex-col gap-3';
 export const DETAIL_META = 'my-1.5';
 
 export const DETAIL_IMAGE =
-  'relative h-[200px] overflow-hidden rounded-12 bg-[#14181a] md:h-[220px]';
+  'image-rim relative h-[200px] overflow-hidden rounded-12 bg-[#14181a] md:h-[220px]';
 
 /** The shade over the backdrops, in their own picture layer (`PICTURE_LAYER`) */
 export const DETAIL_SHADE =

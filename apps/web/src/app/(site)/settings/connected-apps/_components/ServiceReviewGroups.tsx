@@ -23,7 +23,7 @@ import SkipAllButton from './SkipAllButton';
 
 /**
  * A group folds away with the list's 12px gap above it: it draws the gap
- * itself (`pt-3`) and takes the list's back (`-mt-3`)
+ * itself (`pt-3`) and takes the list's back (`-mt-3`).
  */
 const GROUP_FOLD = '-mt-3';
 const GROUP_GAP = 'pt-3';
@@ -36,12 +36,15 @@ const GROUP_GAP = 'pt-3';
  * items leave one after another, then folds away.
  */
 export default function ServiceReviewGroups({
+  arrives,
   fix,
   groups,
   onSkippedAll,
   skip,
 }: Readonly<
   ReviewFixes & {
+    /** An item Show more brought: it opens into its group */
+    arrives: (item: ProblemItem) => boolean;
     groups: ProblemGroups;
     /** After a Skip all: how many it closed, and the group's loaded items */
     onSkippedAll: (closed: number, items: ReadonlyArray<ProblemItem>) => void;
@@ -98,6 +101,7 @@ export default function ServiceReviewGroups({
           <div className={GROUP_GAP}>
             <AmbiguousProblems
               action={skipAmbiguous}
+              arrives={arrives}
               bodyId={ambiguousId}
               count={ambiguousCount}
               items={groups.ambiguous}
@@ -117,6 +121,7 @@ export default function ServiceReviewGroups({
           <div className={GROUP_GAP}>
             <NotFoundProblems
               action={skipNotFound}
+              arrives={arrives}
               bodyId={notFoundId}
               count={notFoundCount}
               handlers={notFound}

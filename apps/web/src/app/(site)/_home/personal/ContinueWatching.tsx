@@ -1,9 +1,11 @@
 'use client';
 
 import type { UpNextItem } from '@tvseri.es/schemas';
+import CrossFade from '@/components/motion/CrossFade';
 import ButtonLink from '@/components/ui/button/ButtonLink';
 import { userGlyph } from '@/components/ui/icon/glyphs';
 import type { UpNextArt } from '@/components/up-next/UpNextItemCard';
+import useFinishHold from '@/components/up-next/useFinishHold';
 import { useLiveUpNext } from '@/lib/marking/hooks';
 import profilePath from '@/lib/routing/profilePath';
 import {
@@ -17,7 +19,15 @@ import {
   PROFILE_LABEL,
 } from './continueLayout';
 import InProgressLane from './InProgressLane';
+import liveContinue from './liveContinue';
 import UpNextTile from './UpNextTile';
+
+/**
+ * The tile's cross-fade: the stack is the grid's item now, and each copy a
+ * one-cell grid, so the card still stretches to the lane's height
+ */
+const TILE_FRAME = 'min-w-0';
+const TILE_LAYER = 'grid grid-cols-[minmax(0,1fr)]';
 
 type Props = Readonly<{
   /** the first item's show art (backdrop, logo), null when it failed */
@@ -43,7 +53,10 @@ type Props = Readonly<{
  * The items read through the marking core (`useLiveUpNext`): a mark from
  * the ⋯ Remote moves the tile and the lane rows on at once, and a
  * show with nothing aired left leaves the row (the next one takes the tile,
- * as the next load would draw it).
+ * as the next load would draw it, cross-fading in; keyed on the show, so
+ * the next episode of the same one is a plain update). When your own mark
+ * finished the show, it completes first and the next comes a beat later
+ * (`useFinishHold`), as on the profile's Up next.
  */
 export default function ContinueWatching({
   count: serverCount,
@@ -53,21 +66,28 @@ export default function ContinueWatching({
   second = null,
   username,
 }: Props) {
-  const items = useLiveUpNext(serverItems, now);
-  const [head] = items;
+  const live = useLiveUpNext(serverItems, now);
+  // a show your mark finished holds a beat before the next (or the end);
+  // meanwhile the row is drawn as it was, the next show still in the lane
+  const { finishing, shown: head } = useFinishHold(live[0]);
   if (!head) {
     return null;
   }
+  const items = finishing
+    ? [head, ...live.filter((item) => item.seriesId !== head.seriesId)]
+    : live;
   const art =
     head.seriesId === serverItems[0]?.seriesId
       ? first
       : head.seriesId === serverItems[1]?.seriesId
         ? second
         : null;
-  // the shows that left here (caught up, hidden) leave the count too
-  const count = serverCount - (serverItems.length - items.length);
+  const { count, hasLane } = liveContinue(
+    serverCount,
+    serverItems.length,
+    items.length,
+  );
   const profileHref = profilePath(username);
-  const hasLane = items.length > 1;
   const grid = continueGrid(hasLane);
   return (
     <section
@@ -89,7 +109,13 @@ export default function ContinueWatching({
         </ButtonLink>
       </div>
       <div className={grid}>
-        <UpNextTile item={head} now={now} show={art} />
+        <CrossFade
+          className={TILE_LAYER}
+          frame={TILE_FRAME}
+          swapKey={head.seriesId}
+        >
+          <UpNextTile finishing={finishing} item={head} now={now} show={art} />
+        </CrossFade>
         {hasLane ? (
           <InProgressLane
             count={count}

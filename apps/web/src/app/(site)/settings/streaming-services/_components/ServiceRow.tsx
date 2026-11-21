@@ -24,9 +24,21 @@ import { SHELF_ROW_CLASS } from './shelfLook';
 
 /** Critically damped: the rows slide into place without overshooting */
 const SPRING = { bounce: 0, type: 'spring', visualDuration: 0.22 } as const;
-/** Lifted: a little larger; its fill and shadow fade in on a layer below (opacity only) */
-const ROW = { lifted: { scale: 1.03 }, rest: { scale: 1 } } as const;
-const LAYER = { lifted: { opacity: 1 }, rest: { opacity: 0 } } as const;
+/**
+ * Lifted: a little larger; its fill and shadow fade in on a layer below
+ * (opacity only). An added row rises 8px into place, as a removed one fades:
+ * adding is the page's main action. The list's first paint doesn't animate.
+ */
+const ROW = {
+  enter: { opacity: 0, y: 8 },
+  lifted: { scale: 1.03 },
+  rest: { opacity: 1, scale: 1, y: 0 },
+} as const;
+const LAYER = {
+  enter: { opacity: 0 },
+  lifted: { opacity: 1 },
+  rest: { opacity: 0 },
+} as const;
 const EXIT = { opacity: 0 } as const;
 
 /**
@@ -131,7 +143,7 @@ function ServiceRow({
       dragControls={controls}
       dragListener={false}
       exit={EXIT}
-      initial={false}
+      initial="enter"
       layout="position"
       onBlur={leave}
       onDragEnd={end}
@@ -161,7 +173,7 @@ function ServiceRow({
       </span>
       <Image
         alt=""
-        className="size-9 shrink-0 rounded-10"
+        className="image-outline size-9 shrink-0 rounded-10"
         draggable={false}
         height={36}
         src={provider.logo}

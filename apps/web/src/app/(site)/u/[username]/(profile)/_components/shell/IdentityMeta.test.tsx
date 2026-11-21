@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiError } from '@/lib/api/client';
 import MarkingProvider from '@/lib/marking/MarkingProvider';
+import { spokenLine } from '@/test/spoken';
 
 import type { Profile } from '../../_data/profile';
 import IdentityMeta, { CompactIdentityMeta } from './IdentityMeta';
@@ -58,8 +59,12 @@ describe('the sidebar counts', () => {
       },
     );
     render(await IdentityMeta({ profile }), { wrapper: MarkingProvider });
-    expect(screen.getByText('5,341 episodes, 218 finished')).toBeTruthy();
-    expect(screen.getByText(/6 followers · 8 following/)).toBeTruthy();
+    expect(
+      screen.getByText(spokenLine('5,341 episodes, 218 finished')),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(spokenLine('6 followers · 8 following')),
+    ).toBeTruthy();
     expect(screen.getByText('Follows you')).toBeTruthy();
   });
 
@@ -77,7 +82,9 @@ describe('the sidebar counts', () => {
     render(await CompactIdentityMeta({ profile }), {
       wrapper: MarkingProvider,
     });
-    expect(screen.getByText('5,341 episodes · 218 finished')).toBeTruthy();
+    expect(
+      screen.getByText(spokenLine('5,341 episodes · 218 finished')),
+    ).toBeTruthy();
   });
 
   it('say so in the compact identity when a read failed', async () => {

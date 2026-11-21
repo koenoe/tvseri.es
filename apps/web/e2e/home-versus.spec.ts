@@ -15,14 +15,26 @@ const DAY = '/dev/home?day=2026-11-15';
 const card = (page: Page) => page.getByRole('region', { name: 'Versus' });
 const poster = (page: Page, name: string) =>
   card(page).getByRole('button', { exact: true, name });
-/** The left poster's name: which pair is on screen */
+/** A poster's picture: the side not chosen dims there, its name stays at full white */
+const picture = (page: Page, name: string) =>
+  poster(page, name).locator(':scope > span > span').first();
+/**
+ * The left poster's name: which pair is on screen (the names of the pairs
+ * looked at stay mounted under it, only the shown one `data-shown`)
+ */
 const leftTitle = async (page: Page) =>
   (
-    (await card(page).locator('button[aria-pressed]').first().textContent()) ??
-    ''
+    (await card(page)
+      .locator('button[aria-pressed]')
+      .first()
+      .locator('[data-shown="true"]')
+      .textContent()) ?? ''
   ).trim();
 const hint = (page: Page) =>
   card(page).getByText('Tap the one you would start');
+/** The result row (its grid area), around the hint's or the actions' swap */
+const resultRow = (page: Page) =>
+  card(page).locator('div[class*="[grid-area:result]"]');
 
 /** Holds every server action: list writes stay optimistic, nothing settles */
 const holdWrites = (page: Page) =>
@@ -69,30 +81,31 @@ test.describe('Versus', () => {
       };
     };
     const another = card(page).getByRole('button', { name: 'Another pair' });
-    const resultBefore = await within(hint(page).locator('..'));
+    const resultBefore = await within(resultRow(page));
     const anotherBefore = await within(another);
 
     await poster(page, 'Dark').click();
     await expect(poster(page, 'Dark')).toHaveAttribute('aria-pressed', 'true');
-    await expect(poster(page, 'Devs')).toHaveCSS('opacity', '0.4');
+    await expect(picture(page, 'Devs')).toHaveCSS('opacity', '0.4');
+    await expect(poster(page, 'Devs')).toHaveCSS('opacity', '1');
     const open = card(page).getByRole('link', { name: 'Open Dark' });
     await expect(open).toHaveAttribute('href', '/70523/dark');
     await expect(
       card(page).getByRole('button', { name: 'Add Dark to your watchlist' }),
     ).toHaveText('Watchlist');
     // the actions take the hint's row: nothing under it moves
-    expect(await within(open.locator('../..'))).toEqual(resultBefore);
+    expect(await within(resultRow(page))).toEqual(resultBefore);
     expect(await within(another)).toEqual(anotherBefore);
 
     await poster(page, 'Devs').click();
     await expect(
       card(page).getByRole('link', { name: 'Open Devs' }),
     ).toBeVisible();
-    await expect(poster(page, 'Dark')).toHaveCSS('opacity', '0.4');
+    await expect(picture(page, 'Dark')).toHaveCSS('opacity', '0.4');
 
     await poster(page, 'Devs').click();
     await expect(hint(page)).toBeVisible();
-    await expect(poster(page, 'Dark')).toHaveCSS('opacity', '1');
+    await expect(picture(page, 'Dark')).toHaveCSS('opacity', '1');
   });
 
   test('works from the keyboard', async ({ page }) => {

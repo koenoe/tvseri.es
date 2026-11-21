@@ -409,12 +409,16 @@ export const pencilGlyph: Glyph = {
   outline: <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />,
 };
 
+/**
+ * The pending ring spins inside its own drawing, so the svg's transform
+ * stays free for an icon swap's scale (`IconSwap`)
+ */
 export const pendingGlyph: Glyph = {
   outline: (
-    <>
+    <g className="origin-center animate-spin [transform-box:fill-box]">
       <circle cx="12" cy="12" opacity=".25" r="9" />
       <path d="M12 3a9 9 0 0 1 9 9" />
-    </>
+    </g>
   ),
 };
 

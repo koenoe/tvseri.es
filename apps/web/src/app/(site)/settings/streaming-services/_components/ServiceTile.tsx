@@ -14,7 +14,7 @@ export const TILE_LOOK = {
     'bg-white/10 text-white/80 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100',
   image: 56,
   imageClass:
-    'rounded-14 opacity-75 transition-opacity group-hover:opacity-100',
+    'image-outline rounded-14 opacity-75 transition-opacity group-hover:opacity-100',
   label: 'text-caption font-medium text-white/80',
   tile: 'gap-2 bg-white/3 px-2 pt-4 pb-3 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.07)] hover:bg-white/6',
 } as const;
@@ -33,7 +33,7 @@ function ServiceTile({ onToggle, provider }: Props) {
   const look = TILE_LOOK;
   const label = `Add ${provider.name}`;
   const classes = cn(
-    'group relative flex min-w-0 cursor-pointer flex-col items-center rounded-16 text-center transition-[background-color,color]',
+    'group relative flex min-w-0 cursor-pointer flex-col items-center rounded-16 text-center transition-[background-color,color,scale] duration-150 ease-out active:scale-96',
     look.tile,
   );
   const imageClasses = cn('aspect-square shrink-0', look.imageClass);

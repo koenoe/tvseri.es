@@ -5,14 +5,19 @@ import { useSyncExternalStore } from 'react';
 /**
  * Bounds Next's viewport prefetch of a page that keeps failing to generate.
  * A successful prefetch is cached, so its page is fetched once (the route
- * tree and the page segment). A page whose render throws is never cached:
- * Next retries its segment about every 2 s, 4 times per document, and each
- * fetch runs a function.
+ * tree and the page segment). A page whose render throws is never cached,
+ * so each prefetch of it runs a function again.
  *
  * This counts the RSC fetches per path from the Resource Timing API (no
  * request is wrapped or delayed) while that path isn't the current page. A
  * path that reaches `LIMIT` stops prefetching in the viewport for the rest
- * of the tab: its tiles fall back to intent (hover, focus, touch).
+ * of the tab: its tiles fall back to intent (hover, focus, touch), which
+ * still opens a show whole (TileLink).
+ *
+ * The count can't tell a failure from Next's ISR fallback retries: on Vercel
+ * a show without its own prerender answers its static prefetch with the
+ * route's fallback shell (a CDN hit), which Next re-requests 2 s apart, up
+ * to 3 times per prefetch. Such a healthy show reaches `LIMIT` too.
  */
 export const PREFETCH_FETCH_LIMIT = 4;
 

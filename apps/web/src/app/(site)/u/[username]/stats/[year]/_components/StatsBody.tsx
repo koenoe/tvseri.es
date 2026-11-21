@@ -4,6 +4,7 @@ import GuardedSection from '@/components/ui/row/GuardedSection';
 import { getStatsClock } from '@/lib/stats/clock';
 import type { StatsUser } from '@/lib/stats/loaders';
 import { getSummary, isUnavailable } from '@/lib/stats/loaders';
+import { GLANCE_ON_SWITCH } from '../../_lib/yearSwitch';
 import EmptyYear from './EmptyYear';
 import Tiles, { TilesSkeleton } from './header/Tiles';
 import YearGlance from './header/YearGlance';
@@ -49,7 +50,12 @@ export default async function StatsBody({
   const yearTitle = String(year);
   return (
     <Column>
-      <ViewTransition name="stats-glance">
+      <ViewTransition
+        default="none"
+        name="stats-glance"
+        share={GLANCE_ON_SWITCH}
+        update={GLANCE_ON_SWITCH}
+      >
         <YearGlance label={glanceLabel} year={year}>
           <GuardedSection
             fallback={<YearHeaderSkeleton />}

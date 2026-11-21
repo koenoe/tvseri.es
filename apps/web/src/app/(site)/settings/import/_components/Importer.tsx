@@ -3,6 +3,8 @@
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 
+import SwapIn from '@/components/motion/SwapIn';
+
 import type { ImporterData } from '../_data/importer';
 import { previewTitles } from '../_lib/previewTable';
 import { useImporter } from '../_lib/useImporter';
@@ -11,6 +13,7 @@ import CheckStep from './CheckStep';
 import LastImportUndo from './LastImportUndo';
 import Stepper from './Stepper';
 import UploadStep from './UploadStep';
+import { useStepFocus } from './useStepFocus';
 
 /** Step 3 and its dialog load when the import starts, not with the page. */
 // next/dynamic on purpose: this piece is also rendered on the server, which a client-only loader cannot do.
@@ -44,11 +47,15 @@ export default function Importer({
     [state],
   );
   const thumbs = usePreviewPosters(titles);
+  const step = STEP[state.step];
+  // The press that moves on leaves with its step: focus goes to the stepper
+  const stepFocus = useStepFocus(step);
 
   return (
-    <div className="flex flex-col gap-8 max-md:gap-5.5">
-      <Stepper step={STEP[state.step]} />
-      <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8 max-md:gap-5.5" {...stepFocus}>
+      <Stepper step={step} />
+      {/* each step rises into the last one's place */}
+      <SwapIn className="flex flex-col gap-6" swapKey={state.step}>
         {state.step === 'upload' ? (
           <UploadStep
             busy={importer.isReading}
@@ -75,7 +82,7 @@ export default function Importer({
         {state.step === 'import' ? (
           <ImportStep importer={importer} state={state} username={username} />
         ) : null}
-      </div>
+      </SwapIn>
     </div>
   );
 }

@@ -1,8 +1,10 @@
 'use client';
 
-import type { EpisodeRef } from '@tvseri.es/schemas';
+import { compareEpisodes, type EpisodeRef } from '@tvseri.es/schemas';
+import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
-import { type CSSProperties, type RefObject, useMemo } from 'react';
+import { type CSSProperties, type RefObject, useMemo, useState } from 'react';
+import PageSlide from '@/components/motion/PageSlide';
 import { PICTURE_SURFACE_LG } from '@/components/ui/picture/pictureSurface';
 import cn from '@/lib/cn';
 import { codeOf } from '@/lib/marking/progress';
@@ -36,12 +38,40 @@ const STILL_LAYER = cn(
   PICTURE_SURFACE_LG,
 );
 
-/** A slow 6% Ken Burns push once the modal has settled. */
+/**
+ * A slow 6% Ken Burns push once the modal has settled. A step to another
+ * episode cross-fades the new still in over the old one (the old fades
+ * out), as its words slide in (`PageSlide`); the first still is just there.
+ */
 const KEN_BURNS = {
-  animate: { scale: 1.06 },
-  initial: { scale: 1 },
-  transition: { delay: 0.6, duration: 16, ease: 'easeOut' },
+  animate: { opacity: 1, scale: 1.06 },
+  exit: { opacity: 0, transition: { duration: 0.2, ease: 'easeOut' } },
+  transition: {
+    opacity: { duration: 0.28, ease: 'easeOut' },
+    scale: { delay: 0.6, duration: 16, ease: 'easeOut' },
+  },
 } as const;
+const FIRST_STILL = { opacity: 1, scale: 1 } as const;
+const STEPPED_STILL = { opacity: 0, scale: 1 } as const;
+
+/**
+ * Which way the last step went (1 on, -1 back) and whether there was one:
+ * read from the episodes' order, so the ‹ › buttons and ←/→ agree
+ */
+function useStepDirection(episode: EpisodeRef) {
+  const [seen, setSeen] = useState({ direction: 1, episode, stepped: false });
+  if (compareEpisodes(episode, seen.episode) !== 0) {
+    setSeen({
+      direction: compareEpisodes(episode, seen.episode) > 0 ? 1 : -1,
+      episode,
+      stepped: true,
+    });
+  }
+  return seen;
+}
+
+/** The episode's words and faces: the column's own spacing, one page */
+const WORDS = 'flex w-full flex-col items-start gap-4 max-lg:gap-2.5';
 
 /** The content fades in after the grow. */
 const FADE_IN = {
@@ -93,6 +123,8 @@ export default function EpisodeView({
   const airDate = details?.airDate ?? '';
   const loading = season === undefined;
   const runtime = details?.runtime ?? 0;
+  const { direction, stepped } = useStepDirection(episode);
+  const stillFrom = stepped ? STEPPED_STILL : FIRST_STILL;
 
   return (
     <div
@@ -102,15 +134,22 @@ export default function EpisodeView({
       {/* the still and its dim: one layer from lg, where the panel's
           rounded corners clip it (`PICTURE_SURFACE_LG`) */}
       <div className={STILL_LAYER}>
-        {details ? (
-          <m.div className="size-full" key={code} {...KEN_BURNS}>
-            <Still
-              loading="eager"
-              sizes="(max-width: 639px) 100vw, 1320px"
-              src={details.stillImage}
-            />
-          </m.div>
-        ) : null}
+        <AnimatePresence>
+          {details ? (
+            <m.div
+              className="absolute inset-0"
+              initial={stillFrom}
+              key={code}
+              {...KEN_BURNS}
+            >
+              <Still
+                loading="eager"
+                sizes="(max-width: 639px) 100vw, 1320px"
+                src={details.stillImage}
+              />
+            </m.div>
+          ) : null}
+        </AnimatePresence>
         <span
           aria-hidden="true"
           className="absolute inset-0 max-lg:hidden"
@@ -127,18 +166,22 @@ export default function EpisodeView({
         {...FADE_IN}
       >
         <div className="relative mt-auto mb-11 ml-16 flex w-[min(740px,calc(100%-560px))] flex-col items-start gap-4 max-lg:mb-0 max-lg:ml-0 max-lg:-mt-[100px] max-lg:w-auto max-lg:gap-2.5 max-lg:px-5">
-          <EpisodeFacts
-            airDate={airDate}
-            episode={episode}
-            loading={loading}
-            logo={show.logo}
-            runtime={runtime}
-            seasons={show.seasons}
-            seriesId={show.id}
-            showTitle={show.title}
-            title={title}
-          />
-          <EpisodeCast episode={episode} part="faces" seriesId={show.id} />
+          {/* a step slides the episode's words the way you went, as the
+              calendar's months do; the stub with the arrows stays put */}
+          <PageSlide className={WORDS} direction={direction} pageKey={code}>
+            <EpisodeFacts
+              airDate={airDate}
+              episode={episode}
+              loading={loading}
+              logo={show.logo}
+              runtime={runtime}
+              seasons={show.seasons}
+              seriesId={show.id}
+              showTitle={show.title}
+              title={title}
+            />
+            <EpisodeCast episode={episode} part="faces" seriesId={show.id} />
+          </PageSlide>
           {/* one element at every width: under the faces, docked to the
               screen's foot on a phone by its own `max-sm:fixed` */}
           <RecordStub

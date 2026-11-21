@@ -1,5 +1,6 @@
 import { formatGrouped } from '@tvseri.es/utils';
 import type { CSSProperties } from 'react';
+import RollingNumber from '@/components/motion/RollingNumber';
 import { infoGlyph, showGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
@@ -48,8 +49,10 @@ export default function LiveCard({
         <span className="text-overline uppercase text-white/60">
           {stopped ? 'Stopped' : 'Importing'}
         </span>
+        {/* the count rolls to each chunk's total; the region hears it in words */}
         <b className="text-numeral-xl tabular-nums">
-          {formatGrouped(imported)}
+          <RollingNumber value={imported} />
+          <span className="sr-only">{formatGrouped(imported)}</span>
         </b>
         <span className="text-body text-white/80">{`items imported out of ${formatGrouped(total)}`}</span>
       </div>

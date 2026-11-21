@@ -15,7 +15,7 @@ export default function Flag({
   lazy = false,
 }: Readonly<{ className?: string; code: string; lazy?: boolean }>) {
   const classes = cn(
-    'inline-block shrink-0 rounded-[3px] bg-white/8',
+    'image-outline inline-block shrink-0 rounded-[3px] bg-white/8',
     className,
   );
   const loading = lazy ? 'lazy' : 'eager';

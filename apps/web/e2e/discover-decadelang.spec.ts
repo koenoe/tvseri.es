@@ -132,6 +132,8 @@ test.describe('language landing (/language/ja)', () => {
     await expect(page.getByText('Sōsō no Furīren')).toBeVisible();
     await expect(page.getByText('葬送のフリーレン')).toHaveCount(0);
     await scripts.getByRole('button', { name: 'English' }).click();
+    // the titles cross-fade: the switch is done once the Rōmaji copies left
+    await expect(page.getByText('Sōsō no Furīren')).toHaveCount(0);
     await expect(
       page.getByText('Frieren: Beyond Journey’s End', { exact: true }),
     ).toBeVisible();

@@ -22,7 +22,7 @@ const FAN = 'flex pl-[18px]';
 const TILE = '-ml-[18px] aspect-[2/3] w-[72px] shrink-0 rounded-8';
 
 const GHOST_FAN = `${FAN} ${PULSE}`;
-const POSTER_TILE = `${TILE} object-cover shadow-[-6px_0_16px_rgb(0_0_0/0.6)]`;
+const POSTER_TILE = `${TILE} image-outline object-cover shadow-[-6px_0_16px_rgb(0_0_0/0.6)]`;
 const EMPTY_TILE = `${TILE} box-border border-2 border-white/12 border-dashed bg-ground`;
 
 function Fan({ items }: Readonly<{ items: ReadonlyArray<ListItem> }>) {

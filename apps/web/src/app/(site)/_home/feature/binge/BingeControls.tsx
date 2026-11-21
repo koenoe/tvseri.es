@@ -1,5 +1,8 @@
 import type { MouseEvent, ReactNode } from 'react';
 
+import { FILL_BEFORE } from '@/components/motion/fillBefore';
+import ChoiceButton from '@/components/ui/button/ChoiceButton';
+
 import { BINGE_CONTROLS, EACH_NIGHT_LABEL, NIGHTS_LABEL } from './layout';
 import {
   NIGHTS_OPTIONS,
@@ -9,9 +12,15 @@ import {
   perNightLabel,
 } from './plan';
 
-/** One option of a switch (the placeholder draws it as a face); under 390px the options drop their 72px floor and most of their padding, so both switches fit a 280px card */
-export const BINGE_OPTION =
-  'h-9 cursor-pointer rounded-8 px-1.5 text-center min-[390px]:min-w-18 min-[390px]:px-3.5 text-body-sm font-medium whitespace-nowrap text-white/60 tabular-nums transition-[background-color,color] duration-150 hover:text-white aria-pressed:bg-white/16 aria-pressed:text-white';
+/**
+ * One option of a switch (the placeholder draws it as a face); under 390px
+ * the options drop their 72px floor and most of their padding, so both
+ * switches fit a 280px card. Pressed again and again, so its target reaches
+ * 2px into each 4px gap and 4px to the group's edge: 44px tall, the
+ * neighbours' targets meeting without overlap. The chosen fill is its
+ * `::before`, so it glides to the next option chosen (`ChoiceButton`).
+ */
+export const BINGE_OPTION = `${FILL_BEFORE} h-9 cursor-pointer after:absolute after:-inset-x-0.5 after:-inset-y-1 rounded-8 px-1.5 text-center min-[390px]:min-w-18 min-[390px]:px-3.5 text-body-sm font-medium whitespace-nowrap text-white/60 tabular-nums transition-colors duration-150 hover:text-white aria-pressed:text-white aria-pressed:before:bg-white/16`;
 
 /** One labelled switch: label, the segmented group, a hint */
 export function ControlRow({
@@ -66,16 +75,16 @@ export default function BingeControls({
         {PER_NIGHT_OPTIONS.map((count) => {
           const chosen = count === perNight;
           return (
-            <button
+            <ChoiceButton
               aria-pressed={chosen}
               className={BINGE_OPTION}
               key={count}
+              on={chosen}
               onClick={choosePerNight}
-              type="button"
               value={count}
             >
               {perNightLabel(count)}
-            </button>
+            </ChoiceButton>
           );
         })}
       </ControlRow>
@@ -83,16 +92,16 @@ export default function BingeControls({
         {NIGHTS_OPTIONS.map((option) => {
           const chosen = option.mode === mode;
           return (
-            <button
+            <ChoiceButton
               aria-pressed={chosen}
               className={BINGE_OPTION}
               key={option.mode}
+              on={chosen}
               onClick={chooseMode}
-              type="button"
               value={option.mode}
             >
               {option.label}
-            </button>
+            </ChoiceButton>
           );
         })}
       </ControlRow>

@@ -26,7 +26,7 @@ export type PillVariant = 'tile' | 'primary' | 'compact';
 // Focus shows the site's ring (globals.css: 2px white, 2px outside the
 // border), never only a border colour (hover dims a watched pill's).
 const BASE =
-  'group/pill z-3 inline-flex items-center whitespace-nowrap rounded-full border-2 font-medium transition-[border-color,color,background-color] duration-200';
+  'group/pill z-3 inline-flex items-center whitespace-nowrap rounded-full border-2 font-medium tabular-nums transition-[border-color,color,background-color,scale] duration-150 ease-out active:scale-96 aria-disabled:active:scale-100';
 
 const PLACE: Readonly<Record<PillVariant, string>> = {
   // On the tile's flat surface the blur shows nothing: skipped, it
@@ -130,21 +130,28 @@ const EyePill = memo(function EyePill({
       title={locked ? UNAVAILABLE_REASON : undefined}
       type="button"
     >
+      {/* Marking an episode is the app's most frequent press: the eye
+          fills at once, no swap (the fill and the label say it) */}
       <Icon
         active={isWatched}
         className={iconClass}
         glyph={eyeGlyph}
         size={16}
       />
-      {iconOnly ? null : (
-        <>
-          <span className="group-hover/pill:hidden group-focus-visible/pill:hidden">
+      {iconOnly ? null : hover === label ? (
+        <span>{label}</span>
+      ) : (
+        // One grid cell for both words: the pill keeps its width on hover,
+        // so its edge never pulls away from the pointer ("Yesterday" →
+        // "Unmark") and drops the hover it came from
+        <span className="grid">
+          <span className="[grid-area:1/1] group-hover/pill:invisible group-focus-visible/pill:invisible">
             {label}
           </span>
-          <span className="hidden group-hover/pill:inline group-focus-visible/pill:inline">
+          <span className="invisible [grid-area:1/1] group-hover/pill:visible group-focus-visible/pill:visible">
             {hover}
           </span>
-        </>
+        </span>
       )}
     </button>
   );

@@ -42,11 +42,12 @@ export const DIARY_ROW_RADIUS = 'rounded-14 max-md:rounded-12';
 /**
  * One show on one day, lit by its own poster (`DiaryGlow`) under a dark
  * gradient (`::before`) that keeps white text at 4.5:1 over a bright
- * poster, with a 1px inner ring (`::after`). `isolate` keeps the glow and
- * the gradient (negative z) inside the card; `contain: paint` keeps the
- * glow's raster to the card.
+ * poster, with the pictures' 1px rim (`image-rim`, on `::after`): the row
+ * is its poster's light, so its edge is a picture's. `isolate` keeps the
+ * glow and the gradient (negative z) inside the card; `contain: paint`
+ * keeps the glow's raster to the card.
  */
-export const DIARY_ROW = `group/row relative isolate overflow-hidden bg-[#20272a] [contain:paint] ${DIARY_ROW_RADIUS} before:absolute before:inset-0 before:-z-1 before:bg-[linear-gradient(90deg,rgb(28_34_35/0.35)_0%,rgb(28_34_35/0.65)_45%,rgb(28_34_35/0.82)_100%)] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.06)]`;
+export const DIARY_ROW = `group/row relative isolate overflow-hidden bg-[#20272a] [contain:paint] ${DIARY_ROW_RADIUS} before:absolute before:inset-0 before:-z-1 before:bg-[linear-gradient(90deg,rgb(28_34_35/0.35)_0%,rgb(28_34_35/0.65)_45%,rgb(28_34_35/0.82)_100%)] image-rim`;
 
 /**
  * The row: poster, text, runtime, then a 32px slot (the ⋯ on hover, a

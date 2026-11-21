@@ -74,6 +74,21 @@ describe('CountryCombobox', () => {
     expect(activeName(input)).toBe(first);
   });
 
+  it('scrolls nothing as it opens (it unfolds from 0 tall), only as the arrows move', async () => {
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+    try {
+      const { user } = setup();
+      expect(scrollIntoView).not.toHaveBeenCalled();
+
+      await user.keyboard('{ArrowDown}');
+      expect(scrollIntoView).toHaveBeenCalled();
+    } finally {
+      // jsdom has none: leave it as it was
+      Reflect.deleteProperty(Element.prototype, 'scrollIntoView');
+    }
+  });
+
   it('picks the option you arrowed to', async () => {
     const { input, onPick, user } = setup();
 

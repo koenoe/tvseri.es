@@ -124,7 +124,7 @@ const open = async () => {
 };
 
 describe('the menu', () => {
-  it('signed in: Watch, You · @handle with five pages, the account line; no Circle, no icons', async () => {
+  it('signed in: Watch, You · @handle with four pages, the account line; no Circle, no icons', async () => {
     signIn('margaux');
     renderMenu();
     const menu = await open();
@@ -133,7 +133,6 @@ describe('the menu', () => {
       'Home',
       'Discover',
       'Overview',
-      'Calendar',
       'Library',
       'History',
       'Stats',

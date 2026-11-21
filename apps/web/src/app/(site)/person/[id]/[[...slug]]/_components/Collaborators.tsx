@@ -24,7 +24,7 @@ const ROW = cn(PERSON_SNAP_ROW, COLLABORATOR_GRID);
 const TILE = cn('group snap-start', COLLABORATOR_TILE);
 
 /** The face and the one tile hover (`tileHover`: a 4% grow) */
-const FACE = `relative block h-[120px] w-24 overflow-hidden rounded-10 bg-white/7 lg:aspect-4/5 lg:h-auto lg:w-full ${TILE_HOVER}`;
+const FACE = `image-rim relative block h-[120px] w-24 overflow-hidden rounded-10 bg-white/7 lg:aspect-4/5 lg:h-auto lg:w-full ${TILE_HOVER}`;
 
 const ROLE = `truncate text-white/60 ${COLLABORATOR_ROLE_LINE}`;
 

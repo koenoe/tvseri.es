@@ -27,6 +27,7 @@ import {
   FACT_TEXT_COLUMN,
   FACT_UNIT,
   PIP,
+  PIP_OFF,
   PIPS,
 } from './layout';
 
@@ -36,8 +37,6 @@ const CARD = cn(DECK, PULSE);
  * phone, three from md, two in the lg band */
 const SENTENCE_BELOW_LG = cn(FACT_SENTENCE, 'lg:hidden');
 const SENTENCE_PHONE = cn(FACT_SENTENCE, 'md:hidden');
-
-const PIP_OFF = cn(PIP, 'opacity-35');
 
 /** The deck's facts (the API sends up to four) */
 const PIP_COUNT = [0, 1, 2, 3];

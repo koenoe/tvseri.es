@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { labelSides, MAP_PX } from './labelSide';
+import { labelSides, MAP_PX, roomyPins } from './labelSide';
 
 const W = 680;
 const H = 293;
@@ -74,5 +74,37 @@ describe('labelSides', () => {
     // right-up covers A and E, each other corner one pin: the first of
     // those in order wins
     expect(labelSides(crowd, W, H, MAP_PX.phone)[0]).toBe('left-up');
+  });
+});
+
+describe('roomyPins', () => {
+  it('marks a pin roomy when every other pin is at least 44px away on that map', () => {
+    // 280 / 680 scale: 107 units ≈ 44.06px, 106 ≈ 43.6px
+    const points = [
+      { x: 100, y: 100 },
+      { x: 207, y: 100 },
+      { x: 500, y: 200 },
+    ];
+    expect(roomyPins(points, W, MAP_PX.phone)).toEqual([true, true, true]);
+    const close = [
+      { x: 100, y: 100 },
+      { x: 206, y: 100 },
+      { x: 500, y: 200 },
+    ];
+    expect(roomyPins(close, W, MAP_PX.phone)).toEqual([false, false, true]);
+  });
+
+  it('measures the distance between centres, not along one axis', () => {
+    // 75 units across and down: ≈ 43.7px apart on the phone, ≈ 101px from md
+    const points = [
+      { x: 100, y: 100 },
+      { x: 175, y: 175 },
+    ];
+    expect(roomyPins(points, W, MAP_PX.phone)).toEqual([false, false]);
+    expect(roomyPins(points, W, MAP_PX.wide)).toEqual([true, true]);
+  });
+
+  it('counts a lone pin as roomy', () => {
+    expect(roomyPins([{ x: 10, y: 10 }], W, MAP_PX.phone)).toEqual([true]);
   });
 });

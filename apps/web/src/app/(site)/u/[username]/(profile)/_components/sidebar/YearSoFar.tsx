@@ -5,6 +5,7 @@ import SectionHead from '@/components/ui/section/SectionHead';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import statsPath from '@/lib/routing/statsPath';
 import { joinAnd } from '@/lib/text/fitNames';
+import { TO_STATS } from '../../../_lib/yearWeeks';
 import type { Profile } from '../../_data/profile';
 import { loadYearSoFar, type YearSoFarStats } from '../../_data/stats';
 import { formatWatchTime } from '../../_lib/format';
@@ -48,6 +49,8 @@ function Sentence({ stats }: Readonly<{ stats: YearSoFarStats }>) {
 
 const GHOST_BLOCK = `flex flex-col gap-4 ${PULSE}`;
 
+const MOTION_TYPES = [TO_STATS];
+
 /**
  * "{year} so far": one line of weeks and one sentence. The current UTC
  * year, public stats only (a visitor sees the owner's). With no episodes
@@ -73,8 +76,14 @@ export default async function YearSoFar({
   }
   const empty = stats.episodes === 0;
   const statsHref = statsPath(username, year);
-  // Day one keeps the link, as the Stats tab does: the page says the year is empty
-  const link = <HeadLink href={statsHref}>Stats</HeadLink>;
+  // Day one keeps the link, as the Stats tab does: the page says the year is
+  // empty. Its year is fetched on intent, so the week strip can grow into the
+  // year's chart (`yearWeeks.ts`)
+  const link = (
+    <HeadLink href={statsHref} motionTypes={MOTION_TYPES} prefetch="intent">
+      Stats
+    </HeadLink>
+  );
   const bars = yearBars(stats.weeks, year, now);
   const who = profile.viewer === 'owner' ? '' : `${username} `;
   const label = `Episodes ${who}watched per week in ${year}`;
@@ -82,7 +91,7 @@ export default async function YearSoFar({
   return (
     <section aria-labelledby="i-yr" className="flex flex-col gap-4">
       <SectionHead id="i-yr" link={link} size="side" title={title} />
-      <WeekBars bars={bars} flat={empty} label={label} />
+      <WeekBars bars={bars} flat={empty} label={label} year={year} />
       {empty ? (
         <p className="m-0 text-body-sm text-white/60">
           {profile.viewer === 'owner'

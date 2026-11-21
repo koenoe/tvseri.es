@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { createContext, use } from 'react';
 
 import { ArtPlaceholder } from '@/components/ui/tile/PosterArt';
-import { EPISODE_STILL_ZOOM } from '@/components/ui/tile/tileHover';
+import { PICTURE_ZOOM } from '@/components/ui/tile/tileHover';
 import cn from '@/lib/cn';
 import { useShow } from '../../_lib/ShowProvider';
 
@@ -37,7 +37,7 @@ export default function Still({
   const { backdrop } = useShow();
   const standIn = use(StillBackdrop);
   const image = src || (standIn ? backdrop : '');
-  const imageClass = cn('object-cover', EPISODE_STILL_ZOOM, className);
+  const imageClass = cn('object-cover', PICTURE_ZOOM, className);
   return image ? (
     <Image
       alt=""

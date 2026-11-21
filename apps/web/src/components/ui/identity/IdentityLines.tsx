@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { HIT_Y } from '@/components/ui/button/hitArea';
 import Icon from '@/components/ui/icon/Icon';
 import type { Glyph, ToggleGlyph } from '@/components/ui/icon/types';
 
@@ -41,7 +42,8 @@ export function IdentityLine({ children, glyph }: LineProps) {
   );
 }
 
-const LINK_LINE = `${IDENTITY_LINE} hover:text-white`;
+/** About 17px tall, 41 to the pointer: the lines above and below don't link, the services sit 22px under */
+const LINK_LINE = `${IDENTITY_LINE} ${HIT_Y[12]} relative hover:text-white`;
 
 /** A meta line that links (the followers line opens the circle) */
 export function IdentityLinkLine({

@@ -4,12 +4,20 @@ import { formatGrouped, plural } from '@tvseri.es/utils';
 import type { SeriesCandidate } from '@/lib/import/contract';
 import type { Fix } from '../../_components/problems/fix';
 import { AmbiguousProblems } from '../../_components/problems/KindGroups';
-import { rowsIn, splitItems } from '../../_components/problems/problemRows';
+import {
+  openItems,
+  rowsIn,
+  splitItems,
+} from '../../_components/problems/problemRows';
 import type { ProblemItem } from '../../_components/problems/problems';
 import type { Importer } from '../_lib/useImporter';
+import GroupSkipAll from './GroupSkipAll';
 import ProblemRest from './ProblemRest';
 
-/** The import's "Which series?": two items, then the rest summed up. */
+/**
+ * The import's "Which series?": two items, then the rest summed up; shown
+ * in full, Skip all beside the header.
+ */
 export default function AmbiguousGroup({
   count,
   expanded,
@@ -38,8 +46,19 @@ export default function AmbiguousGroup({
   const toggle = () => importer.toggleGroup('ambiguous');
   const restTitle = `${formatGrouped(restRows)} more rows across ${plural(rest.length, 'series', 'series')}`;
   const restToast = `Skipped ${plural(restRows, 'row')}`;
+  const unfixed = openItems(items, fixes);
+  // Only once shown in full: the summed-up rest has its own Skip them
+  const skipAll =
+    expanded && unfixed.length > 1 ? (
+      <GroupSkipAll
+        groupName="Which series?"
+        importer={importer}
+        items={unfixed}
+      />
+    ) : null;
   return (
     <AmbiguousProblems
+      action={skipAll}
       bodyId="import-group-ambiguous"
       count={count}
       fixes={fixes}

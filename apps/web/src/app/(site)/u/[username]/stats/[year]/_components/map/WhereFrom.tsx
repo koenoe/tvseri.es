@@ -25,9 +25,13 @@ const LISTED = 6;
 
 const LIST_CLASS = cn('flex flex-col', LIST_BOX);
 
-/** A country's row, inset and lifted as Stats' list rows are (`ROW_LIFT`) */
+/**
+ * A country's row, inset and lifted as Stats' list rows are (`ROW_LIFT`).
+ * Its divider is a hairline of its own: a border on the rounded row would
+ * curve up at both ends.
+ */
 const COUNTRY_ROW = cn(
-  'flex justify-between gap-3 border-white/6 border-t py-2 text-body-sm',
+  'relative flex justify-between gap-3 pt-[9px] pb-2 text-body-sm before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-white/6',
   ROW_LIFT,
 );
 /** The list's foot and the placeholder's lines, at the rows' inset */

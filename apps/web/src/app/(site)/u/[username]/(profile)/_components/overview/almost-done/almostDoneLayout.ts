@@ -16,9 +16,9 @@ import { LANE_ROW_GHOST } from '../../blocks/LaneGhost';
 /** The poster's box (its ghost takes the same) */
 export const ALMOST_DONE_POSTER = 'aspect-2/3 w-12 shrink-0 rounded-6';
 
-/** The poster's frame: the box, a fill behind the art, its shadow */
+/** The poster's frame: the box, a fill behind the art, its shadow, the image rim */
 export const ALMOST_DONE_POSTER_FRAME = cn(
-  'relative block overflow-hidden bg-white/8 shadow-[0_8px_16px_-8px_rgb(0_0_0/0.8)]',
+  'image-rim relative block overflow-hidden bg-white/8 shadow-[0_8px_16px_-8px_rgb(0_0_0/0.8)]',
   ALMOST_DONE_POSTER,
 );
 

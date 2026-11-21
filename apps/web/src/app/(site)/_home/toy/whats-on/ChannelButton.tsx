@@ -5,12 +5,13 @@ import { memo, useCallback } from 'react';
 import cn from '@/lib/cn';
 
 import type { ChannelRow } from './ChannelList';
-import { CHANNEL, CHANNEL_ON } from './layout';
+import { CHANNEL, CHANNEL_ON, CHANNEL_PILL } from './layout';
 
 /**
  * One channel on the remote: number, service mark,
  * service and show. Memoised: a change of channel re-renders only the
- * two buttons whose state changed.
+ * two buttons whose state changed. The channel on draws the highlight
+ * (`[data-pill]`), which glides from the channel before (`WhatsOnRemote`).
  */
 function ChannelButton({
   index,
@@ -48,6 +49,9 @@ function ChannelButton({
       tabIndex={on ? 0 : -1}
       type="button"
     >
+      {on ? (
+        <span aria-hidden="true" className={CHANNEL_PILL} data-pill="" />
+      ) : null}
       <span className={numberClasses}>{row.number}</span>
       {row.mark}
       <span className="flex min-w-0 flex-col">

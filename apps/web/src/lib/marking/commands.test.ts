@@ -1,8 +1,18 @@
 import { MAX_EPISODES_PER_MARK_ACTION } from '@tvseri.es/schemas';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+vi.mock('next/navigation', () => ({
+  unstable_isUnrecognizedActionError: (error: unknown) =>
+    error instanceof Error && error.name === 'UnrecognizedActionError',
+}));
+
 import { createMarkingCommands } from './commands';
-import { airedInSeason, airedRegularEpisodes, codeOf } from './progress';
+import {
+  airedInSeason,
+  airedRegularEpisodes,
+  codeOf,
+  parseCode,
+} from './progress';
 import { createMarkingStore } from './store';
 import type { ToastInput } from './toasts';
 import type { SeriesSeed } from './types';
@@ -249,6 +259,22 @@ describe('toggleEpisode', () => {
     expect(t.view().watched.S03E05).toBeUndefined();
     expect(t.toasts.at(-1)).toMatchObject({
       action: { label: 'Try again' },
+      tone: 'error',
+    });
+  });
+
+  it('a tab older than the site offers a reload, not a Try again that fails the same way', async () => {
+    // what Next throws when a newer deployment no longer has this action
+    const gone = Object.assign(new Error('Server Action was not found'), {
+      name: 'UnrecognizedActionError',
+    });
+    t.actions.markEpisodes.mockImplementationOnce(() => Promise.reject(gone));
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 5, seasonNumber: 3 });
+    await flush();
+    expect(t.view().watched.S03E05).toBeUndefined();
+    expect(t.toasts.at(-1)).toMatchObject({
+      action: { label: 'Reload' },
+      title: 'tvseri.es has been updated. Reload to save this.',
       tone: 'error',
     });
   });
@@ -1982,5 +2008,179 @@ describe('a skip too big for one request that fails part-way', () => {
     await flush();
     // the first request's unskips saved; the last one is skipped again
     expect(t.view().skipped).toEqual([`S01E${COUNT}`, 'S03E02']);
+  });
+});
+
+describe('culmination: the viewer’s own action finished the show or a season', () => {
+  /** S1 four of four, S3 ten of ten; `open` lists what is still to watch */
+  const nearlyDone = (open: ReadonlyArray<string>) => {
+    const watched = [
+      ...[1, 2, 3, 4].map((episodeNumber) => ({
+        episodeNumber,
+        seasonNumber: 1,
+      })),
+      ...[1, 3, 4, 5, 6, 7, 8, 9, 10].map((episodeNumber) => ({
+        episodeNumber,
+        seasonNumber: 3,
+      })),
+    ]
+      .filter((ref) => !open.includes(codeOf(ref)))
+      .map((ref) => ({ ...ref, watchedAt: 1000 }));
+    return setup({ watched });
+  };
+  const culmination = (t: ReturnType<typeof setup>) =>
+    t.store.getState().culmination;
+
+  it('the last open episode of the show: finished, and its season, at once', () => {
+    const t = nearlyDone(['S03E10']);
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 10, seasonNumber: 3 });
+    // before the write answers: the moment follows the optimistic mark
+    expect(culmination(t)).toMatchObject({
+      finished: true,
+      seasons: [3],
+      seriesId: SERIES,
+    });
+  });
+
+  it('the last open episode of a season, with more left in the show: the season only', () => {
+    const t = nearlyDone(['S01E04', 'S03E10']);
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 4, seasonNumber: 1 });
+    expect(culmination(t)).toMatchObject({ finished: false, seasons: [1] });
+  });
+
+  it('a mark that completes nothing says nothing', () => {
+    const t = nearlyDone(['S03E09', 'S03E10']);
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 9, seasonNumber: 3 });
+    expect(culmination(t)).toBeNull();
+  });
+
+  it('the hero eye, a paint run, the picker and I’m up to finish too', () => {
+    const eye = nearlyDone(['S01E04', 'S03E10']);
+    eye.commands.toggleScope(SERIES);
+    expect(culmination(eye)).toMatchObject({ finished: true, seasons: [1, 3] });
+
+    const paint = nearlyDone(['S03E09', 'S03E10']);
+    paint.commands.paintRun(
+      SERIES,
+      [
+        { episodeNumber: 9, seasonNumber: 3 },
+        { episodeNumber: 10, seasonNumber: 3 },
+      ],
+      'mark',
+    );
+    expect(culmination(paint)).toMatchObject({ finished: true, seasons: [3] });
+
+    const picker = nearlyDone(['S03E10']);
+    picker.commands.setWhen(
+      SERIES,
+      [{ episodeNumber: 10, seasonNumber: 3 }],
+      { kind: 'now' },
+      'S03E10',
+    );
+    expect(culmination(picker)).toMatchObject({ finished: true });
+
+    const upTo = nearlyDone(['S03E10']);
+    upTo.commands.markUpTo(
+      SERIES,
+      { episodeNumber: 10, seasonNumber: 3 },
+      { kind: 'now' },
+    );
+    expect(culmination(upTo)).toMatchObject({ finished: true });
+  });
+
+  it('the second mark of a quick run that finishes it plays', () => {
+    const t = nearlyDone(['S03E09', 'S03E10']);
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 9, seasonNumber: 3 });
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 10, seasonNumber: 3 });
+    expect(t.toasts.at(-1)?.title).toBe('Marked S03E09–S03E10 · Just now');
+    expect(culmination(t)).toMatchObject({ finished: true, seasons: [3] });
+  });
+
+  it('each finish is a new moment', async () => {
+    const t = nearlyDone(['S03E10']);
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 10, seasonNumber: 3 });
+    const first = culmination(t)?.key;
+    await flush();
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 10, seasonNumber: 3 });
+    await flush();
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 10, seasonNumber: 3 });
+    expect(culmination(t)?.key).not.toBe(first);
+  });
+
+  it('Undo never plays it: neither the Undo of an unmark that re-finishes the show', async () => {
+    const t = nearlyDone([]);
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 10, seasonNumber: 3 });
+    await flush();
+    t.toasts.at(-1)?.action?.onClick();
+    expect(t.view().watched.S03E10).toBeDefined();
+    expect(culmination(t)).toBeNull();
+  });
+
+  it('nor Try again after a failed finish', async () => {
+    const t = nearlyDone(['S03E10']);
+    t.actions.markEpisodes.mockImplementationOnce(failed);
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 10, seasonNumber: 3 });
+    const played = culmination(t)?.key;
+    await flush();
+    t.toasts.at(-1)?.action?.onClick();
+    expect(t.view().watched.S03E10).toBeDefined();
+    expect(culmination(t)?.key).toBe(played);
+  });
+
+  it('answers about the past never play it: Finished it all, Seen it', () => {
+    const prompt = nearlyDone(['S03E10']);
+    prompt.commands.answerFirstTracking(SERIES, 'finished');
+    expect(prompt.view().watched.S03E10).toBeDefined();
+    expect(culmination(prompt)).toBeNull();
+
+    const seen = nearlyDone(['S03E10']);
+    seen.commands.markSeen(SERIES, 'The Bear');
+    expect(seen.view().watched.S03E10).toBeDefined();
+    expect(culmination(seen)).toBeNull();
+  });
+
+  it('a seed that brings the show finished (another device, a refresh) never plays it', () => {
+    const t = nearlyDone(['S03E10']);
+    t.store.getState().seed(
+      {
+        fetchedAt: NOW,
+        seasons: t.view().seasons,
+        seriesId: SERIES,
+        watched: [
+          ...Object.keys(t.view().watched).map((code) => ({
+            ...parseCode(code)!,
+            watchedAt: 1000,
+          })),
+          { episodeNumber: 10, seasonNumber: 3, watchedAt: 2000 },
+        ],
+      },
+      'later',
+    );
+    expect(t.view().watched.S03E10).toBeDefined();
+    expect(culmination(t)).toBeNull();
+  });
+
+  it('caught up on a show still airing is not finished, nor is a season with episodes to come', () => {
+    const t = setup({
+      seasons: [{ airedEpisodeCount: 2, episodeCount: 8, seasonNumber: 1 }],
+      skipped: [],
+      watched: [{ episodeNumber: 1, seasonNumber: 1, watchedAt: 1000 }],
+    });
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 2, seasonNumber: 1 });
+    expect(t.view().watched.S01E02).toBeDefined();
+    expect(culmination(t)).toBeNull();
+  });
+
+  it('specials never count as a season', () => {
+    const t = setup({
+      seasons: [
+        { airedEpisodeCount: 1, episodeCount: 1, seasonNumber: 0 },
+        { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 1 },
+      ],
+      skipped: [],
+      watched: [{ episodeNumber: 1, seasonNumber: 1, watchedAt: 1000 }],
+    });
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 1, seasonNumber: 0 });
+    expect(culmination(t)).toBeNull();
   });
 });

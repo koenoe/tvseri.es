@@ -1,7 +1,9 @@
+import { ViewTransition } from 'react';
 import BarTip from '@/components/ui/chart/BarTip';
 import ChartTable from '@/components/ui/chart/ChartTable';
 import { SHORT_MONTHS } from '@/lib/format/months';
 import { weekLabel } from '@/lib/stats/weeks';
+import { YEAR_WEEKS_SHARE, yearWeeksName } from '../../../../_lib/yearWeeks';
 import { weekLinesLayout, weekLinesSvg } from '../../../_components/weekLines';
 import { type StreakBracket, weekTitle } from './model';
 import grow from './weekGrow.module.css';
@@ -47,13 +49,17 @@ export default function WeekChart({
     stagger: 8,
     values,
   });
+  // The profile's "{year} so far" strip grows into these lines (`yearWeeks.ts`)
+  const name = yearWeeksName(year);
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="relative h-[88px] md:h-[150px]">
-        <div className="hidden md:block">{desktop}</div>
-        <div className="md:hidden">{phone}</div>
-        <WeekHits currentWeek={currentWeek} values={values} year={year} />
-      </div>
+      <ViewTransition default="none" name={name} share={YEAR_WEEKS_SHARE}>
+        <div className="relative h-[88px] md:h-[150px]">
+          <div className="hidden md:block">{desktop}</div>
+          <div className="md:hidden">{phone}</div>
+          <WeekHits currentWeek={currentWeek} values={values} year={year} />
+        </div>
+      </ViewTransition>
       <MonthAxis />
       {bracket ? <Bracket bracket={bracket} /> : null}
     </div>

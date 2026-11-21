@@ -2,6 +2,7 @@ import type { CircleMatch, CirclePerson } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
 import {
+  circleCountParts,
   circleCounts,
   followNobodyLine,
   levelLabel,
@@ -148,6 +149,13 @@ describe('circleCounts (the header count)', () => {
     expect(circleCounts({ followers: 1200, following: 0 })).toBe(
       '0 following · 1,200 followers',
     );
+  });
+
+  it('splits off the following count, for your own Circle to roll', () => {
+    expect(circleCountParts({ followers: 6, following: 1200 })).toEqual({
+      following: '1,200',
+      rest: ' following · 6 followers',
+    });
   });
 });
 

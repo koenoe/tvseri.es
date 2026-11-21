@@ -1,5 +1,6 @@
 import { compareEpisodes, type EpisodeRef } from '@tvseri.es/schemas';
 import type { ActionError } from '@/lib/actions/result';
+import { OUTDATED_MESSAGE } from '@/lib/actions/saveFailed';
 import {
   ERROR_MESSAGE,
   markedMessage,
@@ -36,10 +37,19 @@ export function reportFailure(
 ): void {
   if (error === 'unauthenticated') {
     deps.promptSignIn();
+  } else if (error === 'outdated') {
+    deps.toast(OUTDATED_TOAST);
   } else {
     deps.toast({ title: ERROR_MESSAGE, tone: 'error' });
   }
 }
+
+/** The tab is older than the site (`settled`): Reload, never Try again */
+export const OUTDATED_TOAST: ToastInput = {
+  action: { label: 'Reload', onClick: () => window.location.reload() },
+  title: OUTDATED_MESSAGE,
+  tone: 'error',
+};
 
 /** What an Undo puts back: the show as it was before, for these episodes */
 export type Undoable = Readonly<{

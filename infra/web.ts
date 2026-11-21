@@ -23,6 +23,15 @@ const customDomain = isProduction ? 'www.tvseri.es' : `www.${domain}`;
 const siteUrl = `https://${customDomain}`;
 const projectName = isProduction ? 'tvseries' : `tvseries-${$app.stage}`;
 
+// Pinned: an unpinned `npx vercel` takes whatever was released that day, and
+// 66.6.0 deployed a preview whose functions ran without the project's
+// environment variables. Raise it on purpose, after a preview deploy works.
+const VERCEL_CLI = 'vercel@66.5.0';
+
+/** One id per deploy (the commit, made unique by the time), for `NEXT_DEPLOYMENT_ID` */
+const deploymentId = () =>
+  `${(process.env.GITHUB_SHA ?? 'local').slice(0, 12)}-${Date.now().toString(36)}`;
+
 function runVercel(
   command: string,
   projectId: string,
@@ -32,7 +41,7 @@ function runVercel(
 
   // The token goes through the environment, never the command line, because a
   // failed execSync puts the full command in the error and the CI log.
-  return execSync(`npx vercel ${command}${scopeFlag}`, {
+  return execSync(`npx --yes ${VERCEL_CLI} ${command}${scopeFlag}`, {
     cwd: process.cwd(),
     encoding: 'utf-8',
     env: {
@@ -82,12 +91,24 @@ export const web = $dev
       const project = new vercel.Project('WebProject', {
         framework: 'nextjs',
         name: projectName,
+        // Production's runtime; left unset, a new preview project took
+        // Vercel's newest default (26.x)
+        nodeVersion: '24.x',
         resourceConfig: {
           // One region, next to the API in eu-west-2 (London)
           functionDefaultCpuType: 'standard',
           functionDefaultRegions: ['lhr1'],
         },
         rootDirectory: 'apps/web',
+        // A tab open across a deploy keeps reaching its own deployment's
+        // Server Actions (with NEXT_DEPLOYMENT_ID below). Stated, not left to
+        // the provider: a project update otherwise turned it off
+        skewProtection: '12 hours',
+        // Previews are opened on phones that aren't signed in to Vercel; left
+        // unset, the provider's default (Vercel Authentication) came back
+        // on whenever the project was updated and the preview asked for a
+        // Vercel login. Production has none either.
+        vercelAuthentication: { deploymentType: 'none' },
       });
 
       // Firewall/bot protection (BotID, JA3/JA4, OWASP sqli/xss/rce/gen, AI bots, custom "Scrobble" allow rule for
@@ -171,6 +192,10 @@ export const web = $dev
             API_KEY: apiKey,
             API_URL: apiUrl,
             AUTH_URL: authUrl,
+            // A prebuilt build has no Vercel deployment id, so without one
+            // of ours Skew Protection does nothing: a tab open across a
+            // deploy calls Server Actions the new build no longer has
+            NEXT_DEPLOYMENT_ID: deploymentId(),
             SECRET_KEY: secretKey,
             SITE_URL: siteUrl,
           },

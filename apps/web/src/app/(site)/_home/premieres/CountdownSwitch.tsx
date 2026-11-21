@@ -2,11 +2,12 @@
 
 import { type ReactNode, useCallback, useRef, useState } from 'react';
 
+import { textArrival } from '@/components/motion/textArrival';
 import cn from '@/lib/cn';
 import useWarmSet from '../toy/useWarmSet';
 import CountdownBackdrop from './CountdownBackdrop';
 import CountdownPills, { type CountdownPill } from './CountdownPills';
-import { COUNTDOWN_FADE, COUNTDOWN_FOOT } from './countdownLayout';
+import { COUNTDOWN_FOOT } from './countdownLayout';
 
 /**
  * One premiere: its backdrop's address and colour (the shade's), its
@@ -17,6 +18,7 @@ export type CountdownSlide = Readonly<{
   body: ReactNode;
   /** The API's `backdropColor` ('#000000' when unknown) */
   color: string;
+  /** the show's id */
   key: number;
   pill: CountdownPill;
 }>;
@@ -66,7 +68,8 @@ function useCountdownChoice(count: number) {
  * to it once its backdrop is decoded (until then the old one stays, so a
  * fade never lands on an empty layer). The incoming backdrop fades in on top
  * while the outgoing one waits under it, then goes, so the card's ground
- * never shows through; the foregrounds crossfade with it. Only the shown
+ * never shows through; the foreground arrives behind it, rising 6px 150ms
+ * later, as the favourites accordion's text does. Only the shown
  * layer is opaque, so quick switching settles on the last choice. The other
  * backdrops mount when the pills are first hovered, focused or touched.
  * The foot holds the pills, or `open` with one premiere.
@@ -101,10 +104,11 @@ export default function CountdownSwitch({
       {slides.map((slide, index) => {
         const on = index === shown;
         const off = !on;
+        // the foreground arrives behind its backdrop (`textArrival`)
         const layer = cn(
           'absolute inset-0 z-2',
-          COUNTDOWN_FADE,
-          on ? 'opacity-100' : 'pointer-events-none opacity-0',
+          textArrival(on),
+          off && 'pointer-events-none',
         );
         return (
           <div

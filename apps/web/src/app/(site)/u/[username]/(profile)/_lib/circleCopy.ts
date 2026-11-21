@@ -4,7 +4,7 @@ import type {
   CirclePick,
   TasteLevel,
 } from '@tvseri.es/schemas';
-import { plural } from '@tvseri.es/utils';
+import { formatGrouped, plural } from '@tvseri.es/utils';
 import { joinAnd } from '@/lib/text/fitNames';
 import { LEVELS } from '../_components/visitor/match/levels';
 
@@ -86,12 +86,24 @@ export function levelLine(level: TasteLevel | null): string {
   return label ? `${label} match` : 'No level yet';
 }
 
+type Counts = Readonly<{ followers: number; following: number }>;
+
+/**
+ * The header count in two parts: the following count ("8") and the words
+ * after it (" following · 6 followers"), so your own Circle can draw that
+ * count rolling (`OwnerCounts`) in the same format
+ */
+export function circleCountParts({ followers, following }: Counts) {
+  return {
+    following: formatGrouped(following),
+    rest: ` following · ${plural(followers, 'follower')}`,
+  } as const;
+}
+
 /** The header count: "8 following · 6 followers" */
-export function circleCounts({
-  followers,
-  following,
-}: Readonly<{ followers: number; following: number }>): string {
-  return `${plural(following, 'following', 'following')} · ${plural(followers, 'follower')}`;
+export function circleCounts(counts: Counts): string {
+  const { following, rest } = circleCountParts(counts);
+  return `${following}${rest}`;
 }
 
 type Relation = Readonly<{

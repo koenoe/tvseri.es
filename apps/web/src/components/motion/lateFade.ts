@@ -7,7 +7,8 @@
 /**
  * A mark drawn after the first paint (the viewer's Watched labels and
  * "You’ve seen N of M" lines, from the library ids that load after
- * hydration; a marking control streamed in over its ghost) fades in
+ * hydration; a marking control streamed in over its ghost; a row's arrows
+ * once its rail is measured) fades in
  * instead of popping. It runs when the element is inserted
  * (`@starting-style`), so put it on an element that mounts with the mark,
  * never on one that is there from the first paint.

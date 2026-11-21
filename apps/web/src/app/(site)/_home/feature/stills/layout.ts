@@ -45,7 +45,7 @@ export const STILLS_CONTENT =
   'mt-6 grid grid-cols-1 gap-2 md:col-span-2 md:mt-8 lg:h-80 lg:grid-cols-[560px_minmax(0,1fr)] lg:gap-4';
 
 export const STILLS_PICTURE =
-  'relative block aspect-video overflow-hidden rounded-14 bg-[#14181a] lg:aspect-auto';
+  'image-rim relative block aspect-video overflow-hidden rounded-14 bg-[#14181a] lg:aspect-auto';
 
 /** The season's poster on the picture: 88 × 132, 56 × 84 on a phone */
 export const STILLS_POSTER =
@@ -68,7 +68,7 @@ export const STILLS_GRID =
 
 /** A still: 16:9 under the picture, its row's share of the 320px beside it */
 export const STILL_TILE =
-  'relative col-span-(--span) block aspect-video min-w-0 overflow-hidden rounded-10 bg-[#14181a] lg:col-span-(--span-lg) lg:aspect-auto';
+  'image-rim relative col-span-(--span) block aspect-video min-w-0 overflow-hidden rounded-10 bg-[#14181a] lg:col-span-(--span-lg) lg:aspect-auto';
 
 /** The grid's columns and each still's span, for `count` stills */
 export function stillsGridStyles(count: number): Readonly<{

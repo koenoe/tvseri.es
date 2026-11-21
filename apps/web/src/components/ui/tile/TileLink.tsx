@@ -1,21 +1,37 @@
 'use client';
 
 import Link from 'next/link';
-import type {
-  ComponentProps,
-  FocusEvent,
-  MouseEvent,
-  PointerEvent,
-} from 'react';
+import type { ComponentProps, FocusEvent } from 'react';
 
+import { getBackgroundImageProps } from '@/components/background/BackgroundImage';
+import preloadImage from '@/components/background/preloadImage';
 import { usePrefetch } from '@/lib/navigation/PrefetchProvider';
+import useLinkIntent from '@/lib/navigation/useLinkIntent';
+import { showIdOf } from '@/lib/routing/showPath';
 
 import { usePrefetchExhausted } from './prefetchBudget';
 import { TILE_PREFETCH, type TilePrefetch } from './tilePrefetch';
 
+/** Ours, then the caller's own handler */
+const both =
+  <E,>(ours: (event: E) => void, theirs?: (event: E) => void) =>
+  (event: E) => {
+    ours(event);
+    theirs?.(event);
+  };
+
 type Props = Omit<ComponentProps<typeof Link>, 'href' | 'prefetch'> &
   Readonly<{
+    /** The show's backdrop: decoded on intent, so its page opens with it */
+    backdrop?: string | null;
     href: string;
+    /** The place's own warm-up on intent (a resume card's episode modal) */
+    onIntent?: () => void;
+    /**
+     * The place decides when the show opens whole, not the pointer (search:
+     * its arrows only). Unset: a resting mouse or keyboard focus does.
+     */
+    opensWhole?: boolean;
     /** `intent` for lists that never prefetch in view (search results) */
     prefetchOn?: TilePrefetch;
   }>;
@@ -31,42 +47,75 @@ type Props = Omit<ComponentProps<typeof Link>, 'href' | 'prefetch'> &
  * that never prefetches in view (Next docs, "Prefetching" › "Manual
  * prefetch"). Primary navigation (header, tabs, sidebar, back links,
  * pagination) keeps the default `<Link>`.
+ *
+ * A show's link also opens it whole on intent (`useLinkIntent`: a resting
+ * mouse or keyboard focus, never a tap): it becomes a per-link prefetch of
+ * the show's page and decodes its backdrop, once per page per session.
  */
 export default function TileLink({
+  backdrop,
   href,
+  onBlur,
   onFocus,
+  onIntent,
   onMouseEnter,
+  onPointerCancel,
   onPointerDown,
+  onPointerEnter,
+  onPointerLeave,
+  onPointerUp,
+  opensWhole,
   prefetchOn = TILE_PREFETCH,
   ...rest
 }: Props) {
   const prefetchRoute = usePrefetch();
+  const seriesId = showIdOf(href);
   const prefetch = () => prefetchRoute(href);
-  const handleMouseEnter = (event: MouseEvent<HTMLAnchorElement>) => {
-    prefetch();
-    onMouseEnter?.(event);
+  const warm = () => {
+    onIntent?.();
+    if (backdrop) {
+      const image = getBackgroundImageProps(backdrop);
+      preloadImage(image.src, image).catch(() => undefined);
+    }
   };
-  const handleFocus = (event: FocusEvent<HTMLAnchorElement>) => {
-    prefetch();
-    onFocus?.(event);
-  };
-  const handlePointerDown = (event: PointerEvent<HTMLAnchorElement>) => {
-    prefetch();
-    onPointerDown?.(event);
-  };
-  // A page that keeps failing to generate stops prefetching in view
-  // (prefetchBudget); intent still prefetches it.
+  // A page fetched too often stops prefetching in view (prefetchBudget),
+  // but still opens whole on intent: that is one request per page per
+  // session already (`claimIntent`), and on Vercel Next's own fallback
+  // retries run the budget out for a healthy show before any hover.
   const exhausted = usePrefetchExhausted(href);
+  const enabled = seriesId !== null && opensWhole === undefined;
+  const { handlers, intent } = useLinkIntent(href, { enabled, onIntent: warm });
+  const handleMouseEnter = both(prefetch, onMouseEnter);
+  const handleFocus = both((event: FocusEvent<HTMLAnchorElement>) => {
+    prefetch();
+    handlers.onFocus(event);
+  }, onFocus);
+  const handleBlur = both(handlers.onBlur, onBlur);
+  const handlePointerEnter = both(handlers.onPointerEnter, onPointerEnter);
+  const handlePointerLeave = both(handlers.onPointerLeave, onPointerLeave);
+  const handlePointerDown = both(() => {
+    prefetch();
+    handlers.onPointerDown();
+  }, onPointerDown);
+  const handlePointerUp = both(handlers.onPointerUp, onPointerUp);
+  const handlePointerCancel = both(handlers.onPointerCancel, onPointerCancel);
   // `undefined` is Next's default (`auto`): the viewport prefetch
   const viewport = prefetchOn === 'intent' || exhausted ? false : undefined;
+  const whole = seriesId !== null && (opensWhole ?? intent);
+  const policy = whole ? true : viewport;
   return (
     <Link
       {...rest}
       href={href}
+      onBlur={handleBlur}
       onFocus={handleFocus}
       onMouseEnter={handleMouseEnter}
+      onPointerCancel={handlePointerCancel}
       onPointerDown={handlePointerDown}
-      prefetch={viewport}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
+      onPointerUp={handlePointerUp}
+      prefetch={policy}
     />
   );
 }

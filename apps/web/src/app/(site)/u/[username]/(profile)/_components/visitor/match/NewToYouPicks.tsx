@@ -27,7 +27,7 @@ function Pick({ show }: Readonly<{ show: TasteShow }>) {
           {show.posterImage ? (
             <Image
               alt={show.title}
-              className="block size-full overflow-hidden rounded-8 bg-white/6 object-cover shadow-[0_10px_20px_-8px_rgb(0_0_0/0.8)]"
+              className="image-outline block size-full overflow-hidden rounded-8 bg-white/6 object-cover shadow-[0_10px_20px_-8px_rgb(0_0_0/0.8)]"
               height={150}
               src={show.posterImage}
               width={100}

@@ -2,6 +2,7 @@ import type { DidYouKnowFact } from '@tvseri.es/schemas';
 import Image from 'next/image';
 import type { CSSProperties } from 'react';
 
+import { TEXT_ARRIVAL } from '@/components/motion/textArrival';
 import ButtonLink from '@/components/ui/button/ButtonLink';
 import { arrowRightGlyph } from '@/components/ui/icon/glyphs';
 import cn from '@/lib/cn';
@@ -45,6 +46,9 @@ const TOP =
 const FOOT =
   'absolute inset-0 bg-[radial-gradient(440px_150px_at_100%_100%,color-mix(in_srgb,var(--picture-shade,rgb(14_16_17))_84%,transparent)_0%,color-mix(in_srgb,var(--picture-shade,rgb(14_16_17))_70%,transparent)_50%,transparent_100%)] max-lg:hidden';
 
+/** The text arrives behind the picture (the deck's layer says when) */
+const BODY = cn(FACT_BODY, TEXT_ARRIVAL);
+
 /**
  * One fact: the show's backdrop under its shades, in the picture's colour (a
  * pixel past the deck), the big number with its unit, the sentence, the
@@ -76,7 +80,7 @@ export default function FactSlide({
         <span className={TOP} />
         <span className={FOOT} />
       </span>
-      <div className={FACT_BODY}>
+      <div className={BODY}>
         <div className={FACT_NUMBER_COLUMN}>
           <b className={FACT_NUMBER}>{copy.value}</b>
           <small className={FACT_UNIT}>{copy.unit}</small>

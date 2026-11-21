@@ -14,6 +14,19 @@ import MetaRow from '@/components/ui/meta/MetaRow';
 import { seriesSeasons } from '@/lib/format/status';
 import landingPath from '@/lib/routing/landingPath';
 
+/**
+ * A genre link: 16px of text, 40px to the pointer. Off-centre on purpose: the
+ * progress line below starts 4px under the row on phones (1px while docked),
+ * so the reach goes 17px up (only the title, not a target, is there) and 7px
+ * down.
+ */
+const GENRE_LINK =
+  'relative hover:underline after:absolute after:inset-x-0 after:-top-[17px] after:-bottom-[7px]';
+
+/** MetaItem's truncating text box clips; room for the links' reach, same box */
+const GENRES_ITEM =
+  '*:last:-mt-[17px] *:last:-mb-[7px] *:last:pt-[17px] *:last:pb-[7px]';
+
 function Genres({ genres }: Readonly<{ genres: TvSeries['genres'] }>) {
   return genres.map((genre, index) => {
     const slug = landingSlugForId('genre', genre.id);
@@ -21,7 +34,7 @@ function Genres({ genres }: Readonly<{ genres: TvSeries['genres'] }>) {
       <Fragment key={genre.id}>
         {index > 0 ? ', ' : null}
         {slug ? (
-          <Link className="hover:underline" href={landingPath('genre', slug)}>
+          <Link className={GENRE_LINK} href={landingPath('genre', slug)}>
             {genre.name}
           </Link>
         ) : (
@@ -61,7 +74,12 @@ export default function HeroMeta({
         <MetaItem icon={seasonGlyph}>{plural(airedSeasons, 'season')}</MetaItem>
       ) : null}
       {series.genres.length > 0 ? (
-        <MetaItem icon={tagGlyph} shrink title={genreNames}>
+        <MetaItem
+          className={GENRES_ITEM}
+          icon={tagGlyph}
+          shrink
+          title={genreNames}
+        >
           <Genres genres={series.genres} />
         </MetaItem>
       ) : null}

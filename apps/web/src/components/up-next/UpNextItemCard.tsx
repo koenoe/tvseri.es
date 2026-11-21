@@ -1,5 +1,5 @@
 import type { TvSeries, UpNextItem } from '@tvseri.es/schemas';
-import type { ReactNode } from 'react';
+import type { MouseEventHandler, ReactNode } from 'react';
 
 import { historyGlyph } from '@/components/ui/icon/glyphs';
 
@@ -21,17 +21,23 @@ export type UpNextArt = Readonly<
 export default function UpNextItemCard({
   actions,
   art,
+  backdropClassName,
   episodeEnd,
   facts,
   href,
   item,
   loading,
   now,
+  onClick,
+  onIntent,
+  slide,
   tag,
 }: Readonly<{
   actions?: ReactNode;
   /** null when the show's read failed: the card without pictures */
   art: UpNextArt | null;
+  /** A tone on the backdrop (`UpNextCard`) */
+  backdropClassName?: string;
   /** A control at the end of the bar's episode line */
   episodeEnd?: ReactNode;
   facts: ReactNode;
@@ -39,6 +45,10 @@ export default function UpNextItemCard({
   item: UpNextItem;
   loading?: 'eager' | 'lazy';
   now: number;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+  onIntent?: () => void;
+  /** The line slides as the viewer marks (a hero's line) */
+  slide?: boolean;
   /** The place's tag, above the pill */
   tag?: ReactNode;
 }>) {
@@ -48,19 +58,22 @@ export default function UpNextItemCard({
   const label = itemLabel(item);
   const bar = (
     <UpNextBar code={item.code} end={episodeEnd} title={episodeTitle}>
-      <UpNextProgress item={item} />
+      <UpNextProgress item={item} slide={slide} />
     </UpNextBar>
   );
   return (
     <UpNextCard
       actions={actions}
       backdrop={art?.backdropImage}
+      backdropClassName={backdropClassName}
       bar={bar}
       facts={facts}
       href={href}
       label={label}
       loading={loading}
       logo={art?.titleTreatmentImage}
+      onClick={onClick}
+      onIntent={onIntent}
       pill={pill}
       tag={tag}
       title={item.title}

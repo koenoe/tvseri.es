@@ -15,6 +15,11 @@ export type PanelMotion = Readonly<{
   contentStyle?: MotionStyle;
 }>;
 
+/*
+ * Exits ease out like the enters: an ease-in sits still at the start, so a
+ * close would feel late.
+ */
+
 /** Phones: every dialog slides up 24px and fades. */
 export const PHONE_MOTION: PanelMotion = {
   animate: {
@@ -22,19 +27,19 @@ export const PHONE_MOTION: PanelMotion = {
     transition: { duration: 0.24, ease: SHEET_EASE },
     y: 0,
   },
-  exit: { opacity: 0, transition: { duration: 0.16, ease: 'easeIn' }, y: 24 },
+  exit: { opacity: 0, transition: { duration: 0.16, ease: 'easeOut' }, y: 24 },
   initial: { opacity: 0, y: 24 },
 };
 
 /** A fade and an 8px rise over 200ms */
 export const CENTER_MOTION: PanelMotion = {
   animate: { opacity: 1, transition: { duration: 0.2, ease: 'easeOut' }, y: 0 },
-  exit: { opacity: 0, transition: { duration: 0.12, ease: 'easeIn' }, y: 8 },
+  exit: { opacity: 0, transition: { duration: 0.12, ease: 'easeOut' }, y: 8 },
   initial: { opacity: 0, y: 8 },
 };
 
 /** How long a desktop side panel takes to leave; its scrim leaves with it */
-const SIDE_EXIT = { duration: 0.2, ease: [0.32, 0, 0.67, 0] } as const;
+const SIDE_EXIT = { duration: 0.2, ease: SHEET_EASE } as const;
 
 /**
  * Every desktop side panel (the watch-history sheet, the menu, the awards
@@ -65,23 +70,28 @@ export const toVariants = (motion: PanelMotion): Variants => ({
 });
 
 /**
- * The episode modal: scales in on an overshooting grow curve. The grow from
- * the tile itself is a shared layout animation the episode wall adds; the
- * shell scales in on its own.
+ * The episode modal: scales in on a spring with no bounce (an overshoot
+ * reads as a wobble on a panel this large). The grow from the tile itself
+ * is a shared layout animation the episode wall adds; the shell scales in
+ * on its own.
  */
 export const LARGE_MOTION: PanelMotion = {
   animate: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.45, ease: [0.22, 1.1, 0.36, 1] },
+    transition: { bounce: 0, duration: 0.45, type: 'spring' },
   },
-  exit: { opacity: 0, scale: 0.98, transition: { duration: 0.16 } },
+  exit: {
+    opacity: 0,
+    scale: 0.98,
+    transition: { duration: 0.16, ease: 'easeOut' },
+  },
   initial: { opacity: 0, scale: 0.96 },
 };
 
 /** The dim fades in over 300ms */
 export const BACKDROP_MOTION: PanelMotion = {
   animate: { opacity: 1, transition: { duration: 0.3, ease: 'easeOut' } },
-  exit: { opacity: 0, transition: { duration: 0.16 } },
+  exit: { opacity: 0, transition: { duration: 0.16, ease: 'easeOut' } },
   initial: { opacity: 0 },
 };

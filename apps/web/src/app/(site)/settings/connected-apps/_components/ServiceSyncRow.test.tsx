@@ -210,7 +210,10 @@ describe('ServiceSyncRow', () => {
     expect(
       screen.getByText('All 2,542 episodes in its history, in one go.'),
     ).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /^Sync since / })).toBeNull();
+    // The day stays in its place, hidden and out of reach, so the switch
+    // doesn't move under the pointer
+    const day = screen.getByRole('button', { name: /^Sync since / });
+    expect(day.closest('[inert]')).not.toBeNull();
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Sync now' }));
     });
@@ -242,11 +245,12 @@ describe('ServiceSyncRow', () => {
         syncNow
       />,
     );
-    expect(
-      screen.getByRole('button', {
-        name: 'Sync since November 2, 2026, change day',
-      }),
-    ).toBeTruthy();
+    const day = screen.getByRole('button', { name: /^Sync since / });
+    // its name holds the words it shows, so a voice command finds it
+    expect(day.textContent).toMatch(/^Nov 2(, 2026)?$/);
+    expect(day.getAttribute('aria-label')).toBe(
+      `Sync since ${day.textContent}, change day`,
+    );
     expect(
       screen.getByText(
         'Carries on from your last sync. Pick an earlier day to read further back.',

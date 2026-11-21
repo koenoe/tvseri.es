@@ -77,6 +77,11 @@ const nextConfig = {
     // No `inlineCss`: it put the full CSS in every page 3–4× (<style> plus
     // copies in the RSC payload). One cached stylesheet is cheaper.
     optimizePackageImports: ['motion', 'sonner', 'zustand'],
+    // The deploy passes NEXT_DEPLOYMENT_ID to a prebuilt `vercel build`:
+    // bake it in. Left to Next, a build on Vercel's tooling expects Vercel to
+    // set it at runtime, which a prebuilt deployment never does, and every
+    // function exits on start
+    runtimeServerDeploymentId: false,
     /**
      * Reuse prefetched static pages/shells in the browser for 30 min instead
      * of 5, so fewer prefetch requests. Static output holds no user data;

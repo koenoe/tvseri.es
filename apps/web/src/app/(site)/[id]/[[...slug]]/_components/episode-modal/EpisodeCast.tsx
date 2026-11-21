@@ -13,9 +13,9 @@ import {
   starringFaces,
   toRollBlocks,
 } from '@/lib/series/episodeCredits';
+import { useEpisodeCredits } from '@/lib/series/useEpisodeData';
 import CreditsRoll from './CreditsRoll';
 import EpisodeFaces from './EpisodeFaces';
-import { useEpisodeCredits } from './useEpisodeData';
 
 type Props = Readonly<{
   seriesId: number;

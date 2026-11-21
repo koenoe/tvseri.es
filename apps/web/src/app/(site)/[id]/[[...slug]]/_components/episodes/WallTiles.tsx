@@ -32,8 +32,8 @@ import {
   FadedNumber,
   OpenEpisodeHit,
   STILL_SIZES,
+  STILL_TILE,
   StillFade,
-  TILE,
 } from './tileParts';
 import type { FocusLayout } from './wall';
 
@@ -65,7 +65,7 @@ export const FocusTile = memo(function FocusTile({
   const time = leftMinutes > 0 ? ` · ${formatDuration(leftMinutes)}` : '';
   const context = `${left} left in Season ${episode.seasonNumber}${time}`;
   const classes = cn(
-    TILE,
+    STILL_TILE,
     'flex flex-col',
     look.frame,
     episode.episodeNumber % 2 ? styles.a1 : styles.a0,
@@ -102,7 +102,7 @@ export const FocusTile = memo(function FocusTile({
         <h4 className={titleClass}>{episode.title}</h4>
         <p className={overviewClass}>{episode.description}</p>
         <EpisodeMeta episode={episode} />
-        <span className="text-meta text-white/80">{context}</span>
+        <span className="text-meta text-white/80 tabular-nums">{context}</span>
       </div>
       <FadedNumber number={episode.episodeNumber} />
       <OpenEpisodeHit episode={episode} />
@@ -123,7 +123,12 @@ type GridTileProps = Readonly<{ deferred: boolean; phoneHidden: boolean }>;
 
 /** A tile after Focus: off on a phone past the fold, deferred once revealed. */
 const gridTile = ({ deferred, phoneHidden }: GridTileProps) =>
-  cn(TILE, TILE_FRAME, phoneHidden && 'max-md:hidden', deferred && DEFERRED);
+  cn(
+    STILL_TILE,
+    TILE_FRAME,
+    phoneHidden && 'max-md:hidden',
+    deferred && DEFERRED,
+  );
 
 /** "E05 Children": the number quiet before the title, on one line. */
 function TileTitle({ episode }: Readonly<{ episode: ShowEpisode }>) {

@@ -1,4 +1,5 @@
 import type { ActionError } from '@/lib/actions/result';
+import { OUTDATED_MESSAGE } from '@/lib/actions/saveFailed';
 
 import type { PlexState } from '../../_lib/plexState';
 
@@ -61,5 +62,6 @@ export const appErrorText = (
   failed: 'That didn’t save. Try again.',
   invalid: `${app} doesn’t allow that right now.`,
   'not-found': `${app} isn’t connected any more.`,
+  outdated: OUTDATED_MESSAGE,
   unauthenticated: 'Sign in again to change this.',
 });

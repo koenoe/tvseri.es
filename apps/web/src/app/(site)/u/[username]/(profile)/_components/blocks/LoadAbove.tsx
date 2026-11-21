@@ -23,7 +23,7 @@ export default function LoadAbove({
   onLoad: () => void;
 }>) {
   const classes = cn(
-    'flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-12 bg-white/4 text-meta font-semibold transition-colors hover:bg-white/7 aria-busy:opacity-60',
+    'flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-12 bg-white/4 text-meta font-semibold transition-[background-color,opacity,scale] duration-150 ease-out hover:bg-white/7 active:scale-96 aria-busy:opacity-60 aria-busy:active:scale-100',
     className,
   );
   const ariaBusy = busy || undefined;

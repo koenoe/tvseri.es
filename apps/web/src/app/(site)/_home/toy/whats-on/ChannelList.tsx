@@ -1,6 +1,6 @@
 'use client';
 
-import type { KeyboardEvent, ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode, Ref } from 'react';
 
 import ChannelButton from './ChannelButton';
 import { CHANNELS } from './layout';
@@ -33,11 +33,14 @@ export default function ChannelList({
   current,
   onTune,
   onWarm,
+  ref,
   rows,
 }: Readonly<{
   current: number;
   onTune: (index: number) => void;
   onWarm: (index: number) => void;
+  /** The list, where the highlight glides (`WhatsOnRemote`) */
+  ref?: Ref<HTMLDivElement>;
   rows: ReadonlyArray<ChannelRow>;
 }>) {
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -58,6 +61,7 @@ export default function ChannelList({
       aria-label="Channels"
       className={CHANNELS}
       onKeyDown={onKeyDown}
+      ref={ref}
       role="radiogroup"
     >
       {rows.map((row, index) => {

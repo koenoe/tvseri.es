@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import MarkingProvider, {
@@ -10,7 +10,7 @@ import type { MarkingStoreApi } from '@/lib/marking/store';
 import ShowProvider from '../../_lib/ShowProvider';
 import type { ShowSummary } from '../../_lib/show';
 import SeasonSection from './SeasonSection';
-import { createSheetUi, SheetUiContext } from './sheetUi';
+import { createSheetUi, SheetUiContext, type SheetUiStore } from './sheetUi';
 
 const SERIES = 9101;
 
@@ -47,6 +47,7 @@ vi.mock('./MarkChip', async (importOriginal) => {
 });
 
 let store: MarkingStoreApi | null = null;
+let sheet: SheetUiStore | null = null;
 function GrabStore() {
   store = useMarkingStoreApi();
   return null;
@@ -66,11 +67,12 @@ describe('SeasonSection', () => {
 
   function setup(beforeSeed?: (view: ReturnType<typeof render>) => void) {
     renders.chips = 0;
+    sheet = createSheetUi();
     const view = render(
       <MarkingProvider>
         <GrabStore />
         <ShowProvider show={show}>
-          <SheetUiContext value={createSheetUi()}>
+          <SheetUiContext value={sheet}>
             {show.seasons.map((season) => (
               <SeasonSection
                 initial={false}
@@ -144,5 +146,35 @@ describe('SeasonSection', () => {
       screen.getByRole('button', { name }).getAttribute('aria-pressed');
     expect(pressed(/^S01E02 · /)).toBe('true');
     expect(pressed(/^S01E03 · Not watched$/)).toBe('false');
+  });
+
+  describe('answering "Mark the N before too?"', () => {
+    /** S01E05 just marked, with S01E02–04 still open before it */
+    function ask() {
+      setup();
+      const target = { episodeNumber: 5, seasonNumber: 1 };
+      act(() => sheet!.setState({ ask: target, last: target }));
+    }
+    const chip = () => screen.getByRole('button', { name: /^S01E05 · / });
+
+    it.each(['No', 'Yes, just now', 'Never for this series'])(
+      '“%s” hands focus back to the chip it asked about',
+      (answer) => {
+        ask();
+        const button = screen.getByRole('button', { name: answer });
+        button.focus();
+        fireEvent.click(button);
+        expect(screen.queryByRole('group', { name: /before too/ })).toBeNull();
+        expect(document.activeElement).toBe(chip());
+      },
+    );
+
+    it('leaves focus alone when it isn’t in the ask', () => {
+      ask();
+      const other = screen.getByRole('button', { name: /^S02E01 · / });
+      other.focus();
+      fireEvent.click(screen.getByRole('button', { name: 'No' }));
+      expect(document.activeElement).toBe(other);
+    });
   });
 });

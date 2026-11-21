@@ -10,7 +10,7 @@ export const DIALOG_LABEL = 'block text-overline text-white/60 uppercase';
 
 /** A choice in a picker's left column */
 export const PICKER_OPTION = cn(
-  'relative flex h-11 cursor-pointer items-center justify-between gap-2 whitespace-nowrap rounded-12 bg-white/5 px-3 text-left text-body-sm font-medium text-white transition-[background-color,box-shadow] duration-150 hover:bg-white/10',
+  'relative flex h-11 cursor-pointer items-center justify-between gap-2 whitespace-nowrap rounded-12 bg-white/5 px-3 text-left text-body-sm font-medium text-white transition-[background-color,box-shadow,scale] duration-150 ease-out hover:bg-white/10 active:scale-96',
   'aria-pressed:bg-white/12 aria-pressed:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.4)]',
 );
 

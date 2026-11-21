@@ -1,31 +1,19 @@
 'use client';
 
-import {
-  memo,
-  type TransitionEvent,
-  useCallback,
-  useMemo,
-  useState,
-} from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 
-import cn from '@/lib/cn';
 import { useIsSignedIn, useSeriesAnswer } from '@/lib/marking/hooks';
 import promptSignIn from '@/lib/marking/promptSignIn';
 import type { SeriesBase } from '@/lib/marking/types';
 import useMarking from '@/lib/marking/useMarking';
 import { openUpTo } from '../../_lib/dialogs';
 import { preloadUpTo } from '../picker/UpToHost';
-import PromptCard, {
-  PROMPT_CELL,
-  PROMPT_FRAME,
-  type PromptAnswers,
-} from './PromptCard';
+import PromptCard, { type PromptAnswers } from './PromptCard';
+import PromptFold from './PromptFold';
 import { rememberPromptAnswer } from './promptHint';
 import { promptDecision } from './shouldAsk';
 
 type Props = Readonly<{ seriesId: number; title: string }>;
-
-const FRAME = cn('group/prompt', PROMPT_FRAME);
 
 /**
  * "Seen The Bear before?" under the progress line,
@@ -34,7 +22,7 @@ const FRAME = cn('group/prompt', PROMPT_FRAME);
  * the show or answered it on this browser, and for a visitor who dismissed
  * it here. Signed in, any answer or mark hides it for good; signed out an
  * answer asks to sign in (as Watchlist does) and Not now dismisses it on
- * this browser for this series. Leaving, it fades and collapses (~220ms) and
+ * this browser for this series. Leaving, it folds shut (`PromptFold`) and
  * is removed. Not rendered before the premiere (the hero decides).
  */
 function FirstTrackingPrompt({ seriesId, title }: Props) {
@@ -47,8 +35,10 @@ function FirstTrackingPrompt({ seriesId, title }: Props) {
   const decision = useSeriesAnswer(seriesId, decide);
   const marking = useMarking();
   const [dismissed, setDismissed] = useState(false);
+  // once it has folded away it stays gone, whatever a later Undo says
   const [gone, setGone] = useState(false);
-  const leaving = dismissed || decision === 'hide';
+  const markGone = useCallback(() => setGone(true), []);
+  const leaving = gone || dismissed || decision === 'hide';
 
   const answers = useMemo<PromptAnswers>(() => {
     const answer = (value: 'starting' | 'not-now' | 'finished') => () => {
@@ -85,38 +75,11 @@ function FirstTrackingPrompt({ seriesId, title }: Props) {
     };
   }, [marking, seriesId, signedIn]);
 
-  // Removed once its row has collapsed (a hidden frame never transitions,
-  // and stays hidden).
-  const onTransitionEnd = useCallback(
-    (event: TransitionEvent<HTMLDivElement>) => {
-      if (
-        leaving &&
-        event.target === event.currentTarget &&
-        event.propertyName === 'grid-template-rows'
-      ) {
-        setGone(true);
-      }
-    },
-    [leaving],
-  );
-
-  if (gone) {
-    return null;
-  }
-  const asking = decision === 'ask' ? '' : undefined;
+  const asking = decision === 'ask';
   return (
-    <div
-      className={FRAME}
-      data-ask={asking}
-      data-leaving={leaving ? '' : undefined}
-      data-prompt=""
-      inert={leaving}
-      onTransitionEnd={onTransitionEnd}
-    >
-      <div className={PROMPT_CELL}>
-        <PromptCard answers={answers} seriesTitle={title} />
-      </div>
-    </div>
+    <PromptFold asking={asking} gone={leaving} onGone={markGone}>
+      <PromptCard answers={answers} seriesTitle={title} />
+    </PromptFold>
   );
 }
 

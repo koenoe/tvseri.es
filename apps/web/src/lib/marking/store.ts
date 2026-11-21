@@ -1,6 +1,7 @@
 import type { LibraryIds } from '@tvseri.es/schemas';
 import { createStore } from 'zustand/vanilla';
 
+import type { Culmination } from './culmination';
 import { regularWatchedCount } from './progress';
 import { applyOp, applyPending, type PendingOp, seedToBase } from './state';
 import type { MarkingOp, SeriesBase, SeriesSeed } from './types';
@@ -44,6 +45,12 @@ export type MarkingState = Readonly<{
    * own episode count adds it on top of the number it was rendered with.
    */
   episodesSaved: number;
+  /**
+   * The last show or season one of this tab's own marks completed
+   * (`culminate`); null until one does. A component plays it only when it
+   * changes while that component is on screen (`useCulmination`).
+   */
+  culmination: Culmination | null;
 }>;
 
 export type MarkingActions = Readonly<{
@@ -99,6 +106,8 @@ export type MarkingActions = Readonly<{
   setHidden: (seriesId: number, value: boolean | undefined) => void;
   /** Episodes saved outside a settle (the Remote's N on an unseeded show) */
   countSaved: (episodes: number) => void;
+  /** A mark of the viewer's completed a show or season: a new `culmination` */
+  culminate: (completed: Omit<Culmination, 'key'>) => void;
 }>;
 
 export type MarkingStore = MarkingState & MarkingActions;
@@ -249,6 +258,14 @@ function createStoreOf() {
     },
     countSaved: (episodes) =>
       set({ episodesSaved: get().episodesSaved + episodes }),
+    culminate: (completed) =>
+      set({
+        culmination: {
+          ...completed,
+          key: (get().culmination?.key ?? 0) + 1,
+        },
+      }),
+    culmination: null,
     episodesSaved: 0,
     fail: (seriesId, id) => {
       const current = get().series[seriesId];

@@ -11,6 +11,14 @@ import { seasonName } from './panelRows';
 import useSeasonSelect, { panel } from './useSeasonSelect';
 
 /**
+ * 44px tall to the pointer. Phones: 8px above the 32px box, 4 below (the
+ * season line's targets reach 4px up into the 8px gap under it); from md
+ * 2px past the 40.
+ */
+const TRIGGER =
+  'relative inline-flex h-8 items-center gap-2.5 whitespace-nowrap rounded-8 text-title-3 after:absolute after:inset-x-0 after:-top-2 after:-bottom-1 md:h-10 md:text-title-2 md:after:-inset-y-0.5';
+
+/**
  * The season select: "Season 3 ▾" as the section title opens a calm panel
  * (a popover on desktop, a bottom sheet on a phone, loaded on first use). A select-only
  * combobox (WAI-ARIA APG): focus stays on the trigger and the active option
@@ -78,7 +86,7 @@ export default function SeasonSelect({
         aria-expanded={state.open}
         aria-haspopup="listbox"
         aria-label="Season"
-        className="inline-flex h-8 items-center gap-2.5 whitespace-nowrap rounded-8 text-title-3 md:h-10 md:text-title-2"
+        className={TRIGGER}
         onClick={toggle}
         onFocus={panel.preload}
         onPointerDown={panel.preload}

@@ -1,14 +1,31 @@
 'use client';
 
 import { type KeyboardEvent, useId, useRef } from 'react';
-
+import SwapIn from '@/components/motion/SwapIn';
+import ChoiceButton from '@/components/ui/button/ChoiceButton';
 import cn from '@/lib/cn';
-
 import NumberedSteps, {
   type NumberedStepsLayout,
 } from '../../_components/NumberedSteps';
 import { HELP, HELP_TABS } from '../_lib/copy';
 import type { HelpTab } from '../_lib/importState';
+import { SEGMENT_BASE, SEGMENTED } from './styles';
+
+/**
+ * The importer's segmented control; on a phone it spans the card and its
+ * labels stay on one line at 13px (at 360 "Prime / Video" hung out of it)
+ */
+const TABS = cn(SEGMENTED, 'max-md:self-stretch');
+/**
+ * A tab reaches 10px up only (40px to the pointer): above is the card's
+ * title, plain text; a reach below would spill out of the tab and read as
+ * its label overflowing the control
+ */
+const TAB = cn(
+  SEGMENT_BASE,
+  'max-md:flex-auto max-md:px-2 max-md:text-meta',
+  'after:absolute after:inset-x-0 after:-top-2.5 after:bottom-0',
+);
 
 /** Each place keeps its own look on purpose; don't unify them. */
 const HELP_STEPS: NumberedStepsLayout = {
@@ -25,7 +42,9 @@ const NEXT_KEY: Readonly<Record<string, number>> = {
 /**
  * "Where do I get my file?": Netflix / Prime Video /
  * Other CSV as ARIA tabs (arrow keys move and select, Home/End jump), three
- * short lines each. Without `onTab` it is the static loading frame.
+ * short lines each; a tab's lines rise in as a tab panel's body does
+ * (`SwapIn`), inside one panel that keeps its id (the tabs' fill glides).
+ * Without `onTab` it is the static loading frame.
  */
 export default function HelpCard({
   onTab,
@@ -66,9 +85,7 @@ export default function HelpCard({
         <b className="text-body font-semibold">Where do I get my file?</b>
         <div
           aria-label="Where to get your file"
-          // a phone: the control spans the card and its labels stay on one
-          // line at 13px (at 360 "Prime / Video" hung out of it)
-          className="flex gap-0.5 rounded-10 bg-black/28 p-0.75 max-md:self-stretch"
+          className={TABS}
           onKeyDown={onKeyDown}
           ref={listRef}
           role="tablist"
@@ -76,33 +93,29 @@ export default function HelpCard({
           {HELP_TABS.map(([key, label]) => {
             const isOn = key === tab;
             const pick = onTab ? () => onTab(key) : undefined;
-            const tabClass = cn(
-              'h-7.5 cursor-pointer whitespace-nowrap rounded-[7px] px-3 text-body-sm font-medium transition-[background-color,color] max-md:flex-auto max-md:px-2 max-md:text-meta',
-              isOn
-                ? 'bg-white/16 text-white'
-                : 'text-white/60 hover:text-white',
-            );
             const buttonId = tabId(key);
             return (
-              <button
+              <ChoiceButton
                 aria-controls={panelId}
                 aria-selected={isOn}
-                className={tabClass}
+                className={TAB}
                 id={buttonId}
                 key={key}
+                on={isOn}
                 onClick={pick}
                 role="tab"
                 tabIndex={isOn ? 0 : -1}
-                type="button"
               >
                 {label}
-              </button>
+              </ChoiceButton>
             );
           })}
         </div>
       </div>
       <div aria-labelledby={tabLabelId} id={panelId} role="tabpanel">
-        <NumberedSteps layout={HELP_STEPS} lines={HELP[tab]} />
+        <SwapIn swapKey={tab}>
+          <NumberedSteps layout={HELP_STEPS} lines={HELP[tab]} />
+        </SwapIn>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import type { EpisodeRef } from '@tvseri.es/schemas';
 import { useCallback, useId, useLayoutEffect, useRef } from 'react';
 
+import { PANEL_DROP } from '@/components/motion/panelDrop';
 import { CENTER_MOTION } from '@/components/ui/dialog/dialogMotion';
 import { SURFACE } from '@/components/ui/dialog/dialogStyles';
 import ModalShell from '@/components/ui/dialog/ModalShell';
@@ -17,7 +18,6 @@ import { useShow } from '../../_lib/ShowProvider';
 import { PANEL_QUERY_ABOVE, type PanelRow } from './panelRows';
 import { centreRow, POPOVER_GAP, placePopover } from './popoverPlacement';
 import SeasonPanelBody from './SeasonPanelBody';
-import styles from './seasonPanel.module.css';
 
 export type SeasonPanelProps = Readonly<{
   seriesId: number;
@@ -39,9 +39,9 @@ export type SeasonPanelProps = Readonly<{
 }>;
 
 const POPOVER = cn(
-  'absolute top-13 left-[-6px] z-20 flex max-h-150 w-110 flex-col gap-1.5 rounded-18 p-2 shadow-[0_30px_60px_-16px_rgb(0_0_0/0.85),0_0_0_1px_rgb(255_255_255/0.08)]',
+  'absolute top-13 left-[-6px] z-20 flex max-h-150 w-110 flex-col gap-1.5 rounded-20 p-2 shadow-[0_30px_60px_-16px_rgb(0_0_0/0.85),0_0_0_1px_rgb(255_255_255/0.08)]',
   SURFACE.dialog,
-  styles.pop,
+  PANEL_DROP,
 );
 
 const SHEET = cn(

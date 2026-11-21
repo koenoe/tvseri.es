@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
+import { render } from '@testing-library/react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import Row from './Row';
+import Row, { type RowSwap } from './Row';
 
 function serverRender(markup: string) {
   const root = document.createElement('div');
@@ -81,5 +82,85 @@ describe('Row (server markup)', () => {
       ),
     );
     expect(root.querySelectorAll('button')).toHaveLength(2);
+  });
+});
+
+describe('Row with a switch (swap)', () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        disconnect() {}
+        observe() {}
+      },
+    );
+  });
+
+  const tiles = (names: ReadonlyArray<string>) =>
+    names.map((name) => (
+      <a href={`/${name}`} key={name}>
+        {name}
+      </a>
+    ));
+  const swapOf = (key: string, arriving: boolean): RowSwap => ({
+    arriving,
+    key,
+    onTransitionEnd: vi.fn(),
+  });
+
+  it('draws no arrival without a swap', () => {
+    const list = topPicks().querySelector('ul')!;
+    expect(list.hasAttribute('data-fade')).toBe(false);
+    expect(list.firstElementChild?.className).not.toContain('starting:');
+  });
+
+  it('never rises in on the first paint', () => {
+    const swap = swapOf('crime', false);
+    const root = serverRender(
+      renderToStaticMarkup(
+        <Row id="kinds" swap={swap} title="Crime">
+          {tiles(['silo', 'severance'])}
+        </Row>,
+      ),
+    );
+    expect(root.querySelector('ul')!.hasAttribute('data-fade')).toBe(false);
+  });
+
+  it('draws a switched-to tab as new tiles that rise into the same rail', () => {
+    const { container, rerender } = render(
+      <Row id="kinds" swap={swapOf('crime', false)} title="Crime">
+        {tiles(['silo', 'severance'])}
+      </Row>,
+    );
+    const rail = container.querySelector('ul')!;
+    const before = Array.from(rail.children);
+    // the same show in both tabs is drawn again too: the whole tab arrives
+    rerender(
+      <Row id="kinds" swap={swapOf('drama', true)} title="Crime">
+        {tiles(['silo', 'dark'])}
+      </Row>,
+    );
+    expect(container.querySelector('ul')).toBe(rail);
+    expect(container.querySelectorAll('#kinds-rail')).toHaveLength(1);
+    expect(rail.hasAttribute('data-fade')).toBe(true);
+    expect(rail.firstElementChild).not.toBe(before[0]);
+  });
+
+  it('keeps its tiles while the tab stays', () => {
+    const { container, rerender } = render(
+      <Row id="kinds" swap={swapOf('crime', true)} title="Crime">
+        {tiles(['silo'])}
+      </Row>,
+    );
+    const tile = container.querySelector('li');
+    rerender(
+      <Row id="kinds" swap={swapOf('crime', false)} title="Crime">
+        {tiles(['silo'])}
+      </Row>,
+    );
+    expect(container.querySelector('li')).toBe(tile);
+    expect(container.querySelector('ul')!.hasAttribute('data-fade')).toBe(
+      false,
+    );
   });
 });

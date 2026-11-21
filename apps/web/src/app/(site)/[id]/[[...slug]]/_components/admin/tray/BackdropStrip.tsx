@@ -33,7 +33,8 @@ const BackdropOption = memo(function BackdropOption({
 }: OptionProps) {
   const pick = useCallback(() => onPick(choice.key), [choice.key, onPick]);
   const className = cn(
-    'group relative shrink-0 cursor-pointer overflow-hidden rounded-8 bg-white/6 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)]',
+    // the rim is a layer over the picture: an inset shadow on the button is painted under it
+    'group image-rim relative shrink-0 cursor-pointer overflow-hidden rounded-8 bg-white/6',
     THUMB[size],
     choice.isPicked && 'shadow-[0_0_0_2px_#fff]',
     locked && 'cursor-default',

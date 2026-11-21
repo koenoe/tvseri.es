@@ -73,7 +73,7 @@ function Picture({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <div
       aria-hidden="true"
-      className="@container relative h-50 overflow-hidden rounded-12 bg-[#111516] shadow-[inset_0_0_0_1px_rgb(255_255_255/0.06)]"
+      className="@container image-rim relative h-50 overflow-hidden rounded-12 bg-[#111516]"
     >
       {children}
     </div>

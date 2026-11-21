@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import { toast } from 'sonner';
 
+import { HIT_ALL, HIT_Y } from '@/components/ui/button/hitArea';
 import { closeGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
@@ -11,10 +12,13 @@ import useToastTimer from './useToastTimer';
 
 export type ToastAction = Readonly<{ label: string; onClick: () => void }>;
 
-const ACTION =
-  'h-8 shrink-0 cursor-pointer whitespace-nowrap rounded-8 px-3 text-caption font-medium transition-colors hover:bg-white/18';
+/** 32px, 40 to the pointer */
+const ACTION = `${HIT_Y[4]} relative h-8 shrink-0 cursor-pointer whitespace-nowrap rounded-8 px-3 text-caption font-medium transition-colors hover:bg-white/18`;
 const QUIET_ACTION = `${ACTION} text-white/80`;
 const FILLED_ACTION = `${ACTION} bg-white/10`;
+
+/** 28px, 40 to the pointer (the actions sit 12px away) */
+const DISMISS = `${HIT_ALL[6]} relative flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-8 text-white/60 transition-colors hover:text-white`;
 
 /**
  * As wide as its content: 280px at least, the toaster's `--width` (720) at
@@ -34,7 +38,9 @@ const ICON_BARE =
 /** 24px after the message: the buttons read as a group apart from it */
 const ACTIONS = 'ml-3 flex shrink-0 items-center gap-3';
 const ACTIONS_STACKED =
-  'max-[600px]:order-last max-[600px]:basis-full max-[600px]:justify-end';
+  'max-[600px]:order-last max-[600px]:basis-full max-[600px]:justify-end max-[600px]:*:after:-top-0.5';
+/** Stacked, ✕ sits 4px over the actions: each reaches 2px into the gap */
+const DISMISS_STACKED = 'max-[600px]:after:-bottom-0.5';
 
 /**
  * The dark toast: a 22px icon disc (a warning has no disc), the message (one
@@ -81,6 +87,7 @@ export default function ToastCard({
   const stacks = Boolean(secondaryAction && action);
   const card = cn(CARD, stacks && CARD_STACKS);
   const actions = cn(ACTIONS, stacks && ACTIONS_STACKED);
+  const dismissClasses = cn(DISMISS, stacks && DISMISS_STACKED);
   const iconClasses = tone === 'error' ? ICON_BARE : ICON_DISC;
   return (
     <div className={card} {...pauseHandlers}>
@@ -111,7 +118,7 @@ export default function ToastCard({
       ) : null}
       <button
         aria-label="Dismiss"
-        className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-8 text-white/60 transition-colors hover:text-white"
+        className={dismissClasses}
         onClick={dismiss}
         type="button"
       >

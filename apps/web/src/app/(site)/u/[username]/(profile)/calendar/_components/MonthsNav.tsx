@@ -3,13 +3,13 @@
 import { formatGrouped, plural } from '@tvseri.es/utils';
 import type { MouseEvent } from 'react';
 import { useRef } from 'react';
-
+import { usePillGlide } from '@/components/motion/usePillGlide';
 import cn from '@/lib/cn';
-
-import { usePillGlide } from '../../_lib/usePillGlide';
 import { monthName, monthOf } from '../_lib/calendarDates';
 import { useCalendarUrl, writeCalendarUrl } from '../_lib/calendarUrl';
 import { MONTH_ROW } from './calendarStyles';
+
+const NAV = 'flex flex-col gap-0.5';
 
 export type DatedMonth = Readonly<{ month: string; shows: number }>;
 
@@ -42,11 +42,7 @@ export default function MonthsNav({
   const nav = useRef<HTMLElement>(null);
   const glide = usePillGlide(nav, current);
   return (
-    <nav
-      aria-label="Months with dates"
-      className="flex flex-col gap-0.5"
-      ref={nav}
-    >
+    <nav aria-label="Months with dates" className={NAV} ref={nav}>
       <h2 className="px-2.5 pb-1.5 text-overline text-white/60 uppercase">
         Months with dates
       </h2>

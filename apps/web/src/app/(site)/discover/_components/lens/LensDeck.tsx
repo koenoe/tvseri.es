@@ -28,7 +28,7 @@ export default function LensDeck({
     <span aria-hidden className={deckClass}>
       {posters.map((poster, index) => {
         const posterClass = cn(
-          'absolute inset-0 overflow-hidden rounded-6 bg-white/5 shadow-[0_18px_30px_-12px_rgb(0_0_0/0.85)] transition-transform duration-400 ease-[cubic-bezier(0.2,0.8,0.2,1)] after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08)] md:rounded-8',
+          'absolute inset-0 overflow-hidden rounded-6 bg-white/5 shadow-[0_18px_30px_-12px_rgb(0_0_0/0.85)] transition-transform duration-400 ease-[cubic-bezier(0.2,0.8,0.2,1)] image-rim md:rounded-8',
           BACK[index],
         );
         return (

@@ -2,15 +2,17 @@
 
 import type { LibraryCounts, LibraryShelf } from '@tvseri.es/schemas';
 import { LIBRARY_SHELVES } from '@tvseri.es/schemas';
-import { formatGrouped } from '@tvseri.es/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Fragment, useRef } from 'react';
+import { FILL_BEFORE } from '@/components/motion/fillBefore';
+import { useLinkGlide } from '@/components/motion/fillGlide';
+import RollingCount from '@/components/motion/RollingCount';
+import { usePillGlide } from '@/components/motion/usePillGlide';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 import { libraryPath } from '@/lib/routing/profilePath';
 import { useShelfCounts } from '../../_lib/shelfCounts';
-import { usePillGlide } from '../../_lib/usePillGlide';
 import { SHELVES } from '../_lib/shelves';
 import { NavRule, ROW, ShelvesHeading } from './shelfNavParts';
 import { SHELF_CHIP } from './toolbarStyles';
@@ -49,7 +51,8 @@ function useActiveShelf(defaultShelf: LibraryShelf): LibraryShelf {
 /**
  * The sidebar's shelf navigator: "Shelves · a series can
  * sit on two", a row per shelf with its count, a rule before All series. A
- * shelf at 0 is dimmed and not a link. Counts follow this page's changes.
+ * shelf at 0 is dimmed and not a link. Counts follow this page's changes,
+ * rolling to their new value; a row's name keeps the number.
  */
 export function ShelfNav({ counts, defaultShelf, owner, username }: Props) {
   const live = useShelfCounts(username, counts);
@@ -114,7 +117,7 @@ function ShelfRow({
       <Icon className={iconClass} glyph={meta.glyph} size={16} />
       <span className="relative">{meta.label}</span>
       <span className={countClass}>
-        {count === null ? '' : formatGrouped(count)}
+        {count === null ? null : <RollingCount value={count} />}
       </span>
     </>
   );
@@ -146,28 +149,33 @@ const EMPTY_CHIP = cn(SHELF_CHIP, 'bg-white/6 text-white/35');
 /**
  * The phone's shelves: one row of chips under the
  * tabs, scrolling sideways; the active one white, one at 0 dimmed and not a
- * link.
+ * link. The white fill glides from the open shelf to the one pressed, as
+ * the desktop's highlight does (`useLinkGlide`). The rail's 6px padding, taken back by its margin, holds the chips'
+ * reach (a scroller clips what overflows it).
  */
 export function ShelfChips({ counts, defaultShelf, owner, username }: Props) {
   const live = useShelfCounts(username, counts);
   const active = useActiveShelf(defaultShelf);
+  const rail = useRef<HTMLElement>(null);
+  const onPress = useLinkGlide(() => rail.current, active);
   return (
     <nav
       aria-label="Shelves"
-      className="-mx-gutter flex gap-2 overflow-x-auto px-gutter [scrollbar-width:none]"
+      className="-mx-gutter -my-1.5 flex gap-2 overflow-x-auto px-gutter py-1.5 [scrollbar-width:none]"
+      ref={rail}
     >
       {shelvesFor(owner, live, active).map((shelf) => {
         const count = live?.[shelf] ?? null;
         const on = shelf === active;
         const chipCountClass = cn(
-          'tabular-nums',
+          'tabular-nums transition-colors duration-150 ease-out',
           on ? 'text-[rgb(23_23_23/0.6)]' : 'text-white/60',
         );
         const label = (
           <>
             {SHELVES[shelf].chip}
             <span className={chipCountClass}>
-              {count === null ? '' : formatGrouped(count)}
+              {count === null ? null : <RollingCount value={count} />}
             </span>
           </>
         );
@@ -181,7 +189,9 @@ export function ShelfChips({ counts, defaultShelf, owner, username }: Props) {
         const href = libraryPath(username, shelf);
         const chipClass = cn(
           SHELF_CHIP,
-          on ? 'bg-white text-[#171717]' : 'bg-white/6 text-white/80',
+          FILL_BEFORE,
+          'bg-white/6',
+          on ? 'text-[#171717] before:bg-white' : 'text-white/80',
         );
         return (
           <Link
@@ -189,6 +199,7 @@ export function ShelfChips({ counts, defaultShelf, owner, username }: Props) {
             className={chipClass}
             href={href}
             key={shelf}
+            onClick={onPress}
           >
             {label}
           </Link>

@@ -18,10 +18,10 @@ import LaneGhost, {
   ShowAllGhost,
 } from '../blocks/LaneGhost';
 import { LANE_CAPS } from '../blocks/laneCaps';
+import { LANE_ROW_BUTTON } from '../blocks/laneRowButton';
 import PausedLane from './paused/PausedLane';
 import {
   PAUSED_ACTIONS,
-  PAUSED_BUTTON,
   PAUSED_META,
   PAUSED_POSTER,
   PAUSED_QUESTION,
@@ -74,10 +74,10 @@ function PausedRowGhost() {
         </MetaRow>
       </span>
       <span className={PAUSED_ACTIONS}>
-        <ButtonFace className={PAUSED_BUTTON} variant="outline">
+        <ButtonFace className={LANE_ROW_BUTTON} variant="outline">
           Keep
         </ButtonFace>
-        <ButtonFace className={PAUSED_BUTTON} variant="outline">
+        <ButtonFace className={LANE_ROW_BUTTON} variant="outline">
           Hide
         </ButtonFace>
       </span>

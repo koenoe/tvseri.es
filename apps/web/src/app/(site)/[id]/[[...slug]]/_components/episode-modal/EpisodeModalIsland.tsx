@@ -3,37 +3,20 @@
 import type { EpisodeRef } from '@tvseri.es/schemas';
 import { useEffect } from 'react';
 
-import { createLoader } from '@/lib/lazy/createLoader';
 import { useLoader } from '@/lib/lazy/useLoader';
 import whenIdle from '@/lib/lazy/whenIdle';
+import { prefetchEpisode } from '@/lib/series/useEpisodeData';
 import { requestSeason } from '@/lib/series/useSeasonEpisodes';
 import { useShow } from '../../_lib/ShowProvider';
 import { closeEpisode, toNumberParam } from '../../_lib/urlState';
 import useOpenedOnce from '../../_lib/useOpenedOnce';
 import useShowQuery from '../../_lib/useShowQuery';
+import { episodeModal, preloadEpisodeModal } from './episodeModalChunk';
 import { isKnownEpisode } from './episodeSteps';
-import { prefetchEpisode } from './useEpisodeData';
 
-/**
- * The modal is its own chunk (a plain loader, not `next/dynamic`: a failed
- * chunk is tried again on the next open; ~18 KB gzip): it isn't part of the page's
- * first load, and is fetched once the browser is idle, so the first open
- * doesn't wait for it (measured: ~320ms cold vs ~20ms warm).
- */
-const modal = createLoader(() =>
-  import('./EpisodeModal').then((module) => module.default),
-);
+/** The show page's tiles warm the modal through the island */
 
 const IDLE_PRELOAD = { fallbackDelay: 2000, timeout: 5000 } as const;
-
-/**
- * Starts loading the modal's chunk now (idle time, or a tile's pointerenter
- * or focus when that comes first). Tiles that open the modal
- * also carry `data-episode-tile="S03E05"` on the element the card grows from.
- */
-export function preloadEpisodeModal() {
-  modal.preload();
-}
 
 /**
  * The episode modal (`?season=N&episode=M`). Reads the URL only; the
@@ -78,6 +61,6 @@ export default function EpisodeModalIsland() {
     ? `${episode.seasonNumber}:${episode.episodeNumber}`
     : null;
   // a failed chunk leaves it closed; the next episode asked loads it again
-  const [EpisodeModal] = useLoader(modal, askedKey);
+  const [EpisodeModal] = useLoader(episodeModal, askedKey);
   return opened && EpisodeModal ? <EpisodeModal episode={episode} /> : null;
 }

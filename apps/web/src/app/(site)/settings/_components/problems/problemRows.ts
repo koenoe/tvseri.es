@@ -8,11 +8,17 @@ const VISIBLE = 2;
 export const rowsIn = (items: ReadonlyArray<ProblemItem>) =>
   items.reduce((sum, item) => sum + item.indexes.length, 0);
 
+/** The items not fixed or skipped yet */
+export const openItems = (
+  items: ReadonlyArray<ProblemItem>,
+  fixes: Readonly<Record<string, Fix>>,
+) => items.filter((item) => !fixes[item.key]);
+
 /** The rows of the items not fixed or skipped yet */
 export const openRows = (
   items: ReadonlyArray<ProblemItem>,
   fixes: Readonly<Record<string, Fix>>,
-) => rowsIn(items.filter((item) => !fixes[item.key]));
+) => rowsIn(openItems(items, fixes));
 
 /**
  * A group's items one by one and the summed-up rest: all of them once shown

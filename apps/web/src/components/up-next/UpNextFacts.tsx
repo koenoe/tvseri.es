@@ -51,7 +51,7 @@ export default function UpNextFacts({
   facts,
 }: Readonly<{ facts: ReadonlyArray<UpNextFact> }>) {
   return (
-    <MetaRow className={UP_NEXT_FACTS} fit="drop">
+    <MetaRow className={UP_NEXT_FACTS} fit="drop" numbers="tabular">
       {facts.map((fact) => (
         <Fact fact={fact} key={fact.kind} />
       ))}

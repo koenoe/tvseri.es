@@ -1,7 +1,10 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 
+import { FILL_BEFORE } from '@/components/motion/fillBefore';
 import type { IconSize } from '@/components/ui/icon/types';
 import cn from '@/lib/cn';
+
+import { HIT_ALL, HIT_Y } from './hitArea';
 
 /**
  * Class lists for every shared pressable control. Each takes an optional
@@ -9,27 +12,49 @@ import cn from '@/lib/cn';
  * express a one-off state without a new variant. Focus rings come from the
  * global `:focus-visible` rule. The style guide (ButtonSection) shows each
  * variant.
+ *
+ * A press scales a control to 0.96 (never while disabled); a place where
+ * that would distract opts out with `active:scale-none` in its `className`.
+ * `none`, not `scale-100`: any scale makes the control the containing block
+ * of its absolute parts, so a reach drawn against an ancestor (a whole
+ * header row) would shrink under the pointer mid-press.
  */
+
+/** The press: 0.96, held at 1 while disabled */
+const PRESS =
+  'active:scale-96 disabled:active:scale-100 aria-disabled:active:scale-100';
 
 const pill = cva(
   [
     'inline-flex max-w-full shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium select-none',
-    'transition-[background-color,border-color,color,opacity] duration-150',
+    'transition-[background-color,border-color,color,opacity,scale] duration-150',
+    PRESS,
     'disabled:cursor-default aria-disabled:cursor-default',
     'aria-busy:cursor-progress aria-busy:opacity-50',
   ],
   {
     defaultVariants: { size: 'md', variant: 'outline' },
     variants: {
+      /*
+       * The icon side sits closer than the text side (an icon's box has air
+       * in it), leading or trailing alike. Under 40px the target reaches
+       * above and below the pill to 40.
+       */
       size: {
         /** 44: phone targets and the Focus tile pill (0 20 0 16) */
-        lg: 'h-11 gap-2.5 px-5 text-body-sm has-[>svg:first-child]:pl-4',
+        lg: 'h-11 gap-2.5 px-5 text-body-sm has-[>svg:first-child]:pl-4 has-[>svg:last-child]:pr-4',
         /** 40: the default (0 16 0 14) */
-        md: 'h-10 px-4 text-body-sm has-[>svg:first-child]:pl-3.5',
+        md: 'h-10 px-4 text-body-sm has-[>svg:first-child]:pl-3.5 has-[>svg:last-child]:pr-3.5',
         /** 36: compact actions */
-        sm: 'h-9 px-3.5 text-body-sm has-[>svg:first-child]:pl-3',
+        sm: [
+          'relative h-9 px-3.5 text-body-sm has-[>svg:first-child]:pl-3 has-[>svg:last-child]:pr-3',
+          HIT_Y[2],
+        ],
         /** 32: the eye pill on a still (0 14 0 10) */
-        xs: 'h-8 px-3.5 text-caption has-[>svg:first-child]:pl-2.5',
+        xs: [
+          'relative h-8 px-3.5 text-caption has-[>svg:first-child]:pl-2.5 has-[>svg:last-child]:pr-2.5',
+          HIT_Y[4],
+        ],
       },
       variant: {
         /** frosted, for buttons over a still */
@@ -79,7 +104,7 @@ const circle = cva(
   [
     'relative inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-white/20 text-white/80',
     'transition-[background-color,border-color,color,opacity,scale] duration-150',
-    'hover:border-white/45 hover:bg-white/6 hover:text-white active:scale-94 active:bg-white/10',
+    'hover:border-white/45 hover:bg-white/6 hover:text-white active:scale-96 active:bg-white/10',
     'aria-pressed:border-white aria-pressed:text-white',
     'disabled:cursor-default disabled:opacity-30 disabled:hover:border-white/20 disabled:hover:bg-transparent disabled:active:scale-100',
     'aria-disabled:cursor-default aria-disabled:opacity-30 aria-disabled:hover:border-white/20 aria-disabled:hover:bg-transparent aria-disabled:active:scale-100',
@@ -88,8 +113,8 @@ const circle = cva(
     defaultVariants: { size: 32, tone: 'outline' },
     variants: {
       size: {
-        /** a dialog's ✕, a card's ⋯ */
-        32: 'size-8',
+        /** a dialog's ✕, a card's ⋯: 40px to the pointer (a dialog's tools sit 8px apart, so not 44) */
+        32: ['size-8', HIT_ALL[6]],
         /** row arrows */
         40: 'size-10',
         /** the large ⋯ */
@@ -126,8 +151,11 @@ export const CIRCLE_ICON_SIZE: Readonly<Record<CircleButtonSize, IconSize>> = {
 
 const chip = cva(
   [
-    'inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full text-caption font-medium',
-    'transition-[background-color,border-color,color] duration-200',
+    'relative inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full text-caption font-medium',
+    'transition-[background-color,border-color,color,scale] duration-150 ease-out',
+    PRESS,
+    // 8px more above and below: a cloud's rows are 8px apart
+    HIT_Y[4],
     'aria-pressed:bg-white aria-pressed:text-black/90',
   ],
   {
@@ -196,9 +224,10 @@ export function segmentedStyles({ className }: WithClassName = {}) {
  */
 export function segmentedItemStyles({ className }: WithClassName = {}) {
   return cn(
-    'relative isolate inline-flex h-7.5 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full px-3 text-body-sm font-medium text-white/60',
+    FILL_BEFORE,
+    'inline-flex h-7.5 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full px-3 text-body-sm font-medium text-white/60',
+    HIT_Y[5],
     'transition-colors duration-200 hover:text-white',
-    'before:absolute before:inset-0 before:-z-1 before:origin-left before:rounded-[inherit]',
     'aria-pressed:text-white aria-pressed:before:bg-white/15',
     className,
   );
@@ -234,7 +263,7 @@ export function pillSwitchStyles({ className }: WithClassName = {}) {
  */
 export function pillSwitchItemStyles({ className }: WithClassName = {}) {
   return cn(
-    'relative flex h-7 shrink-0 cursor-pointer items-center whitespace-nowrap rounded-full px-3 text-body-sm font-medium transition-colors duration-300',
+    'relative flex h-7 shrink-0 cursor-pointer items-center whitespace-nowrap rounded-full px-3 text-body-sm font-medium transition-colors duration-150 ease-out',
     'text-white/60 hover:text-white/80 aria-pressed:text-white aria-pressed:hover:text-white',
     className,
   );

@@ -11,7 +11,7 @@ import type { TileView } from '@/lib/profile/tileView';
 import { bumpCounts } from '../../_lib/shelfCounts';
 import { createSelectionStore, SELECT_MAX } from './selection';
 import { SHELVES } from './shelves';
-import type { LeaveReason } from './useShelfTiles';
+import type { LeaveHow, LeaveReason } from './useShelfTiles';
 
 /** The pick past the cap */
 const capped = () =>
@@ -36,7 +36,11 @@ export default function useShelfSelect({
   /** `useShelfTiles`' come back: tiles whose write failed return */
   comeBack: (ids: ReadonlyArray<number>, reason: LeaveReason) => void;
   /** `useShelfTiles`' leave: the tiles and the counts */
-  leaveShelf: (ids: ReadonlyArray<number>, reason: LeaveReason) => void;
+  leaveShelf: (
+    ids: ReadonlyArray<number>,
+    reason: LeaveReason,
+    how?: LeaveHow,
+  ) => void;
   owner: boolean;
   shelf: LibraryShelf;
   tiles: ReadonlyArray<TileView>;
@@ -48,8 +52,8 @@ export default function useShelfSelect({
   const selecting = useStore(selection, (state) => state.selecting);
 
   const leave = useCallback(
-    (ids: ReadonlyArray<number>, reason: LeaveReason) => {
-      leaveShelf(ids, reason);
+    (ids: ReadonlyArray<number>, reason: LeaveReason, how?: LeaveHow) => {
+      leaveShelf(ids, reason, how);
       selection.getState().forget(ids);
     },
     [leaveShelf, selection],
@@ -60,7 +64,8 @@ export default function useShelfSelect({
 
   const context = useMemo(
     () => ({
-      leave: (id: number, reason: LeaveReason) => leave([id], reason),
+      leave: (id: number, reason: LeaveReason, how?: LeaveHow) =>
+        leave([id], reason, how),
       longPress: (id: number) => {
         const state = selection.getState();
         if (!state.selecting) {

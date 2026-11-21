@@ -1,7 +1,9 @@
+import { ViewTransition } from 'react';
 import BarTip, { type BarTipLayout } from '@/components/ui/chart/BarTip';
 import ChartTable from '@/components/ui/chart/ChartTable';
 import cn from '@/lib/cn';
 
+import { YEAR_WEEKS_SHARE, yearWeeksName } from '../../../../_lib/yearWeeks';
 import type { YearBar } from './yearBars';
 
 /** Tooltips on the first and last bars hang inward so they never leave the viewport */
@@ -55,31 +57,43 @@ const STUB_OTHER = `${STUB} bg-white/10`;
 /**
  * The weekly bars, each showing its week on hover. Screen readers get a
  * hidden table instead (`ChartTable`, as on Stats), not a tab stop per
- * week. `flat` is the empty year: 4px stubs, this week cyan.
+ * week. `flat` is the empty year: 4px stubs, this week cyan. Following the
+ * block's Stats link, the bars grow into the year's week chart
+ * (`yearWeeks.ts`).
  */
 export default function WeekBars({
   bars,
   flat,
   label,
+  year,
 }: Readonly<{
   bars: ReadonlyArray<YearBar>;
   flat: boolean;
   label: string;
+  year: number;
 }>) {
+  const name = yearWeeksName(year);
   return (
     <>
       {flat ? null : <ChartTable caption={label} rows={bars} />}
-      <div aria-hidden="true" className={WEEK_BARS}>
-        {bars.map((bar, index) =>
-          flat ? (
-            <span aria-hidden="true" className={WEEK_SLOT} key={bar.label}>
-              <span className={bar.current ? STUB_CURRENT : STUB_OTHER} />
-            </span>
-          ) : (
-            <Bar bar={bar} index={index} key={bar.label} total={bars.length} />
-          ),
-        )}
-      </div>
+      <ViewTransition default="none" name={name} share={YEAR_WEEKS_SHARE}>
+        <div aria-hidden="true" className={WEEK_BARS}>
+          {bars.map((bar, index) =>
+            flat ? (
+              <span aria-hidden="true" className={WEEK_SLOT} key={bar.label}>
+                <span className={bar.current ? STUB_CURRENT : STUB_OTHER} />
+              </span>
+            ) : (
+              <Bar
+                bar={bar}
+                index={index}
+                key={bar.label}
+                total={bars.length}
+              />
+            ),
+          )}
+        </div>
+      </ViewTransition>
     </>
   );
 }

@@ -420,6 +420,7 @@ describe('consumers: GET /duration/where-to-start', () => {
     const failed = await get('/duration/where-to-start?theme=dystopia');
 
     expect(failed.status).toBe(503);
+    expect(failed.body).toEqual({ message: 'Try again shortly', status: 503 });
     expect(failed.cacheControl).toBe('no-store');
     expect(
       storedRows().filter((item) => String(item.pk).includes(':start:')),

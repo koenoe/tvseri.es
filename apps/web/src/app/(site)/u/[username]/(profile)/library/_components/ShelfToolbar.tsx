@@ -16,6 +16,10 @@ import {
 
 import FoldPresence from '@/components/motion/FoldPresence';
 import {
+  SMALL_INPUT,
+  SMALL_INPUT_SLOT,
+} from '@/components/ui/field/smallInput';
+import {
   checkGlyph,
   closeGlyph,
   heartGlyph,
@@ -56,6 +60,9 @@ export type ToolbarProps = Readonly<{
   onSelect: () => void;
 }>;
 
+const FIND_SLOT = `${SMALL_INPUT_SLOT} h-5`;
+const FIND_INPUT = `${SMALL_INPUT} [&::-webkit-search-cancel-button]:hidden`;
+
 /**
  * "Find in Watchlist": a title prefix (`useFindText` asks for it); Escape
  * clears it. The desktop row and the phone's row share one text.
@@ -91,16 +98,18 @@ function FindField({
     <label className={fieldClass}>
       {/* contrast-exempt: the search icon */}
       <Icon className="shrink-0 text-white/50" glyph={searchGlyph} size={16} />
-      <input
-        aria-label={label}
-        className="min-w-0 flex-1 bg-transparent text-[13px] text-white outline-hidden max-md:text-[16px] placeholder:text-white/60 [&::-webkit-search-cancel-button]:hidden"
-        maxLength={100}
-        onChange={change}
-        onKeyDown={keyDown}
-        placeholder={label}
-        type="search"
-        value={text}
-      />
+      <span className={FIND_SLOT}>
+        <input
+          aria-label={label}
+          className={FIND_INPUT}
+          maxLength={100}
+          onChange={change}
+          onKeyDown={keyDown}
+          placeholder={label}
+          type="search"
+          value={text}
+        />
+      </span>
     </label>
   );
 }

@@ -10,6 +10,10 @@ import {
 } from 'react';
 
 import Button from '@/components/ui/button/Button';
+import {
+  SMALL_INPUT,
+  SMALL_INPUT_SLOT,
+} from '@/components/ui/field/smallInput';
 import { searchGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import { createSearchClient } from '@/lib/search/fetchSearch';
@@ -21,6 +25,8 @@ import { SMALL_BUTTON } from './styles';
 
 /** One client for the page: answers are kept per query, as in the overlay. */
 const client = createSearchClient();
+
+const QUERY_SLOT = `${SMALL_INPUT_SLOT} h-8`;
 
 type Answer = Readonly<
   | { key: string; series: ReadonlyArray<SearchShow> }
@@ -119,14 +125,16 @@ export default function ManualSearch({
         <label className="flex min-w-0 flex-1 items-center gap-2">
           <Icon className="shrink-0" glyph={searchGlyph} size={13} />
           <span className="sr-only">Search for the series</span>
-          <input
-            className="h-8 min-w-0 flex-1 bg-transparent text-meta text-white outline-hidden placeholder:text-white/60 max-md:text-body"
-            onChange={onChange}
-            placeholder="Search for the series"
-            ref={inputRef}
-            type="search"
-            value={query}
-          />
+          <span className={QUERY_SLOT}>
+            <input
+              className={SMALL_INPUT}
+              onChange={onChange}
+              placeholder="Search for the series"
+              ref={inputRef}
+              type="search"
+              value={query}
+            />
+          </span>
         </label>
         <Button
           className={SMALL_BUTTON}
